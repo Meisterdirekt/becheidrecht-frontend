@@ -8,7 +8,8 @@ export default function Home() {
   const [isAnalyzed, setIsAnalyzed] = useState(false);
 
   return (
-    <div className="min-h-screen bg-[#05070a] text-white font-sans selection:bg-blue-500/30">
+    <div className="min-h-screen bg-[#05070a] text-white font-sans">
+      {/* NAVIGATION - BLEIBT SO WIE SIE IST */}
       <nav className="p-6 flex justify-between items-center max-w-7xl mx-auto border-b border-white/5 bg-[#05070a]">
         <div className="text-xl font-bold text-blue-500 uppercase tracking-tighter">BESCHEIDRECHT</div>
         <div className="flex items-center gap-6">
@@ -26,7 +27,7 @@ export default function Home() {
         <h1 className="text-4xl md:text-6xl font-black mb-8 uppercase italic tracking-tighter italic leading-tight">Auch genug vom Behörden-Wahnsinn?</h1>
         <p className="text-gray-400 max-w-3xl mx-auto mb-16 text-lg">Laden Sie Ihr Dokument hoch und lassen Sie sich durch unsere KI-gesteuerte Analyse helfen.</p>
 
-        {/* ZWEI BUTTONS BLEIBEN FEST NEBENEINANDER */}
+        {/* ZWEI BUTTONS OBEN - BLEIBEN SO WIE SIE SIND */}
         <div className="max-w-4xl mx-auto bg-[#0a0c10] border border-white/10 p-12 rounded-[3rem] shadow-2xl mb-28">
           <div className="flex flex-row gap-6 w-full">
             <button onClick={() => setIsAnalyzed(true)} className="flex-1 bg-blue-600 hover:bg-blue-500 text-white py-10 rounded-2xl font-black italic uppercase tracking-[0.2em] flex items-center justify-center gap-4 transition-all border border-blue-400 shadow-xl text-lg">
@@ -38,29 +39,29 @@ export default function Home() {
           </div>
         </div>
 
-        {/* MAXIMUM STRETCH: ABO-SÄULEN EXTREM LANG GEZOGEN */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-48 items-stretch">
+        {/* MASSIVE ABO-SÄULEN - JETZT MIT MIN-HEIGHT 1000px FÜR MAXIMALE LÄNGE */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-40 items-stretch">
           {[
-            { name: "BASIS", price: "9,90 €", features: ["5 ANALYSEN PRO MONAT", "5 RECHTS-SCHREIBEN", "KI-BASISCHECK", "PDF EXPORT"], color: "bg-[#0a0c12] border-white/5" },
-            { name: "PLUS", price: "17,90 €", features: ["15 ANALYSEN PRO MONAT", "15 RECHTS-SCHREIBEN", "ANTRÄGE & WIDERSPRÜCHE", "PREMIUM SUPPORT", "SCHNELLE BEARBEITUNG"], color: "bg-blue-600 border-blue-400 scale-110 z-10 shadow-[0_0_50px_rgba(37,99,235,0.3)]", high: true },
-            { name: "SOZIAL PRO", price: "49 €", features: ["50 ANALYSEN PRO MONAT", "50 RECHTS-SCHREIBEN", "MULTI-USER ZUGANG", "TIEFEN-ANALYSE KI", "LIVE CHAT SUPPORT"], color: "bg-[#00142d] border-white/10" },
-            { name: "BUSINESS", price: "99 €", features: ["UNBEGRENZTE ANALYSEN", "ALLE SCHREIBEN INKL.", "PROFI-RECHTSMODUL", "API-SCHNITTSTELLE", "PERSÖNLICHER BERATER"], color: "bg-[#00142d] border-white/10" }
+            { name: "BASIS", price: "9,90 €", features: ["5 ANALYSEN PRO MONAT", "5 RECHTS-SCHREIBEN", "KI-BASISCHECK"], color: "bg-[#0a0c12] border-white/5" },
+            { name: "PLUS", price: "17,90 €", features: ["15 ANALYSEN PRO MONAT", "15 RECHTS-SCHREIBEN", "ANTRÄGE & WIDERSPRÜCHE", "PREMIUM SUPPORT"], color: "bg-blue-600 border-blue-400 scale-110 z-10 shadow-2xl shadow-blue-600/40", high: true },
+            { name: "SOZIAL PRO", price: "49 €", features: ["50 ANALYSEN PRO MONAT", "50 RECHTS-SCHREIBEN", "TIEFEN-ANALYSE KI"], color: "bg-[#00142d] border-white/10" },
+            { name: "BUSINESS", price: "99 €", features: ["UNBEGRENZTE ANALYSEN", "ALLE SCHREIBEN INKL.", "PERSÖNLICHER BERATER"], color: "bg-[#00142d] border-white/10" }
           ].map((p, i) => (
-            <div key={i} className={`p-14 rounded-[3.5rem] border flex flex-col text-left transition-all min-h-[850px] shadow-2xl ${p.color}`}>
+            <div key={i} className={`p-16 rounded-[4rem] border flex flex-col text-left transition-all min-h-[1000px] shadow-2xl ${p.color}`}>
               <div className="flex-grow">
-                <h3 className="text-[16px] font-black opacity-60 uppercase mb-10 tracking-[0.4em] text-blue-400">{p.name}</h3>
-                <div className="text-7xl font-black mb-20 italic tracking-tighter leading-none">{p.price}</div>
+                <h3 className="text-[20px] font-black opacity-70 uppercase mb-8 tracking-[0.5em] text-blue-400">{p.name}</h3>
+                <div className="text-8xl font-black mb-20 italic tracking-tighter leading-none">{p.price}</div>
                 <ul className="space-y-12">
                   {p.features.map((f, idx) => (
-                    <li key={idx} className="flex items-start gap-6 text-[18px] font-bold uppercase italic tracking-widest leading-tight">
-                      <CheckCircle2 size={28} className="shrink-0 text-white" />
+                    <li key={idx} className="flex items-start gap-6 text-[22px] font-bold uppercase italic tracking-widest leading-tight">
+                      <CheckCircle2 size={36} className="shrink-0 text-white" />
                       <span>{f}</span>
                     </li>
                   ))}
                 </ul>
               </div>
-              <button className={`w-full py-8 rounded-[2rem] font-black text-lg uppercase tracking-[0.2em] transition-all mt-20 shadow-2xl ${
-                p.high ? 'bg-white text-blue-600 hover:scale-105 active:scale-95' : 'bg-blue-600 text-white hover:bg-blue-500 hover:scale-105 active:scale-95'
+              <button className={`w-full py-8 rounded-[2.5rem] font-black text-2xl uppercase tracking-[0.2em] transition-all mt-20 ${
+                p.high ? 'bg-white text-blue-600 hover:scale-105' : 'bg-blue-600 text-white hover:bg-blue-500 hover:scale-105'
               }`}>
                 WÄHLEN
               </button>
@@ -68,7 +69,7 @@ export default function Home() {
           ))}
         </div>
 
-        {/* Footer-Bereich bleibt wie er ist */}
+        {/* RESTLICHE INFOS - BLEIBEN SO WIE SIE SIND */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto text-left opacity-30">
           {[{t: "KI-RECHTSCHECK", i: <Scale/>}, {t: "FERTIGE SCHREIBEN", i: <FileText/>}, {t: "DATENSCHUTZ", i: <ShieldCheck/>}].map((box, i) => (
             <div key={i} className="flex items-center gap-4">
