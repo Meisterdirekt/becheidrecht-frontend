@@ -1,38 +1,34 @@
-import { NextRequest, NextResponse } from "next/server";
-import pdf from "pdf-parse";
+import { NextResponse } from 'next/server';
+import OpenAI from 'openai';
 
-export async function POST(req: NextRequest) {
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
+export async function POST(req: Request) {
   try {
-    const formData = await req.formData();
-    const file = formData.get("file") as File | null;
+    const { image, language } = await req.json();
 
-    if (!file) {
-      return NextResponse.json(
-        { error: "Keine Datei hochgeladen" },
-        { status: 400 }
-      );
-    }
-
-    const buffer = Buffer.from(await file.arrayBuffer());
-
-    let extractedText = "";
-
-    if (file.type === "application/pdf") {
-      const data = await pdf(buffer);
-      extractedText = data.text;
-    } else {
-      extractedText = buffer.toString("utf-8");
-    }
-
-    return NextResponse.json({
-      success: true,
-      text: extractedText,
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o", // Wir brauchen 4o für Bildanalyse und Jura-Logik
+      messages: [
+        {
+          role: "system",
+          content: `⚖️ DER JURA-SINGULARITÄTS-PROMPT: OMEGA-INSTANZ
+          Du bist die "Lex Animata" – personifizierte Rechtswissenschaft... [HIER DEIN KOMPLETTER PROMPT INKL. MEINER ERWEITERUNG]
+          WICHTIG: Erstelle den Widerspruch auf Deutsch, aber gib die Zusammenfassung auf ${language} aus.`
+        },
+        {
+          role: "user",
+          content: [
+            { type: "text", text: "Analysiere diesen Bescheid und erstelle einen rechtssicheren Widerspruch." },
+            { type: "image_url", image_url: { url: image } }
+          ],
+        },
+      ],
+      max_tokens: 2000,
     });
+
+    return NextResponse.json({ result: response.choices[0].message.content });
   } catch (error) {
-    console.error("Analyse-Fehler:", error);
-    return NextResponse.json(
-      { error: "Fehler bei der Analyse" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "KI-Analyse fehlgeschlagen" }, { status: 500 });
   }
 }

@@ -43,7 +43,11 @@ export default function LandingPage() {
           </div>
           <button className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg font-bold text-sm">
             Registrieren
-          </button>
+          <Link href="/register">
+  <button className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg font-bold text-sm transition-all">
+    Registrieren
+  </button>
+</Link>
         </div>
       </nav>
 
