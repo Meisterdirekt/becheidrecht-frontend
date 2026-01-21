@@ -23,10 +23,10 @@ export default function Home() {
       </nav>
 
       <main className="max-w-7xl mx-auto pt-16 px-6 pb-24 text-center">
-        <h1 className="text-3xl md:text-5xl font-black mb-6 uppercase italic tracking-tighter">Auch genug vom Behörden-Wahnsinn?</h1>
-        <p className="text-gray-400 max-w-3xl mx-auto mb-12 text-md leading-relaxed italic">Laden Sie Ihr Dokument hoch und lassen Sie sich durch unsere KI-gesteuerte Analyse helfen.</p>
+        <h1 className="text-3xl md:text-5xl font-black mb-6 uppercase italic tracking-tighter italic">Auch genug vom Behörden-Wahnsinn?</h1>
+        <p className="text-gray-400 max-w-3xl mx-auto mb-12 text-md leading-relaxed">Laden Sie Ihr Dokument hoch und lassen Sie sich durch unsere KI-gesteuerte Analyse helfen.</p>
 
-        {/* BUTTONS BLEIBEN FEST NEBENEINANDER */}
+        {/* BUTTONS BLEIBEN UNVERÄNDERT NEBENEINANDER */}
         <div className="max-w-4xl mx-auto bg-[#0a0c10] border border-white/10 p-10 rounded-[2.5rem] shadow-2xl mb-20">
           <div className="flex flex-row gap-4 w-full">
             <button 
@@ -39,7 +39,7 @@ export default function Home() {
             <button 
               className={`flex-1 py-8 rounded-2xl font-black italic uppercase tracking-widest flex items-center justify-center gap-3 transition-all border ${
                 isAnalyzed 
-                ? 'bg-white text-black border-white shadow-2xl scale-105' 
+                ? 'bg-white text-black border-white shadow-2xl scale-105 opacity-100' 
                 : 'bg-white/5 border-white/10 text-gray-700 opacity-30 cursor-not-allowed'
               }`}
             >
@@ -49,35 +49,35 @@ export default function Home() {
           </div>
         </div>
 
-        {/* LÄNGERE SÄULEN & GRÖSSERE SCHRIFT */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 items-stretch mb-20 max-w-7xl mx-auto text-left">
+        {/* VERGRÖSSERTE ABO-SÄULEN MIT GRÖSSERER SCHRIFT */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 items-stretch mb-24 max-w-7xl mx-auto text-left px-4">
           {[
             { name: "Basis", price: "9,90 €", features: ["5 Analysen pro Monat", "5 Rechts-Schreiben", "KI-Basischeck"], color: "bg-[#0d1117] border-white/5" },
             { name: "Plus", price: "17,90 €", features: ["15 Analysen pro Monat", "15 Rechts-Schreiben", "Vorrangige KI-Prüfung", "Premium Support"], color: "bg-blue-600 border-blue-400 scale-105 z-10 shadow-2xl", high: true },
             { name: "Sozial PRO", price: "49 €", features: ["50 Analysen pro Monat", "50 Rechts-Schreiben", "Tiefen-Analyse", "Persönlicher Chat"], color: "bg-[#001a33] border-white/10" },
             { name: "Business", price: "99 €", features: ["150 Analysen pro Monat", "150 Rechts-Schreiben", "Full-Service Paket", "API Schnittstelle"], color: "bg-[#001a33] border-white/10" }
           ].map((p, i) => (
-            <div key={i} className={`p-10 rounded-[2rem] border flex flex-col justify-between transition-all min-h-[480px] ${p.color}`}>
+            <div key={i} className={`p-10 rounded-[2.5rem] border flex flex-col justify-between transition-all min-h-[550px] ${p.color}`}>
               <div>
-                <h3 className="text-xs font-bold opacity-70 uppercase mb-3 tracking-[0.2em]">{p.name}</h3>
-                <div className="text-4xl font-black mb-10 italic tracking-tighter">{p.price}</div>
-                <ul className="space-y-6 mb-10">
+                <h3 className="text-sm font-black opacity-70 uppercase mb-4 tracking-[0.25em]">{p.name}</h3>
+                <div className="text-5xl font-black mb-12 italic tracking-tighter">{p.price}</div>
+                <ul className="space-y-7 mb-12">
                   {p.features.map((f, index) => (
-                    <li key={index} className="flex items-start gap-3 text-[13px] font-bold uppercase italic leading-tight tracking-wide">
-                      <CheckCircle2 size={18} className="shrink-0 text-current" />
+                    <li key={index} className="flex items-start gap-4 text-[15px] font-bold uppercase italic leading-tight tracking-wide">
+                      <CheckCircle2 size={22} className="shrink-0 text-current" />
                       <span>{f}</span>
                     </li>
                   ))}
                 </ul>
               </div>
-              <button className={`w-full py-4 rounded-xl font-black text-xs uppercase transition-all shadow-lg ${p.high ? 'bg-white text-blue-600 hover:scale-105' : 'bg-blue-600 text-white hover:bg-blue-500'}`}>
-                Plan auswählen
+              <button className={`w-full py-5 rounded-2xl font-black text-sm uppercase transition-all shadow-xl ${p.high ? 'bg-white text-blue-600 hover:bg-gray-100' : 'bg-blue-600 text-white hover:bg-blue-500'}`}>
+                Plan wählen
               </button>
             </div>
           ))}
         </div>
 
-        {/* UNTERER BEREICH BLEIBT GLEICH */}
+        {/* UNTERER BEREICH BLEIBT IDENTISCH */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto text-left">
           {["KI-Rechtscheck", "Fertige Schreiben", "Datenschutz"].map((box, i) => (
             <div key={i} className="bg-white/5 border border-white/10 p-6 rounded-2xl">
