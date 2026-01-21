@@ -9,7 +9,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-[#05070a] text-white font-sans">
-      {/* Navigation bleibt identisch */}
+      {/* Header bleibt wie er ist */}
       <nav className="p-6 flex justify-between items-center max-w-7xl mx-auto border-b border-white/5 bg-[#05070a]">
         <div className="text-xl font-bold text-blue-500 uppercase tracking-tighter">BESCHEIDRECHT</div>
         <div className="flex items-center gap-6">
@@ -25,12 +25,13 @@ export default function Home() {
 
       <main className="max-w-7xl mx-auto pt-16 px-6 pb-24 text-center">
         <h1 className="text-3xl md:text-5xl font-black mb-6 uppercase italic tracking-tighter">Auch genug vom Behörden-Wahnsinn?</h1>
-        <p className="text-gray-400 max-w-3xl mx-auto mb-12 text-md leading-relaxed">Laden Sie Ihr Dokument hoch und lassen Sie sich durch unsere KI-gesteuerte Analyse helfen. Die KI prüft genau, ob alles korrekt ist und erstellt Ihnen ein passendes Schreiben, das Sie direkt losschicken können.</p>
+        <p className="text-gray-400 max-w-3xl mx-auto mb-12 text-md leading-relaxed italic">Laden Sie Ihr Dokument hoch und lassen Sie sich durch unsere KI-gesteuerte Analyse helfen.</p>
 
-        {/* BOX MIT ZWEI BUTTONS NEBENEINANDER */}
+        {/* BOX MIT ZWEI BUTTONS - KEINER VERSCHWINDET */}
         <div className="max-w-4xl mx-auto bg-[#0a0c10] border border-white/10 p-10 rounded-[2.5rem] shadow-2xl mb-20">
           <div className="flex flex-row gap-4 w-full">
-            {/* LINKER BUTTON: HOCHLADEN */}
+            
+            {/* BUTTON 1: HOCHLADEN (BLEIBT IMMER DA) */}
             <button 
               onClick={() => setIsAnalyzed(true)}
               className="flex-1 bg-blue-600 hover:bg-blue-500 text-white py-8 rounded-2xl font-black italic uppercase tracking-widest flex items-center justify-center gap-3 transition-all border border-blue-400 shadow-xl"
@@ -39,21 +40,28 @@ export default function Home() {
               Schreiben hochladen
             </button>
             
-            {/* RECHTER BUTTON: RUNTERLADEN */}
+            {/* BUTTON 2: RUNTERLADEN (BLEIBT IMMER DA) */}
             <button 
               className={`flex-1 py-8 rounded-2xl font-black italic uppercase tracking-widest flex items-center justify-center gap-3 transition-all border ${
                 isAnalyzed 
-                ? 'bg-white text-black border-white shadow-2xl scale-105' 
-                : 'bg-white/5 border-white/10 text-gray-700'
+                ? 'bg-white text-black border-white shadow-2xl scale-105 opacity-100' 
+                : 'bg-white/5 border-white/10 text-gray-700 opacity-30 cursor-not-allowed'
               }`}
             >
               <Download size={24} />
               Schreiben herunterladen
             </button>
+
           </div>
+          
+          {isAnalyzed && (
+            <div className="mt-6 text-blue-500 text-xs font-black uppercase italic animate-pulse">
+              ✓ Analyse abgeschlossen! Das neue Schreiben kann jetzt geladen werden.
+            </div>
+          )}
         </div>
 
-        {/* PREIS-SÄULEN BLEIBEN UNVERÄNDERT */}
+        {/* RESTLICHE WEBSITE BLEIBT UNVERÄNDERT */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end mb-16 max-w-6xl mx-auto text-left">
           {[
             { name: "Basis", price: "9,90 €", color: "bg-[#0d1117] border-white/5" },
@@ -65,19 +73,6 @@ export default function Home() {
               <h3 className="text-[10px] font-bold opacity-80 uppercase mb-1">{p.name}</h3>
               <div className="text-2xl font-black mb-6 italic">{p.price}</div>
               <button className={`w-full py-2.5 rounded-lg font-black text-[10px] uppercase ${p.high ? 'bg-white text-blue-600' : 'bg-blue-600 text-white'}`}>Wählen</button>
-            </div>
-          ))}
-        </div>
-
-        {/* INFO-BOXEN BLEIBEN UNVERÄNDERT */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto text-left">
-          {["KI-Rechtscheck", "Fertige Schreiben", "Datenschutz"].map((box, i) => (
-            <div key={i} className="bg-white/5 border border-white/10 p-6 rounded-2xl">
-              <div className="mb-3">
-                {i === 0 ? <Scale size={20} className="text-blue-500" /> : i === 1 ? <FileText size={20} className="text-blue-500" /> : <ShieldCheck size={20} className="text-blue-500" />}
-              </div>
-              <h4 className="font-black text-xs uppercase mb-1">{box}</h4>
-              <p className="text-[10px] text-gray-500 font-bold leading-relaxed italic">Sichere Bearbeitung Ihrer Anliegen.</p>
             </div>
           ))}
         </div>
