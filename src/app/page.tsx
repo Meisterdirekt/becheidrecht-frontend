@@ -13,6 +13,8 @@ export default function Home() {
       sub: "Laden Sie Ihr Dokument hoch und lassen Sie sich durch unsere KI-gesteuerte Analyse helfen. Die KI prüft genau, ob alles korrekt ist und erstellt Ihnen ein passendes Schreiben, das Sie direkt losschicken können.",
       upload: "Dokument jetzt hochladen",
       download: "Schreiben herunterladen",
+      login: "Anmelden",
+      register: "Registrieren",
       plans: ["Basis", "Plus", "Sozial PRO", "Business"],
       boxes: ["KI-Rechtscheck", "Fertige Schreiben", "Datenschutz"],
       boxTexts: ["Prüfung auf Formfehler und Fristen.", "Direkter Download als PDF oder Word.", "Ihre Dokumente werden sicher verschlüsselt."]
@@ -22,6 +24,8 @@ export default function Home() {
       sub: "Загрузите свой документ и позвольте нашему ИИ помочь вам. ИИ проверит все детали и создаст подходящее письмо, которое вы сможете отправить сразу.",
       upload: "Загрузить документ",
       download: "Скачать письмо",
+      login: "Войти",
+      register: "Регистрация",
       plans: ["Базовый", "Плюс", "Социальный ПРО", "Бизнес"],
       boxes: ["ИИ-Проверка", "Готовые письма", "Защита данных"],
       boxTexts: ["Проверка формальных ошибок и сроков.", "Прямая загрузка в PDF или Word.", "Ваши документы надежно зашифрованы."]
@@ -31,6 +35,8 @@ export default function Home() {
       sub: "Upload your document and let our AI-driven analysis help you. The AI checks exactly if everything is correct and creates a suitable letter for you.",
       upload: "Upload document now",
       download: "Download letter",
+      login: "Login",
+      register: "Register",
       plans: ["Basic", "Plus", "Social PRO", "Business"],
       boxes: ["AI Legal Check", "Ready Letters", "Data Protection"],
       boxTexts: ["Check for formal errors and deadlines.", "Direct download as PDF or Word.", "Your documents are securely encrypted."]
@@ -40,15 +46,19 @@ export default function Home() {
       sub: "Belgenizi yükleyin ve yapay zeka destekli analizimizin size yardımcı olmasına izin verin. Yapay zeka her şeyi kontrol eder ve hazır mektup oluşturur.",
       upload: "Belgeyi şimdi yükle",
       download: "Mektubu indir",
+      login: "Giriş",
+      register: "Kayıt Ol",
       plans: ["Temel", "Artı", "Sosyal PRO", "İş Dünyası"],
       boxes: ["YZ Hukuk Kontrolü", "Hazır Metinler", "Veri Koruma"],
-      boxTexts: ["Hatalar ve süreler için kontrol.", "PDF oder Word olarak indirme.", "Belgeleriniz güvenli bir şekilde şifrelenir."]
+      boxTexts: ["Hatalar ve süreler için kontrol.", "PDF veya Word olarak indirme.", "Belgeleriniz güvenli bir şekilde şifrelenir."]
     },
     AR: {
       hero: "هل سئمت من الجنون البيروقراطي؟",
       sub: "قم بتحميل مستندك ودع تحليلنا المدعوم بالذكاء الاصطناعي يساعدك. يتحقق الذكاء الاصطناعي من صحة كل شيء ويقوم بإنشاء خطاب جاهز لك.",
       upload: "تحميل المستند الآن",
       download: "تحميل الخطاب",
+      login: "تسجيل الدخول",
+      register: "إنشاء حساب",
       plans: ["أساسي", "بلاس", "برو اجتماعي", "أعمال"],
       boxes: ["فحص قانوني ذكي", "خطابات جاهزة", "حماية البيانات"],
       boxTexts: ["التحقق من الأخطاء الشكلية والمواعيد.", "تحميل مباشر بصيغة PDF أو Word.", "مستنداتك مشفرة بشكل آمن."]
@@ -61,16 +71,21 @@ export default function Home() {
     <div className="min-h-screen bg-[#05070a] text-white font-sans">
       <nav className="p-6 flex justify-between items-center max-w-7xl mx-auto border-b border-white/5">
         <div className="text-xl font-bold text-blue-500 uppercase tracking-tighter">BescheidRecht</div>
-        <div className="flex bg-white/5 p-1 rounded-lg border border-white/10">
-          {['DE', 'EN', 'TR', 'AR', 'RU'].map((langCode) => (
-            <button 
-              key={langCode} 
-              onClick={() => setLang(langCode)} 
-              className={`px-3 py-1.5 rounded text-[10px] font-bold transition-all ${lang === langCode ? 'bg-blue-600 text-white' : 'text-gray-500 hover:text-white'}`}
-            >
-              {langCode}
-            </button>
-          ))}
+        
+        <div className="flex items-center space-x-6">
+          <div className="flex bg-white/5 p-1 rounded-lg border border-white/10">
+            {['DE', 'EN', 'TR', 'AR', 'RU'].map((langCode) => (
+              <button 
+                key={langCode} 
+                onClick={() => setLang(langCode)} 
+                className={`px-3 py-1.5 rounded text-[10px] font-bold transition-all ${lang === langCode ? 'bg-blue-600 text-white' : 'text-gray-500 hover:text-white'}`}
+              >
+                {langCode}
+              </button>
+            ))}
+          </div>
+          <Link href="/login" className="text-xs font-bold uppercase hover:text-blue-500 transition">{t.login}</Link>
+          <Link href="/register" className="bg-blue-600 text-white px-4 py-2 rounded-lg text-xs font-bold uppercase hover:bg-blue-500 transition">{t.register}</Link>
         </div>
       </nav>
 
