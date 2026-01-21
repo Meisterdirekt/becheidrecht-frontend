@@ -1,39 +1,5 @@
-import { NextResponse } from "next/server";
-import fs from "fs";
-import path from "path";
+import { NextResponse } from 'next/server';
 
-export async function POST(req: Request) {
-  try {
-    const formData = await req.formData();
-    const file = formData.get("file") as File;
-
-    if (!file) {
-      return NextResponse.json(
-        { success: false, error: "Keine Datei erhalten" },
-        { status: 400 }
-      );
-    }
-
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
-
-    const uploadDir = path.join(process.cwd(), "uploads");
-
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir);
-    }
-
-    const filePath = path.join(uploadDir, file.name);
-    fs.writeFileSync(filePath, buffer);
-
-    return NextResponse.json({
-      success: true,
-      filename: file.name,
-    });
-  } catch (error) {
-    return NextResponse.json(
-      { success: false, error: "Serverfehler" },
-      { status: 500 }
-    );
-  }
+export async function POST() {
+  return NextResponse.json({ success: true, message: "Upload bereit" });
 }
