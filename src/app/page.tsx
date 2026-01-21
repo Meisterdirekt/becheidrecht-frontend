@@ -12,7 +12,7 @@ export default function Home() {
       hero: "Auch genug vom Behörden-Wahnsinn?",
       sub: "Laden Sie Ihr Dokument hoch und lassen Sie sich durch unsere KI-gesteuerte Analyse helfen. Die KI prüft genau, ob alles korrekt ist und erstellt Ihnen ein passendes Schreiben, das Sie direkt losschicken können.",
       upload: "Dokument jetzt hochladen",
-      download: "Schreiben herunterladen",
+      download: "2 Dateien herunterladen",
       login: "Anmelden",
       register: "Registrieren",
       plans: ["Basis", "Plus", "Sozial PRO", "Business"]
@@ -21,7 +21,7 @@ export default function Home() {
       hero: "Устали от бюрократического безумия?",
       sub: "Загрузите свой документ и позвольте нашему ИИ помочь вам. ИИ проверит все детали и создаст подходящее письмо, которое вы сможете отправить сразу.",
       upload: "Загрузить документ",
-      download: "Скачать письмо",
+      download: "Скачать 2 файла",
       login: "Войти",
       register: "Регистрация",
       plans: ["Базовый", "Плюс", "Социальный ПРО", "Бизнес"]
@@ -30,7 +30,7 @@ export default function Home() {
       hero: "Tired of bureaucratic madness?",
       sub: "Upload your document and let our AI-driven analysis help you. The AI checks exactly if everything is correct and creates a suitable letter for you.",
       upload: "Upload document now",
-      download: "Download letter",
+      download: "Download 2 files",
       login: "Login",
       register: "Register",
       plans: ["Basic", "Plus", "Social PRO", "Business"]
@@ -39,7 +39,7 @@ export default function Home() {
       hero: "Bürokrasi çılgınlığından bıktınız mı?",
       sub: "Belgenizi yükleyin ve yapay zeka destekli analizimizin size yardımcı olmasına izin verin. Yapay zeka her şeyi kontrol eder ve hazır mektup oluşturur.",
       upload: "Belgeyi şimdi yükle",
-      download: "Mektubu indir",
+      download: "2 dosyayı indir",
       login: "Giriş",
       register: "Kayıt Ol",
       plans: ["Temel", "Artı", "Sosyal PRO", "İş Dünyası"]
@@ -48,7 +48,7 @@ export default function Home() {
       hero: "هل سئمت من الجنون البيروقراطي؟",
       sub: "قم بتحميل مستندك ودع تحليلنا المدعوم بالذكاء الاصطناعي يساعدك. يتحقق الذكاء الاصطناعي من صحة كل شيء ويقوم بإنشاء خطاب جاهز لك.",
       upload: "تحميل المستند الآن",
-      download: "تحميل الخطاب",
+      download: "تحميل ملفين 2",
       login: "تسجيل الدخول",
       register: "إنشاء حساب",
       plans: ["أساسي", "بلاس", "برو اجتماعي", "أعمال"]
@@ -59,7 +59,6 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-[#05070a] text-white font-sans">
-      {/* HEADER FIX - Login & Register sind hier */}
       <nav className="p-6 flex justify-between items-center max-w-7xl mx-auto border-b border-white/5 bg-[#05070a]">
         <div className="text-xl font-bold text-blue-500 uppercase tracking-tighter">BescheidRecht</div>
         
@@ -88,7 +87,6 @@ export default function Home() {
           {t.sub}
         </p>
 
-        {/* UPLOAD BOX */}
         <div className="max-w-2xl mx-auto bg-[#0a0c10] border border-white/10 p-12 rounded-[2.5rem] shadow-2xl mb-20">
           {!isAnalyzed ? (
             <button onClick={() => setIsAnalyzed(true)} className="w-full bg-blue-600 hover:bg-blue-500 py-4 rounded-xl text-xl font-black transition-all shadow-lg shadow-blue-600/20 italic uppercase tracking-widest">
@@ -100,14 +98,13 @@ export default function Home() {
                 <MessageSquare className="text-blue-500 shrink-0" />
                 <p>Analyse abgeschlossen. Das Schreiben steht bereit.</p>
               </div>
-              <button className="w-full bg-white text-black py-4 rounded-xl font-black flex items-center justify-center gap-3">
+              <button className="w-full bg-white text-black py-4 rounded-xl font-black flex items-center justify-center gap-3 hover:bg-gray-200 transition-all shadow-xl">
                 <Download size={20} /> {t.download}
               </button>
             </div>
           )}
         </div>
 
-        {/* 4 ABO SÄULEN */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end mb-16 max-w-6xl mx-auto text-left">
           {[
             { name: t.plans[0], price: "9,90 €", features: ["5 Analysen", "5 Schreiben"], high: false },
@@ -130,7 +127,6 @@ export default function Home() {
           ))}
         </div>
 
-        {/* BOXEN */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
           {["KI-Rechtscheck", "Fertige Schreiben", "Datenschutz"].map((box, i) => (
             <div key={i} className="bg-white/5 border border-white/10 p-6 rounded-2xl text-left hover:bg-white/10 transition">
