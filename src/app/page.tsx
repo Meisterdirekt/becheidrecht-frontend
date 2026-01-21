@@ -49,34 +49,35 @@ export default function Home() {
           </div>
         </div>
 
-        {/* OPTIMIERTE ABO-SÄULEN (ETWAS LÄNGER FÜR BESSERE LESBARKEIT) */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-stretch mb-16 max-w-6xl mx-auto text-left">
+        {/* LÄNGERE SÄULEN & GRÖSSERE SCHRIFT */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 items-stretch mb-20 max-w-7xl mx-auto text-left">
           {[
             { name: "Basis", price: "9,90 €", features: ["5 Analysen pro Monat", "5 Rechts-Schreiben", "KI-Basischeck"], color: "bg-[#0d1117] border-white/5" },
-            { name: "Plus", price: "17,90 €", features: ["15 Analysen pro Monat", "15 Rechts-Schreiben", "Vorrangige KI-Prüfung", "E-Mail Support"], color: "bg-blue-600 border-blue-400 scale-105 z-10 shadow-2xl", high: true },
-            { name: "Sozial PRO", price: "49 €", features: ["50 Analysen pro Monat", "50 Rechts-Schreiben", "Umfangreiche Analyse", "24/7 Support"], color: "bg-[#001a33] border-white/10" },
-            { name: "Business", price: "99 €", features: ["150 Analysen pro Monat", "150 Rechts-Schreiben", "Full-Service Paket", "Eigener Berater"], color: "bg-[#001a33] border-white/10" }
+            { name: "Plus", price: "17,90 €", features: ["15 Analysen pro Monat", "15 Rechts-Schreiben", "Vorrangige KI-Prüfung", "Premium Support"], color: "bg-blue-600 border-blue-400 scale-105 z-10 shadow-2xl", high: true },
+            { name: "Sozial PRO", price: "49 €", features: ["50 Analysen pro Monat", "50 Rechts-Schreiben", "Tiefen-Analyse", "Persönlicher Chat"], color: "bg-[#001a33] border-white/10" },
+            { name: "Business", price: "99 €", features: ["150 Analysen pro Monat", "150 Rechts-Schreiben", "Full-Service Paket", "API Schnittstelle"], color: "bg-[#001a33] border-white/10" }
           ].map((p, i) => (
-            <div key={i} className={`p-8 rounded-2xl border flex flex-col justify-between transition-all min-h-[380px] ${p.color}`}>
+            <div key={i} className={`p-10 rounded-[2rem] border flex flex-col justify-between transition-all min-h-[480px] ${p.color}`}>
               <div>
-                <h3 className="text-[10px] font-bold opacity-80 uppercase mb-2 tracking-widest">{p.name}</h3>
-                <div className="text-3xl font-black mb-6 italic">{p.price}</div>
-                <ul className="space-y-4 mb-8">
+                <h3 className="text-xs font-bold opacity-70 uppercase mb-3 tracking-[0.2em]">{p.name}</h3>
+                <div className="text-4xl font-black mb-10 italic tracking-tighter">{p.price}</div>
+                <ul className="space-y-6 mb-10">
                   {p.features.map((f, index) => (
-                    <li key={index} className="flex items-start gap-2 text-[11px] font-bold uppercase italic leading-snug">
-                      <CheckCircle2 size={14} className="shrink-0 mt-0.5" />
+                    <li key={index} className="flex items-start gap-3 text-[13px] font-bold uppercase italic leading-tight tracking-wide">
+                      <CheckCircle2 size={18} className="shrink-0 text-current" />
                       <span>{f}</span>
                     </li>
                   ))}
                 </ul>
               </div>
-              <button className={`w-full py-3 rounded-xl font-black text-[11px] uppercase transition-all ${p.high ? 'bg-white text-blue-600 hover:bg-gray-100' : 'bg-blue-600 text-white hover:bg-blue-500'}`}>
-                Plan wählen
+              <button className={`w-full py-4 rounded-xl font-black text-xs uppercase transition-all shadow-lg ${p.high ? 'bg-white text-blue-600 hover:scale-105' : 'bg-blue-600 text-white hover:bg-blue-500'}`}>
+                Plan auswählen
               </button>
             </div>
           ))}
         </div>
 
+        {/* UNTERER BEREICH BLEIBT GLEICH */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto text-left">
           {["KI-Rechtscheck", "Fertige Schreiben", "Datenschutz"].map((box, i) => (
             <div key={i} className="bg-white/5 border border-white/10 p-6 rounded-2xl">
@@ -84,7 +85,7 @@ export default function Home() {
                 {i === 0 ? <Scale size={20} className="text-blue-500" /> : i === 1 ? <FileText size={20} className="text-blue-500" /> : <ShieldCheck size={20} className="text-blue-500" />}
               </div>
               <h4 className="font-black text-xs uppercase mb-1">{box}</h4>
-              <p className="text-[10px] text-gray-500 font-bold leading-relaxed italic">Sichere Bearbeitung Ihrer Anliegen.</p>
+              <p className="text-[10px] text-gray-500 font-bold leading-relaxed italic uppercase">Sichere Bearbeitung Ihrer Anliegen.</p>
             </div>
           ))}
         </div>
