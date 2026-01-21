@@ -2,7 +2,7 @@
 import React from 'react';
 import Link from 'next/link';
 import FileUpload from '../components/FileUpload';
-import { Shield, Gavel, CheckCircle } from 'lucide-react';
+import { Shield } from 'lucide-react';
 
 export default function Home() {
   return (
