@@ -1,149 +1,138 @@
 'use client';
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { Shield, Upload, Download, CheckCircle2, MessageSquare, Scale, Zap, Star, Crown } from 'lucide-react';
+import { Upload, Download, CheckCircle2, MessageSquare, Zap, Star, Crown, Shield } from 'lucide-react';
 
 export default function Home() {
   const [lang, setLang] = useState('DE');
   const [isAnalyzed, setIsAnalyzed] = useState(false);
 
-  // Texte für alle Sprachen inklusive Russisch
   const translations: any = {
-    DE: { hero: "Behörden-Wahnsinn?", claim: "Verzichte nicht auf dein Recht!", upload: "Dokument hochladen", download: "Schreiben herunterladen", who: "Wir sind BescheidRecht.", desc: "KI-Analyse für Ihren Erfolg." },
-    EN: { hero: "Bureaucratic Madness?", claim: "Don't waive your rights!", upload: "Upload Document", download: "Download Letter", who: "We are BescheidRecht.", desc: "AI analysis for your success." },
-    TR: { hero: "Bürokrasiden bıktınız mı?", claim: "Haklarınızdan vazgeçmeyin!", upload: "Belge Yükle", download: "Dosyayı İndir", who: "Biz BescheidRecht'iz.", desc: "Başarınız için yapay zeka analizi." },
-    AR: { hero: "هل سئمت من البيروقراطية؟", claim: "لا تتنازل عن حقك!", upload: "تحميل المستند", download: "تحميل الرسالة", who: "نحن BescheidRecht.", desc: "تحليل الذكاء الاصطناعي لنجاحك." },
-    RU: { hero: "Устали от бюрократии?", claim: "Не отказывайтесь от своих прав!", upload: "Загрузить документ", download: "Скачать письмо", who: "Мы — BescheidRecht.", desc: "ИИ-анализ для вашего успеха." }
+    DE: { hero: "Auch genug vom Behörden-Wahnsinn?", claim: "VERZICHTE NICHT AUF DEIN RECHT!", upload: "Dokument jetzt hochladen" },
+    EN: { hero: "Tired of bureaucratic madness?", claim: "DON'T WAIVE YOUR RIGHTS!", upload: "Upload document now" },
+    TR: { hero: "Bürokrasiden bıktınız mı?", claim: "HAKLARINIZDAN VAZGEÇMEYİN!", upload: "Belgeyi şimdi yükle" },
+    AR: { hero: "هل سئمت من البيروقراطية؟", claim: "لا تتنازل عن حقك!", upload: "تحميل المستند الآن" },
+    RU: { hero: "Устали от бюрократии?", claim: "НЕ ОТКАЗЫВАЙТЕСЬ ОТ СВОИХ ПРАВ!", upload: "Загрузить документ сейчас" }
   };
 
   const t = translations[lang] || translations.DE;
 
   return (
-    <div className="min-h-screen bg-[#05070a] text-white font-sans selection:bg-blue-500/30">
-      {/* HEADER MIT SPRACH-KÜRZELN */}
-      <nav className="p-6 flex justify-between items-center border-b border-white/5 sticky top-0 bg-[#05070a]/90 backdrop-blur-xl z-50">
-        <div className="text-2xl font-black tracking-tighter bg-gradient-to-r from-blue-500 to-cyan-400 bg-clip-text text-transparent">
-          BESCHEIDRECHT
-        </div>
+    <div className="min-h-screen bg-black text-white font-sans">
+      {/* HEADER: BescheidRecht links, Sprachen & Login rechts */}
+      <nav className="p-6 flex justify-between items-center max-w-7xl mx-auto border-b border-white/5">
+        <div className="text-2xl font-bold text-blue-500 uppercase tracking-tighter">BescheidRecht</div>
         <div className="flex items-center space-x-6">
-          <div className="flex bg-white/5 p-1 rounded-xl border border-white/10 shadow-inner">
+          <div className="flex bg-[#111] p-1 rounded-lg border border-white/10">
             {['DE', 'EN', 'TR', 'AR', 'RU'].map((l) => (
-              <button 
-                key={l}
-                onClick={() => setLang(l)}
-                className={`px-3 py-1.5 rounded-lg text-[10px] font-black transition-all ${lang === l ? 'bg-blue-600 text-white shadow-lg' : 'text-gray-500 hover:text-white'}`}
-              >
-                {l}
-              </button>
+              <button key={l} onClick={() => setLang(l)} className={`px-2 py-1 rounded text-[10px] font-bold ${lang === l ? 'bg-blue-600 text-white' : 'text-gray-500'}`}>{l}</button>
             ))}
           </div>
-          <Link href="/login" className="text-xs font-bold uppercase tracking-widest hover:text-blue-400 transition">Login</Link>
+          <Link href="/login" className="text-sm font-bold hover:text-blue-500 transition">Login</Link>
         </div>
       </nav>
 
-      <main className="max-w-6xl mx-auto pt-16 px-6">
-        {/* HERO SECTION */}
-        <div className="text-center mb-20">
-          <h1 className="text-6xl md:text-8xl font-black mb-6 tracking-tighter">{t.hero}</h1>
-          <div className="inline-block bg-blue-600/10 border border-blue-500/20 px-6 py-2 rounded-full mb-8">
-            <p className="text-blue-400 font-bold uppercase tracking-[0.2em] text-xs">{t.claim}</p>
+      <main className="max-w-7xl mx-auto pt-24 px-6 pb-32">
+        {/* HERO: GROSS & ZENTRIERT */}
+        <div className="text-center mb-16">
+          <h1 className="text-6xl md:text-8xl font-black mb-8 leading-[1.1] tracking-tighter">
+            Auch genug vom <br />
+            <span className="text-blue-600 italic">Behörden-Wahnsinn?</span>
+          </h1>
+          
+          <div className="inline-block bg-blue-600/10 border border-blue-500/20 px-8 py-2 rounded-full mb-12">
+            <p className="text-blue-500 font-black text-sm tracking-[0.3em]">{t.claim}</p>
           </div>
-          <p className="text-gray-500 max-w-xl mx-auto font-medium">{t.who} {t.desc}</p>
-        </div>
 
-        {/* ANALYSE-BEREICH (KI CHAT & UPLOAD) */}
-        <div className="max-w-3xl mx-auto mb-32">
-          <div className="relative group">
-            <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 to-cyan-500 rounded-[3rem] blur opacity-25 group-hover:opacity-50 transition duration-1000"></div>
-            <div className="relative bg-[#0a0c10] border border-white/10 p-12 rounded-[3rem] backdrop-blur-3xl shadow-2xl">
-              {!isAnalyzed ? (
-                <div className="text-center">
-                  <div className="w-24 h-24 bg-blue-600/10 rounded-3xl flex items-center justify-center mx-auto mb-8 border border-blue-500/20 shadow-inner">
-                    <Upload size={40} className="text-blue-500" />
+          {/* UPLOAD BEREICH */}
+          <div className="max-w-3xl mx-auto bg-[#050505] border border-white/5 p-16 rounded-[3rem] shadow-2xl mb-32">
+            {!isAnalyzed ? (
+              <div className="space-y-10">
+                <Upload size={64} className="mx-auto text-blue-600 opacity-50" />
+                <button onClick={() => setIsAnalyzed(true)} className="w-full bg-blue-600 hover:bg-blue-500 py-6 rounded-2xl text-2xl font-black transition-all shadow-[0_0_30px_rgba(37,99,235,0.3)]">
+                  {t.upload}
+                </button>
+              </div>
+            ) : (
+              <div className="text-left space-y-8 animate-in fade-in zoom-in duration-500">
+                <div className="bg-white/5 p-8 rounded-3xl border border-white/10">
+                  <div className="flex items-center gap-3 mb-4">
+                    <MessageSquare className="text-blue-500" />
+                    <span className="font-black text-sm uppercase tracking-widest text-blue-500">KI-Analyse</span>
                   </div>
-                  <button 
-                    onClick={() => setIsAnalyzed(true)}
-                    className="w-full bg-blue-600 hover:bg-blue-500 py-6 rounded-2xl text-2xl font-black transition-all shadow-xl shadow-blue-600/20 active:scale-95"
-                  >
-                    {t.upload}
-                  </button>
+                  <p className="text-gray-300 leading-relaxed font-medium">
+                    Wir haben das Dokument geprüft. Es liegt ein Formfehler vor. Ihr Anspruch ist gültig. Wir haben das Widerspruchsschreiben für Sie erstellt.
+                  </p>
                 </div>
-              ) : (
-                <div className="space-y-8 animate-in fade-in zoom-in duration-500">
-                  <div className="flex gap-4 items-start">
-                    <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center shrink-0 shadow-lg shadow-blue-600/40">
-                      <MessageSquare size={20} />
-                    </div>
-                    <div className="bg-white/5 p-6 rounded-2xl border border-white/10">
-                      <h4 className="font-bold text-blue-400 mb-2">KI-Zusammenfassung:</h4>
-                      <p className="text-sm text-gray-300 leading-relaxed">
-                        Wir haben Ihren Bescheid analysiert. Es wurden zwei Formfehler in der Begründung gefunden. 
-                        Ihr Anspruch auf Erstattung ist rechtmäßig. Wir haben das Schreiben für den Widerspruch fertiggestellt.
-                      </p>
-                    </div>
-                  </div>
-                  <button className="w-full bg-white text-black py-6 rounded-2xl text-xl font-black flex items-center justify-center gap-4 hover:bg-gray-200 transition">
-                    <Download size={24} /> {t.download}
-                  </button>
-                  <button onClick={() => setIsAnalyzed(false)} className="w-full text-gray-500 text-xs font-bold uppercase tracking-widest hover:text-white transition">Zurück</button>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* ABO MODELLE (EXAKT NACH DEINER VORLAGE) */}
-        <div className="grid md:grid-cols-3 gap-8 mb-32 items-end">
-          {/* FREE PLAN */}
-          <div className="bg-white/5 border border-white/10 p-8 rounded-[2.5rem] hover:bg-white/[0.07] transition-all">
-            <Zap className="text-blue-500 mb-6" size={32} />
-            <h3 className="text-2xl font-black mb-2">Free</h3>
-            <div className="text-4xl font-black mb-6">0€</div>
-            <ul className="space-y-4 mb-8 text-sm text-gray-400 font-medium">
-              <li className="flex items-center gap-2"><CheckCircle2 size={16} className="text-blue-500" /> 1 Analyse / Monat</li>
-              <li className="flex items-center gap-2"><CheckCircle2 size={16} className="text-blue-500" /> Standard KI</li>
-            </ul>
-            <button className="w-full py-4 rounded-xl bg-white/10 font-bold hover:bg-white/20 transition">Start</button>
+                <button className="w-full bg-white text-black py-6 rounded-2xl text-xl font-black flex items-center justify-center gap-4">
+                  <Download size={24} /> {lang === 'DE' ? 'Schreiben herunterladen' : 'Download Letter'}
+                </button>
+              </div>
+            )}
           </div>
 
-          {/* PREMIUM (DIE MITTLERE SÄULE) */}
-          <div className="relative group scale-110 z-10">
-            <div className="absolute -inset-0.5 bg-gradient-to-b from-blue-500 to-cyan-400 rounded-[2.5rem] blur opacity-30 group-hover:opacity-60 transition"></div>
-            <div className="relative bg-blue-600 p-10 rounded-[2.5rem] shadow-2xl shadow-blue-600/20">
-              <Star className="text-white mb-6" size={32} fill="white" />
-              <div className="absolute top-6 right-8 bg-white/20 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest">Beliebtest</div>
-              <h3 className="text-2xl font-black mb-2">Premium</h3>
-              <div className="text-5xl font-black mb-8">14.99€</div>
-              <ul className="space-y-4 mb-10 text-sm font-medium">
-                <li className="flex items-center gap-2"><CheckCircle2 size={16} /> Unlimitierte Analysen</li>
-                <li className="flex items-center gap-2"><CheckCircle2 size={16} /> Pro KI (GPT-4o)</li>
-                <li className="flex items-center gap-2"><CheckCircle2 size={16} /> KI-Chat Support</li>
+          {/* 4 ABO MODELLE - EXAKT 4 SÄULEN */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 items-stretch">
+            {/* 1. BASIS */}
+            <div className="bg-[#0a0a0a] border border-white/10 p-8 rounded-[2.5rem] text-center flex flex-col">
+              <Zap className="text-gray-500 mx-auto mb-4" />
+              <h3 className="text-lg font-bold mb-2 text-gray-400">Basis</h3>
+              <div className="text-3xl font-black mb-6 italic">0€</div>
+              <ul className="text-[11px] text-gray-500 space-y-3 mb-8 flex-grow text-left">
+                <li className="flex items-center gap-2"><CheckCircle2 size={14} className="text-blue-500" /> 1 Check pro Monat</li>
+                <li className="flex items-center gap-2"><CheckCircle2 size={14} className="text-blue-500" /> Standard KI</li>
               </ul>
-              <button className="w-full py-4 rounded-xl bg-white text-blue-600 font-black hover:bg-gray-100 transition shadow-lg">Auswählen</button>
+              <button className="w-full py-3 bg-white/5 rounded-xl font-bold hover:bg-white/10 transition">Wählen</button>
             </div>
-          </div>
 
-          {/* BUSINESS PLAN */}
-          <div className="bg-white/5 border border-white/10 p-8 rounded-[2.5rem] hover:bg-white/[0.07] transition-all">
-            <Crown className="text-blue-500 mb-6" size={32} />
-            <h3 className="text-2xl font-black mb-2">Business</h3>
-            <div className="text-4xl font-black mb-6">49€</div>
-            <ul className="space-y-4 mb-8 text-sm text-gray-400 font-medium">
-              <li className="flex items-center gap-2"><CheckCircle2 size={16} className="text-blue-500" /> Team-Account</li>
-              <li className="flex items-center gap-2"><CheckCircle2 size={16} className="text-blue-500" /> API Zugriff</li>
-            </ul>
-            <button className="w-full py-4 rounded-xl bg-white/10 font-bold hover:bg-white/20 transition">Kontakt</button>
+            {/* 2. PREMIUM (HIGHLIGHT) */}
+            <div className="bg-blue-600 p-8 rounded-[2.5rem] text-center flex flex-col scale-105 shadow-[0_0_40px_rgba(37,99,235,0.3)] relative z-10">
+              <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-white text-blue-600 px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest">Beliebtest</div>
+              <Star className="text-white mx-auto mb-4" />
+              <h3 className="text-xl font-black mb-2">Premium</h3>
+              <div className="text-4xl font-black mb-6 italic">14.99€</div>
+              <ul className="text-[11px] text-white space-y-3 mb-8 flex-grow text-left">
+                <li className="flex items-center gap-2"><CheckCircle2 size={14} /> Unlimitierte Checks</li>
+                <li className="flex items-center gap-2"><CheckCircle2 size={14} /> GPT-4o High-End KI</li>
+                <li className="flex items-center gap-2"><CheckCircle2 size={14} /> Brief-Download inkl.</li>
+              </ul>
+              <button className="w-full py-4 bg-white text-blue-600 rounded-xl font-black hover:bg-gray-100 transition shadow-xl">Starten</button>
+            </div>
+
+            {/* 3. PROFESSIONAL */}
+            <div className="bg-[#0a0a0a] border border-white/10 p-8 rounded-[2.5rem] text-center flex flex-col">
+              <Shield className="text-blue-500 mx-auto mb-4" />
+              <h3 className="text-lg font-bold mb-2">Pro</h3>
+              <div className="text-3xl font-black mb-6 italic">29.99€</div>
+              <ul className="text-[11px] text-gray-500 space-y-3 mb-8 flex-grow text-left">
+                <li className="flex items-center gap-2"><CheckCircle2 size={14} className="text-blue-500" /> Mehrere Nutzer</li>
+                <li className="flex items-center gap-2"><CheckCircle2 size={14} className="text-blue-500" /> Experten-Support</li>
+              </ul>
+              <button className="w-full py-3 bg-white/5 rounded-xl font-bold hover:bg-white/10 transition">Wählen</button>
+            </div>
+
+            {/* 4. BUSINESS */}
+            <div className="bg-[#0a0a0a] border border-white/10 p-8 rounded-[2.5rem] text-center flex flex-col">
+              <Crown className="text-blue-500 mx-auto mb-4" />
+              <h3 className="text-lg font-bold mb-2 text-gray-400">Business</h3>
+              <div className="text-3xl font-black mb-6 italic">49€</div>
+              <ul className="text-[11px] text-gray-500 space-y-3 mb-8 flex-grow text-left">
+                <li className="flex items-center gap-2"><CheckCircle2 size={14} className="text-blue-500" /> API Zugriff</li>
+                <li className="flex items-center gap-2"><CheckCircle2 size={14} className="text-blue-500" /> Firmen-Branding</li>
+              </ul>
+              <button className="w-full py-3 bg-white/5 rounded-xl font-bold hover:bg-white/10 transition">Kontakt</button>
+            </div>
           </div>
         </div>
       </main>
 
-      <footer className="p-12 text-center border-t border-white/5 text-gray-600 text-[10px] font-black uppercase tracking-[0.3em]">
-        <div className="flex justify-center gap-12 mb-8">
-          <Link href="/agb" className="hover:text-white transition">AGB</Link>
-          <Link href="/datenschutz" className="hover:text-white transition">Datenschutz</Link>
-          <Link href="/impressum" className="hover:text-white transition">Impressum</Link>
+      <footer className="p-12 text-center border-t border-white/5 text-[10px] text-gray-700 font-black uppercase tracking-[0.5em]">
+        <div className="flex justify-center gap-10 mb-6">
+          <Link href="/agb">AGB</Link>
+          <Link href="/datenschutz">Datenschutz</Link>
+          <Link href="/impressum">Impressum</Link>
         </div>
-        <p>© 2024 BescheidRecht • Wir kämpfen für Ihr Recht.</p>
+        <p>© 2024 BescheidRecht • Alle Rechte vorbehalten</p>
       </footer>
     </div>
   );
