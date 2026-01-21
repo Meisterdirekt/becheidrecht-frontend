@@ -42,7 +42,7 @@ export default function Home() {
       download: "Mektubu indir",
       plans: ["Temel", "Artı", "Sosyal PRO", "İş Dünyası"],
       boxes: ["YZ Hukuk Kontrolü", "Hazır Metinler", "Veri Koruma"],
-      boxTexts: ["Hatalar ve süreler için kontrol.", "PDF veya Word olarak indirme.", "Belgeleriniz güvenli bir şekilde şifrelenir."]
+      boxTexts: ["Hatalar ve süreler için kontrol.", "PDF oder Word olarak indirme.", "Belgeleriniz güvenli bir şekilde şifrelenir."]
     },
     AR: {
       hero: "هل سئمت من الجنون البيروقراطي؟",
@@ -108,7 +108,7 @@ export default function Home() {
               <div className="text-2xl font-black mb-6 italic">{p.price}</div>
               <ul className="space-y-3 mb-8">
                 {p.features.map((f, j) => (
-                  <li key={j} className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-tight opacity-90 italic">
+                  <li key={j} className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-tight opacity-80 italic">
                     <CheckCircle2 size={12} className="text-white" /> {f}
                   </li>
                 ))}
