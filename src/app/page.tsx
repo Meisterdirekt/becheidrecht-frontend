@@ -87,13 +87,17 @@ export default function Home() {
           {t.sub}
         </p>
 
+        {/* UPLOAD & DOWNLOAD BEREICH */}
         <div className="max-w-2xl mx-auto bg-[#0a0c10] border border-white/10 p-12 rounded-[2.5rem] shadow-2xl mb-20">
           {!isAnalyzed ? (
-            <button onClick={() => setIsAnalyzed(true)} className="w-full bg-blue-600 hover:bg-blue-500 py-4 rounded-xl text-xl font-black transition-all shadow-lg shadow-blue-600/20 italic uppercase tracking-widest">
+            <button 
+              onClick={() => setIsAnalyzed(true)} 
+              className="w-full bg-blue-600 hover:bg-blue-500 py-4 rounded-xl text-xl font-black transition-all shadow-lg shadow-blue-600/20 italic uppercase tracking-widest"
+            >
               {t.upload}
             </button>
           ) : (
-            <div className="text-left space-y-6 animate-in fade-in zoom-in duration-300">
+            <div className="text-left space-y-6">
               <div className="bg-blue-600/10 p-6 rounded-2xl border border-blue-500/20 flex gap-4 text-sm italic text-gray-300">
                 <MessageSquare className="text-blue-500 shrink-0" />
                 <p>Analyse abgeschlossen. Das Schreiben steht bereit.</p>
@@ -101,10 +105,17 @@ export default function Home() {
               <button className="w-full bg-white text-black py-4 rounded-xl font-black flex items-center justify-center gap-3 hover:bg-gray-200 transition-all shadow-xl">
                 <Download size={20} /> {t.download}
               </button>
+              <button 
+                onClick={() => setIsAnalyzed(false)}
+                className="w-full text-[10px] text-gray-500 uppercase font-bold text-center mt-2 hover:text-white"
+              >
+                Zurück zum Upload
+              </button>
             </div>
           )}
         </div>
 
+        {/* ABO SÄULEN */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end mb-16 max-w-6xl mx-auto text-left">
           {[
             { name: t.plans[0], price: "9,90 €", features: ["5 Analysen", "5 Schreiben"], high: false },
