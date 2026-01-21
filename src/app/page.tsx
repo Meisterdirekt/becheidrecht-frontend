@@ -37,7 +37,7 @@ export default function Home() {
     },
     TR: {
       hero: "Bürokrasi çılgınlığından bıktınız mı?",
-      sub: "Belgenizi yükleyin ve yapay zeka destekli analizimizin size yardımcı olmasına izin verin. Yapay zeka her şeyi kontrol eder ve hazır mektup oluşturur.",
+      sub: "Belgenizi yükleyin ve yapay zeka destekli analizimizin size yardımcı olmasına izin verin. Yapay zeka her şeyi kontrol eder und hazır mektup oluşturur.",
       upload: "Yükle",
       download: "İndir",
       login: "Giriş",
@@ -78,40 +78,41 @@ export default function Home() {
         <h1 className="text-3xl md:text-5xl font-black mb-6 max-w-4xl mx-auto leading-tight italic uppercase tracking-tighter">{t.hero}</h1>
         <p className="text-gray-400 max-w-3xl mx-auto mb-12 text-md leading-relaxed font-medium">{t.sub}</p>
 
-        {/* UPLOAD & DOWNLOAD BEREICH NEBENEINANDER */}
+        {/* FIX: BEIDE BUTTONS SIND IMMER NEBENEINANDER DA */}
         <div className="max-w-2xl mx-auto bg-[#0a0c10] border border-white/10 p-10 rounded-[2.5rem] shadow-2xl mb-20">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="flex flex-row gap-4 justify-center items-center">
+            
             {/* UPLOAD BUTTON */}
             <button 
               onClick={() => setIsAnalyzed(true)} 
-              className={`flex flex-col items-center justify-center gap-3 py-8 rounded-2xl font-black transition-all border shadow-lg uppercase tracking-widest text-sm ${
-                !isAnalyzed ? 'bg-blue-600 border-blue-400 text-white' : 'bg-white/5 border-white/10 text-gray-500 hover:text-white'
-              }`}
+              className="flex-1 flex flex-col items-center justify-center gap-3 py-10 rounded-2xl font-black transition-all border border-blue-400 bg-blue-600 text-white shadow-lg shadow-blue-600/20 uppercase tracking-widest text-sm hover:bg-blue-500"
             >
               <Upload size={32} />
               {t.upload}
             </button>
 
-            {/* DOWNLOAD BUTTON */}
+            {/* DOWNLOAD BUTTON (IMMER SICHTBAR) */}
             <button 
-              disabled={!isAnalyzed}
-              className={`flex flex-col items-center justify-center gap-3 py-8 rounded-2xl font-black transition-all border shadow-lg uppercase tracking-widest text-sm ${
-                isAnalyzed ? 'bg-white border-white text-black shadow-white/10 scale-105' : 'bg-white/5 border-white/5 text-gray-700 cursor-not-allowed opacity-50'
+              className={`flex-1 flex flex-col items-center justify-center gap-3 py-10 rounded-2xl font-black transition-all border uppercase tracking-widest text-sm ${
+                isAnalyzed 
+                ? 'bg-white border-white text-black shadow-xl scale-105' 
+                : 'bg-white/5 border-white/10 text-gray-700 opacity-40 cursor-not-allowed'
               }`}
             >
               <Download size={32} />
               {t.download}
             </button>
+
           </div>
           
           {isAnalyzed && (
-            <div className="mt-6 bg-blue-600/10 p-4 rounded-xl border border-blue-500/20 text-xs italic text-blue-400 animate-in fade-in slide-in-from-top-2">
-              Analyse abgeschlossen. Ihr Schreiben ist jetzt bereit zum Download.
+            <div className="mt-6 text-blue-400 text-xs font-bold uppercase tracking-widest animate-pulse italic">
+              Analyse fertig! Klicken Sie auf Download.
             </div>
           )}
         </div>
 
-        {/* REST DER WEBSITE BLEIBT GLEICH */}
+        {/* REST DER WEBSITE ABSOLUT UNVERÄNDERT */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end mb-16 max-w-6xl mx-auto text-left">
           {[
             { name: t.plans[0], price: "9,90 €", features: ["5 Analysen", "5 Schreiben"], high: false },
