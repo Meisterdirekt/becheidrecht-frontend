@@ -11,8 +11,8 @@ export default function Home() {
     DE: {
       hero: "Auch genug vom Behörden-Wahnsinn?",
       sub: "Laden Sie Ihr Dokument hoch und lassen Sie sich durch unsere KI-gesteuerte Analyse helfen. Die KI prüft genau, ob alles korrekt ist und erstellt Ihnen ein passendes Schreiben, das Sie direkt losschicken können.",
-      upload: "Dokument jetzt hochladen",
-      download: "Schreiben herunterladen",
+      upload: "Hochladen",
+      download: "Download",
       login: "Anmelden",
       register: "Registrieren",
       plans: ["Basis", "Plus", "Sozial PRO", "Business"]
@@ -20,8 +20,8 @@ export default function Home() {
     RU: {
       hero: "Устали от бюрократического безумия?",
       sub: "Загрузите свой документ и позвольте нашему ИИ помочь вам. ИИ проверит все детали и создаст подходящее письмо, которое вы сможете отправить сразу.",
-      upload: "Загрузить документ",
-      download: "Скачать письмо",
+      upload: "Загрузить",
+      download: "Скачать",
       login: "Войти",
       register: "Регистрация",
       plans: ["Базовый", "Плюс", "Социальный ПРО", "Бизнес"]
@@ -29,8 +29,8 @@ export default function Home() {
     EN: {
       hero: "Tired of bureaucratic madness?",
       sub: "Upload your document and let our AI-driven analysis help you. The AI checks exactly if everything is correct and creates a suitable letter for you.",
-      upload: "Upload document now",
-      download: "Download letter",
+      upload: "Upload",
+      download: "Download",
       login: "Login",
       register: "Register",
       plans: ["Basic", "Plus", "Social PRO", "Business"]
@@ -38,8 +38,8 @@ export default function Home() {
     TR: {
       hero: "Bürokrasi çılgınlığından bıktınız mı?",
       sub: "Belgenizi yükleyin ve yapay zeka destekli analizimizin size yardımcı olmasına izin verin. Yapay zeka her şeyi kontrol eder ve hazır mektup oluşturur.",
-      upload: "Belgeyi şimdi yükle",
-      download: "Mektubu indir",
+      upload: "Yükle",
+      download: "İndir",
       login: "Giriş",
       register: "Kayıt Ol",
       plans: ["Temel", "Artı", "Sosyal PRO", "İş Dünyası"]
@@ -47,8 +47,8 @@ export default function Home() {
     AR: {
       hero: "هل سئمت من الجنون البيروقراطي؟",
       sub: "قم بتحميل مستندك ودع تحليلنا المدعوم بالذكاء الاصطناعي يساعدك. يتحقق الذكاء الاصطناعي من صحة كل شيء ويقوم بإنشاء خطاب جاهز لك.",
-      upload: "تحميل المستند الآن",
-      download: "تحميل الخطاب",
+      upload: "رفع",
+      download: "تحميل",
       login: "تسجيل الدخول",
       register: "إنشاء حساب",
       plans: ["أساسي", "بلاس", "برو اجتماعي", "أعمال"]
@@ -61,7 +61,6 @@ export default function Home() {
     <div className="min-h-screen bg-[#05070a] text-white font-sans">
       <nav className="p-6 flex justify-between items-center max-w-7xl mx-auto border-b border-white/5 bg-[#05070a]">
         <div className="text-xl font-bold text-blue-500 uppercase tracking-tighter">BescheidRecht</div>
-        
         <div className="flex items-center gap-6">
           <div className="hidden md:flex bg-white/5 p-1 rounded-lg border border-white/10">
             {['DE', 'EN', 'TR', 'AR', 'RU'].map((l) => (
@@ -79,32 +78,40 @@ export default function Home() {
         <h1 className="text-3xl md:text-5xl font-black mb-6 max-w-4xl mx-auto leading-tight italic uppercase tracking-tighter">{t.hero}</h1>
         <p className="text-gray-400 max-w-3xl mx-auto mb-12 text-md leading-relaxed font-medium">{t.sub}</p>
 
-        {/* UPLOAD & DOWNLOAD BEREICH */}
-        <div className="max-w-2xl mx-auto bg-[#0a0c10] border border-white/10 p-12 rounded-[2.5rem] shadow-2xl mb-20">
-          {!isAnalyzed ? (
+        {/* UPLOAD & DOWNLOAD BEREICH NEBENEINANDER */}
+        <div className="max-w-2xl mx-auto bg-[#0a0c10] border border-white/10 p-10 rounded-[2.5rem] shadow-2xl mb-20">
+          <div className="grid grid-cols-2 gap-4">
+            {/* UPLOAD BUTTON */}
             <button 
               onClick={() => setIsAnalyzed(true)} 
-              className="w-full bg-blue-600 hover:bg-blue-500 py-4 rounded-xl text-xl font-black transition-all shadow-lg shadow-blue-600/20 italic uppercase tracking-widest flex items-center justify-center gap-3"
+              className={`flex flex-col items-center justify-center gap-3 py-8 rounded-2xl font-black transition-all border shadow-lg uppercase tracking-widest text-sm ${
+                !isAnalyzed ? 'bg-blue-600 border-blue-400 text-white' : 'bg-white/5 border-white/10 text-gray-500 hover:text-white'
+              }`}
             >
-              <Upload size={24} /> {t.upload}
+              <Upload size={32} />
+              {t.upload}
             </button>
-          ) : (
-            <div className="text-left space-y-6 animate-in fade-in duration-300">
-              <div className="bg-blue-600/10 p-6 rounded-2xl border border-blue-500/20 flex gap-4 text-sm italic text-gray-300 italic">
-                <MessageSquare className="text-blue-500 shrink-0" />
-                <p>Analyse abgeschlossen. Ihr Schreiben ist bereit.</p>
-              </div>
-              
-              <button className="w-full bg-white text-black py-5 rounded-xl font-black flex items-center justify-center gap-3 hover:bg-gray-200 transition-all shadow-2xl uppercase tracking-tighter">
-                <Download size={22} /> {t.download}
-              </button>
-              
-              <button onClick={() => setIsAnalyzed(false)} className="w-full text-[10px] text-gray-500 uppercase font-bold text-center mt-2 hover:text-white transition">Neuer Upload</button>
+
+            {/* DOWNLOAD BUTTON */}
+            <button 
+              disabled={!isAnalyzed}
+              className={`flex flex-col items-center justify-center gap-3 py-8 rounded-2xl font-black transition-all border shadow-lg uppercase tracking-widest text-sm ${
+                isAnalyzed ? 'bg-white border-white text-black shadow-white/10 scale-105' : 'bg-white/5 border-white/5 text-gray-700 cursor-not-allowed opacity-50'
+              }`}
+            >
+              <Download size={32} />
+              {t.download}
+            </button>
+          </div>
+          
+          {isAnalyzed && (
+            <div className="mt-6 bg-blue-600/10 p-4 rounded-xl border border-blue-500/20 text-xs italic text-blue-400 animate-in fade-in slide-in-from-top-2">
+              Analyse abgeschlossen. Ihr Schreiben ist jetzt bereit zum Download.
             </div>
           )}
         </div>
 
-        {/* ABO SÄULEN */}
+        {/* REST DER WEBSITE BLEIBT GLEICH */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end mb-16 max-w-6xl mx-auto text-left">
           {[
             { name: t.plans[0], price: "9,90 €", features: ["5 Analysen", "5 Schreiben"], high: false },
@@ -115,9 +122,9 @@ export default function Home() {
             <div key={i} className={`p-6 rounded-2xl border transition-all ${p.high ? 'bg-blue-600 border-blue-400 scale-105 z-10 pb-10 shadow-xl' : p.dark ? 'bg-[#002147] border-white/10' : 'bg-[#0d1117] border-white/5'}`}>
               <h3 className="text-[10px] font-bold opacity-80 uppercase mb-1">{p.name}</h3>
               <div className="text-2xl font-black mb-6 italic">{p.price}</div>
-              <ul className="space-y-3 mb-8">
+              <ul className="space-y-3 mb-8 italic">
                 {p.features.map((f, j) => (
-                  <li key={j} className="flex items-center gap-2 text-[10px] font-bold uppercase opacity-80 italic">
+                  <li key={j} className="flex items-center gap-2 text-[10px] font-bold uppercase opacity-80 tracking-tight">
                     <CheckCircle2 size={12} className="text-white" /> {f}
                   </li>
                 ))}
