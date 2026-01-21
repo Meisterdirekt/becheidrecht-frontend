@@ -3,17 +3,13 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "BescheidRecht",
-  description: "KI-Analyse für deine Bescheide",
+  description: "KI-Analyse für Bescheide",
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="de">
-      <body style={{ fontFamily: 'sans-serif' }}>
+      <body style={{ fontFamily: 'sans-serif', margin: 0, backgroundColor: '#05070a' }}>
         {children}
       </body>
     </html>
