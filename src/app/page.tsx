@@ -9,7 +9,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-[#05070a] text-white font-sans selection:bg-blue-600">
-      {/* HEADER: Bleibt exakt wie er ist */}
+      {/* HEADER: Bleibt oben rechts wie im Original */}
       <nav className="p-6 flex justify-between items-center max-w-7xl mx-auto border-b border-white/5 bg-[#05070a]">
         <div className="text-xl font-bold text-blue-500 uppercase tracking-tighter">BESCHEIDRECHT</div>
         <div className="flex items-center gap-6">
@@ -19,66 +19,88 @@ export default function Home() {
             ))}
           </div>
           <Link href="/login" className="text-xs font-bold uppercase hover:text-blue-500 transition-colors">ANMELDEN</Link>
-          <Link href="/register" className="bg-blue-600 text-white px-5 py-2.5 rounded-lg text-xs font-bold uppercase hover:bg-blue-700 transition-all shadow-lg shadow-blue-600/20">REGISTRIEREN</Link>
+          <Link href="/register" className="bg-blue-600 text-white px-5 py-2.5 rounded-lg text-xs font-bold uppercase shadow-lg shadow-blue-600/20">REGISTRIEREN</Link>
         </div>
       </nav>
 
-      <main className="w-full max-w-[1400px] mx-auto pt-24 px-6 pb-40 text-center">
-        {/* DEINE ÜBERSCHRIFT: Bleibt unverändert */}
-        <h1 className="text-4xl md:text-6xl font-black mb-8 uppercase italic tracking-tighter leading-[1.1]">Auch genug vom Behörden-Wahnsinn?</h1>
-        <p className="text-gray-400 max-w-3xl mx-auto mb-20 text-xl font-medium">Laden Sie Ihr Dokument hoch und lassen Sie sich durch unsere KI-gesteuerte Analyse helfen.</p>
+      <main className="w-full max-w-[1500px] mx-auto pt-20 px-8 pb-40 text-center">
+        {/* DEINE ÜBERSCHRIFT: Bleibt wie sie ist */}
+        <h1 className="text-4xl md:text-6xl font-black mb-8 uppercase italic tracking-tighter leading-tight italic">Auch genug vom Behörden-Wahnsinn?</h1>
+        <p className="text-gray-400 max-w-3xl mx-auto mb-16 text-xl">Laden Sie Ihr Dokument hoch und lassen Sie sich durch unsere KI-gesteuerte Analyse helfen.</p>
 
-        {/* FUNKTIONS-BUTTONS: Bleiben fest nebeneinander */}
+        {/* FUNKTIONS-BUTTONS: Fest nebeneinander */}
         <div className="max-w-4xl mx-auto bg-[#0a0c10] border border-white/10 p-12 rounded-[3.5rem] shadow-2xl mb-32">
           <div className="flex flex-row gap-6 w-full">
             <button onClick={() => setIsAnalyzed(true)} className="flex-1 bg-blue-600 hover:bg-blue-500 text-white py-12 rounded-3xl font-black italic uppercase tracking-[0.2em] flex items-center justify-center gap-4 border border-blue-400 shadow-2xl text-xl transition-all">
               <Upload size={32} /> SCHREIBEN HOCHLADEN
             </button>
-            <button className={`flex-1 py-12 rounded-3xl font-black italic uppercase tracking-[0.2em] flex items-center justify-center gap-4 border text-xl transition-all ${isAnalyzed ? 'bg-white text-black border-white shadow-2xl scale-105' : 'bg-white/5 border-white/10 text-gray-700 cursor-not-allowed opacity-30'}`}>
+            <button className={`flex-1 py-12 rounded-3xl font-black italic uppercase tracking-[0.2em] flex items-center justify-center gap-4 border text-xl transition-all ${isAnalyzed ? 'bg-white text-black border-white shadow-2xl scale-105' : 'bg-white/5 border-white/10 text-gray-700 cursor-not-allowed opacity-40'}`}>
               <Download size={32} /> SCHREIBEN RUNTERLADEN
             </button>
           </div>
         </div>
 
-        {/* ABO-SÄULEN: EXAKTER AUFBAU ORIGINAL-BILD */}
-        {/* Wir nutzen feste Breiten und Höhen, um das Grid zu erzwingen */}
-        <div className="flex flex-wrap md:flex-nowrap justify-center items-end gap-6 w-full mb-40">
-          {[
-            { name: "BASIS", price: "9,90 €", features: ["5 Analysen pro Monat", "5 Rechts-Schreiben", "KI-Basischeck"], color: "bg-[#0d1117] border-white/5" },
-            { name: "PLUS", price: "17,90 €", features: ["15 Analysen pro Monat", "15 Rechts-Schreiben", "Anträge & Widersprüche", "Premium Support"], color: "bg-blue-600 border-blue-400 shadow-[0_0_60px_rgba(37,99,235,0.3)] z-20", high: true },
-            { name: "SOZIAL PRO", price: "49 €", features: ["50 Analysen pro Monat", "50 Rechts-Schreiben", "Tiefen-Analyse KI"], color: "bg-[#0a0c12] border-white/10" },
-            { name: "BUSINESS", price: "99 €", features: ["Unbegrenzte Analysen", "Alle Schreiben inkl.", "Persönlicher Berater"], color: "bg-[#0a0c12] border-white/10" }
-          ].map((p, i) => (
-            <div 
-              key={i} 
-              className={`relative flex-1 min-w-[300px] p-12 rounded-[3rem] border flex flex-col text-left transition-all ${p.color} ${p.high ? 'min-h-[850px] -translate-y-6' : 'min-h-[750px]'}`}
-            >
-              <div className="flex-grow">
-                <h3 className="text-[14px] font-black opacity-50 uppercase mb-8 tracking-[0.4em]">{p.name}</h3>
-                <div className="text-7xl font-black mb-16 italic tracking-tighter leading-none">{p.price}</div>
-                <div className="w-full h-[1px] bg-white/10 mb-12"></div> {/* Trennlinie wie im Bild */}
-                <ul className="space-y-8">
-                  {p.features.map((f, idx) => (
-                    <li key={idx} className="flex items-start gap-4 text-[18px] font-bold uppercase italic tracking-wider leading-tight">
-                      <CheckCircle2 size={24} className={p.high ? "text-white" : "text-blue-500"} />
-                      <span>{f}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              <button className={`w-full py-7 rounded-2xl font-black text-lg uppercase tracking-widest transition-all mt-16 ${
-                p.high ? 'bg-white text-blue-600 hover:bg-gray-100' : 'bg-blue-600 text-white hover:bg-blue-500'
-              }`}>
-                Plan wählen
-              </button>
+        {/* ABO-SÄULEN: DER ERZWUNGENE AUFBAU PER INLINE-STYLE (PX WERTE) */}
+        <div style={{ display: 'flex', flexWrap: 'nowrap', alignItems: 'flex-end', justifyContent: 'center', gap: '30px', width: '100%', marginBottom: '120px' }}>
+          
+          {/* SÄULE 1 */}
+          <div style={{ backgroundColor: '#0d1117', minHeight: '750px', flex: '1', borderRadius: '48px', border: '1px solid rgba(255,255,255,0.05)', padding: '60px', textAlign: 'left', display: 'flex', flexDirection: 'column' }}>
+            <h3 style={{ fontSize: '16px', fontWeight: '900', letterSpacing: '4px', opacity: 0.5, marginBottom: '25px' }}>BASIS</h3>
+            <div style={{ fontSize: '72px', fontWeight: '900', fontStyle: 'italic', marginBottom: '40px', letterSpacing: '-3px' }}>9,90 €</div>
+            <div style={{ flexGrow: 1, borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '40px' }}>
+              <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+                <li style={{ display: 'flex', alignItems: 'center', gap: '20px', fontSize: '20px', fontWeight: '800', marginBottom: '30px', fontStyle: 'italic', textTransform: 'uppercase' }}><CheckCircle2 color="#2563eb" size={26} /> 5 Analysen</li>
+                <li style={{ display: 'flex', alignItems: 'center', gap: '20px', fontSize: '20px', fontWeight: '800', marginBottom: '30px', fontStyle: 'italic', textTransform: 'uppercase' }}><CheckCircle2 color="#2563eb" size={26} /> 5 Schreiben</li>
+              </ul>
             </div>
-          ))}
+            <button style={{ width: '100%', padding: '24px', borderRadius: '20px', fontWeight: '900', fontSize: '18px', backgroundColor: '#2563eb', color: 'white', border: 'none', cursor: 'pointer', textTransform: 'uppercase' }}>Wählen</button>
+          </div>
+
+          {/* SÄULE 2 (HIGHLIGHT - GRÖSSER) */}
+          <div style={{ backgroundColor: '#2563eb', minHeight: '880px', flex: '1.1', borderRadius: '48px', border: '1px solid rgba(255,255,255,0.2)', padding: '60px', textAlign: 'left', display: 'flex', flexDirection: 'column', boxShadow: '0 0 60px rgba(37,99,235,0.4)', transform: 'scale(1.05)', zIndex: 10 }}>
+            <h3 style={{ fontSize: '16px', fontWeight: '900', letterSpacing: '4px', color: 'white', opacity: 0.8, marginBottom: '25px' }}>PLUS</h3>
+            <div style={{ fontSize: '84px', fontWeight: '900', fontStyle: 'italic', marginBottom: '40px', letterSpacing: '-3px' }}>17,90 €</div>
+            <div style={{ flexGrow: 1, borderTop: '1px solid rgba(255,255,255,0.2)', paddingTop: '40px' }}>
+              <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+                <li style={{ display: 'flex', alignItems: 'center', gap: '20px', fontSize: '20px', fontWeight: '800', marginBottom: '30px', fontStyle: 'italic', textTransform: 'uppercase' }}><CheckCircle2 color="white" size={26} /> 15 Analysen</li>
+                <li style={{ display: 'flex', alignItems: 'center', gap: '20px', fontSize: '20px', fontWeight: '800', marginBottom: '30px', fontStyle: 'italic', textTransform: 'uppercase' }}><CheckCircle2 color="white" size={26} /> 15 Schreiben</li>
+                <li style={{ display: 'flex', alignItems: 'center', gap: '20px', fontSize: '20px', fontWeight: '800', marginBottom: '30px', fontStyle: 'italic', textTransform: 'uppercase' }}><CheckCircle2 color="white" size={26} /> Anträge</li>
+              </ul>
+            </div>
+            <button style={{ width: '100%', padding: '24px', borderRadius: '20px', fontWeight: '900', fontSize: '18px', backgroundColor: 'white', color: '#2563eb', border: 'none', cursor: 'pointer', textTransform: 'uppercase' }}>Wählen</button>
+          </div>
+
+          {/* SÄULE 3 */}
+          <div style={{ backgroundColor: '#001428', minHeight: '750px', flex: '1', borderRadius: '48px', border: '1px solid rgba(255,255,255,0.05)', padding: '60px', textAlign: 'left', display: 'flex', flexDirection: 'column' }}>
+            <h3 style={{ fontSize: '16px', fontWeight: '900', letterSpacing: '4px', opacity: 0.5, marginBottom: '25px' }}>SOZIAL PRO</h3>
+            <div style={{ fontSize: '72px', fontWeight: '900', fontStyle: 'italic', marginBottom: '40px', letterSpacing: '-3px' }}>49 €</div>
+            <div style={{ flexGrow: 1, borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '40px' }}>
+              <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+                <li style={{ display: 'flex', alignItems: 'center', gap: '20px', fontSize: '20px', fontWeight: '800', marginBottom: '30px', fontStyle: 'italic', textTransform: 'uppercase' }}><CheckCircle2 color="#2563eb" size={26} /> 50 Analysen</li>
+                <li style={{ display: 'flex', alignItems: 'center', gap: '20px', fontSize: '20px', fontWeight: '800', marginBottom: '30px', fontStyle: 'italic', textTransform: 'uppercase' }}><CheckCircle2 color="#2563eb" size={26} /> Multi-Check</li>
+              </ul>
+            </div>
+            <button style={{ width: '100%', padding: '24px', borderRadius: '20px', fontWeight: '900', fontSize: '18px', backgroundColor: '#2563eb', color: 'white', border: 'none', cursor: 'pointer', textTransform: 'uppercase' }}>Wählen</button>
+          </div>
+
+          {/* SÄULE 4 */}
+          <div style={{ backgroundColor: '#001428', minHeight: '750px', flex: '1', borderRadius: '48px', border: '1px solid rgba(255,255,255,0.05)', padding: '60px', textAlign: 'left', display: 'flex', flexDirection: 'column' }}>
+            <h3 style={{ fontSize: '16px', fontWeight: '900', letterSpacing: '4px', opacity: 0.5, marginBottom: '25px' }}>BUSINESS</h3>
+            <div style={{ fontSize: '72px', fontWeight: '900', fontStyle: 'italic', marginBottom: '40px', letterSpacing: '-3px' }}>99 €</div>
+            <div style={{ flexGrow: 1, borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '40px' }}>
+              <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+                <li style={{ display: 'flex', alignItems: 'center', gap: '20px', fontSize: '20px', fontWeight: '800', marginBottom: '30px', fontStyle: 'italic', textTransform: 'uppercase' }}><CheckCircle2 color="#2563eb" size={26} /> unbegrenzt</li>
+              </ul>
+            </div>
+            <button style={{ width: '100%', padding: '24px', borderRadius: '20px', fontWeight: '900', fontSize: '18px', backgroundColor: '#2563eb', color: 'white', border: 'none', cursor: 'pointer', textTransform: 'uppercase' }}>Wählen</button>
+          </div>
+
         </div>
 
-        {/* Footer-Elemente: Unverändert */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto opacity-20 border-t border-white/5 pt-12">
+        {/* FOOTER INFO - BLEIBT UNTER DEN SÄULEN */}
+        <div className="flex justify-between items-center opacity-20 border-t border-white/10 pt-10 max-w-5xl mx-auto">
           {["KI-RECHTSCHECK", "FERTIGE SCHREIBEN", "DATENSCHUTZ"].map((t, i) => (
-            <div key={i} className="font-black text-xs tracking-[0.4em] uppercase">{t}</div>
+            <span key={i} className="font-black text-xs tracking-widest uppercase italic">{t}</span>
           ))}
         </div>
       </main>
