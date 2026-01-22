@@ -1,87 +1,191 @@
-import React from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { FileText, CheckCircle, Shield, Scale } from "lucide-react";
+"use client";
 
-export default function BescheidRechtLanding() {
+import { useState } from "react";
+
+const translations: Record<string, any> = {
+  DE: {
+    headline: "AUCH GENUG VOM BEHÖRDEN-\nWAHNSINN?",
+    text:
+      "Behördliche Schreiben sind oft kompliziert, unübersichtlich und einschüchternd. Doch Recht darf keine Frage von Fachwissen oder Durchhaltevermögen sein – und niemand sollte aus Unsicherheit oder Überforderung auf seine Rechte verzichten.\n\nBei BescheidRecht laden Sie Ihr behördliches Schreiben einfach hoch. Unsere KI analysiert den Inhalt strukturiert, macht komplexe Sachverhalte verständlich und erstellt automatisch ein klar formuliertes Schreiben, das Sie als Vorlage direkt weiterverwenden können.\n\nSo gewinnen Sie Klarheit, erkennen Ihre Möglichkeiten und können fundiert entscheiden – einfach, strukturiert und verständlich.",
+    button: "DOKUMENT JETZT HOCHLADEN",
+  },
+  EN: {
+    headline: "TIRED OF BUREAUCRATIC\nMADNESS?",
+    text:
+      "Official letters are often complex and intimidating. No one should give up their rights due to uncertainty.\n\nWith BescheidRecht, simply upload your document. Our AI analyzes it and automatically generates a structured letter you can use directly.\n\nGain clarity and make informed decisions – simple and understandable.",
+    button: "UPLOAD DOCUMENT",
+  },
+  TR: {
+    headline: "BÜROKRASİ\nYETER ARTIK?",
+    text:
+      "Resmi yazılar karmaşık ve korkutucu olabilir. Kimse belirsizlik yüzünden haklarından vazgeçmemelidir.\n\nBescheidRecht ile belgenizi yükleyin. Yapay zekâ analiz eder ve doğrudan kullanabileceğiniz bir yazı oluşturur.\n\nNetlik kazanın ve bilinçli karar verin.",
+    button: "BELGE YÜKLE",
+  },
+  AR: {
+    headline: "سئمت من\nالتعقيد الإداري؟",
+    text:
+      "الخطابات الرسمية غالبًا ما تكون معقدة. لا ينبغي لأحد أن يتخلى عن حقوقه بسبب الغموض.\n\nقم برفع المستند، وسيقوم الذكاء الاصطناعي بتحليله وإنشاء خطاب جاهز للاستخدام.\n\nاحصل على الوضوح واتخذ قرارات مدروسة.",
+    button: "تحميل المستند",
+  },
+  RU: {
+    headline: "НАДОЕЛА\nБЮРОКРАТИЯ?",
+    text:
+      "Официальные письма часто сложны. Никто не должен отказываться от своих прав из-за неясности.\n\nЗагрузите документ — ИИ создаст готовый текст для использования.\n\nЯсность и уверенные решения.",
+    button: "ЗАГРУЗИТЬ ДОКУМЕНТ",
+  },
+};
+
+export default function Home() {
+  const [lang, setLang] = useState<keyof typeof translations>("DE");
+  const t = translations[lang];
+
   return (
-    <div className="min-h-screen bg-gradient-to-b from-black via-slate-950 to-black text-white">
-      {/* Header */}
-      <header className="flex items-center justify-between px-8 py-5 border-b border-white/10">
-        <div className="text-blue-500 font-bold tracking-wide">BESCHEIDRECHT</div>
+    <main className="min-h-screen bg-[#05070a] text-white">
+
+      {/* HEADER */}
+      <header className="w-full flex items-center justify-between px-8 py-6">
+        <div className="text-blue-500 font-bold text-lg">BESCHIEDRECHT</div>
+
         <div className="flex items-center gap-6">
-          <div className="flex gap-1 rounded-full bg-white/5 p-1 text-xs">
-            {['DE','EN','TR','AR','RU'].map(l => (
-              <span key={l} className={`px-2 py-1 rounded-full ${l==='DE' ? 'bg-blue-600 text-white' : 'text-white/60'}`}>
+          <div className="flex gap-2 text-sm bg-white/5 px-2 py-1 rounded-full">
+            {(["DE", "EN", "TR", "AR", "RU"] as const).map((l) => (
+              <button
+                key={l}
+                onClick={() => setLang(l)}
+                className={`px-2 py-1 rounded ${
+                  lang === l
+                    ? "bg-blue-600 text-white"
+                    : "text-white/60 hover:text-white"
+                }`}
+              >
                 {l}
-              </span>
+              </button>
             ))}
           </div>
-          <Button variant="ghost" className="text-white">ANMELDEN</Button>
-          <Button className="bg-blue-600 hover:bg-blue-700">REGISTRIEREN</Button>
+
+          <button className="text-white/80 hover:text-white text-sm">
+            ANMELDEN
+          </button>
+          <button className="bg-blue-600 hover:bg-blue-500 text-white text-sm px-4 py-2 rounded-lg">
+            REGISTRIEREN
+          </button>
         </div>
       </header>
 
-      {      {/* Hero */}
+      {/* HERO */}
       <section className="text-center px-6 py-32">
-        <h1 className="text-5xl md:text-6xl font-extrabold italic uppercase mb-8 leading-tight">
-          AUCH GENUG VOM BEHÖRDEN-<br />WAHNSINN?
+        <h1 className="text-5xl md:text-6xl font-extrabold italic uppercase mb-10 whitespace-pre-line">
+          {t.headline}
         </h1>
-        <p className="max-w-4xl mx-auto text-lg md:text-xl text-white/70 mb-16">
-          Laden Sie Ihr Dokument hoch und lassen Sie sich durch unsere KI-gesteuerte Analyse helfen.
-          Die KI prüft genau, ob alles korrekt ist und erstellt Ihnen ein passendes Schreiben,
-          das Sie direkt losschicken können.
+
+        <p className="max-w-4xl mx-auto text-lg md:text-xl text-white/70 mb-14 whitespace-pre-line">
+          {t.text}
         </p>
 
-        <div className="max-w-2xl mx-auto rounded-[32px] bg-white/5 p-10">
-          <Button size="lg" className="w-full py-7 text-base tracking-widest bg-blue-600 hover:bg-blue-700">
-            DOKUMENT JETZT HOCHLADEN
-          </Button>
+        <button className="bg-blue-600 hover:bg-blue-700 px-10 py-4 rounded-xl font-bold tracking-wide">
+          {t.button}
+        </button>
+      </section>
+
+      {/* ERKLÄRUNGS-KÄSTCHEN */}
+      <section className="max-w-6xl mx-auto px-8 pb-32">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="bg-white/5 border border-white/10 rounded-2xl p-8">
+            <h3 className="font-semibold mb-3">KI-Analyse</h3>
+            <p className="text-white/60 text-sm">
+              Strukturierte Prüfung Ihres Bescheids auf Auffälligkeiten, Fristen und mögliche Ansatzpunkte.
+            </p>
+          </div>
+
+          <div className="bg-white/5 border border-white/10 rounded-2xl p-8">
+            <h3 className="font-semibold mb-3">Automatische Schreiben</h3>
+            <p className="text-white/60 text-sm">
+              Klar formulierte Schreiben als Vorlage zur direkten Weiterverwendung.
+            </p>
+          </div>
+
+          <div className="bg-white/5 border border-white/10 rounded-2xl p-8">
+            <h3 className="font-semibold mb-3">Verständlich & sicher</h3>
+            <p className="text-white/60 text-sm">
+              Einfach erklärt, DSGVO-konform verarbeitet und jederzeit nachvollziehbar.
+            </p>
+          </div>
         </div>
       </section>
 
-      {/* Pricing */}}
-      <section className="px-6 pb-24">
-        <div className="max-w-6xl mx-auto grid md:grid-cols-4 gap-6">
-          {[{
-            name: 'BASIS', price: '9,90 €', items: ['5 ANALYSEN', '5 SCHREIBEN'], dark: true
-          },{
-            name: 'PLUS', price: '17,90 €', items: ['15 ANALYSEN', '15 SCHREIBEN'], highlight: true
-          },{
-            name: 'SOZIAL PRO', price: '49 €', items: ['50 ANALYSEN', '50 SCHREIBEN'], dark: true
-          },{
-            name: 'BUSINESS', price: '99 €', items: ['150 ANALYSEN', '150 SCHREIBEN'], dark: true
-          }].map((p,i)=>(
-            <Card key={i} className={`rounded-2xl ${p.highlight ? 'bg-blue-600' : 'bg-slate-900'}`}>
-              <CardContent className="p-6">
-                <h3 className="text-sm tracking-widest mb-2">{p.name}</h3>
-                <div className="text-3xl font-bold mb-4">{p.price}</div>
-                <ul className="space-y-2 text-sm text-white/80 mb-6">
-                  {p.items.map((it,idx)=>(
-                    <li key={idx} className="flex gap-2 items-center"><CheckCircle className="h-4 w-4" />{it}</li>
-                  ))}
-                </ul>
-                <Button className="w-full bg-white text-black hover:bg-white/90">WÄHLEN</Button>
-              </CardContent>
-            </Card>
-          ))}
+      {/* PRICING */}
+      <section className="pb-32 px-6">
+        <h2 className="text-center text-3xl font-bold mb-4">Transparente Preise</h2>
+        <p className="text-center text-white/60 mb-16">
+          Wählen Sie das Paket, das zu Ihrer Situation passt.
+        </p>
+
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 max-w-7xl mx-auto">
+          <div className="bg-white/5 rounded-2xl p-8">
+            <p className="text-sm text-white/60 mb-2">BASIS</p>
+            <p className="text-3xl font-bold mb-6">9,90 €</p>
+            <ul className="text-white/70 text-sm space-y-2 mb-8">
+              <li>5 Analysen</li>
+              <li>5 Schreiben</li>
+              <li>max. 10 Seiten</li>
+            </ul>
+            <button className="w-full bg-blue-600 py-3 rounded-lg font-semibold">
+              Basis wählen
+            </button>
+          </div>
+
+          <div className="bg-blue-600 rounded-2xl p-8 scale-105">
+            <p className="text-sm mb-2">PLUS</p>
+            <p className="text-4xl font-bold mb-6">17,90 €</p>
+            <ul className="text-sm space-y-2 mb-8">
+              <li>15 Analysen</li>
+              <li>15 Schreiben</li>
+              <li>max. 20 Seiten</li>
+              <li>Anträge & Widersprüche</li>
+            </ul>
+            <button className="w-full bg-white text-blue-600 py-3 rounded-lg font-bold">
+              Plus wählen
+            </button>
+          </div>
+
+          <div className="bg-blue-900 rounded-2xl p-8">
+            <p className="text-sm text-white/70 mb-2">SOZIAL PRO</p>
+            <p className="text-3xl font-bold mb-6">49 €</p>
+            <ul className="text-white/70 text-sm space-y-2 mb-8">
+              <li>50 Analysen</li>
+              <li>50 Schreiben</li>
+              <li>max. 30 Seiten</li>
+            </ul>
+            <button className="w-full bg-white text-blue-900 py-3 rounded-lg font-semibold">
+              Pro wählen
+            </button>
+          </div>
+
+          <div className="bg-[#081b3a] rounded-2xl p-8">
+            <p className="text-sm text-white/70 mb-2">BUSINESS</p>
+            <p className="text-3xl font-bold mb-6">99 €</p>
+            <ul className="text-white/70 text-sm space-y-2 mb-8">
+              <li>150 Analysen</li>
+              <li>150 Schreiben</li>
+              <li>max. 50 Seiten</li>
+            </ul>
+            <button className="w-full bg-white text-black py-3 rounded-lg font-semibold">
+              Business wählen
+            </button>
+          </div>
         </div>
       </section>
 
-      {/* Trust */}
-      <section className="px-6 pb-32">
-        <div className="max-w-6xl mx-auto grid md:grid-cols-3 gap-6">
-          {[{icon: Scale, title:'KI‑RECHTSCHECK'}, {icon: FileText, title:'FERTIGE SCHREIBEN'}, {icon: Shield, title:'DATENSCHUTZ'}].map((t,i)=>(
-            <Card key={i} className="bg-slate-900 rounded-2xl">
-              <CardContent className="p-6">
-                <t.icon className="h-6 w-6 text-blue-500 mb-4" />
-                <h3 className="font-semibold mb-2">{t.title}</h3>
-                <p className="text-sm text-white/60">Sichere Bearbeitung Ihrer Anliegen.</p>
-              </CardContent>
-            </Card>
-          ))}
+      {/* FOOTER */}
+      <footer className="border-t border-white/10 py-8 text-center text-sm text-white/60">
+        <div className="flex justify-center gap-6">
+          <a href="/impressum" className="hover:text-white">Impressum</a>
+          <a href="/datenschutz" className="hover:text-white">Datenschutz</a>
+          <a href="/agb" className="hover:text-white">AGB</a>
         </div>
-      </section>
-    </div>
+        <p className="mt-4">© {new Date().getFullYear()} BescheidRecht</p>
+      </footer>
+
+    </main>
   );
 }
