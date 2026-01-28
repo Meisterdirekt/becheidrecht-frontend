@@ -1,95 +1,61 @@
+"use client";
+
+import React from 'react';
+import Link from 'next/link';
+
 export default function AGBPage() {
   return (
-    <main className="min-h-screen bg-[#05070a] text-white px-6 py-24">
-      <div className="max-w-4xl mx-auto">
+    <main className="min-h-screen bg-[#05070a] text-white flex flex-col">
+      <nav className="flex justify-between items-center p-6 max-w-7xl mx-auto w-full">
+        <Link href="/" className="text-[10px] font-bold uppercase tracking-widest text-blue-500 hover:text-blue-400 transition-colors">
+          ← Zurück zur Startseite
+        </Link>
+        <div className="flex gap-6 items-center">
+          <span className="text-[10px] font-bold uppercase tracking-widest text-white/40">AGB</span>
+        </div>
+      </nav>
 
-        <h1 className="text-4xl font-bold mb-10">Allgemeine Geschäftsbedingungen (AGB)</h1>
+      <div className="max-w-4xl mx-auto px-6 py-20 flex-grow">
+        <h1 className="text-5xl font-black tracking-tighter uppercase mb-16">AGB</h1>
 
-        <section className="space-y-6 text-white/80 text-sm leading-relaxed">
+        <section className="space-y-12 text-gray-400 text-sm leading-relaxed">
+          
+          <div className="bg-blue-600/10 border border-blue-500/20 rounded-xl p-8">
+            <h2 className="text-blue-500 font-bold uppercase tracking-widest text-xs mb-4">Wichtiger Hinweis</h2>
+            <p className="text-white font-medium">
+              BescheidRecht ist ein rein technologisches Analyse-Tool von Hendrik Berkensträter. Wir erbringen keine Rechtsberatung oder Rechtsdienstleistungen im Sinne des RDG.
+            </p>
+          </div>
 
-          <p>
-            Diese Allgemeinen Geschäftsbedingungen gelten für die Nutzung der Plattform
-            <strong> BescheidRecht</strong>.
-          </p>
+          <div className="space-y-8">
+            <div>
+              <h2 className="text-white font-bold uppercase tracking-widest text-xs mb-4">1. Vertragspartner</h2>
+              <p>
+                Vertragspartner für alle Leistungen ist:<br />
+                Hendrik Berkensträter, Antoniusstrasse 47, 49377 Vechta.
+              </p>
+            </div>
 
-          <h2 className="text-xl font-semibold text-white mt-8">1. Geltungsbereich</h2>
-          <p>
-            Diese AGB regeln die Nutzung der Plattform BescheidRecht. Abweichende Bedingungen
-            finden keine Anwendung, sofern ihnen nicht ausdrücklich zugestimmt wurde.
-          </p>
+            <div className="bg-white/[0.03] border border-white/10 rounded-xl p-8">
+              <h2 className="text-white font-bold uppercase tracking-widest text-xs mb-4">2. Leistungsumfang</h2>
+              <p>
+                Der Nutzer erhält durch den Erwerb eines Pakets das Recht, Dokumente automatisiert analysieren zu lassen. Die Ergebnisse dienen der Orientierung und ersetzen keine professionelle Rechtsprüfung.
+              </p>
+            </div>
 
-          <h2 className="text-xl font-semibold text-white mt-8">2. Leistungsbeschreibung</h2>
-          <p>
-            BescheidRecht bietet eine KI-gestützte Analyse behördlicher Schreiben an.
-            Nutzer können Dokumente hochladen, analysieren lassen und automatisch erstellte
-            Schreiben als Vorlage zur direkten Weiterverwendung erhalten.
-          </p>
-
-          <h2 className="text-xl font-semibold text-white mt-8">3. Keine Rechtsberatung</h2>
-          <p>
-            BescheidRecht erbringt keine Rechtsberatung im Sinne des
-            Rechtsdienstleistungsgesetzes (RDG).
-            Die bereitgestellten Inhalte stellen keine verbindliche rechtliche Prüfung dar
-            und ersetzen keine individuelle Beratung durch eine Rechtsanwältin oder einen
-            Rechtsanwalt.
-          </p>
-
-          <h2 className="text-xl font-semibold text-white mt-8">4. Nutzung der Inhalte</h2>
-          <p>
-            Die generierten Schreiben dienen als Formulierungshilfe und Vorlage.
-            Die Nutzung erfolgt eigenverantwortlich durch den Nutzer.
-            Eine rechtliche Erfolgsgarantie wird nicht übernommen.
-          </p>
-
-          <h2 className="text-xl font-semibold text-white mt-8">5. Registrierung</h2>
-          <p>
-            Für bestimmte Funktionen ist eine Registrierung erforderlich.
-            Der Nutzer ist verpflichtet, korrekte Angaben zu machen und seine Zugangsdaten
-            vertraulich zu behandeln.
-          </p>
-
-          <h2 className="text-xl font-semibold text-white mt-8">6. Abonnements & Nutzungsgrenzen</h2>
-          <p>
-            Der Leistungsumfang richtet sich nach dem gewählten Abonnement.
-            Nutzungs- und Seitenlimits ergeben sich aus der jeweiligen Tarifbeschreibung.
-            Nicht genutzte Kontingente verfallen nach Ablauf des Abrechnungszeitraums.
-          </p>
-
-          <h2 className="text-xl font-semibold text-white mt-8">7. Zahlungsabwicklung</h2>
-          <p>
-            Die Zahlungsabwicklung erfolgt über externe Zahlungsdienstleister.
-            Deren Geschäftsbedingungen gelten ergänzend.
-          </p>
-
-          <h2 className="text-xl font-semibold text-white mt-8">8. Haftung</h2>
-          <p>
-            BescheidRecht haftet nur für Schäden, die auf vorsätzlichem oder grob fahrlässigem
-            Verhalten beruhen. Eine Haftung für mittelbare Schäden oder Folgeschäden ist
-            ausgeschlossen, soweit gesetzlich zulässig.
-          </p>
-
-          <h2 className="text-xl font-semibold text-white mt-8">9. Verfügbarkeit</h2>
-          <p>
-            Ein Anspruch auf permanente Verfügbarkeit der Plattform besteht nicht.
-            Wartungsarbeiten oder technische Störungen können zu Einschränkungen führen.
-          </p>
-
-          <h2 className="text-xl font-semibold text-white mt-8">10. Datenschutz</h2>
-          <p>
-            Informationen zur Verarbeitung personenbezogener Daten sind in der
-            Datenschutzerklärung geregelt.
-          </p>
-
-          <h2 className="text-xl font-semibold text-white mt-8">11. Schlussbestimmungen</h2>
-          <p>
-            Es gilt das Recht der Bundesrepublik Deutschland.
-            Sollte eine Bestimmung unwirksam sein, bleibt die Wirksamkeit der übrigen
-            Regelungen unberührt.
-          </p>
-
+            <div>
+              <h2 className="text-white font-bold uppercase tracking-widest text-xs mb-4">3. Widerrufsrecht bei digitalen Inhalten</h2>
+              <p>
+                Mit dem Start der Analyse (Dokumenten-Upload nach Kauf) stimmen Sie ausdrücklich zu, dass wir mit der Vertragserfüllung vor Ablauf der Widerrufsfrist beginnen. Damit erlischt Ihr Widerrufsrecht für diese digitale Dienstleistung.
+              </p>
+            </div>
+          </div>
         </section>
-
       </div>
+
+      <footer className="border-t border-white/5 py-12 text-center text-[10px] font-bold tracking-[0.2em] text-white/20 uppercase">
+        <p>© 2026 BescheidRecht. Alle Rechte vorbehalten.</p>
+      </footer>
     </main>
   );
 }

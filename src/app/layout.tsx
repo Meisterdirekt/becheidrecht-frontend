@@ -3,7 +3,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "BescheidRecht",
-  description: "KI-Analyse für Bescheide",
+  description: "Softwaregestützte Analyse für Verwaltungsschreiben",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
