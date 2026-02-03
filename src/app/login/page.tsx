@@ -2,37 +2,39 @@
 
 import React, { useState } from 'react';
 import { supabase } from '@/lib/supabase';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
-export default function RegisterPage() {
+export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
+  const router = useRouter();
 
-  const handleRegister = async (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setMessage('Verarbeite...');
+    setMessage('Anmeldung läuft...');
     
-    const { error } = await supabase.auth.signUp({
+    const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
-      options: {
-        emailRedirectTo: `${window.location.origin}/auth/callback`,
-      },
     });
 
     if (error) {
       setMessage(`Fehler: ${error.message}`);
     } else {
-      setMessage('Erfolg! Bitte prüfe dein E-Mail-Postfach zur Bestätigung.');
+      setMessage('Erfolgreich angemeldet! Leite weiter...');
+      setTimeout(() => {
+        router.push('/'); // Leitet zurück zur Startseite (oder später zum Dashboard)
+      }, 1500);
     }
   };
 
   return (
     <main className="min-h-screen bg-[#05070a] text-white flex items-center justify-center p-6 font-sans">
-      <div className="max-w-md w-full bg-white/[0.03] border border-white/10 p-10 rounded-2xl shadow-2xl">
-        <h1 className="text-3xl font-black mb-8 italic uppercase tracking-tighter">Registrieren</h1>
-        <form onSubmit={handleRegister} className="flex flex-col gap-4">
+      <div className="max-w-md w-full bg-white/[0.03] border border-white/10 p-10 rounded-2xl shadow-2xl text-center">
+        <h1 className="text-3xl font-black mb-8 italic uppercase tracking-tighter">Anmelden</h1>
+        <form onSubmit={handleLogin} className="flex flex-col gap-4 text-left">
           <input 
             type="email" 
             placeholder="E-MAIL" 
@@ -50,19 +52,24 @@ export default function RegisterPage() {
             required
           />
           <button type="submit" className="bg-blue-600 py-4 rounded-lg font-black text-[11px] uppercase tracking-[0.2em] hover:bg-blue-500 transition-all text-white">
-            KONTO ERSTELLEN
+            EINLOGGEN
           </button>
         </form>
         {message && (
           <div className="mt-6 p-4 bg-blue-600/20 border border-blue-600/30 rounded-lg">
-            <p className="text-[10px] font-bold text-blue-400 uppercase tracking-widest leading-relaxed">
+            <p className="text-[10px] font-bold text-blue-400 uppercase tracking-widest">
               {message}
             </p>
           </div>
         )}
-        <Link href="/" className="block mt-8 text-[10px] text-white/30 hover:text-white transition-colors uppercase font-bold tracking-[0.2em]">
-          Zurück zur Startseite
-        </Link>
+        <div className="mt-8 flex flex-col gap-4">
+          <Link href="/register" className="text-[10px] text-white/30 hover:text-white transition-colors uppercase font-bold tracking-[0.2em]">
+            Noch kein Konto? Registrieren
+          </Link>
+          <Link href="/" className="text-[10px] text-white/30 hover:text-white transition-colors uppercase font-bold tracking-[0.2em]">
+            Zurück zur Startseite
+          </Link>
+        </div>
       </div>
     </main>
   );

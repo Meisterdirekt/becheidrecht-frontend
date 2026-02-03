@@ -39,3 +39,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+# 🔐 CHEF-BEREICH (VAULT) - STRENG GEHEIM
+vault/
+vault/*
+SYSTEM_MAP.md
