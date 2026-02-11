@@ -30,10 +30,24 @@ export default function RegisterPage() {
           setSupabase(createBrowserClient(data.url, data.anonKey));
           setConfigError(null);
         } else {
-          setConfigError(data.error || 'Supabase ist nicht konfiguriert.');
+          const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+          const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+          if (url && key) {
+            setSupabase(createBrowserClient(url, key));
+            setConfigError(null);
+          } else {
+            setConfigError(data.error || 'Supabase ist nicht konfiguriert.');
+          }
         }
       } catch (e) {
-        if (!cancelled) setConfigError('Konfiguration konnte nicht geladen werden. Bitte /api/auth-config prüfen und neuesten Code deployen.');
+        const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+        const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+        if (url && key) {
+          setSupabase(createBrowserClient(url, key));
+          setConfigError(null);
+        } else {
+          if (!cancelled) setConfigError('Konfiguration konnte nicht geladen werden. Bitte /api/auth-config prüfen und neuesten Code deployen.');
+        }
       }
       if (!cancelled) setConfigLoading(false);
     }
@@ -41,12 +55,12 @@ export default function RegisterPage() {
     return () => { cancelled = true; };
   }, []);
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    e.stopPropagation();
+  async function handleSubmit(e?: React.FormEvent) {
+    e?.preventDefault();
+    e?.stopPropagation();
     setError(null);
     if (!supabase) {
-      setError('Registrierung derzeit nicht verfügbar.');
+      setError('Registrierung derzeit nicht verfügbar. Supabase-Config fehlt.');
       return;
     }
     if (!formData.terms) {
@@ -63,8 +77,9 @@ export default function RegisterPage() {
     }
     setLoading(true);
     setError(null);
+    const timeoutMs = 15000;
     try {
-      const { data, error: err } = await supabase.auth.signUp({
+      const signUpPromise = supabase.auth.signUp({
         email: formData.email.trim(),
         password: formData.password,
         options: {
@@ -72,6 +87,10 @@ export default function RegisterPage() {
           emailRedirectTo: typeof window !== 'undefined' ? window.location.origin + '/' : undefined,
         },
       });
+      const timeoutPromise = new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error('Verbindung zu Supabase dauert zu lange. Bitte Internet und Supabase-Einstellungen prüfen.')), timeoutMs)
+      );
+      const { data, error: err } = await Promise.race([signUpPromise, timeoutPromise]);
       if (err) {
         setError(err.message === 'User already registered' ? 'Diese E-Mail ist bereits registriert. Bitte melden Sie sich an.' : err.message);
         setLoading(false);
@@ -117,7 +136,15 @@ export default function RegisterPage() {
   }
 
   return (
-    <main className="min-h-screen bg-[#F8FAFC] flex items-center justify-center p-6 font-sans">
+    <main className="min-h-screen bg-[#F8FAFC] flex items-center justify-center p-6 font-sans relative">
+      {loading && (
+        <div className="fixed inset-0 bg-slate-900/80 flex items-center justify-center z-50" aria-live="polite">
+          <div className="bg-white rounded-2xl p-8 text-center shadow-2xl max-w-sm mx-4">
+            <p className="font-black text-slate-800 uppercase tracking-wide">Registrierung wird ausgeführt …</p>
+            <p className="text-slate-500 text-sm mt-2">Bitte warten Sie.</p>
+          </div>
+        </div>
+      )}
       <div className="w-full max-w-md bg-white rounded-[40px] shadow-xl border border-slate-200 p-10 md:p-14">
         <div className="text-center mb-10">
           <Link href="/" className="text-2xl font-bold text-[#0F172A] inline-flex items-center gap-2 mb-6">
@@ -150,7 +177,7 @@ export default function RegisterPage() {
         ) : configLoading ? (
           <div className="text-center py-8 text-slate-500">Lade …</div>
         ) : (
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <form onSubmit={(e) => handleSubmit(e)} className="space-y-5">
             {configError && (
               <div className="rounded-2xl bg-amber-50 border border-amber-200 px-4 py-3 text-sm text-amber-800">
                 {configError} In Vercel: Settings → Environment Variables → <strong>NEXT_PUBLIC_SUPABASE_URL</strong> und <strong>NEXT_PUBLIC_SUPABASE_ANON_KEY</strong> eintragen (Werte aus Supabase Dashboard → Project Settings → API).
@@ -218,6 +245,11 @@ export default function RegisterPage() {
         <p className="text-center mt-10 text-xs font-bold text-slate-400 uppercase tracking-widest">
           Bereits Mitglied? <Link href="/login" className="text-blue-600 ml-1">Anmelden</Link>
         </p>
+        {!configLoading && (
+          <p className="text-center mt-4 text-[10px] text-slate-400">
+            {supabase ? 'Verbindung zu Supabase: bereit' : 'Verbindung zu Supabase: fehlt'}
+          </p>
+        )}
       </div>
     </main>
   );

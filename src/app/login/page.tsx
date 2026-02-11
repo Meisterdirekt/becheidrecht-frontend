@@ -30,10 +30,24 @@ export default function LoginPage() {
           setSupabase(createBrowserClient(data.url, data.anonKey));
           setConfigError(null);
         } else {
-          setConfigError(data.error || 'Supabase ist nicht konfiguriert.');
+          const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+          const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+          if (url && key) {
+            setSupabase(createBrowserClient(url, key));
+            setConfigError(null);
+          } else {
+            setConfigError(data.error || 'Supabase ist nicht konfiguriert.');
+          }
         }
       } catch {
-        if (!cancelled) setConfigError('Konfiguration konnte nicht geladen werden. Bitte /api/auth-config prüfen und neuesten Code deployen.');
+        const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+        const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+        if (url && key) {
+          setSupabase(createBrowserClient(url, key));
+          setConfigError(null);
+        } else {
+          if (!cancelled) setConfigError('Konfiguration konnte nicht geladen werden. Bitte /api/auth-config prüfen und neuesten Code deployen.');
+        }
       }
       if (!cancelled) setConfigLoading(false);
     }
