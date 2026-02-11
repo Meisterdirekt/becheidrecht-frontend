@@ -55,6 +55,15 @@ export default function LoginPage() {
     return () => { cancelled = true; };
   }, []);
 
+  // Wenn der Passwort-Reset-Link aus der E-Mail auf /login landet → zu /reset-password mit Hash weiterleiten
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const hash = window.location.hash || '';
+    if (hash.includes('type=recovery')) {
+      window.location.href = '/reset-password' + hash;
+    }
+  }, []);
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);

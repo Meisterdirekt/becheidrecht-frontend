@@ -47,9 +47,11 @@ export default function ResetPasswordPage() {
   useEffect(() => {
     if (configLoading || typeof window === "undefined") return;
     const hash = window.location.hash || "";
-    const recovery = hash.includes("type=recovery");
+    const search = window.location.search || "";
+    // Supabase schickt Tokens im Hash (#access_token=...&type=recovery); manchmal landet der Link auf /login, dann leiten wir mit Hash weiter
+    const recovery = hash.includes("type=recovery") || search.includes("type=recovery");
     setIsRecovery(recovery);
-    // Session aus Hash herstellen, damit updateUser() später funktioniert
+    // Session aus Hash/URL herstellen, damit updateUser() später funktioniert
     if (recovery && supabase) supabase.auth.getSession();
   }, [configLoading, supabase]);
 

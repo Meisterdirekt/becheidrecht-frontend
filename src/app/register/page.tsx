@@ -97,6 +97,16 @@ export default function RegisterPage() {
         return;
       }
       if (data?.user && !data.session) {
+        const { data: signInData, error: signInErr } = await supabase.auth.signInWithPassword({
+          email: formData.email.trim(),
+          password: formData.password,
+        });
+        if (!signInErr && signInData?.session) {
+          setRedirecting(true);
+          setError(null);
+          setTimeout(() => { window.location.href = '/'; }, 1500);
+          return;
+        }
         setSuccess(true);
         setLoading(false);
         return;

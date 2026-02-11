@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
+import { RecoveryRedirect } from "@/components/RecoveryRedirect";
 
 const plusJakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
@@ -17,6 +18,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="de" className={plusJakarta.variable} suppressHydrationWarning>
       <body className="antialiased font-sans bg-white min-h-screen text-slate-900">
+        <RecoveryRedirect />
         {children}
       </body>
     </html>
