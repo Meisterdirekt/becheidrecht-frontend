@@ -1,75 +1,48 @@
 "use client";
 
-import React, { useState } from 'react';
-import { supabase } from '@/lib/supabase';
-import { useRouter } from 'next/navigation';
+import React from 'react';
 import Link from 'next/link';
 
 export default function LoginPage() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [message, setMessage] = useState('');
-  const router = useRouter();
-
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setMessage('Anmeldung läuft...');
-    
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-
-    if (error) {
-      setMessage(`Fehler: ${error.message}`);
-    } else {
-      setMessage('Erfolgreich angemeldet! Leite weiter...');
-      setTimeout(() => {
-        router.push('/'); // Leitet zurück zur Startseite (oder später zum Dashboard)
-      }, 1500);
-    }
-  };
-
   return (
-    <main className="min-h-screen bg-[#05070a] text-white flex items-center justify-center p-6 font-sans">
-      <div className="max-w-md w-full bg-white/[0.03] border border-white/10 p-10 rounded-2xl shadow-2xl text-center">
-        <h1 className="text-3xl font-black mb-8 italic uppercase tracking-tighter">Anmelden</h1>
-        <form onSubmit={handleLogin} className="flex flex-col gap-4 text-left">
-          <input 
-            type="email" 
-            placeholder="E-MAIL" 
-            className="bg-black/50 border border-white/10 p-4 rounded-lg focus:border-blue-500 outline-none text-[12px] font-bold tracking-widest text-white"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-          <input 
-            type="password" 
-            placeholder="PASSWORT" 
-            className="bg-black/50 border border-white/10 p-4 rounded-lg focus:border-blue-500 outline-none text-[12px] font-bold tracking-widest text-white"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-          <button type="submit" className="bg-blue-600 py-4 rounded-lg font-black text-[11px] uppercase tracking-[0.2em] hover:bg-blue-500 transition-all text-white">
-            EINLOGGEN
+    <main className="min-h-screen bg-[#F8FAFC] flex items-center justify-center p-6 font-sans">
+      <div className="w-full max-w-md bg-white rounded-[40px] shadow-xl border border-slate-200 p-10 md:p-14">
+        <div className="text-center mb-10">
+          <Link href="/" className="text-2xl font-bold text-[#0F172A] inline-flex items-center gap-2 mb-6">
+            <div className="w-6 h-6 bg-blue-600 rounded-md"></div> Bescheid<span className="text-blue-600 font-black">Recht</span>
+          </Link>
+          <h1 className="text-3xl font-black text-slate-900 italic uppercase tracking-tighter text-center">Willkommen zurück</h1>
+          <p className="text-slate-500 text-sm mt-2 font-medium text-center">Loggen Sie sich in Ihr Dashboard ein</p>
+        </div>
+
+        <form className="space-y-6 text-left">
+          <div>
+            <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2 ml-1">E-Mail Adresse</label>
+            <input 
+              type="email" 
+              className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:border-blue-500 transition-all text-slate-900 font-medium"
+            />
+          </div>
+
+          <div>
+            <div className="flex justify-between mb-2 ml-1">
+              <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Passwort</label>
+              <Link href="/forgot" className="text-[10px] font-black uppercase tracking-[0.2em] text-blue-600">Vergessen?</Link>
+            </div>
+            <input 
+              type="password" 
+              className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:border-blue-500 transition-all text-slate-900 font-medium"
+            />
+          </div>
+
+          <button className="w-full bg-[#0F172A] text-white py-5 rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-lg hover:bg-blue-600 transition-all mt-4">
+            Anmelden
           </button>
         </form>
-        {message && (
-          <div className="mt-6 p-4 bg-blue-600/20 border border-blue-600/30 rounded-lg">
-            <p className="text-[10px] font-bold text-blue-400 uppercase tracking-widest">
-              {message}
-            </p>
-          </div>
-        )}
-        <div className="mt-8 flex flex-col gap-4">
-          <Link href="/register" className="text-[10px] text-white/30 hover:text-white transition-colors uppercase font-bold tracking-[0.2em]">
-            Noch kein Konto? Registrieren
-          </Link>
-          <Link href="/" className="text-[10px] text-white/30 hover:text-white transition-colors uppercase font-bold tracking-[0.2em]">
-            Zurück zur Startseite
-          </Link>
-        </div>
+
+        <p className="text-center mt-10 text-xs font-bold text-slate-400 uppercase tracking-widest">
+          Neu hier? <Link href="/register" className="text-blue-600 ml-1">Account erstellen</Link>
+        </p>
       </div>
     </main>
   );

@@ -25,7 +25,7 @@ export default function DatenschutzPage() {
             <p className="text-white/90">
               Verantwortlich für die Datenverarbeitung auf dieser Website ist:<br /><br />
               <strong>Hendrik Berkensträter</strong><br />
-              Antoniusstrasse 47<br />
+              Antoniusstraße 47<br />
               49377 Vechta<br />
               E-Mail: kontakt@bescheidrecht.de
             </p>
@@ -47,9 +47,30 @@ export default function DatenschutzPage() {
             </div>
 
             <div>
-              <h2 className="text-white font-bold uppercase tracking-widest text-xs mb-4">4. Ihre Rechte</h2>
+              <h2 className="text-white font-bold uppercase tracking-widest text-xs mb-4">4. Rechtsgrundlage</h2>
               <p>
-                Sie haben jederzeit das Recht auf Auskunft, Berichtigung, Sperrung oder Löschung Ihrer gespeicherten personenbezogenen Daten. Kontaktieren Sie uns hierzu einfach über die oben genannten Kontaktdaten.
+                Die Verarbeitung erfolgt auf Grundlage von Art. 6 Abs. 1 lit. b DSGVO (Vertragserfüllung), Art. 6 Abs. 1 lit. f DSGVO (berechtigte Interessen) sowie, sofern Sie eingewilligt haben, Art. 6 Abs. 1 lit. a DSGVO. Die Verarbeitung hochgeladener Dokumente erfolgt ausschließlich auf Grundlage Ihrer Einwilligung vor dem Upload.
+              </p>
+            </div>
+
+            <div>
+              <h2 className="text-white font-bold uppercase tracking-widest text-xs mb-4">5. Speicherdauer</h2>
+              <p>
+                Hochgeladene Dokumente und Analyseergebnisse werden nicht dauerhaft auf unseren Servern gespeichert. Soweit eine Verarbeitung im Rahmen der Dienstleistung erfolgt, werden Daten nach Erledigung des Vorgangs gelöscht, sofern keine gesetzlichen Aufbewahrungspflichten entgegenstehen.
+              </p>
+            </div>
+
+            <div>
+              <h2 className="text-white font-bold uppercase tracking-widest text-xs mb-4">6. Technisch notwendige Daten / Hosting</h2>
+              <p>
+                Beim Aufruf der Website werden durch den Betreiber bzw. den Hosting-Provider automatisch Zugriffsdaten (IP-Adresse, Datum, Uhrzeit, aufgerufene Seite) in Server-Logfiles erhoben. Diese Daten werden ausschließlich zur Sicherstellung des Betriebs und zur Abwehr von Missbrauch verwendet und nach kurzer Frist gelöscht.
+              </p>
+            </div>
+
+            <div>
+              <h2 className="text-white font-bold uppercase tracking-widest text-xs mb-4">7. Ihre Rechte (Auskunft, Berichtigung, Löschung, Widerspruch)</h2>
+              <p>
+                Sie haben jederzeit das Recht auf Auskunft (Art. 15 DSGVO), Berichtigung (Art. 16 DSGVO), Löschung (Art. 17 DSGVO), Einschränkung der Verarbeitung (Art. 18 DSGVO) und Datenübertragbarkeit (Art. 20 DSGVO). Sie können eine erteilte Einwilligung widerrufen. Sie haben das Recht, sich bei einer Aufsichtsbehörde zu beschweren (z. B. Landesdatenschutzbeauftragter). Kontaktieren Sie uns für die Ausübung Ihrer Rechte über die oben genannten Kontaktdaten.
               </p>
             </div>
           </div>

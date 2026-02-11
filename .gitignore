@@ -43,3 +43,8 @@ next-env.d.ts
 vault/
 vault/*
 SYSTEM_MAP.md
+
+# lokale Backups / temporäre Kopien
+*.save
+*_backup*.tsx
+*_backup*.ts

@@ -32,7 +32,7 @@ export default function AGBPage() {
               <h2 className="text-white font-bold uppercase tracking-widest text-xs mb-4">1. Vertragspartner</h2>
               <p>
                 Vertragspartner für alle Leistungen ist:<br />
-                Hendrik Berkensträter, Antoniusstrasse 47, 49377 Vechta.
+                Hendrik Berkensträter, Antoniusstraße 47, 49377 Vechta.
               </p>
             </div>
 
@@ -47,6 +47,27 @@ export default function AGBPage() {
               <h2 className="text-white font-bold uppercase tracking-widest text-xs mb-4">3. Widerrufsrecht bei digitalen Inhalten</h2>
               <p>
                 Mit dem Start der Analyse (Dokumenten-Upload nach Kauf) stimmen Sie ausdrücklich zu, dass wir mit der Vertragserfüllung vor Ablauf der Widerrufsfrist beginnen. Damit erlischt Ihr Widerrufsrecht für diese digitale Dienstleistung.
+              </p>
+            </div>
+
+            <div>
+              <h2 className="text-white font-bold uppercase tracking-widest text-xs mb-4">4. Preise und Zahlung</h2>
+              <p>
+                Die jeweils gültigen Preise und Zahlungsmodalitäten ergeben sich aus der Darstellung auf der Website bzw. beim Abschluss des gewählten Pakets. Alle Preise verstehen sich in Euro inklusive der gesetzlichen Mehrwertsteuer, sofern nicht ausdrücklich anders angegeben.
+              </p>
+            </div>
+
+            <div>
+              <h2 className="text-white font-bold uppercase tracking-widest text-xs mb-4">5. Haftung</h2>
+              <p>
+                Die Nutzung des Analyse-Tools erfolgt auf eigenes Risiko. Wir haften nicht für die inhaltliche Richtigkeit der Analyseergebnisse. Eine Haftung für leichte Fahrlässigkeit ist ausgeschlossen, soweit nicht zwingende gesetzliche Vorschriften entgegenstehen. Die Haftung für Vorsatz und grobe Fahrlässigkeit sowie bei Verletzung von Leben, Körper oder Gesundheit bleibt unberührt.
+              </p>
+            </div>
+
+            <div>
+              <h2 className="text-white font-bold uppercase tracking-widest text-xs mb-4">6. Schlussbestimmungen</h2>
+              <p>
+                Es gilt das Recht der Bundesrepublik Deutschland. Gerichtsstand für Streitigkeiten ist, soweit gesetzlich zulässig, der Sitz des Anbieters. Sollte eine Bestimmung dieser AGB unwirksam sein, bleibt die Wirksamkeit der übrigen Bestimmungen unberührt.
               </p>
             </div>
           </div>

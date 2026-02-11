@@ -1,68 +1,72 @@
 "use client";
 
 import React, { useState } from 'react';
-import { supabase } from '@/lib/supabase';
 import Link from 'next/link';
 
 export default function RegisterPage() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [message, setMessage] = useState('');
-
-  const handleRegister = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setMessage('Verarbeite...');
-    
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: `${window.location.origin}/auth/callback`,
-      },
-    });
-
-    if (error) {
-      setMessage(`Fehler: ${error.message}`);
-    } else {
-      setMessage('Erfolg! Bitte prüfe dein E-Mail-Postfach zur Bestätigung.');
-    }
-  };
+  const [formData, setFormData] = useState({ name: '', email: '', password: '', terms: false });
 
   return (
-    <main className="min-h-screen bg-[#05070a] text-white flex items-center justify-center p-6 font-sans">
-      <div className="max-w-md w-full bg-white/[0.03] border border-white/10 p-10 rounded-2xl shadow-2xl">
-        <h1 className="text-3xl font-black mb-8 italic uppercase tracking-tighter">Registrieren</h1>
-        <form onSubmit={handleRegister} className="flex flex-col gap-4">
-          <input 
-            type="email" 
-            placeholder="E-MAIL" 
-            className="bg-black/50 border border-white/10 p-4 rounded-lg focus:border-blue-500 outline-none text-[12px] font-bold tracking-widest text-white"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-          <input 
-            type="password" 
-            placeholder="PASSWORT" 
-            className="bg-black/50 border border-white/10 p-4 rounded-lg focus:border-blue-500 outline-none text-[12px] font-bold tracking-widest text-white"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-          <button type="submit" className="bg-blue-600 py-4 rounded-lg font-black text-[11px] uppercase tracking-[0.2em] hover:bg-blue-500 transition-all text-white">
-            KONTO ERSTELLEN
+    <main className="min-h-screen bg-[#F8FAFC] flex items-center justify-center p-6 font-sans">
+      <div className="w-full max-w-md bg-white rounded-[40px] shadow-xl border border-slate-200 p-10 md:p-14">
+        <div className="text-center mb-10">
+          <Link href="/" className="text-2xl font-bold text-[#0F172A] inline-flex items-center gap-2 mb-6">
+            <div className="w-6 h-6 bg-blue-600 rounded-md"></div> Bescheid<span className="text-blue-600 font-black">Recht</span>
+          </Link>
+          <h1 className="text-3xl font-black text-slate-900 italic uppercase tracking-tighter text-center">Account erstellen</h1>
+          <p className="text-slate-500 text-sm mt-2 font-medium text-center">Starten Sie Ihre präzise Analyse</p>
+        </div>
+
+        <form className="space-y-5">
+          <div>
+            <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2 ml-1">Vollständiger Name</label>
+            <input 
+              type="text" 
+              placeholder="Max Mustermann"
+              className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:border-blue-500 transition-all text-slate-900 font-medium"
+              onChange={(e) => setFormData({...formData, name: e.target.value})}
+            />
+          </div>
+
+          <div>
+            <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2 ml-1">E-Mail Adresse</label>
+            <input 
+              type="email" 
+              placeholder="name@firma.de"
+              className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:border-blue-500 transition-all text-slate-900 font-medium"
+              onChange={(e) => setFormData({...formData, email: e.target.value})}
+            />
+          </div>
+
+          <div>
+            <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2 ml-1">Passwort</label>
+            <input 
+              type="password" 
+              placeholder="••••••••"
+              className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:border-blue-500 transition-all text-slate-900 font-medium"
+              onChange={(e) => setFormData({...formData, password: e.target.value})}
+            />
+          </div>
+
+          <div className="flex items-start gap-3 py-2">
+            <input 
+              type="checkbox" 
+              className="mt-1 h-4 w-4 accent-blue-600 cursor-pointer" 
+              onChange={(e) => setFormData({...formData, terms: e.target.checked})}
+            />
+            <label className="text-[10px] text-slate-400 font-bold uppercase tracking-widest leading-tight cursor-pointer">
+              Ich akzeptiere die <Link href="/agb" className="text-blue-600 underline">AGB</Link> und die <Link href="/datenschutz" className="text-blue-600 underline text-center">Datenschutzerklärung</Link>.
+            </label>
+          </div>
+
+          <button className="w-full bg-blue-600 text-white py-5 rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-lg shadow-blue-200 hover:bg-blue-700 transition-all mt-4">
+            Kostenlos Registrieren
           </button>
         </form>
-        {message && (
-          <div className="mt-6 p-4 bg-blue-600/20 border border-blue-600/30 rounded-lg">
-            <p className="text-[10px] font-bold text-blue-400 uppercase tracking-widest leading-relaxed">
-              {message}
-            </p>
-          </div>
-        )}
-        <Link href="/" className="block mt-8 text-[10px] text-white/30 hover:text-white transition-colors uppercase font-bold tracking-[0.2em]">
-          Zurück zur Startseite
-        </Link>
+
+        <p className="text-center mt-10 text-xs font-bold text-slate-400 uppercase tracking-widest">
+          Bereits Mitglied? <Link href="/login" className="text-blue-600 ml-1">Anmelden</Link>
+        </p>
       </div>
     </main>
   );

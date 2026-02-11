@@ -27,7 +27,7 @@ export default function ImpressumPage() {
             <p className="text-lg text-white/90">
               <strong>BescheidRecht</strong><br />
               Hendrik Berkensträter<br />
-              Antoniusstrasse 47<br />
+              Antoniusstraße 47<br />
               49377 Vechta<br />
               Deutschland
             </p>
@@ -47,7 +47,7 @@ export default function ImpressumPage() {
               <p className="text-white/90 text-xs">
                 Verantwortlich für den Inhalt nach § 55 Abs. 2 RStV:<br />
                 Hendrik Berkensträter<br />
-                Antoniusstrasse 47, 49377 Vechta
+                Antoniusstraße 47, 49377 Vechta
               </p>
             </div>
           </div>
@@ -74,7 +74,7 @@ export default function ImpressumPage() {
             <div className="opacity-50">
               <h2 className="text-white font-bold uppercase tracking-widest text-xs mb-4">Haftung für Inhalte</h2>
               <p>
-                Als Diensteanbieter sind wir gemäß § 7 Abs.1 TMG für eigene Inhalte auf diesen Seiten nach den allgemeinen Gesetzen verantwortlich. Nach §§ 8 bis 10 TMG sind wir als Diensteanbieter jedoch nicht verpflichtet, übermittelte oder gespeicherte fremde Informationen zu überwachen.
+                Als Diensteanbieter sind wir gemäß § 7 Abs. 1 TMG für eigene Inhalte auf diesen Seiten nach den allgemeinen Gesetzen verantwortlich. Nach §§ 8 bis 10 TMG sind wir als Diensteanbieter jedoch nicht verpflichtet, übermittelte oder gespeicherte fremde Informationen zu überwachen.
               </p>
             </div>
           </div>
