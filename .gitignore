@@ -45,8 +45,10 @@ vault/
 vault/*
 SYSTEM_MAP.md
 
-# lokale Backups / temporäre Kopien
+# lokale Backups / temporäre Kopien – nur aktueller Website-Code zählt
 *.save
 *_backup*.tsx
 *_backup*.ts
+backups/
+ersatz/
 src/lib/vault/
