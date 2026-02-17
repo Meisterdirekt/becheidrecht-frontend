@@ -16,53 +16,7 @@ import {
   getTraegerLabel,
   getSchreibentypLabel,
 } from "@/lib/letter-generator";
-
-type Lang = "DE" | "RU" | "EN" | "AR" | "TR";
-
-const translations: Record<
-  Lang,
-  { headline: string; headlineSub?: string; text: string; button: string; consent: string; dir: "ltr" | "rtl" }
-> = {
-  DE: {
-    headline: "BescheidRecht",
-    headlineSub: "Brief hochladen. Fehler finden.",
-    text: "Behördenbriefe sind kompliziert, BescheidRecht ist einfach. Wir analysieren Ihre Dokumente auf typische Fehlerquellen und liefern Ihnen sofort die passenden Fakten für Ihre Rückmeldung. Keine Rechtsberatung, sondern ehrliche Technik, die Licht ins Dunkel der Paragraphen bringt. Zeit sparen, Fehler aufdecken und sicher sein, dass die Form stimmt – hochperformant und für jeden verständlich.",
-    button: "Dokument jetzt hochladen",
-    consent: "Ich willige ein, dass meine (ggf. sensiblen) Daten zur Analyse durch eine KI verarbeitet werden. Mir ist bekannt, dass dies keine Rechtsberatung ersetzt.",
-    dir: "ltr",
-  },
-  RU: {
-    headline: "ПОВЫШАЙТЕ ЭФФЕКТИВНОСТЬ. ЭКОНОМЬТЕ ВРЕМЯ.",
-    text: "Анализ социальных и административных документов не должен отнимать ценные ресурсы. BescheidRecht – это цифровой инструмент для автоматизации обработки сложных документов. Загрузите ваш документ и получите мгновенный анализ.",
-    button: "ЗАГРУЗИТЬ ДОКУМЕНТ",
-    consent: "Я ДАЮ СОГЛАСИЕ НА ОБРАБОТКУ МОИХ (ВОЗМОЖНО ЧУВСТВИТЕЛЬНЫХ) ДАННЫХ С ПОМОЩЬЮ ИИ. МНЕ ИЗВЕСТНО, ЧТО ЭТО НЕ ЗАМЕНЯЕТ ЮРИДИЧЕСКУЮ КОНСУЛЬТАЦИЮ.",
-    dir: "ltr",
-  },
-  EN: {
-    headline: "BOOST EFFICIENCY. SAVE TIME. CREATE RELIEF.",
-    text: "The analysis of social and administrative documents must not tie up valuable capacities. BescheidRecht is the digital precision tool for automated structuring. Upload your document and receive a professional response draft immediately.",
-    button: "UPLOAD DOCUMENT NOW",
-    consent: "I CONSENT TO MY (POSSIBLY SENSITIVE) DATA BEING PROCESSED BY AN AI FOR ANALYSIS. I AM AWARE THAT THIS DOES NOT REPLACE LEGAL ADVICE.",
-    dir: "ltr",
-  },
-  AR: {
-    headline: "زيادة الكفاءة. توفير الوقت. خلق الراحة.",
-    text: "لا ينبغي أن يستهلك تحليل المراسلات الاجتماعية والإدارية قدرات قيمة. BescheidRecht هي الأداة الرقمية الدقيقة للهيكلة الآلية للمستندات المعقدة. قم بتحميل مستندك واحصل على الفور على تحليل عميق.",
-    button: "رفع المستند الآن",
-    consent: "أوافق على معالجة بياناتي (المحتملة الحساسية) بواسطة الذكاء الاصطناعي للتحليل. أعلم أن هذا لا يحل محل الاستشارة القانونية.",
-    dir: "rtl",
-  },
-  TR: {
-    headline: "VERİMLİLİĞİ ARTIRIN. ZAMAN KAZANIN.",
-    text: "Sosyal ve idari yazıların analizi değerli kapasiteleri bağlamamalıdır. BescheidRecht, karmaşık belgelerin otomatik yapılandırılması için dijital hassas bir araçtır. Belgenizi yükleyin ve anında profesyonel bir analiz alın.",
-    button: "DOKÜMANΙ ŞİMDİ YÜKLE",
-    consent: "VERİLERİMİN (MUHTEMELEN HASSASİYET) BİR YAPAY ZEKA TARAFINDAN ANALİZ İÇİN İŞLENMESİNE RAZI OLUYORUM. BUNUN HUKUKİ DANIŞMANLIĞIN YERİNİ TUTMADIĞINI BİLİYORUM.",
-    dir: "ltr",
-  },
-};
-
-const CONSENT_LETTER =
-  "Ich willige ein, dass meine Daten zur KI-Analyse verarbeitet werden. Dies ersetzt keine Rechtsberatung.";
+import { getPageT, type Lang } from "@/lib/page-translations";
 
 export default function Page() {
   const [lang, setLang] = useState<Lang>("DE");
@@ -219,11 +173,13 @@ export default function Page() {
   const handleDownloadPDF = async () => {
     const data = getLetterData();
     if (!data) return;
+    setLetterError(null);
     try {
       const blob = await pdf(<LetterPDF data={data} />).toBlob();
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
+      a.rel = "noopener";
       const today = new Date();
       const dd = String(today.getDate()).padStart(2, "0");
       const mm = String(today.getMonth() + 1).padStart(2, "0");
@@ -231,8 +187,10 @@ export default function Page() {
       const dateStr = dd + mm + yyyy;
       const safeAktenzeichen = aktenzeichen.trim().replace(/[^a-zA-Z0-9-]/g, "_");
       a.download = `BescheidRecht_${safeAktenzeichen}_${dateStr}.pdf`;
+      document.body.appendChild(a);
       a.click();
-      URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
     } catch (e) {
       setLetterError("PDF konnte nicht erstellt werden. Bitte erneut versuchen.");
     }
@@ -242,14 +200,14 @@ export default function Page() {
     window.print();
   };
 
-  const t = translations[lang];
+  const t = getPageT(lang);
 
   return (
     <main className="min-h-screen bg-mesh text-white" dir={t.dir}>
-      <SiteNavFull lang={lang} onLangChange={setLang} dir={t.dir} />
+      <SiteNavFull lang={lang} onLangChange={setLang} dir={t.dir} navBlog={t.navBlog} navLogin={t.navLogin} navRegister={t.navRegister} />
 
       {/* Hero */}
-      <section className="relative max-w-5xl mx-auto pt-20 pb-28 px-6 text-center overflow-hidden">
+      <section className="relative max-w-5xl mx-auto pt-12 sm:pt-16 md:pt-20 pb-16 sm:pb-24 md:pb-28 px-4 sm:px-6 text-center overflow-hidden">
         {/* Pulsierende blaue Lichtkreise (radial gradient, opacity 0.15) */}
         <div className="absolute inset-0 pointer-events-none">
           <div
@@ -282,26 +240,26 @@ export default function Page() {
           {t.text}
         </p>
 
-        <div ref={heroTabRef} id="hero-tab" className="relative max-w-2xl mx-auto rounded-3xl border border-white/10 bg-white/[0.04] p-8 md:p-10 shadow-[0_0_60px_-15px_var(--accent-glow)] transition-all duration-300">
+        <div ref={heroTabRef} id="hero-tab" className="relative w-full max-w-2xl mx-auto rounded-2xl sm:rounded-3xl border border-white/10 bg-white/[0.04] p-4 sm:p-6 md:p-10 shadow-[0_0_60px_-15px_var(--accent-glow)] transition-all duration-300">
           {/* Tabs */}
-          <div className="flex border-b border-white/10 mb-8">
+          <div className="flex border-b border-white/10 mb-6 sm:mb-8">
             <button
               type="button"
               onClick={() => setActiveTab(1)}
-              className={`flex-1 py-3 text-[13px] font-bold uppercase tracking-wider transition-all duration-300 ${
+              className={`flex-1 py-3 text-[11px] sm:text-[13px] font-bold uppercase tracking-wider transition-all duration-300 min-w-0 ${
                 activeTab === 1 ? "text-[var(--accent)] border-b-2 border-[var(--accent)]" : "text-white/40 hover:text-white/70"
               }`}
             >
-              📄 Bescheid analysieren
+              📄 {t.tabAnalyze}
             </button>
             <button
               type="button"
               onClick={() => setActiveTab(2)}
-              className={`flex-1 py-3 text-[13px] font-bold uppercase tracking-wider transition-all duration-300 ${
+              className={`flex-1 py-3 text-[11px] sm:text-[13px] font-bold uppercase tracking-wider transition-all duration-300 min-w-0 ${
                 activeTab === 2 ? "text-[var(--accent)] border-b-2 border-[var(--accent)]" : "text-white/40 hover:text-white/70"
               }`}
             >
-              ✍️ Schreiben erstellen
+              ✍️ {t.tabLetter}
             </button>
           </div>
 
@@ -337,14 +295,14 @@ export default function Page() {
               {/* Schritt A – Träger */}
               <div>
                 <label className="block text-[10px] font-bold uppercase tracking-widest text-white/50 mb-2">
-                  Für welche Behörde soll das Schreiben sein?
+                  {t.formBehoerdeLabel}
                 </label>
                 <select
                   value={behoerde}
                   onChange={(e) => { setBehoerde(e.target.value); setSchreibentyp(""); }}
                   className="w-full bg-black/40 border border-white/20 rounded-lg text-white text-sm py-3 px-4 outline-none focus:border-[var(--accent)] transition-all duration-300"
                 >
-                  <option value="">🏢 Bitte Behörde auswählen...</option>
+                  <option value="">🏢 {t.formBehoerdePlaceholder}</option>
                   {TRAEGER_OPTIONS.map((o) => (
                     <option key={o.value} value={o.value}>{o.label}</option>
                   ))}
@@ -354,14 +312,14 @@ export default function Page() {
               {behoerde && (
                 <div>
                   <label className="block text-[10px] font-bold uppercase tracking-widest text-white/50 mb-2">
-                    Was möchten Sie schreiben?
+                    {t.formSchreibentypLabel}
                   </label>
                   <select
                     value={schreibentyp}
                     onChange={(e) => setSchreibentyp(e.target.value)}
                     className="w-full bg-black/40 border border-white/20 rounded-lg text-white text-sm py-3 px-4 outline-none focus:border-[var(--accent)] transition-all duration-300"
                   >
-                    <option value="">📝 Bitte Typ auswählen...</option>
+                    <option value="">📝 {t.formSchreibentypPlaceholder}</option>
                     {SCHREIBENTYP_OPTIONS.map((o) => (
                       <option key={o.value} value={o.value}>{o.label}</option>
                     ))}
@@ -373,24 +331,24 @@ export default function Page() {
                 <>
                   <div>
                     <label className="block text-[10px] font-bold uppercase tracking-widest text-white/50 mb-2">
-                      Beschreiben Sie kurz Ihre Situation
+                      {t.formStichpunkteLabel}
                     </label>
                     <textarea
                       value={stichpunkte}
                       onChange={(e) => setStichpunkte(e.target.value)}
-                      placeholder='z.B. "Bescheid vom 01.02.2026 erhalten, ALG wurde um 30% gekürzt, keine Begründung angegeben..."'
+                      placeholder={t.formStichpunktePlaceholder}
                       rows={4}
                       maxLength={500}
                       className="w-full bg-black/40 border border-white/20 rounded-lg text-white text-sm py-3 px-4 outline-none focus:border-[var(--accent)] transition-all duration-300 placeholder:text-white/30 resize-y min-h-[100px]"
                     />
                     <p className="text-[11px] text-white/40 mt-1">
-                      Mindestens 20 Zeichen. Max 500 Zeichen. {stichpunkte.length}/500
+                      {t.formStichpunkteHint} {stichpunkte.length}/500
                     </p>
                   </div>
                   {/* Aktenzeichen / Bescheiddatum / Adresse */}
                   <div>
                     <label className="block text-[10px] font-bold uppercase tracking-widest text-white/50 mb-2">
-                      Aktenzeichen / Bescheid-Nummer: *
+                      {t.formAktenzeichenLabel}
                     </label>
                     <input
                       type="text"
@@ -399,29 +357,29 @@ export default function Page() {
                       placeholder="z.B. BG-123456-2026"
                       className="w-full bg-black/40 border border-white/20 rounded-lg text-white text-sm py-3 px-4 outline-none focus:border-[var(--accent)] transition-all duration-300 placeholder:text-white/30"
                     />
-                    <p className="text-[11px] text-white/40 mt-1">Steht oben rechts auf Ihrem Bescheid. (Pflichtfeld)</p>
+                    <p className="text-[11px] text-white/40 mt-1">{t.formAktenzeichenHint}</p>
                   </div>
                   <div>
                     <label className="block text-[10px] font-bold uppercase tracking-widest text-white/50 mb-2">
-                      Datum des Bescheids: *
+                      {t.formBescheiddatumLabel}
                     </label>
                     <input
                       type="text"
                       value={bescheiddatum}
                       onChange={(e) => setBescheiddatum(e.target.value)}
-                      placeholder="TT.MM.JJJJ"
+                      placeholder={t.formBescheiddatumPlaceholder}
                       className="w-full bg-black/40 border border-white/20 rounded-lg text-white text-sm py-3 px-4 outline-none focus:border-[var(--accent)] transition-all duration-300 placeholder:text-white/30"
                     />
                   </div>
                   <div>
                     <label className="block text-[10px] font-bold uppercase tracking-widest text-white/50 mb-2">
-                      Ihre Adresse: <span className="font-normal text-white/40">(optional – für das Schreiben)</span>
+                      {t.formAdresseLabel} <span className="font-normal text-white/40">{t.formAdresseOptional}</span>
                     </label>
                     <input
                       type="text"
                       value={strasse}
                       onChange={(e) => setStrasse(e.target.value)}
-                      placeholder="Straße & Hausnummer"
+                      placeholder={t.formStrassePlaceholder}
                       className="w-full bg-black/40 border border-white/20 rounded-lg text-white text-sm py-3 px-4 outline-none focus:border-[var(--accent)] transition-all duration-300 placeholder:text-white/30 mb-2"
                     />
                     <div className="flex gap-2">
@@ -429,14 +387,14 @@ export default function Page() {
                         type="text"
                         value={plz}
                         onChange={(e) => setPlz(e.target.value)}
-                        placeholder="PLZ"
+                        placeholder={t.formPlzPlaceholder}
                         className="w-24 flex-shrink-0 bg-black/40 border border-white/20 rounded-lg text-white text-sm py-3 px-4 outline-none focus:border-[var(--accent)] transition-all duration-300 placeholder:text-white/30"
                       />
                       <input
                         type="text"
                         value={ort}
                         onChange={(e) => setOrt(e.target.value)}
-                        placeholder="Ort"
+                        placeholder={t.formOrtPlaceholder}
                         className="flex-1 min-w-0 bg-black/40 border border-white/20 rounded-lg text-white text-sm py-3 px-4 outline-none focus:border-[var(--accent)] transition-all duration-300 placeholder:text-white/30"
                       />
                     </div>
@@ -450,7 +408,7 @@ export default function Page() {
                       className="mt-1.5 h-5 w-5 rounded border-white/20 bg-white/5 text-[var(--accent)] focus:ring-[var(--accent)] cursor-pointer flex-shrink-0"
                     />
                     <label htmlFor="consent-letter" className="text-[12px] leading-snug text-white/80 select-none cursor-pointer">
-                      {CONSENT_LETTER}
+                      {t.consentLetter}
                     </label>
                   </div>
                   {letterError && (
@@ -465,10 +423,10 @@ export default function Page() {
                     {letterLoading ? (
                       <>
                         <Loader2 className="h-5 w-5 animate-spin" />
-                        Schreiben wird erstellt...
+                        {t.btnGenerating}
                       </>
                     ) : (
-                      "Schreiben als Vorlage generieren"
+                      t.btnGenerateLetter
                     )}
                   </button>
                 </>
@@ -484,14 +442,14 @@ export default function Page() {
             const empfaengerAdresse = "[Adresse der Behörde eintragen]";
             const displayName = letterUser?.name ?? "Nutzer";
             return (
-              <div className="text-left space-y-6">
-                <div className="no-print rounded-xl border border-white/10 bg-white/5 p-4 text-white">
-                  <h3 className="font-bold text-base mb-1">📄 Ihr Schreiben-Entwurf</h3>
-                  <p className="text-sm text-white/80">Aktenzeichen: {aktenzeichen.trim()}</p>
-                  <p className="text-sm text-white/80">Behörde: {getTraegerLabel(behoerde)}</p>
+              <div className="text-left space-y-4 sm:space-y-6 w-full min-w-0">
+                <div className="no-print rounded-xl border border-white/10 bg-white/5 p-3 sm:p-4 text-white">
+                  <h3 className="font-bold text-sm sm:text-base mb-1">📄 {t.resultTitle}</h3>
+                  <p className="text-xs sm:text-sm text-white/80 break-words">{t.resultAktenzeichen} {aktenzeichen.trim()}</p>
+                  <p className="text-xs sm:text-sm text-white/80 break-words">{t.resultBehoerde} {getTraegerLabel(behoerde)}</p>
                 </div>
-                <div className="letter-content bg-white text-black p-8 rounded-xl font-sans text-[11pt] leading-[1.5]">
-                  <div className="text-[10pt] mb-5 leading-snug">
+                <div className="letter-content bg-white text-black p-4 sm:p-6 md:p-8 rounded-xl font-sans text-[10pt] sm:text-[11pt] leading-[1.5] w-full min-w-0 overflow-x-auto break-words">
+                  <div className="text-[9pt] sm:text-[10pt] mb-5 leading-snug">
                     <div>{displayName}</div>
                     <div>{absenderStrasse}</div>
                     <div>{absenderPlzOrt}</div>
@@ -501,51 +459,51 @@ export default function Page() {
                     <div>{getTraegerLabel(behoerde)}</div>
                     <div>{empfaengerAdresse}</div>
                   </div>
-                  <div className="flex justify-between text-[10pt] mb-6">
-                    <span>Datum: {heute}</span>
-                    <span>Unser Zeichen: {aktenzeichen.trim()}</span>
+                  <div className="flex flex-col sm:flex-row sm:justify-between gap-1 text-[9pt] sm:text-[10pt] mb-6">
+                    <span>{t.resultDatum} {heute}</span>
+                    <span className="break-all">{t.resultUnserZeichen} {aktenzeichen.trim()}</span>
                   </div>
                   <div className="mb-5">
-                    <p className="font-bold text-[13pt] underline">
+                    <p className="font-bold text-[11pt] sm:text-[13pt] underline break-words">
                       {getSchreibentypLabel(schreibentyp)}: Aktenzeichen {aktenzeichen.trim()}
                     </p>
-                    <p className="font-bold text-[13pt] underline">Bescheid vom {bescheiddatum.trim()}</p>
+                    <p className="font-bold text-[11pt] sm:text-[13pt] underline break-words">Bescheid vom {bescheiddatum.trim()}</p>
                   </div>
-                  <p className="mb-4">Sehr geehrte Damen und Herren,</p>
-                  <div className="text-justify whitespace-pre-wrap mb-6">{generatedLetter}</div>
-                  <p className="mb-4">Mit freundlichen Grüßen</p>
-                  <div className="mt-12 pt-2 border-t border-black w-48 text-[10pt]">{displayName}</div>
-                  <p className="mt-6 text-[10pt]">Anlage: Kopie des Bescheids vom {bescheiddatum.trim()}</p>
+                  <p className="mb-4">{t.letterGreeting}</p>
+                  <div className="text-justify whitespace-pre-wrap mb-6 break-words">{generatedLetter}</div>
+                  <p className="mb-4">{t.letterClosing}</p>
+                  <div className="mt-8 sm:mt-12 pt-2 border-t border-black w-40 sm:w-48 text-[9pt] sm:text-[10pt]">{displayName}</div>
+                  <p className="mt-4 sm:mt-6 text-[9pt] sm:text-[10pt] break-words">{t.resultAnlage} {bescheiddatum.trim()}</p>
                 </div>
-                <div className="no-print rounded-xl border border-yellow-500/30 bg-yellow-500/10 p-4 text-left">
-                  <p className="text-[12px] text-yellow-300 leading-relaxed">
-                    ⚠️ Entwurf prüfen vor dem Absenden. Kein Ersatz für Rechtsberatung (§ 2 RDG).
+                <div className="no-print rounded-xl border border-yellow-500/30 bg-yellow-500/10 p-3 sm:p-4 text-left">
+                  <p className="text-[11px] sm:text-[12px] text-yellow-300 leading-relaxed">
+                    ⚠️ {t.resultWarning}
                   </p>
                 </div>
-                <div className="no-print flex flex-col sm:flex-row flex-wrap gap-3">
+                <div className="no-print flex flex-col sm:flex-row flex-wrap gap-3 w-full sm:w-auto">
                   <button
                     type="button"
                     onClick={copyToClipboard}
-                    className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl font-bold text-[12px] uppercase tracking-wider bg-white/10 text-white border border-white/20 hover:bg-white/20 transition-all duration-300"
+                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3.5 sm:py-3 rounded-xl font-bold text-[12px] uppercase tracking-wider bg-white/10 text-white border border-white/20 hover:bg-white/20 active:bg-white/25 transition-all duration-300 min-h-[44px]"
                   >
-                    <Copy className="h-4 w-4" />
-                    Text kopieren
+                    <Copy className="h-4 w-4 flex-shrink-0" />
+                    {t.btnCopy}
                   </button>
                   <button
                     type="button"
                     onClick={handleDownloadPDF}
-                    className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl font-bold text-[12px] uppercase tracking-wider bg-white/10 text-white border border-white/20 hover:bg-white/20 transition-all duration-300"
+                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3.5 sm:py-3 rounded-xl font-bold text-[12px] uppercase tracking-wider bg-white/10 text-white border border-white/20 hover:bg-white/20 active:bg-white/25 transition-all duration-300 min-h-[44px]"
                   >
-                    <Download className="h-4 w-4" />
-                    Als PDF herunterladen
+                    <Download className="h-4 w-4 flex-shrink-0" />
+                    {t.btnDownloadPdf}
                   </button>
                   <button
                     type="button"
                     onClick={handlePrint}
-                    className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl font-bold text-[12px] uppercase tracking-wider bg-white/10 text-white border border-white/20 hover:bg-white/20 transition-all duration-300"
+                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3.5 sm:py-3 rounded-xl font-bold text-[12px] uppercase tracking-wider bg-white/10 text-white border border-white/20 hover:bg-white/20 active:bg-white/25 transition-all duration-300 min-h-[44px]"
                   >
-                    <Printer className="h-4 w-4" />
-                    Drucken
+                    <Printer className="h-4 w-4 flex-shrink-0" />
+                    {t.btnPrint}
                   </button>
                 </div>
                 <button
@@ -553,7 +511,7 @@ export default function Page() {
                   onClick={() => { setGeneratedLetter(null); setLetterError(null); setLetterUser(null); }}
                   className="no-print text-[var(--accent)] text-[12px] font-bold uppercase tracking-wider hover:underline"
                 >
-                  Neues Schreiben erstellen
+                  {t.btnNewLetter}
                 </button>
               </div>
             );
@@ -567,15 +525,15 @@ export default function Page() {
             onClick={() => scrollToHeroTab(2)}
             className="w-full sm:w-auto min-w-[220px] py-4 rounded-2xl font-bold text-sm tracking-wide text-center border-2 border-white/40 text-white hover:bg-white/10 transition-all duration-300"
           >
-            ✍️ Schreiben erstellen
+            ✍️ {t.ctaLetter}
           </button>
         </div>
 
         {/* Trust-Badges */}
         <div className="relative flex flex-wrap justify-center gap-6 md:gap-10 mt-8 text-white/60 text-[13px] font-medium">
-          <span className="flex items-center gap-2">🔒 DSGVO-konform</span>
-          <span className="flex items-center gap-2">⚡ Sofortanalyse</span>
-          <span className="flex items-center gap-2">📋 Einmalig 19,90 € ohne Abo</span>
+          <span className="flex items-center gap-2">🔒 {t.trustDsgvo}</span>
+          <span className="flex items-center gap-2">⚡ {t.trustSofort}</span>
+          <span className="flex items-center gap-2">📋 {t.trustPrice}</span>
         </div>
       </section>
 
@@ -587,28 +545,16 @@ export default function Page() {
       <ScrollReveal>
         <section className="max-w-6xl mx-auto px-6 mb-32">
           <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-[var(--accent)] mb-3 text-center">
-            Was wir bieten
+            {t.sectionWhatWeOffer}
           </p>
           <h2 className="text-3xl md:text-4xl font-black tracking-tight text-center mb-16">
-            Analyse, Schreiben, Sicherheit
+            {t.sectionAnalyseWriteSecure}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {[
-              {
-                title: "Analyse",
-                desc: "Strukturierte Prüfung Ihres Bescheids auf Auffälligkeiten, Fristen und Begründungen.",
-                icon: Search,
-              },
-              {
-                title: "Automatische Schreiben",
-                desc: "Professionelle Schreiben als Vorlage zur direkten Weiterverwendung in Ihrem Verfahren.",
-                icon: FileText,
-              },
-              {
-                title: "Verständlich & sicher",
-                desc: "Einfach erklärt, DSGVO-konform verarbeitet und jederzeit nachvollziehbar strukturiert.",
-                icon: Shield,
-              },
+              { title: t.feature1Title, desc: t.feature1Desc, icon: Search },
+              { title: t.feature2Title, desc: t.feature2Desc, icon: FileText },
+              { title: t.feature3Title, desc: t.feature3Desc, icon: Shield },
             ].map((f) => (
               <div
                 key={f.title}
@@ -627,22 +573,22 @@ export default function Page() {
       <ScrollReveal>
         <section id="pricing" className="max-w-7xl mx-auto px-6 mb-32">
           <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-[var(--accent)] mb-3 text-center">
-            Preise
+            {t.sectionPrices}
           </p>
           <h2 className="text-3xl md:text-4xl font-black tracking-tight text-center mb-16">
-            Transparente Preise
+            {t.sectionTransparentPrices}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6 items-start">
             {[
-              { name: "Basic", price: "12,90 €", features: ["5 Dokumente", "Automatisierte Analyse", "Inkl. Antwort-Entwürfe"], cta: "Basic wählen", highlight: false },
-              { name: "Standard", price: "27,90 €", features: ["12 Dokumente", "Widerspruchs-Analyse", "Persönlicher Support"], cta: "Standard wählen", highlight: false },
-              { name: "Pro", price: "75 €", features: ["35 Dokumente", "Priorisierte Bearbeitung", "Kanzlei-Anbindung"], cta: "Pro wählen", highlight: true },
-              { name: "Business", price: "159 €", features: ["90 Dokumente", "Full Service & Client-Manager", "Mehrbenutzer-Schnittstelle"], cta: "Business wählen", highlight: false },
+              { name: t.pricingBasicName, price: t.pricingBasicPrice, features: [t.pricingBasicF1, t.pricingBasicF2, t.pricingBasicF3], cta: t.pricingBasicCta, highlight: false },
+              { name: t.pricingStandardName, price: t.pricingStandardPrice, features: [t.pricingStandardF1, t.pricingStandardF2, t.pricingStandardF3], cta: t.pricingStandardCta, highlight: false },
+              { name: t.pricingProName, price: t.pricingProPrice, features: [t.pricingProF1, t.pricingProF2, t.pricingProF3], cta: t.pricingProCta, highlight: true },
+              { name: t.pricingBusinessName, price: t.pricingBusinessPrice, features: [t.pricingBusinessF1, t.pricingBusinessF2, t.pricingBusinessF3], cta: t.pricingBusinessCta, highlight: false },
             ].map((p) => (
               <div key={p.name} className="relative pt-8">
                 {p.highlight && (
                   <div className="absolute -top-1 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-[var(--accent)] text-white text-[10px] font-bold uppercase tracking-widest whitespace-nowrap">
-                    EMPFOHLEN
+                    {t.recommended}
                   </div>
                 )}
                 <div
@@ -680,26 +626,26 @@ export default function Page() {
       <ScrollReveal>
         <section className="max-w-2xl mx-auto px-6 mb-32 text-center">
           <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-[var(--accent)] mb-3">
-            Einmalig
+            {t.sectionOnce}
           </p>
-          <h2 className="text-3xl font-black tracking-tight mb-2">Einzelnes Dokument</h2>
+          <h2 className="text-3xl font-black tracking-tight mb-2">{t.sectionSingleDoc}</h2>
           <p className="text-gray-500 text-sm mb-10 uppercase tracking-wider">
-            Für einen einmaligen Bescheid – ohne Abo
+            {t.singleDocDesc}
           </p>
           <div className="card card-hover p-10 rounded-2xl border-white/10 bg-white/[0.03] transition-transform duration-300 hover:-translate-y-1">
-            <span className="text-[10px] font-bold uppercase tracking-widest text-white/50">Einzelkauf</span>
+            <span className="text-[10px] font-bold uppercase tracking-widest text-white/50">{t.sectionOnce}</span>
             <p className="text-4xl font-black text-[var(--accent)] my-6">19,90 €</p>
             <ul className="text-[13px] text-left space-y-3 mb-8 font-medium text-white/80">
-              <li className="text-[var(--accent)]">✓ 1 Dokument</li>
-              <li className="text-[var(--accent)]">✓ Automatisierte Analyse</li>
-              <li className="text-[var(--accent)]">✓ 1 Schreiben</li>
-              <li className="text-red-400/80">× Kein Abo</li>
+              <li className="text-[var(--accent)]">✓ {t.singleDocF1}</li>
+              <li className="text-[var(--accent)]">✓ {t.singleDocF2}</li>
+              <li className="text-[var(--accent)]">✓ {t.singleDocF3}</li>
+              <li className="text-red-400/80">× {t.singleDocNoAbo}</li>
             </ul>
             <button
               type="button"
               className="w-full py-4 rounded-2xl bg-[var(--accent)] font-bold text-[11px] uppercase tracking-widest text-white hover:bg-[var(--accent-hover)] transition-all duration-300"
             >
-              Einzelkauf starten
+              {t.singleDocCta}
             </button>
           </div>
         </section>
@@ -709,14 +655,20 @@ export default function Page() {
       <ScrollReveal>
         <div className="border-t border-white/5 py-6">
           <div className="max-w-4xl mx-auto px-6 flex flex-wrap justify-center gap-8 md:gap-12 text-[11px] font-bold uppercase tracking-[0.2em] text-white/35">
-            <span>Basiert auf SGB I–XII</span>
-            <span>Weisungen Stand 2026</span>
-            <span>Geprüfte Rechtsgrundlagen</span>
+            <span>{t.trustSgb}</span>
+            <span>{t.trustWeisungen}</span>
+            <span>{t.trustRechtsgrundlagen}</span>
           </div>
         </div>
       </ScrollReveal>
 
-      <SiteFooter />
+      <SiteFooter
+        blog={t.footerBlog}
+        impressum={t.footerImpressum}
+        datenschutz={t.footerDatenschutz}
+        agb={t.footerAgb}
+        copyright={t.footerCopyright}
+      />
     </main>
   );
 }

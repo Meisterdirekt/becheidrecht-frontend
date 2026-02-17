@@ -164,7 +164,7 @@ export default function AnalyzePage() {
         <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-[var(--accent)] mb-2">Analyse</p>
         <h1 className="text-3xl font-black tracking-tight mb-2">Bescheid analysieren</h1>
         <p className="text-white/60 text-sm mb-10">
-          PDF oder Bild hochladen. Sie erhalten eine strukturierte Auswertung und ein Musterschreiben.
+          PDF oder Foto des Bescheids hochladen – z. B. Schreiben abfotografieren und hier einreichen. Sie erhalten eine strukturierte Auswertung und ein Musterschreiben.
         </p>
 
         <div className="max-w-xl p-8 border-2 border-dashed border-white/10 rounded-2xl bg-white/[0.03] mb-10 hover:border-white/20 transition-colors">
@@ -172,14 +172,21 @@ export default function AnalyzePage() {
             <div className="w-16 h-16 bg-[var(--accent)]/10 rounded-2xl flex items-center justify-center text-[var(--accent)]">
               <Upload size={32} />
             </div>
-            <p className="text-sm text-gray-500">PDF oder Bild (max. 10 MB)</p>
+            <p className="text-sm text-gray-500 text-center">PDF oder Bild (JPEG, PNG, WebP – max. 10 MB)</p>
+            <p className="text-xs text-white/40 text-center">Auch Foto vom Handy: Bescheid abfotografieren und hochladen.</p>
             <input
               type="file"
-              accept=".pdf,image/*"
+              accept=".pdf,application/pdf,image/jpeg,image/png,image/webp,image/*"
               className="hidden"
               id="file-upload"
               onChange={(e) => {
                 const f = e.target.files?.[0];
+                if (f && f.size > 10 * 1024 * 1024) {
+                  setError("Datei zu groß. Maximal 10 MB.");
+                  setFile(null);
+                  e.target.value = "";
+                  return;
+                }
                 setFile(f || null);
                 setResult(null);
                 setError(null);

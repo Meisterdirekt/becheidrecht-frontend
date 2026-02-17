@@ -4,7 +4,7 @@ alwaysApply: true
 ---
 
 # CURSORRULES – BESCHEIDRECHT SUPREME EXECUTION MODE
-# Projekt: bescheidrecht-frontend
+# Projekt: /home/henne1990/bescheidrecht-frontend
 
 ═══════════════════════════════════════════════════════
   EINZIGE QUELLE – AKTUELLE WEBSITE
@@ -180,9 +180,6 @@ Echte Menschen. Echte Bescheide. Echte Konsequenzen.
   → § 2 RDG: Kein Ersatz für Rechtsberatung – Disclaimer immer sichtbar
   → NULL HALLUZINATIONEN: Kein erfundener Paragraph, kein erfundenes Urteil
     "Nicht sicher" ist die einzige Alternative zum Erfinden
-  → Niemals "rechtssicher" verwenden – stattdessen:
-    "professionell", "als Vorlage", "zur eigenen Prüfung"
-  → Niemals "Antrag" allein – immer "Schreiben-Entwurf" oder "Vorlage"
   → content/ und vault/ nur auf explizite Freigabe ändern
   → Severity konsequent:
       kritisch = Leistungsanspruch oder Fristenlauf direkt betroffen
@@ -230,3 +227,37 @@ Jede UI-Entscheidung.
 Jede juristische Formulierung.
 
 Baue entsprechend.
+
+═══════════════════════════════════════════════════════
+  NEUE FEATURES (Stand Februar 2026)
+═══════════════════════════════════════════════════════
+
+NEUE DATEIEN die du kennst:
+  src/app/api/generate-letter/route.ts  ← Antrags-Generator API
+  src/components/LetterPDF.tsx          ← DIN A4 PDF-Komponente
+  src/app/blog/page.tsx                 ← Blog-Übersicht
+  src/app/blog/[slug]/page.tsx          ← Einzelartikel
+  content/blog/                         ← 5 Markdown-Artikel
+
+ANTRAGS-GENERATOR REGELN:
+  → Aktenzeichen immer Pflichtfeld – ohne geht kein Schreiben
+  → Bescheiddatum immer Pflichtfeld
+  → PDF immer DIN A4 (70pt/57pt Ränder, Helvetica 11pt)
+  → Dateiname: BescheidRecht_[Aktenzeichen]_[Datum].pdf
+  → useAnalysis nach jeder Generierung aufrufen
+
+SPRACHE & RDG:
+  → Niemals "rechtssicher" – immer "professionell" oder "als Vorlage"
+  → Niemals "Antrag" allein – immer "Schreiben-Entwurf" oder "Vorlage"
+  → Disclaimer am Ende jedes generierten Schreibens (§ 2 RDG)
+  → Disclaimer am Ende jedes Blog-Artikels
+
+BLOG REGELN:
+  → CTA am Ende jedes Artikels: "einmalig 19,90 € ohne Abo"
+  → CTA-Button verlinkt auf /#pricing
+  → Meta-Tags (title, description) für jeden Artikel Pflicht
+
+SICHERHEIT (neu bestätigt):
+  → ANTHROPIC_API_KEY nur in .env.local – niemals im Code
+  → src/lib/vault/internal_rules.json ist in .gitignore
+  → vault/ komplett in .gitignore

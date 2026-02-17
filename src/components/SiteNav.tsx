@@ -9,9 +9,12 @@ interface SiteNavFullProps {
   lang: Lang;
   onLangChange: (l: Lang) => void;
   dir: "ltr" | "rtl";
+  navBlog: string;
+  navLogin: string;
+  navRegister: string;
 }
 
-export function SiteNavFull({ lang, onLangChange, dir }: SiteNavFullProps) {
+export function SiteNavFull({ lang, onLangChange, dir, navBlog, navLogin, navRegister }: SiteNavFullProps) {
   const langs: Lang[] = ["DE", "EN", "RU", "AR", "TR"];
   return (
     <nav className="sticky top-0 z-50 flex justify-between items-center px-6 py-5 max-w-7xl mx-auto w-full bg-[var(--bg)]/80 backdrop-blur-xl border-b border-white/5">
@@ -36,13 +39,13 @@ export function SiteNavFull({ lang, onLangChange, dir }: SiteNavFullProps) {
       </div>
       <div className="flex gap-6 items-center">
         <Link href="/blog" className="btn-ghost">
-          Blog
+          {navBlog}
         </Link>
         <Link href="/login" className="btn-ghost">
-          Anmelden
+          {navLogin}
         </Link>
         <Link href="/register" className="btn-primary">
-          Registrieren
+          {navRegister}
         </Link>
       </div>
     </nav>

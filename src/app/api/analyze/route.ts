@@ -108,14 +108,22 @@ export async function POST(req: Request) {
       );
     }
 
+    const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
+
     const formData = await req.formData();
     const file = formData.get('file');
 
-    if (!file) {
-      return NextResponse.json({ error: 'Datei fehlt' }, { status: 400 });
+    if (!file || typeof file === 'string') {
+      return NextResponse.json({ error: 'Datei fehlt.' }, { status: 400 });
     }
 
-    const uploadedFile = file as any;
+    const uploadedFile = file as File;
+    if (uploadedFile.size > MAX_FILE_SIZE) {
+      return NextResponse.json(
+        { error: 'Datei zu groß. Maximal 10 MB (PDF oder Bild).' },
+        { status: 400 }
+      );
+    }
 
     const bytes = await uploadedFile.arrayBuffer();
     const buffer = Buffer.from(bytes);
@@ -126,10 +134,18 @@ export async function POST(req: Request) {
     if (mimeType === 'application/pdf') {
       extractedText = await extractTextFromPdf(buffer);
     } else if (mimeType.startsWith('image/')) {
-      extractedText = await extractTextFromImage(buffer, mimeType);
+      try {
+        extractedText = await extractTextFromImage(buffer, mimeType);
+      } catch (imgErr: any) {
+        console.error('Bild-OCR Fehler:', imgErr);
+        const msg = imgErr?.message?.includes('Key') || imgErr?.message?.includes('key')
+          ? 'Bildanalyse ist derzeit nicht verfügbar. Bitte PDF hochladen oder später erneut versuchen.'
+          : 'Text aus dem Bild konnte nicht gelesen werden. Bitte Foto erneut aufnehmen (gut beleuchtet, leserlich) oder PDF verwenden.';
+        return NextResponse.json({ error: msg }, { status: 500 });
+      }
     } else {
       return NextResponse.json(
-        { error: 'Nur PDF- oder Bilddateien werden unterstützt.' },
+        { error: 'Nur PDF- oder Bilddateien (z. B. Foto des Bescheids) werden unterstützt.' },
         { status: 400 }
       );
     }

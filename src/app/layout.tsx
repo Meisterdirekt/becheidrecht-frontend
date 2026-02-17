@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Outfit } from "next/font/google";
 import "./globals.css";
 import { RecoveryRedirect } from "@/components/RecoveryRedirect";
@@ -12,6 +12,12 @@ const outfit = Outfit({
 export const metadata: Metadata = {
   title: "BescheidRecht",
   description: "Softwaregestützte Analyse für Verwaltungsschreiben",
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
