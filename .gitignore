@@ -49,3 +49,4 @@ SYSTEM_MAP.md
 *.save
 *_backup*.tsx
 *_backup*.ts
+src/lib/vault/
