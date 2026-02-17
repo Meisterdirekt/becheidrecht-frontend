@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { createClient } from '@supabase/supabase-js';
 import { runForensicAnalysis } from '@/lib/logic/engine';
 import PDFParser from 'pdf2json';
 import OpenAI from 'openai';
@@ -7,14 +8,35 @@ import path from 'path';
 
 export const runtime = 'nodejs';
 
-function getOpenAIKeyFromVault(): string | null {
+/** Prüft Supabase Auth (Bearer Token). Gibt User oder null zurück. */
+async function getAuthenticatedUser(req: Request): Promise<{ id: string } | null> {
+  const authHeader = req.headers.get('authorization');
+  if (!authHeader || !authHeader.startsWith('Bearer ')) return null;
+  const token = authHeader.replace('Bearer ', '').trim();
+  if (!token) return null;
+
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL || '';
+  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY || '';
+  if (!url || !anonKey) return null;
+
+  const supabase = createClient(url, anonKey, {
+    global: { headers: { Authorization: `Bearer ${token}` } },
+  });
+  const { data: { user }, error } = await supabase.auth.getUser();
+  if (error || !user) return null;
+  return { id: user.id };
+}
+
+function getOpenAIKey(): string | null {
   try {
     const vaultPath = (file: string) => path.join(process.cwd(), 'vault', file);
     const envContent = fs.readFileSync(vaultPath('keys.env'), 'utf8');
-    return envContent.match(/sk-[a-zA-Z0-9_-]+/)?.[0] ?? null;
+    const key = envContent.match(/sk-[a-zA-Z0-9_-]+/)?.[0];
+    if (key) return key;
   } catch {
-    return null;
+    // Vault nicht vorhanden (z. B. auf Vercel)
   }
+  return process.env.OPENAI_API_KEY || null;
 }
 
 async function extractTextFromPdf(buffer: Buffer): Promise<string> {
@@ -39,7 +61,7 @@ async function extractTextFromPdf(buffer: Buffer): Promise<string> {
 }
 
 async function extractTextFromImage(buffer: Buffer, mimeType: string): Promise<string> {
-  const apiKey = getOpenAIKeyFromVault();
+  const apiKey = getOpenAIKey();
   if (!apiKey) {
     throw new Error('OpenAI Key fehlt.');
   }
@@ -78,6 +100,14 @@ async function extractTextFromImage(buffer: Buffer, mimeType: string): Promise<s
 
 export async function POST(req: Request) {
   try {
+    const user = await getAuthenticatedUser(req);
+    if (!user) {
+      return NextResponse.json(
+        { error: 'Nicht angemeldet. Bitte zuerst einloggen.' },
+        { status: 401 }
+      );
+    }
+
     const formData = await req.formData();
     const file = formData.get('file');
 

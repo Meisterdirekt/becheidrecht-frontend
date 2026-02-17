@@ -1,53 +1,43 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { createBrowserClient } from '@supabase/ssr';
+import React, { useState, useEffect, Suspense } from "react";
+import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
+import { createBrowserClient } from "@supabase/ssr";
+import { SiteNavSimple } from "@/components/SiteNav";
+import { SiteFooter } from "@/components/SiteFooter";
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [emailNotConfirmed, setEmailNotConfirmed] = useState(false);
-  const [resendLoading, setResendLoading] = useState(false);
-  const [resendDone, setResendDone] = useState(false);
+  const searchParams = useSearchParams();
+  const next = searchParams.get("next");
+  const redirectTo = next && next.startsWith("/") ? next : "/";
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const [supabase, setSupabase] = useState<ReturnType<typeof createBrowserClient> | null>(null);
   const [configLoading, setConfigLoading] = useState(true);
-  const [configError, setConfigError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
     async function loadConfig() {
       try {
-        const res = await fetch('/api/auth-config', { cache: 'no-store' });
-        if (!res.ok) throw new Error('Config-API fehlgeschlagen');
+        const res = await fetch("/api/auth-config", { cache: "no-store" });
+        if (!res.ok) throw new Error("Config fehlgeschlagen");
         const data = await res.json();
         if (cancelled) return;
         if (data.configured && data.url && data.anonKey) {
           setSupabase(createBrowserClient(data.url, data.anonKey));
-          setConfigError(null);
         } else {
           const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
           const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-          if (url && key) {
-            setSupabase(createBrowserClient(url, key));
-            setConfigError(null);
-          } else {
-            setConfigError(data.error || 'Supabase ist nicht konfiguriert.');
-          }
+          if (url && key) setSupabase(createBrowserClient(url, key));
         }
       } catch {
         const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
         const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-        if (url && key) {
-          setSupabase(createBrowserClient(url, key));
-          setConfigError(null);
-        } else {
-          if (!cancelled) setConfigError('Konfiguration konnte nicht geladen werden. Bitte /api/auth-config prüfen und neuesten Code deployen.');
-        }
+        if (url && key) setSupabase(createBrowserClient(url, key));
       }
       if (!cancelled) setConfigLoading(false);
     }
@@ -55,153 +45,99 @@ export default function LoginPage() {
     return () => { cancelled = true; };
   }, []);
 
-  // Wenn der Passwort-Reset-Link aus der E-Mail auf /login landet → zu /reset-password mit Hash weiterleiten
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    const hash = window.location.hash || '';
-    if (hash.includes('type=recovery')) {
-      window.location.href = '/reset-password' + hash;
-    }
-  }, []);
-
-  async function handleSubmit(e: React.FormEvent) {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
-    setEmailNotConfirmed(false);
-    setResendDone(false);
+    setError("");
+    if (!email || !password) {
+      setError("Bitte alle Felder ausfüllen.");
+      return;
+    }
     if (!supabase) {
-      setError('Anmeldung derzeit nicht verfügbar.');
+      setError("Anmeldung derzeit nicht verfügbar. Bitte Supabase konfigurieren.");
       return;
     }
-    if (!email?.trim() || !password) {
-      setError('Bitte E-Mail und Passwort eingeben.');
-      return;
-    }
-    setLoading(true);
+    setIsLoading(true);
     try {
-      const { data, error: err } = await supabase.auth.signInWithPassword({
-        email: email.trim(),
-        password,
-      });
+      const { error: err } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
       if (err) {
-        const isUnconfirmed = err.message?.toLowerCase().includes('email not confirmed') || err.message?.toLowerCase().includes('not confirmed');
-        setEmailNotConfirmed(!!isUnconfirmed);
-        setError(
-          err.message.includes('Invalid login')
-            ? 'E-Mail oder Passwort falsch. Bitte prüfen Sie Ihre Eingabe.'
-            : isUnconfirmed
-              ? 'Bitte bestätigen Sie zuerst Ihre E-Mail-Adresse über den Link in der Bestätigungs-Mail.'
-              : err.message
-        );
-        setLoading(false);
+        setError(err.message === "Invalid login credentials" ? "E-Mail oder Passwort falsch." : err.message);
         return;
       }
-      if (data?.session) {
-        router.push('/');
-        router.refresh();
-      }
-    } catch (e: unknown) {
-      const msg = e instanceof Error ? e.message : 'Ein Fehler ist aufgetreten. Bitte später erneut versuchen.';
-      setError(msg);
-    }
-    setLoading(false);
-  }
-
-  async function handleResendConfirmation() {
-    if (!supabase || !email?.trim()) return;
-    setResendLoading(true);
-    setError(null);
-    setResendDone(false);
-    try {
-      const { error: err } = await supabase.auth.resend({
-        type: 'signup',
-        email: email.trim(),
-      });
-      if (err) setError(err.message);
-      else setResendDone(true);
+      router.push(redirectTo);
+      router.refresh();
     } catch {
-      setError('Erneut senden fehlgeschlagen.');
+      setError("Ein Fehler ist aufgetreten. Bitte erneut versuchen.");
+    } finally {
+      setIsLoading(false);
     }
-    setResendLoading(false);
-  }
+  };
 
   return (
-    <main className="min-h-screen bg-[#F8FAFC] flex items-center justify-center p-6 font-sans">
-      <div className="w-full max-w-md bg-white rounded-[40px] shadow-xl border border-slate-200 p-10 md:p-14">
-        <div className="text-center mb-10">
-          <Link href="/" className="text-2xl font-bold text-[#0F172A] inline-flex items-center gap-2 mb-6">
-            <div className="w-6 h-6 bg-blue-600 rounded-md"></div> Bescheid<span className="text-blue-600 font-black">Recht</span>
-          </Link>
-          <h1 className="text-3xl font-black text-slate-900 italic uppercase tracking-tighter text-center">Willkommen zurück</h1>
-          <p className="text-slate-500 text-sm mt-2 font-medium text-center">Melden Sie sich in Ihrem Konto an</p>
-        </div>
-
-        {configLoading ? (
-          <div className="text-center py-8 text-slate-500">Lade …</div>
-        ) : (
-          <form onSubmit={handleSubmit} className="space-y-6 text-left">
-            {configError && (
-              <div className="rounded-2xl bg-amber-50 border border-amber-200 px-4 py-3 text-sm text-amber-800">
-                {configError} In Vercel: Settings → Environment Variables → <strong>NEXT_PUBLIC_SUPABASE_URL</strong> und <strong>NEXT_PUBLIC_SUPABASE_ANON_KEY</strong> eintragen (Werte aus Supabase Dashboard → Project Settings → API).
-              </div>
-            )}
-            {error && (
-              <div className="rounded-2xl bg-red-100 border-2 border-red-300 px-4 py-4 text-sm text-red-900 font-medium" role="alert">
-                {error}
-                {emailNotConfirmed && (
-                  <>
-                    <button
-                      type="button"
-                      onClick={handleResendConfirmation}
-                      disabled={resendLoading}
-                      className="mt-3 block w-full text-center text-blue-600 font-bold text-xs uppercase tracking-widest hover:underline disabled:opacity-50"
-                    >
-                      {resendLoading ? 'Wird gesendet …' : 'Bestätigungs-Mail erneut senden'}
-                    </button>
-                    {resendDone && <p className="mt-2 text-green-700 text-xs font-medium">E-Mail erneut gesendet. Bitte Posteingang und Spam prüfen.</p>}
-                  </>
-                )}
-              </div>
-            )}
+    <main className="min-h-screen bg-mesh text-white flex flex-col">
+      <SiteNavSimple backHref="/" backLabel="Zurück zur Startseite" />
+      <div className="flex-1 flex items-center justify-center p-6 py-16">
+        <div className="w-full max-w-md rounded-3xl border border-white/10 bg-white/[0.04] p-8 md:p-10 shadow-xl">
+          <h1 className="text-3xl font-black tracking-tight mb-8">Anmeldung</h1>
+          <form className="space-y-6" onSubmit={handleSubmit} noValidate>
             <div>
-              <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2 ml-1">E-Mail-Adresse</label>
+              <label className="label-upper">E-Mail-Adresse</label>
               <input
                 type="email"
-                className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:border-blue-500 transition-all text-slate-900 font-medium"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                required
+                autoComplete="email"
+                className="input-field"
+                placeholder="name@beispiel.de"
               />
             </div>
-
             <div>
-              <div className="flex justify-between mb-2 ml-1">
-                <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Passwort</label>
-                <Link href="/forgot" className="text-[10px] font-black uppercase tracking-[0.2em] text-blue-600">Vergessen?</Link>
+              <div className="flex justify-between items-center mb-2">
+                <label className="label-upper">Passwort</label>
+                <Link href="/forgot" className="text-[11px] text-[var(--accent)] hover:text-[var(--accent-hover)] font-bold uppercase tracking-wider transition-colors">
+                  Vergessen?
+                </Link>
               </div>
               <input
                 type="password"
-                className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:border-blue-500 transition-all text-slate-900 font-medium"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                required
+                autoComplete="current-password"
+                className="input-field"
+                placeholder="••••••••"
               />
             </div>
-
+            {error && (
+              <div className="rounded-xl bg-red-500/10 border border-red-500/30 p-3">
+                <p className="text-red-400 text-sm">{error}</p>
+              </div>
+            )}
             <button
               type="submit"
-              disabled={loading || !supabase}
-              className="w-full bg-[#0F172A] text-white py-5 rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-lg hover:bg-blue-600 transition-all mt-4 disabled:opacity-60 disabled:cursor-not-allowed"
+              disabled={isLoading || configLoading || !supabase}
+              className="w-full btn-primary py-4 rounded-2xl disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-none"
             >
-              {loading ? 'Wird angemeldet …' : 'Anmelden'}
+              {configLoading ? "Lade …" : isLoading ? "Wird angemeldet …" : "Jetzt einloggen"}
             </button>
           </form>
-        )}
-
-        <p className="text-center mt-10 text-xs font-bold text-slate-400 uppercase tracking-widest">
-          Neu hier? <Link href="/register" className="text-blue-600 ml-1">Account erstellen</Link>
-        </p>
+          <div className="mt-8 pt-8 border-t border-white/10 flex flex-col gap-3 items-center">
+            <p className="text-[12px] text-white/50">
+              Noch kein Konto?{" "}
+              <Link href="/register" className="text-[var(--accent)] hover:underline font-medium">
+                Registrieren
+              </Link>
+            </p>
+          </div>
+        </div>
       </div>
+      <SiteFooter />
     </main>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[var(--bg)] flex items-center justify-center text-white/60 text-sm">Lade …</div>}>
+      <LoginForm />
+    </Suspense>
   );
 }

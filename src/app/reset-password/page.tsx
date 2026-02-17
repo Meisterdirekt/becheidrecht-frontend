@@ -4,6 +4,8 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createBrowserClient } from "@supabase/ssr";
+import { SiteNavSimple } from "@/components/SiteNav";
+import { SiteFooter } from "@/components/SiteFooter";
 
 export default function ResetPasswordPage() {
   const router = useRouter();
@@ -39,19 +41,15 @@ export default function ResetPasswordPage() {
       if (!cancelled) setConfigLoading(false);
     }
     loadConfig();
-    return () => {
-      cancelled = true;
-    };
+    return () => { cancelled = true; };
   }, []);
 
   useEffect(() => {
     if (configLoading || typeof window === "undefined") return;
     const hash = window.location.hash || "";
     const search = window.location.search || "";
-    // Supabase schickt Tokens im Hash (#access_token=...&type=recovery); manchmal landet der Link auf /login, dann leiten wir mit Hash weiter
     const recovery = hash.includes("type=recovery") || search.includes("type=recovery");
     setIsRecovery(recovery);
-    // Session aus Hash/URL herstellen, damit updateUser() später funktioniert
     if (recovery && supabase) supabase.auth.getSession();
   }, [configLoading, supabase]);
 
@@ -90,99 +88,80 @@ export default function ResetPasswordPage() {
   }
 
   return (
-    <main className="min-h-screen bg-[#F8FAFC] flex items-center justify-center p-6 font-sans">
-      <div className="w-full max-w-md bg-white rounded-[40px] shadow-xl border border-slate-200 p-10 md:p-14">
-        <div className="text-center mb-10">
-          <Link
-            href="/"
-            className="text-2xl font-bold text-[#0F172A] inline-flex items-center gap-2 mb-6"
-          >
-            <div className="w-6 h-6 bg-blue-600 rounded-md"></div> Bescheid
-            <span className="text-blue-600 font-black">Recht</span>
-          </Link>
-          <h1 className="text-3xl font-black text-slate-900 italic uppercase tracking-tighter text-center">
-            Neues Passwort
-          </h1>
-          <p className="text-slate-500 text-sm mt-2 font-medium text-center">
-            Setzen Sie hier Ihr neues Passwort
-          </p>
-        </div>
+    <main className="min-h-screen bg-mesh text-white flex flex-col">
+      <SiteNavSimple backHref="/login" backLabel="Zurück zum Login" />
+      <div className="flex-1 flex items-center justify-center p-6 py-16">
+        <div className="w-full max-w-md rounded-3xl border border-white/10 bg-white/[0.04] p-8 md:p-10 shadow-xl">
+          <h1 className="text-3xl font-black tracking-tight mb-2">Neues Passwort</h1>
+          <p className="text-white/60 text-sm mb-8">Setzen Sie hier Ihr neues Passwort.</p>
 
-        {configLoading ? (
-          <div className="text-center py-8 text-slate-500">Lade …</div>
-        ) : !isRecovery ? (
-          <div className="rounded-2xl bg-amber-50 border border-amber-200 p-6 text-center space-y-3">
-            <p className="text-slate-800 font-medium">
-              Dieser Link ist ungültig oder abgelaufen. Bitte fordern Sie einen neuen Link an.
-            </p>
-            <Link
-              href="/forgot"
-              className="inline-block text-blue-600 font-bold text-sm uppercase tracking-widest hover:underline"
-            >
-              Neuen Link anfordern
-            </Link>
-            <br />
-            <Link href="/login" className="text-slate-500 text-sm hover:underline">
+          {configLoading ? (
+            <p className="text-white/50 text-sm">Lade …</p>
+          ) : !isRecovery ? (
+            <div className="rounded-2xl bg-amber-500/10 border border-amber-500/30 p-6 text-center space-y-3">
+              <p className="text-amber-200 text-sm">
+                Dieser Link ist ungültig oder abgelaufen. Bitte fordern Sie einen neuen Link an.
+              </p>
+              <Link href="/forgot" className="inline-block text-[var(--accent)] font-bold text-sm uppercase tracking-wider hover:underline">
+                Neuen Link anfordern
+              </Link>
+              <br />
+              <Link href="/login" className="text-white/60 text-sm hover:underline">
+                Zum Login
+              </Link>
+            </div>
+          ) : success ? (
+            <div className="rounded-2xl bg-green-500/10 border border-green-500/30 p-6 text-center">
+              <p className="text-green-200 font-bold">Passwort wurde geändert.</p>
+              <p className="text-green-200/80 mt-2 text-sm">Sie werden zur Startseite weitergeleitet …</p>
+            </div>
+          ) : (
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {error && (
+                <div className="rounded-xl bg-red-500/10 border border-red-500/30 p-3 text-red-400 text-sm" role="alert">
+                  {error}
+                </div>
+              )}
+              <div>
+                <label className="label-upper">Neues Passwort</label>
+                <input
+                  type="password"
+                  minLength={6}
+                  className="input-field"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+              </div>
+              <div>
+                <label className="label-upper">Passwort bestätigen</label>
+                <input
+                  type="password"
+                  minLength={6}
+                  className="input-field"
+                  value={confirm}
+                  onChange={(e) => setConfirm(e.target.value)}
+                  required
+                />
+              </div>
+              <button
+                type="submit"
+                disabled={loading || !supabase}
+                className="w-full btn-primary py-4 rounded-2xl disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {loading ? "Wird gespeichert …" : "Passwort speichern"}
+              </button>
+            </form>
+          )}
+
+          <p className="text-center mt-8 text-[12px] text-white/50">
+            <Link href="/login" className="text-[var(--accent)] hover:underline">
               Zum Login
             </Link>
-          </div>
-        ) : success ? (
-          <div className="rounded-2xl bg-green-50 border border-green-200 p-6 text-center">
-            <p className="text-green-800 font-bold">Passwort wurde geändert.</p>
-            <p className="text-green-700 mt-2 text-sm">Sie werden zur Startseite weitergeleitet …</p>
-          </div>
-        ) : (
-          <form onSubmit={handleSubmit} className="space-y-6 text-left">
-            {error && (
-              <div
-                className="rounded-2xl bg-red-100 border-2 border-red-300 px-4 py-4 text-sm text-red-900 font-medium"
-                role="alert"
-              >
-                {error}
-              </div>
-            )}
-            <div>
-              <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2 ml-1">
-                Neues Passwort
-              </label>
-              <input
-                type="password"
-                minLength={6}
-                className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:border-blue-500 transition-all text-slate-900 font-medium"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2 ml-1">
-                Passwort bestätigen
-              </label>
-              <input
-                type="password"
-                minLength={6}
-                className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:border-blue-500 transition-all text-slate-900 font-medium"
-                value={confirm}
-                onChange={(e) => setConfirm(e.target.value)}
-                required
-              />
-            </div>
-            <button
-              type="submit"
-              disabled={loading || !supabase}
-              className="w-full bg-[#0F172A] text-white py-5 rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-lg hover:bg-blue-600 transition-all mt-4 disabled:opacity-60 disabled:cursor-not-allowed"
-            >
-              {loading ? "Wird gespeichert …" : "Passwort speichern"}
-            </button>
-          </form>
-        )}
-
-        <p className="text-center mt-10 text-xs font-bold text-slate-400 uppercase tracking-widest">
-          <Link href="/login" className="text-blue-600">
-            Zum Login
-          </Link>
-        </p>
+          </p>
+        </div>
       </div>
+      <SiteFooter />
     </main>
   );
 }

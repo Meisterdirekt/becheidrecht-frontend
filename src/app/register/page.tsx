@@ -1,53 +1,69 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { createBrowserClient } from '@supabase/ssr';
+import React, { useState, useEffect, Suspense } from "react";
+import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
+import { createBrowserClient } from "@supabase/ssr";
+import { SiteNavSimple } from "@/components/SiteNav";
+import { SiteFooter } from "@/components/SiteFooter";
 
-export default function RegisterPage() {
+interface FormData {
+  firstName: string;
+  lastName: string;
+  email: string;
+  street: string;
+  city: string;
+  password: string;
+  passwordConfirm: string;
+}
+
+interface FormErrors {
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  password?: string;
+  passwordConfirm?: string;
+}
+
+function RegisterForm() {
   const router = useRouter();
-  const [formData, setFormData] = useState({ name: '', email: '', password: '', terms: false });
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
-  const [resendLoading, setResendLoading] = useState(false);
-  const [resendDone, setResendDone] = useState(false);
+  const searchParams = useSearchParams();
+  const next = searchParams.get("next");
+  const redirectTo = next && next.startsWith("/") ? next : "/";
+  const [formData, setFormData] = useState<FormData>({
+    firstName: "",
+    lastName: "",
+    email: "",
+    street: "",
+    city: "",
+    password: "",
+    passwordConfirm: "",
+  });
+  const [errors, setErrors] = useState<FormErrors>({});
+  const [isLoading, setIsLoading] = useState(false);
   const [supabase, setSupabase] = useState<ReturnType<typeof createBrowserClient> | null>(null);
   const [configLoading, setConfigLoading] = useState(true);
-  const [configError, setConfigError] = useState<string | null>(null);
-  const [redirecting, setRedirecting] = useState(false);
+  const [emailConfirmSent, setEmailConfirmSent] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
     async function loadConfig() {
       try {
-        const res = await fetch('/api/auth-config', { cache: 'no-store' });
-        if (!res.ok) throw new Error('Config-API fehlgeschlagen');
+        const res = await fetch("/api/auth-config", { cache: "no-store" });
+        if (!res.ok) throw new Error("Config fehlgeschlagen");
         const data = await res.json();
         if (cancelled) return;
         if (data.configured && data.url && data.anonKey) {
           setSupabase(createBrowserClient(data.url, data.anonKey));
-          setConfigError(null);
         } else {
           const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
           const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-          if (url && key) {
-            setSupabase(createBrowserClient(url, key));
-            setConfigError(null);
-          } else {
-            setConfigError(data.error || 'Supabase ist nicht konfiguriert.');
-          }
+          if (url && key) setSupabase(createBrowserClient(url, key));
         }
-      } catch (e) {
+      } catch {
         const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
         const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-        if (url && key) {
-          setSupabase(createBrowserClient(url, key));
-          setConfigError(null);
-        } else {
-          if (!cancelled) setConfigError('Konfiguration konnte nicht geladen werden. Bitte /api/auth-config prüfen und neuesten Code deployen.');
-        }
+        if (url && key) setSupabase(createBrowserClient(url, key));
       }
       if (!cancelled) setConfigLoading(false);
     }
@@ -55,212 +71,183 @@ export default function RegisterPage() {
     return () => { cancelled = true; };
   }, []);
 
-  async function handleSubmit(e?: React.FormEvent) {
-    e?.preventDefault();
-    e?.stopPropagation();
-    setError(null);
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    if (errors[name as keyof FormErrors]) {
+      setErrors((prev) => ({ ...prev, [name]: undefined }));
+    }
+  };
+
+  const validate = (): boolean => {
+    const newErrors: FormErrors = {};
+    if (!formData.firstName.trim()) newErrors.firstName = "Pflichtfeld";
+    if (!formData.lastName.trim()) newErrors.lastName = "Pflichtfeld";
+    if (!formData.email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) newErrors.email = "Ungültige E-Mail-Adresse";
+    if (formData.password.length < 8) newErrors.password = "Mindestens 8 Zeichen";
+    if (formData.password !== formData.passwordConfirm) newErrors.passwordConfirm = "Passwörter stimmen nicht überein";
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!validate()) return;
     if (!supabase) {
-      setError('Registrierung derzeit nicht verfügbar. Supabase-Config fehlt.');
+      setErrors({ email: "Registrierung derzeit nicht verfügbar. Bitte Supabase konfigurieren." });
       return;
     }
-    if (!formData.terms) {
-      setError('Bitte akzeptieren Sie die AGB und die Datenschutzerklärung.');
-      return;
-    }
-    if (!formData.email?.trim() || !formData.password) {
-      setError('Bitte E-Mail und Passwort ausfüllen.');
-      return;
-    }
-    if (formData.password.length < 6) {
-      setError('Das Passwort muss mindestens 6 Zeichen haben.');
-      return;
-    }
-    setLoading(true);
-    setError(null);
-    const timeoutMs = 15000;
+    setIsLoading(true);
+    setErrors({});
     try {
-      const signUpPromise = supabase.auth.signUp({
+      const { data, error: err } = await supabase.auth.signUp({
         email: formData.email.trim(),
         password: formData.password,
         options: {
-          data: { full_name: formData.name.trim() || undefined },
-          emailRedirectTo: typeof window !== 'undefined' ? window.location.origin + '/' : undefined,
+          data: {
+            first_name: formData.firstName.trim(),
+            last_name: formData.lastName.trim(),
+            street: formData.street.trim() || undefined,
+            city: formData.city.trim() || undefined,
+          },
         },
       });
-      const timeoutPromise = new Promise<never>((_, reject) =>
-        setTimeout(() => reject(new Error('Verbindung zu Supabase dauert zu lange. Bitte Internet und Supabase-Einstellungen prüfen.')), timeoutMs)
-      );
-      const { data, error: err } = await Promise.race([signUpPromise, timeoutPromise]);
       if (err) {
-        setError(err.message === 'User already registered' ? 'Diese E-Mail ist bereits registriert. Bitte melden Sie sich an.' : err.message);
-        setLoading(false);
+        setErrors({ email: err.message });
         return;
       }
-      if (data?.user && !data.session) {
-        const { data: signInData, error: signInErr } = await supabase.auth.signInWithPassword({
-          email: formData.email.trim(),
-          password: formData.password,
-        });
-        if (!signInErr && signInData?.session) {
-          setRedirecting(true);
-          setError(null);
-          setTimeout(() => { window.location.href = '/'; }, 1500);
-          return;
-        }
-        setSuccess(true);
-        setLoading(false);
-        return;
-      }
-      setRedirecting(true);
-      setError(null);
-      setTimeout(() => {
-        window.location.href = '/';
-      }, 2500);
-    } catch (e: unknown) {
-      const msg = e instanceof Error ? e.message : 'Ein Fehler ist aufgetreten. Bitte später erneut versuchen.';
-      setError(msg);
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  async function handleResendConfirmation() {
-    if (!supabase || !formData.email?.trim()) return;
-    setResendLoading(true);
-    setError(null);
-    setResendDone(false);
-    try {
-      const { error: err } = await supabase.auth.resend({
-        type: 'signup',
-        email: formData.email.trim(),
-      });
-      if (err) {
-        setError(err.message);
+      if (data.session) {
+        router.push(redirectTo);
+        router.refresh();
       } else {
-        setResendDone(true);
+        setEmailConfirmSent(true);
       }
     } catch {
-      setError('Erneut senden fehlgeschlagen.');
+      setErrors({ email: "Ein Fehler ist aufgetreten. Bitte erneut versuchen." });
+    } finally {
+      setIsLoading(false);
     }
-    setResendLoading(false);
-  }
+  };
 
   return (
-    <main className="min-h-screen bg-[#F8FAFC] flex items-center justify-center p-6 font-sans relative">
-      {loading && (
-        <div className="fixed inset-0 bg-slate-900/80 flex items-center justify-center z-50" aria-live="polite">
-          <div className="bg-white rounded-2xl p-8 text-center shadow-2xl max-w-sm mx-4">
-            <p className="font-black text-slate-800 uppercase tracking-wide">Registrierung wird ausgeführt …</p>
-            <p className="text-slate-500 text-sm mt-2">Bitte warten Sie.</p>
-          </div>
-        </div>
-      )}
-      <div className="w-full max-w-md bg-white rounded-[40px] shadow-xl border border-slate-200 p-10 md:p-14">
-        <div className="text-center mb-10">
-          <Link href="/" className="text-2xl font-bold text-[#0F172A] inline-flex items-center gap-2 mb-6">
-            <div className="w-6 h-6 bg-blue-600 rounded-md"></div> Bescheid<span className="text-blue-600 font-black">Recht</span>
+    <main className="min-h-screen bg-mesh text-white flex flex-col">
+      <SiteNavSimple backHref="/" backLabel="Zurück zur Startseite" />
+      <div className="flex-1 flex items-center justify-center p-6 py-16">
+        <div className="w-full max-w-xl rounded-3xl border border-white/10 bg-white/[0.04] p-8 md:p-10 shadow-xl">
+          <Link href="/" className="text-[11px] text-white/40 hover:text-white uppercase tracking-wider transition-colors mb-6 inline-block">
+            ← Startseite
           </Link>
-          <h1 className="text-3xl font-black text-slate-900 italic uppercase tracking-tighter text-center">Account erstellen</h1>
-          <p className="text-slate-500 text-sm mt-2 font-medium text-center">Starten Sie Ihre präzise Analyse</p>
-        </div>
+          <h1 className="text-3xl font-black tracking-tight mb-8">Registrierung</h1>
 
-        {success ? (
-          <div className="rounded-2xl bg-blue-50 border border-blue-200 p-6 text-center">
-            <p className="text-slate-800 font-medium">Wir haben Ihnen eine E-Mail geschickt. Bitte bestätigen Sie Ihren Account über den Link in der E-Mail und melden Sie sich danach an. Falls keine E-Mail ankommt, können Sie sie unten erneut anfordern.</p>
-            {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
-            {resendDone && <p className="mt-2 text-sm text-green-700 font-medium">E-Mail erneut gesendet. Bitte Posteingang und Spam prüfen.</p>}
-            <button
-              type="button"
-              onClick={handleResendConfirmation}
-              disabled={resendLoading}
-              className="mt-4 text-blue-600 font-bold text-sm uppercase tracking-widest hover:underline disabled:opacity-50"
-            >
-              {resendLoading ? 'Wird gesendet …' : 'Bestätigungs-Mail erneut senden'}
-            </button>
-            <Link href="/login" className="block mt-4 text-blue-600 font-bold text-sm uppercase tracking-widest">Zum Login</Link>
-          </div>
-        ) : redirecting ? (
-          <div className="rounded-2xl bg-green-50 border-2 border-green-300 p-6 text-center">
-            <p className="text-green-800 font-bold">Registrierung erfolgreich.</p>
-            <p className="text-green-700 mt-2">Sie werden in Kürze zur Startseite weitergeleitet …</p>
-          </div>
-        ) : configLoading ? (
-          <div className="text-center py-8 text-slate-500">Lade …</div>
-        ) : (
-          <form onSubmit={(e) => handleSubmit(e)} className="space-y-5">
-            {configError && (
-              <div className="rounded-2xl bg-amber-50 border border-amber-200 px-4 py-3 text-sm text-amber-800">
-                {configError} In Vercel: Settings → Environment Variables → <strong>NEXT_PUBLIC_SUPABASE_URL</strong> und <strong>NEXT_PUBLIC_SUPABASE_ANON_KEY</strong> eintragen (Werte aus Supabase Dashboard → Project Settings → API).
+          {emailConfirmSent ? (
+            <div className="rounded-2xl bg-green-500/10 border border-green-500/30 p-6 space-y-4">
+              <p className="text-green-200 text-sm leading-relaxed">
+                Wir haben Ihnen eine E-Mail an <strong className="text-white">{formData.email}</strong> gesendet.
+                Bitte klicken Sie den Link in der E-Mail, um Ihr Konto zu bestätigen.
+              </p>
+              <p className="text-white/60 text-xs">Posteingang und Spam-Ordner prüfen.</p>
+              <Link href="/login" className="inline-block text-[var(--accent)] font-bold text-sm hover:underline">
+                Zum Login
+              </Link>
+            </div>
+          ) : (
+            <>
+              <form className="grid grid-cols-1 md:grid-cols-2 gap-6" onSubmit={handleSubmit} noValidate>
+                {(["firstName", "lastName"] as const).map((name) => (
+                  <div key={name}>
+                    <label className="label-upper">
+                      {name === "firstName" ? "Vorname" : "Nachname"} <span className="text-[var(--accent)]">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      name={name}
+                      value={formData[name]}
+                      onChange={handleChange}
+                      autoComplete={name === "firstName" ? "given-name" : "family-name"}
+                      className={`input-field ${errors[name] ? "border-red-500/50" : ""}`}
+                      placeholder={name === "firstName" ? "Max" : "Mustermann"}
+                    />
+                    {errors[name] && <p className="text-red-400 text-xs mt-1">{errors[name]}</p>}
+                  </div>
+                ))}
+                <div className="md:col-span-2">
+                  <label className="label-upper">E-Mail <span className="text-[var(--accent)]">*</span></label>
+                  <input
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    autoComplete="email"
+                    className={`input-field ${errors.email ? "border-red-500/50" : ""}`}
+                    placeholder="name@beispiel.de"
+                  />
+                  {errors.email && <p className="text-red-400 text-xs mt-1">{errors.email}</p>}
+                </div>
+                <div className="md:col-span-2">
+                  <label className="label-upper">Straße & Hausnummer <span className="text-white/30">(optional)</span></label>
+                  <input type="text" name="street" value={formData.street} onChange={handleChange} autoComplete="street-address" className="input-field" placeholder="Musterstraße 1" />
+                </div>
+                <div>
+                  <label className="label-upper">PLZ & Ort <span className="text-white/30">(optional)</span></label>
+                  <input type="text" name="city" value={formData.city} onChange={handleChange} autoComplete="postal-code" className="input-field" placeholder="12345 Berlin" />
+                </div>
+                <div>
+                  <label className="label-upper">Passwort <span className="text-[var(--accent)]">*</span></label>
+                  <input
+                    type="password"
+                    name="password"
+                    value={formData.password}
+                    onChange={handleChange}
+                    autoComplete="new-password"
+                    className={`input-field ${errors.password ? "border-red-500/50" : ""}`}
+                    placeholder="Min. 8 Zeichen"
+                  />
+                  {errors.password && <p className="text-red-400 text-xs mt-1">{errors.password}</p>}
+                </div>
+                <div className="md:col-span-2">
+                  <label className="label-upper">Passwort wiederholen <span className="text-[var(--accent)]">*</span></label>
+                  <input
+                    type="password"
+                    name="passwordConfirm"
+                    value={formData.passwordConfirm}
+                    onChange={handleChange}
+                    autoComplete="new-password"
+                    className={`input-field ${errors.passwordConfirm ? "border-red-500/50" : ""}`}
+                    placeholder="Passwort wiederholen"
+                  />
+                  {errors.passwordConfirm && <p className="text-red-400 text-xs mt-1">{errors.passwordConfirm}</p>}
+                </div>
+                <div className="md:col-span-2 pt-2">
+                  <button
+                    type="submit"
+                    disabled={isLoading || configLoading || !supabase}
+                    className="w-full btn-primary py-4 rounded-2xl disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {configLoading ? "Lade …" : isLoading ? "Wird erstellt …" : "Account erstellen"}
+                  </button>
+                </div>
+              </form>
+              <div className="mt-8 pt-8 border-t border-white/10 text-center">
+                <p className="text-[12px] text-white/50">
+                  Bereits ein Konto?{" "}
+                  <Link href="/login" className="text-[var(--accent)] hover:underline font-medium">
+                    Hier anmelden
+                  </Link>
+                </p>
               </div>
-            )}
-            {error && (
-              <div className="rounded-2xl bg-red-100 border-2 border-red-300 px-4 py-4 text-sm text-red-900 font-medium" role="alert">{error}</div>
-            )}
-            <div>
-              <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2 ml-1">Vollständiger Name</label>
-              <input
-                type="text"
-                placeholder="Max Mustermann"
-                className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:border-blue-500 transition-all text-slate-900 font-medium"
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              />
-            </div>
-            <div>
-              <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2 ml-1">E-Mail-Adresse</label>
-              <input
-                type="email"
-                placeholder="name@firma.de"
-                className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:border-blue-500 transition-all text-slate-900 font-medium"
-                value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2 ml-1">Passwort</label>
-              <input
-                type="password"
-                placeholder="••••••••"
-                minLength={6}
-                className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:border-blue-500 transition-all text-slate-900 font-medium"
-                value={formData.password}
-                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                required
-              />
-            </div>
-            <div className="flex items-start gap-3 py-2">
-              <input
-                type="checkbox"
-                className="mt-1 h-4 w-4 accent-blue-600 cursor-pointer"
-                checked={formData.terms}
-                onChange={(e) => setFormData({ ...formData, terms: e.target.checked })}
-              />
-              <label className="text-[10px] text-slate-400 font-bold uppercase tracking-widest leading-tight cursor-pointer">
-                Ich akzeptiere die <Link href="/agb" className="text-blue-600 underline">AGB</Link> und die <Link href="/datenschutz" className="text-blue-600 underline">Datenschutzerklärung</Link>.
-              </label>
-            </div>
-            <p className="text-[11px] text-slate-500 text-center">Sie können sich nach der Registrierung direkt anmelden.</p>
-            <button
-              type="button"
-              disabled={loading || !supabase}
-              onClick={handleSubmit}
-              className="w-full bg-blue-600 text-white py-5 rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-lg shadow-blue-200 hover:bg-blue-700 transition-all mt-4 disabled:opacity-60 disabled:cursor-not-allowed"
-            >
-              {loading ? 'Wird erstellt …' : 'Kostenlos registrieren'}
-            </button>
-          </form>
-        )}
-
-        <p className="text-center mt-10 text-xs font-bold text-slate-400 uppercase tracking-widest">
-          Bereits Mitglied? <Link href="/login" className="text-blue-600 ml-1">Anmelden</Link>
-        </p>
-        {!configLoading && (
-          <p className="text-center mt-4 text-[10px] text-slate-400">
-            {supabase ? 'Verbindung zu Supabase: bereit' : 'Verbindung zu Supabase: fehlt'}
-          </p>
-        )}
+            </>
+          )}
+        </div>
       </div>
+      <SiteFooter />
     </main>
+  );
+}
+
+export default function RegisterPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[var(--bg)] flex items-center justify-center text-white/60 text-sm">Lade …</div>}>
+      <RegisterForm />
+    </Suspense>
   );
 }

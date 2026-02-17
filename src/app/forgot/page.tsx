@@ -3,6 +3,8 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { createBrowserClient } from "@supabase/ssr";
+import { SiteNavSimple } from "@/components/SiteNav";
+import { SiteFooter } from "@/components/SiteFooter";
 
 export default function ForgotPage() {
   const [email, setEmail] = useState("");
@@ -42,17 +44,13 @@ export default function ForgotPage() {
           setConfigError(null);
         } else {
           if (!cancelled)
-            setConfigError(
-              "Konfiguration konnte nicht geladen werden. Bitte /api/auth-config prüfen und neuesten Code deployen."
-            );
+            setConfigError("Konfiguration konnte nicht geladen werden. Bitte /api/auth-config prüfen.");
         }
       }
       if (!cancelled) setConfigLoading(false);
     }
     loadConfig();
-    return () => {
-      cancelled = true;
-    };
+    return () => { cancelled = true; };
   }, []);
 
   async function handleSubmit(e: React.FormEvent) {
@@ -69,11 +67,8 @@ export default function ForgotPage() {
     }
     setLoading(true);
     try {
-      const redirectTo =
-        typeof window !== "undefined" ? `${window.location.origin}/reset-password` : "";
-      const { error: err } = await supabase.auth.resetPasswordForEmail(email.trim(), {
-        redirectTo,
-      });
+      const redirectTo = typeof window !== "undefined" ? `${window.location.origin}/reset-password` : "";
+      const { error: err } = await supabase.auth.resetPasswordForEmail(email.trim(), { redirectTo });
       if (err) {
         setError(err.message);
         setLoading(false);
@@ -87,82 +82,63 @@ export default function ForgotPage() {
   }
 
   return (
-    <main className="min-h-screen bg-[#F8FAFC] flex items-center justify-center p-6 font-sans">
-      <div className="w-full max-w-md bg-white rounded-[40px] shadow-xl border border-slate-200 p-10 md:p-14">
-        <div className="text-center mb-10">
-          <Link
-            href="/"
-            className="text-2xl font-bold text-[#0F172A] inline-flex items-center gap-2 mb-6"
-          >
-            <div className="w-6 h-6 bg-blue-600 rounded-md"></div> Bescheid
-            <span className="text-blue-600 font-black">Recht</span>
-          </Link>
-          <h1 className="text-3xl font-black text-slate-900 italic uppercase tracking-tighter text-center">
-            Passwort vergessen
-          </h1>
-          <p className="text-slate-500 text-sm mt-2 font-medium text-center">
-            E-Mail eingeben – wir schicken Ihnen einen Link zum Zurücksetzen
-          </p>
-        </div>
+    <main className="min-h-screen bg-mesh text-white flex flex-col">
+      <SiteNavSimple backHref="/login" backLabel="Zurück zum Login" />
+      <div className="flex-1 flex items-center justify-center p-6 py-16">
+        <div className="w-full max-w-md rounded-3xl border border-white/10 bg-white/[0.04] p-8 md:p-10 shadow-xl">
+          <h1 className="text-3xl font-black tracking-tight mb-2">Passwort vergessen</h1>
+          <p className="text-white/60 text-sm mb-8">E-Mail eingeben – wir schicken Ihnen einen Link zum Zurücksetzen.</p>
 
-        {configLoading ? (
-          <div className="text-center py-8 text-slate-500">Lade …</div>
-        ) : success ? (
-          <div className="rounded-2xl bg-green-50 border border-green-200 p-6 text-center space-y-3">
-            <p className="text-slate-800 font-medium">
-              Falls ein Konto mit dieser E-Mail existiert, wurde ein Link zum Zurücksetzen des Passworts
-              gesendet. Bitte Posteingang und Spam prüfen.
-            </p>
-            <Link
-              href="/login"
-              className="inline-block text-blue-600 font-bold text-sm uppercase tracking-widest hover:underline"
-            >
+          {configLoading ? (
+            <p className="text-white/50 text-sm">Lade …</p>
+          ) : success ? (
+            <div className="rounded-2xl bg-green-500/10 border border-green-500/30 p-6 space-y-3">
+              <p className="text-green-200 text-sm">
+                Falls ein Konto mit dieser E-Mail existiert, wurde ein Link zum Zurücksetzen gesendet. Bitte Posteingang und Spam prüfen.
+              </p>
+              <Link href="/login" className="inline-block text-[var(--accent)] font-bold text-sm uppercase tracking-wider hover:underline">
+                Zurück zum Login
+              </Link>
+            </div>
+          ) : (
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {configError && (
+                <div className="rounded-xl bg-amber-500/10 border border-amber-500/30 p-3 text-amber-200 text-sm">
+                  {configError}
+                </div>
+              )}
+              {error && (
+                <div className="rounded-xl bg-red-500/10 border border-red-500/30 p-3 text-red-400 text-sm">
+                  {error}
+                </div>
+              )}
+              <div>
+                <label className="label-upper">E-Mail-Adresse</label>
+                <input
+                  type="email"
+                  className="input-field"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
+              </div>
+              <button
+                type="submit"
+                disabled={loading || !supabase}
+                className="w-full btn-primary py-4 rounded-2xl disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {loading ? "Wird gesendet …" : "Link senden"}
+              </button>
+            </form>
+          )}
+          <p className="text-center mt-8 text-[12px] text-white/50">
+            <Link href="/login" className="text-[var(--accent)] hover:underline">
               Zurück zum Login
             </Link>
-          </div>
-        ) : (
-          <form onSubmit={handleSubmit} className="space-y-6 text-left">
-            {configError && (
-              <div className="rounded-2xl bg-amber-50 border border-amber-200 px-4 py-3 text-sm text-amber-800">
-                {configError}
-              </div>
-            )}
-            {error && (
-              <div
-                className="rounded-2xl bg-red-100 border-2 border-red-300 px-4 py-4 text-sm text-red-900 font-medium"
-                role="alert"
-              >
-                {error}
-              </div>
-            )}
-            <div>
-              <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2 ml-1">
-                E-Mail-Adresse
-              </label>
-              <input
-                type="email"
-                className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:border-blue-500 transition-all text-slate-900 font-medium"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-            </div>
-            <button
-              type="submit"
-              disabled={loading || !supabase}
-              className="w-full bg-[#0F172A] text-white py-5 rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-lg hover:bg-blue-600 transition-all mt-4 disabled:opacity-60 disabled:cursor-not-allowed"
-            >
-              {loading ? "Wird gesendet …" : "Link senden"}
-            </button>
-          </form>
-        )}
-
-        <p className="text-center mt-10 text-xs font-bold text-slate-400 uppercase tracking-widest">
-          <Link href="/login" className="text-blue-600">
-            Zurück zum Login
-          </Link>
-        </p>
+          </p>
+        </div>
       </div>
+      <SiteFooter />
     </main>
   );
 }

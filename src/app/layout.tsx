@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
-import { Plus_Jakarta_Sans } from "next/font/google";
+import { Outfit } from "next/font/google";
 import "./globals.css";
 import { RecoveryRedirect } from "@/components/RecoveryRedirect";
 
-const plusJakarta = Plus_Jakarta_Sans({
+const outfit = Outfit({
   subsets: ["latin"],
-  variable: "--font-plus-jakarta",
+  variable: "--font-outfit",
   display: "swap",
 });
 
@@ -16,8 +16,8 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="de" className={plusJakarta.variable} suppressHydrationWarning>
-      <body className="antialiased font-sans bg-white min-h-screen text-slate-900">
+    <html lang="de" suppressHydrationWarning className={outfit.variable}>
+      <body className="min-h-screen bg-[var(--bg)] text-white antialiased font-sans">
         <RecoveryRedirect />
         {children}
       </body>
