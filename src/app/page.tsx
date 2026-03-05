@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import Link from "next/link";
-import { Search, FileText, Shield, Copy, Download, Loader2, Printer, Lock, Zap, ClipboardList, PenLine, Check } from "lucide-react";
+import { Search, FileText, Shield, Copy, Download, Loader2, Printer, Lock, Zap, ClipboardList, PenLine, Check, ArrowRight } from "lucide-react";
 import { toast } from "sonner";
 import { createBrowserClient } from "@supabase/ssr";
 import { SiteNavFull } from "@/components/SiteNav";
@@ -604,8 +604,49 @@ export default function Page() {
         </div>
       </section>
 
+      {/* Partner Logos */}
+      <ScrollReveal>
+        <section className="max-w-5xl mx-auto px-6 mb-20">
+          <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-white/50 mb-8 text-center">
+            {t.partnerSectionLabel}
+          </p>
+          <div className="flex flex-wrap justify-center items-center gap-8 md:gap-14">
+            {["Caritas", "AWO", "Diakonie", "DRK", "Paritätischer"].map((org) => (
+              <span
+                key={org}
+                className="text-white/45 font-black text-xl md:text-2xl tracking-tight hover:text-white/80 transition-colors duration-500 select-none cursor-default"
+              >
+                {org}
+              </span>
+            ))}
+          </div>
+        </section>
+      </ScrollReveal>
+
       <ScrollReveal>
         <DemoAnimation />
+      </ScrollReveal>
+
+      {/* Stats */}
+      <ScrollReveal>
+        <section className="max-w-5xl mx-auto px-6 mb-28">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 stagger-group">
+            {[
+              { val: t.stat1Val, lbl: t.stat1Lbl },
+              { val: t.stat2Val, lbl: t.stat2Lbl },
+              { val: t.stat3Val, lbl: t.stat3Lbl },
+              { val: t.stat4Val, lbl: t.stat4Lbl },
+            ].map(({ val, lbl }) => (
+              <div
+                key={lbl}
+                className="text-center p-6 md:p-8 rounded-2xl border border-white/10 bg-white/[0.03] animate-slideUp opacity-0 hover:-translate-y-1 transition-transform duration-300"
+              >
+                <p className="text-3xl md:text-4xl font-black text-white mb-2">{val}</p>
+                <p className="text-[11px] text-white/65 font-bold uppercase tracking-wider leading-snug">{lbl}</p>
+              </div>
+            ))}
+          </div>
+        </section>
       </ScrollReveal>
 
       {/* Features - Bento (Glassmorphism, Icons, Hover) */}
@@ -629,14 +670,44 @@ export default function Page() {
               >
                 <f.icon className="h-6 w-6 text-[var(--accent)] mb-4" aria-hidden />
                 <h3 className="font-bold text-base uppercase tracking-wider text-white/90 mb-4">{f.title}</h3>
-                <p className="text-gray-500 text-sm leading-relaxed">{f.desc}</p>
+                <p className="text-white/60 text-sm leading-relaxed">{f.desc}</p>
               </div>
             ))}
           </div>
         </section>
       </ScrollReveal>
 
-      {/* Was Nutzer sagen */}
+      {/* Workflow */}
+      <ScrollReveal>
+        <section className="max-w-5xl mx-auto px-6 mb-32">
+          <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-[var(--accent)] mb-3 text-center">
+            {t.workflowSectionLabel}
+          </p>
+          <h2 className="text-3xl md:text-4xl font-black tracking-tight text-center mb-16">
+            {t.workflowSectionTitle}
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 stagger-group">
+            {[
+              { n: "01", title: t.workflow1Title, desc: t.workflow1Desc },
+              { n: "02", title: t.workflow2Title, desc: t.workflow2Desc },
+              { n: "03", title: t.workflow3Title, desc: t.workflow3Desc },
+            ].map(({ n, title, desc }) => (
+              <div
+                key={n}
+                className="flex flex-col items-center text-center p-8 rounded-2xl border border-white/10 bg-white/[0.03] animate-slideUp opacity-0 hover:border-white/20 hover:-translate-y-1 transition-all duration-300"
+              >
+                <div className="w-12 h-12 rounded-full border border-[var(--accent)]/40 bg-[var(--accent)]/10 flex items-center justify-center mb-6">
+                  <span className="text-[var(--accent)] font-black text-sm tracking-wider">{n}</span>
+                </div>
+                <h3 className="font-bold text-sm text-white/90 mb-3 uppercase tracking-wider">{title}</h3>
+                <p className="text-white/60 text-sm leading-relaxed">{desc}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+      </ScrollReveal>
+
+      {/* Was Fachkräfte sagen */}
       <ScrollReveal>
         <TestimonialsBlock />
       </ScrollReveal>
@@ -652,10 +723,10 @@ export default function Page() {
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6 items-start stagger-group">
             {[
-              { name: t.pricingBasicName, price: t.pricingBasicPrice, features: [t.pricingBasicF1, t.pricingBasicF2, t.pricingBasicF3], cta: t.pricingBasicCta, highlight: false },
-              { name: t.pricingStandardName, price: t.pricingStandardPrice, features: [t.pricingStandardF1, t.pricingStandardF2, t.pricingStandardF3], cta: t.pricingStandardCta, highlight: false },
-              { name: t.pricingProName, price: t.pricingProPrice, features: [t.pricingProF1, t.pricingProF2, t.pricingProF3], cta: t.pricingProCta, highlight: true },
-              { name: t.pricingBusinessName, price: t.pricingBusinessPrice, features: [t.pricingBusinessF1, t.pricingBusinessF2, t.pricingBusinessF3], cta: t.pricingBusinessCta, highlight: false },
+              { name: t.pricingBasicName, price: t.pricingBasicPrice, features: [t.pricingBasicF1, t.pricingBasicF2, t.pricingBasicF3], cta: t.pricingBasicCta, highlight: false, href: "/register" },
+              { name: t.pricingStandardName, price: t.pricingStandardPrice, features: [t.pricingStandardF1, t.pricingStandardF2, t.pricingStandardF3], cta: t.pricingStandardCta, highlight: false, href: "/register" },
+              { name: t.pricingProName, price: t.pricingProPrice, features: [t.pricingProF1, t.pricingProF2, t.pricingProF3], cta: t.pricingProCta, highlight: true, href: "/register" },
+              { name: t.pricingBusinessName, price: t.pricingBusinessPrice, features: [t.pricingBusinessF1, t.pricingBusinessF2, t.pricingBusinessF3], cta: t.pricingBusinessCta, highlight: false, href: "/feedback" },
             ].map((p) => (
               <div key={p.name} className="relative pt-8 animate-slideUp opacity-0">
                 {p.highlight && (
@@ -670,9 +741,14 @@ export default function Page() {
                       : "card card-hover border-white/10 bg-white/[0.03]"
                   }`}
                 >
-                  <span className="text-[10px] font-bold uppercase tracking-widest text-white/50">{p.name}</span>
-                  <p className={`mt-2 mb-6 font-black ${p.highlight ? "text-4xl" : "text-3xl"} text-white`}>{p.price}</p>
-                  <ul className="text-[13px] text-gray-500 space-y-3 flex-grow mb-8">
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-white/70">{p.name}</span>
+                  <div className="mt-2 mb-6">
+                    <p className={`font-black ${p.highlight ? "text-4xl" : "text-3xl"} text-white`}>{p.price}</p>
+                    {p.price.includes("€") && (
+                      <p className="text-[12px] text-white/55 font-medium mt-1">{t.pricingPerMonth}</p>
+                    )}
+                  </div>
+                  <ul className="text-[13px] text-white/65 space-y-3 flex-grow mb-8">
                     {p.features.map((f) => (
                       <li key={f} className="flex items-start gap-2">
                         <Check className="h-3.5 w-3.5 text-[var(--accent)] mt-0.5 flex-shrink-0" />
@@ -680,16 +756,17 @@ export default function Page() {
                       </li>
                     ))}
                   </ul>
-                  <button
-                    type="button"
-                    className={`w-full py-3.5 rounded-xl font-bold text-[11px] uppercase tracking-widest transition-all duration-300 ${
+                  <Link
+                    href={p.href}
+                    className={`w-full py-3.5 rounded-xl font-bold text-[11px] uppercase tracking-widest transition-all duration-300 flex items-center justify-center gap-2 ${
                       p.highlight
                         ? "bg-white text-[var(--accent)] hover:bg-white/90"
                         : "bg-[var(--accent)] text-white hover:bg-[var(--accent-hover)]"
                     }`}
                   >
                     {p.cta}
-                  </button>
+                    <ArrowRight className="h-3 w-3" />
+                  </Link>
                 </div>
               </div>
             ))}
@@ -697,31 +774,40 @@ export default function Page() {
         </section>
       </ScrollReveal>
 
-      {/* Single document */}
+      {/* Demo CTA */}
       <ScrollReveal>
-        <section className="max-w-2xl mx-auto px-6 mb-32 text-center">
-          <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-[var(--accent)] mb-3">
-            {t.sectionOnce}
-          </p>
-          <h2 className="text-3xl font-black tracking-tight mb-2">{t.sectionSingleDoc}</h2>
-          <p className="text-gray-500 text-sm mb-10 uppercase tracking-wider">
-            {t.singleDocDesc}
-          </p>
-          <div className="card card-hover p-10 rounded-2xl border-white/10 bg-white/[0.03] transition-transform duration-300 hover:-translate-y-1">
-            <span className="text-[10px] font-bold uppercase tracking-widest text-white/50">{t.sectionOnce}</span>
-            <p className="text-4xl font-black text-[var(--accent)] my-6">19,90 €</p>
-            <ul className="text-[13px] text-left space-y-3 mb-8 font-medium text-white/80">
-              <li className="text-[var(--accent)]">✓ {t.singleDocF1}</li>
-              <li className="text-[var(--accent)]">✓ {t.singleDocF2}</li>
-              <li className="text-[var(--accent)]">✓ {t.singleDocF3}</li>
-              <li className="text-red-400/80">× {t.singleDocNoAbo}</li>
-            </ul>
-            <button
-              type="button"
-              className="w-full py-4 rounded-2xl bg-[var(--accent)] font-bold text-[11px] uppercase tracking-widest text-white hover:bg-[var(--accent-hover)] transition-all duration-300"
-            >
-              {t.singleDocCta}
-            </button>
+        <section className="max-w-4xl mx-auto px-6 mb-32">
+          <div className="relative rounded-3xl border border-[var(--accent)]/40 bg-[var(--accent)]/8 p-10 md:p-16 text-center overflow-hidden">
+            <div className="absolute inset-0 pointer-events-none">
+              <div
+                className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] rounded-full blur-[80px]"
+                style={{ background: "radial-gradient(ellipse, rgba(14,165,233,0.22) 0%, transparent 70%)" }}
+              />
+            </div>
+            <p className="relative text-[11px] font-bold uppercase tracking-[0.25em] text-[var(--accent)] mb-4">
+              {t.demoCTALabel}
+            </p>
+            <h2 className="relative text-3xl md:text-4xl lg:text-5xl font-black tracking-tight mb-6 text-white">
+              {t.demoCTATitle}
+            </h2>
+            <p className="relative text-white/75 text-base md:text-lg mb-10 max-w-xl mx-auto leading-relaxed">
+              {t.demoCTAText}
+            </p>
+            <div className="relative flex flex-col sm:flex-row justify-center gap-4">
+              <Link
+                href="/register"
+                className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-2xl bg-[var(--accent)] text-white font-bold text-sm tracking-wide hover:bg-[var(--accent-hover)] hover:shadow-[0_0_30px_var(--accent-glow)] transition-all duration-300"
+              >
+                {t.demoCTAPrimary}
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+              <Link
+                href="/feedback"
+                className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-2xl border border-white/20 text-white font-bold text-sm tracking-wide hover:bg-white/10 transition-all duration-300"
+              >
+                {t.demoCTASecondary}
+              </Link>
+            </div>
           </div>
         </section>
       </ScrollReveal>
@@ -729,7 +815,7 @@ export default function Page() {
       {/* Vertrauens-Sektion über Footer */}
       <ScrollReveal>
         <div className="border-t border-white/5 py-6">
-          <div className="max-w-4xl mx-auto px-6 flex flex-wrap justify-center gap-8 md:gap-12 text-[11px] font-bold uppercase tracking-[0.2em] text-white/35">
+          <div className="max-w-4xl mx-auto px-6 flex flex-wrap justify-center gap-8 md:gap-12 text-[11px] font-bold uppercase tracking-[0.2em] text-white/55">
             <span>{t.trustSgb}</span>
             <span>{t.trustWeisungen}</span>
             <span>{t.trustRechtsgrundlagen}</span>

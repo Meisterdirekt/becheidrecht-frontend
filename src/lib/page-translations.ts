@@ -122,13 +122,30 @@ export interface PageT {
   pseudonymPreviewAfter: string;
   pseudonymPreviewNote: string;
   pseudonymPreviewBtn: string;
+  // B2B
+  partnerSectionLabel: string;
+  stat1Val: string; stat1Lbl: string;
+  stat2Val: string; stat2Lbl: string;
+  stat3Val: string; stat3Lbl: string;
+  stat4Val: string; stat4Lbl: string;
+  workflowSectionLabel: string;
+  workflowSectionTitle: string;
+  workflow1Title: string; workflow1Desc: string;
+  workflow2Title: string; workflow2Desc: string;
+  workflow3Title: string; workflow3Desc: string;
+  demoCTALabel: string;
+  demoCTATitle: string;
+  demoCTAText: string;
+  demoCTAPrimary: string;
+  demoCTASecondary: string;
+  pricingPerMonth: string;
 }
 
 const DE: PageT = {
   dir: "ltr",
   headline: "BescheidRecht",
-  headlineSub: "Brief hochladen. Fehler finden.",
-  text: "Behördenbriefe sind kompliziert, BescheidRecht ist einfach. Wir analysieren Ihre Dokumente auf typische Fehlerquellen und liefern Ihnen sofort die passenden Fakten für Ihre Rückmeldung. Keine Rechtsberatung, sondern ehrliche Technik, die Licht ins Dunkel der Paragraphen bringt.",
+  headlineSub: "KI-Unterstützung für Ihre Fachkräfte.",
+  text: "Sozialberater:innen bei Caritas, AWO und Diakonie prüfen täglich Bescheide — für ihre Klientinnen und Klienten. BescheidRecht gibt Ihrem Team sofortige KI-Analyse, professionelle Schreiben-Entwürfe und lückenlose Fristüberwachung. DSGVO-konform. Sofort einsetzbar.",
   button: "Dokument jetzt hochladen",
   consent: "Ich willige in die Datenverarbeitung ein und habe die Datenschutzinformationen gelesen.",
   tabAnalyze: "Bescheid analysieren",
@@ -166,44 +183,44 @@ const DE: PageT = {
   btnPrint: "Drucken",
   btnNewLetter: "Neues Schreiben erstellen",
   ctaLetter: "Schreiben erstellen",
-  trustDsgvo: "DSGVO-konform",
-  trustSofort: "Sofortanalyse",
-  trustPrice: "Einmalig 19,90 € ohne Abo",
+  trustDsgvo: "DSGVO Art. 25",
+  trustSofort: "< 60 Sek. Analyse",
+  trustPrice: "Team-Lizenzen ab 89 €/Mo",
   sectionWhatWeOffer: "Was wir bieten",
-  sectionAnalyseWriteSecure: "Analyse, Schreiben, Sicherheit",
-  feature1Title: "Analyse",
-  feature1Desc: "Strukturierte Prüfung Ihres Bescheids auf Auffälligkeiten, Fristen und Begründungen.",
-  feature2Title: "Automatische Schreiben",
-  feature2Desc: "Professionelle Schreiben als Vorlage zur direkten Weiterverwendung in Ihrem Verfahren.",
-  feature3Title: "Verständlich & sicher",
-  feature3Desc: "Einfach erklärt, DSGVO-konform verarbeitet und jederzeit nachvollziehbar strukturiert.",
-  sectionPrices: "Preise",
-  sectionTransparentPrices: "Transparente Preise",
-  recommended: "EMPFOHLEN",
-  pricingBasicName: "Basic",
-  pricingBasicPrice: "12,90 €",
-  pricingBasicF1: "5 Dokumente",
-  pricingBasicF2: "Automatisierte Analyse",
-  pricingBasicF3: "Inkl. Antwort-Entwürfe",
-  pricingBasicCta: "Basic wählen",
-  pricingStandardName: "Standard",
-  pricingStandardPrice: "27,90 €",
-  pricingStandardF1: "12 Dokumente",
-  pricingStandardF2: "Widerspruchs-Analyse",
-  pricingStandardF3: "Persönlicher Support",
-  pricingStandardCta: "Standard wählen",
-  pricingProName: "Pro",
-  pricingProPrice: "75 €",
-  pricingProF1: "35 Dokumente",
-  pricingProF2: "Priorisierte Bearbeitung",
-  pricingProF3: "Kanzlei-Anbindung",
-  pricingProCta: "Pro wählen",
-  pricingBusinessName: "Business",
-  pricingBusinessPrice: "159 €",
-  pricingBusinessF1: "90 Dokumente",
-  pricingBusinessF2: "Full Service & Client-Manager",
-  pricingBusinessF3: "Mehrbenutzer-Schnittstelle",
-  pricingBusinessCta: "Business wählen",
+  sectionAnalyseWriteSecure: "KI-Werkzeuge für Ihre Fachkräfte",
+  feature1Title: "KI-Fallanalyse",
+  feature1Desc: "130+ geprüfte Fehlertypen aus 16 Rechtsgebieten (SGB II–XII, BAMF, BAföG). Ihre Fachkräfte sehen sofort, wo ein Bescheid rechtlich angreifbar ist.",
+  feature2Title: "Schreiben in 60 Sekunden",
+  feature2Desc: "Rechtlich strukturierte Entwürfe für Widersprüche, Anträge und Anfragen — direkt exportierbar als DIN A4 PDF.",
+  feature3Title: "DSGVO by Design",
+  feature3Desc: "Vollständige Pseudonymisierung vor jeder KI-Analyse. Klientendaten verlassen Ihre Einrichtung nicht im Klartext.",
+  sectionPrices: "Team-Lizenzen",
+  sectionTransparentPrices: "Transparente Preise für Einrichtungen",
+  recommended: "BELIEBT",
+  pricingBasicName: "Starter",
+  pricingBasicPrice: "89 €",
+  pricingBasicF1: "Bis 3 Fachkräfte",
+  pricingBasicF2: "Unbegrenzte Bescheid-Analysen",
+  pricingBasicF3: "DSGVO-Dokumentation inklusive",
+  pricingBasicCta: "Demo starten",
+  pricingStandardName: "Team",
+  pricingStandardPrice: "199 €",
+  pricingStandardF1: "Bis 10 Fachkräfte",
+  pricingStandardF2: "Fristen-Dashboard für alle",
+  pricingStandardF3: "Prioritäts-Support & Onboarding",
+  pricingStandardCta: "Demo starten",
+  pricingProName: "Einrichtung",
+  pricingProPrice: "399 €",
+  pricingProF1: "Unbegrenzte Nutzer",
+  pricingProF2: "Mandantenverwaltung & API",
+  pricingProF3: "Eigene Vorlagen & Branding",
+  pricingProCta: "Demo starten",
+  pricingBusinessName: "Rahmenvertrag",
+  pricingBusinessPrice: "Auf Anfrage",
+  pricingBusinessF1: "Mehrere Standorte & Verbände",
+  pricingBusinessF2: "SLA & Compliance-Paket",
+  pricingBusinessF3: "Dedizierter Kundenbetreuer",
+  pricingBusinessCta: "Kontakt aufnehmen",
   sectionOnce: "Einmalig",
   sectionSingleDoc: "Einzelnes Dokument",
   singleDocDesc: "Für einen einmaligen Bescheid – ohne Abo",
@@ -241,6 +258,26 @@ const DE: PageT = {
   pseudonymPreviewAfter: "So wird analysiert",
   pseudonymPreviewNote: "Diese Vorschau nutzt nur Beispieltext. Bei Ihrem eigenen Bescheid läuft der gleiche Ablauf automatisch im Hintergrund.",
   pseudonymPreviewBtn: "Verstanden",
+  // B2B
+  partnerSectionLabel: "Für Einrichtungen wie",
+  stat1Val: "130+", stat1Lbl: "Erkannte Fehlertypen",
+  stat2Val: "16", stat2Lbl: "Rechtsgebiete (SGB II–XII)",
+  stat3Val: "< 60s", stat3Lbl: "Analysezeit pro Bescheid",
+  stat4Val: "DSGVO", stat4Lbl: "Art. 25 Privacy by Design",
+  workflowSectionLabel: "So einfach geht's",
+  workflowSectionTitle: "In 3 Schritten zum Widerspruch",
+  workflow1Title: "Bescheid hochladen",
+  workflow1Desc: "Fachkraft lädt den Bescheid als PDF oder Scan hoch. Automatische Pseudonymisierung schützt alle Klientendaten sofort.",
+  workflow2Title: "KI analysiert in < 60 Sek.",
+  workflow2Desc: "13 spezialisierte KI-Agenten prüfen auf 130+ Fehlertypen aus 16 Rechtsgebieten — mit Fristberechnung und Rechtsbasis.",
+  workflow3Title: "Schreiben exportieren",
+  workflow3Desc: "Direkt verwendbarer Widerspruch als DIN A4 PDF. Fachkraft prüft, unterschreibt — und der Klient erhält seinen Widerspruch.",
+  demoCTALabel: "Für Ihre Einrichtung",
+  demoCTATitle: "Bereit für den Einsatz in Ihrer Einrichtung?",
+  demoCTAText: "Wir zeigen Ihnen in 30 Minuten, wie BescheidRecht in Ihre Arbeitsabläufe passt. Kostenlos, unverbindlich, auf Ihre Einrichtung zugeschnitten.",
+  demoCTAPrimary: "Demo vereinbaren",
+  demoCTASecondary: "Pilotprojekt anfragen",
+  pricingPerMonth: "/ Monat",
 };
 
 const EN: PageT = {
