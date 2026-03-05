@@ -790,7 +790,7 @@ export default function Page() {
             <h2 className="relative text-3xl md:text-4xl lg:text-5xl font-black tracking-tight mb-6 text-white">
               {t.demoCTATitle}
             </h2>
-            <p className="relative text-white/75 text-base md:text-lg mb-10 max-w-xl mx-auto leading-relaxed">
+            <p className="relative text-white text-base md:text-lg mb-10 max-w-xl mx-auto leading-relaxed opacity-90">
               {t.demoCTAText}
             </p>
             <div className="relative flex flex-col sm:flex-row justify-center gap-4">
