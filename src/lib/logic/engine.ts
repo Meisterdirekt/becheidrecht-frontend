@@ -146,14 +146,14 @@ Füge KEINE weiteren Felder hinzu und schreibe KEINE erläuternden Texte außerh
             : parsed.musterschreiben
         )
       };
-    } catch (e) {
+    } catch {
       // Fallback, falls die KI kein JSON geschickt hat
       return { 
         musterschreiben: rawContent, 
         fehler: ["KI-Antwort konnte nicht als JSON verarbeitet werden."] 
       };
     }
-  } catch (error: any) {
-    return { musterschreiben: "Engine-Fehler: " + error.message, fehler: [] };
+  } catch (error: unknown) {
+    return { musterschreiben: "Engine-Fehler: " + (error instanceof Error ? error.message : String(error)), fehler: [] };
   }
 }

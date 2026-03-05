@@ -5,10 +5,64 @@ import { createClient } from '@supabase/supabase-js';
  * POST /api/admin/grant-subscription
  *
  * Admin-Route: User manuell ein Abo zuweisen
- * WICHTIG: Sollte später mit Admin-Auth geschützt werden!
+ * Geschützt durch Admin-Token (ADMIN_SECRET) und Supabase-Auth
  */
+
+const ADMIN_EMAILS = (process.env.ADMIN_EMAILS || '').split(',').map(e => e.trim().toLowerCase()).filter(Boolean);
+
+async function verifyAdmin(request: NextRequest): Promise<{ authorized: boolean; error?: string }> {
+  // Methode 1: ADMIN_SECRET Token im Header
+  const adminSecret = process.env.ADMIN_SECRET;
+  const adminToken = request.headers.get('x-admin-token');
+  if (adminSecret && adminToken === adminSecret) {
+    return { authorized: true };
+  }
+
+  // Methode 2: Eingeloggter User muss in ADMIN_EMAILS stehen
+  const authHeader = request.headers.get('authorization');
+  if (!authHeader?.startsWith('Bearer ')) {
+    return { authorized: false, error: 'Nicht authentifiziert. Admin-Zugang erforderlich.' };
+  }
+
+  const token = authHeader.replace('Bearer ', '').trim();
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL || '';
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY || '';
+
+  if (!supabaseUrl || !supabaseAnonKey) {
+    return { authorized: false, error: 'Supabase nicht konfiguriert.' };
+  }
+
+  const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+    global: { headers: { Authorization: `Bearer ${token}` } },
+  });
+
+  const { data: { user }, error } = await supabase.auth.getUser();
+  if (error || !user?.email) {
+    return { authorized: false, error: 'Ungültiger Token.' };
+  }
+
+  if (ADMIN_EMAILS.length === 0) {
+    return { authorized: false, error: 'Keine Admin-E-Mails konfiguriert. Bitte ADMIN_EMAILS in Umgebungsvariablen setzen.' };
+  }
+
+  if (!ADMIN_EMAILS.includes(user.email.toLowerCase())) {
+    return { authorized: false, error: 'Kein Admin-Zugang. Ihre E-Mail ist nicht berechtigt.' };
+  }
+
+  return { authorized: true };
+}
+
 export async function POST(request: NextRequest) {
   try {
+    // Admin-Authentifizierung prüfen
+    const auth = await verifyAdmin(request);
+    if (!auth.authorized) {
+      return NextResponse.json(
+        { error: auth.error || 'Zugriff verweigert' },
+        { status: 403 }
+      );
+    }
+
     const { email, subscription_type } = await request.json();
 
     if (!email || !subscription_type) {
@@ -121,10 +175,11 @@ export async function POST(request: NextRequest) {
       expires_at: updated.expires_at
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Grant subscription error:', error);
+    const msg = error instanceof Error ? error.message : 'Internal server error';
     return NextResponse.json(
-      { error: error.message || 'Internal server error' },
+      { error: msg },
       { status: 500 }
     );
   }

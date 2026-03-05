@@ -1,7 +1,13 @@
 "use client";
 import { useState } from 'react';
+import { redirect } from 'next/navigation';
 
 export default function TestPage() {
+  // In Production nicht erreichbar
+  if (process.env.NODE_ENV === 'production') {
+    redirect('/');
+  }
+
   const [status, setStatus] = useState("Bereit für System-Check...");
   const [ergebnis, setErgebnis] = useState("");
 
@@ -16,7 +22,7 @@ export default function TestPage() {
       const data = await res.json();
       setErgebnis(JSON.stringify(data, null, 2));
       setStatus("✅ Analyse abgeschlossen!");
-    } catch (error) {
+    } catch {
       setStatus("❌ Fehler beim Aufruf der API");
     }
   };

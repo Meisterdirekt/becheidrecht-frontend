@@ -76,7 +76,7 @@ function LoginForm() {
     <main className="min-h-screen bg-mesh text-white flex flex-col">
       <SiteNavSimple backHref="/" backLabel="Zurück zur Startseite" />
       <div className="flex-1 flex items-center justify-center p-6 py-16">
-        <div className="w-full max-w-md rounded-3xl border border-white/10 bg-white/[0.04] p-8 md:p-10 shadow-xl">
+        <div className="w-full max-w-md rounded-3xl border border-white/10 bg-white/[0.04] p-8 md:p-10 shadow-xl animate-slideUp">
           <h1 className="text-3xl font-black tracking-tight mb-8">Anmeldung</h1>
           <form className="space-y-6" onSubmit={handleSubmit} noValidate>
             <div>
@@ -107,7 +107,7 @@ function LoginForm() {
               />
             </div>
             {error && (
-              <div className="rounded-xl bg-red-500/10 border border-red-500/30 p-3">
+              <div className="rounded-xl bg-red-500/10 border border-red-500/30 p-3 animate-fadeIn" role="alert">
                 <p className="text-red-400 text-sm">{error}</p>
               </div>
             )}

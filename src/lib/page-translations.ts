@@ -22,8 +22,10 @@ export interface PageT {
   formStichpunktePlaceholder: string;
   formStichpunkteHint: string;
   formAktenzeichenLabel: string;
+  formAktenzeichenOptional: string;
   formAktenzeichenHint: string;
   formBescheiddatumLabel: string;
+  formBescheiddatumOptional: string;
   formBescheiddatumPlaceholder: string;
   formAdresseLabel: string;
   formAdresseOptional: string;
@@ -98,12 +100,28 @@ export interface PageT {
   navLogin: string;
   navRegister: string;
   footerBlog: string;
+  footerFeedback: string;
   footerImpressum: string;
   footerDatenschutz: string;
   footerAgb: string;
+  footerDisclaimer: string;
   footerCopyright: string;
   letterGreeting: string;
   letterClosing: string;
+  consentPrivacyLink: string;
+  privacyModalTitle: string;
+  privacyModalBullet1: string;
+  privacyModalBullet2: string;
+  privacyModalBullet3: string;
+  privacyModalBullet4: string;
+  privacyModalRights: string;
+  privacyModalBtn: string;
+  pseudonymPreviewLink: string;
+  pseudonymPreviewTitle: string;
+  pseudonymPreviewBefore: string;
+  pseudonymPreviewAfter: string;
+  pseudonymPreviewNote: string;
+  pseudonymPreviewBtn: string;
 }
 
 const DE: PageT = {
@@ -112,7 +130,7 @@ const DE: PageT = {
   headlineSub: "Brief hochladen. Fehler finden.",
   text: "Behördenbriefe sind kompliziert, BescheidRecht ist einfach. Wir analysieren Ihre Dokumente auf typische Fehlerquellen und liefern Ihnen sofort die passenden Fakten für Ihre Rückmeldung. Keine Rechtsberatung, sondern ehrliche Technik, die Licht ins Dunkel der Paragraphen bringt.",
   button: "Dokument jetzt hochladen",
-  consent: "Ich willige ein, dass meine (ggf. sensiblen) Daten zur Analyse durch eine KI verarbeitet werden. Mir ist bekannt, dass dies keine Rechtsberatung ersetzt.",
+  consent: "Ich willige in die Datenverarbeitung ein und habe die Datenschutzinformationen gelesen.",
   tabAnalyze: "Bescheid analysieren",
   tabLetter: "Schreiben erstellen",
   formBehoerdeLabel: "Für welche Behörde soll das Schreiben sein?",
@@ -121,10 +139,12 @@ const DE: PageT = {
   formSchreibentypPlaceholder: "Bitte Typ auswählen...",
   formStichpunkteLabel: "Beschreiben Sie kurz Ihre Situation",
   formStichpunktePlaceholder: "z.B. \"Bescheid vom 01.02.2026 erhalten, ALG wurde um 30% gekürzt...\"",
-  formStichpunkteHint: "Mindestens 20 Zeichen. Max 500 Zeichen.",
-  formAktenzeichenLabel: "Aktenzeichen / Bescheid-Nummer: *",
-  formAktenzeichenHint: "Steht oben rechts auf Ihrem Bescheid. (Pflichtfeld)",
-  formBescheiddatumLabel: "Datum des Bescheids: *",
+  formStichpunkteHint: "Mindestens 10 Zeichen. Max 500 Zeichen.",
+  formAktenzeichenLabel: "Aktenzeichen / Bescheid-Nummer:",
+  formAktenzeichenOptional: "(optional)",
+  formAktenzeichenHint: "Steht oben rechts auf Ihrem Bescheid.",
+  formBescheiddatumLabel: "Datum des Bescheids:",
+  formBescheiddatumOptional: "(optional)",
   formBescheiddatumPlaceholder: "TT.MM.JJJJ",
   formAdresseLabel: "Ihre Adresse:",
   formAdresseOptional: "(optional – für das Schreiben)",
@@ -199,12 +219,28 @@ const DE: PageT = {
   navLogin: "Anmelden",
   navRegister: "Registrieren",
   footerBlog: "Blog",
+  footerFeedback: "Feedback",
   footerImpressum: "Impressum",
   footerDatenschutz: "Datenschutz",
   footerAgb: "AGB",
+  footerDisclaimer: "Kein Ersatz für Rechtsberatung. Informationsdienst gem. § 2 RDG.",
   footerCopyright: "© 2026 BescheidRecht. Alle Rechte vorbehalten.",
   letterGreeting: "Sehr geehrte Damen und Herren,",
   letterClosing: "Mit freundlichen Grüßen",
+  consentPrivacyLink: "Datenschutzinformationen",
+  privacyModalTitle: "Datenschutz bei der Bescheid-Analyse",
+  privacyModalBullet1: "Automatische Pseudonymisierung – Namen, Adressen, Geburtsdaten, E-Mail, Telefon, IBAN, BIC, Steuer-ID und Sozialversicherungsnummern werden vor der Analyse durch Platzhalter ersetzt.",
+  privacyModalBullet2: "Externe Verarbeitung – Die Analyse erfolgt über unseren KI-Dienstleister. Der pseudonymisierte Text wird dorthin übertragen.",
+  privacyModalBullet3: "Keine dauerhafte Speicherung – Unser KI-Dienstleister speichert Ihre Daten nicht dauerhaft. Nach der Analyse werden sie gelöscht.",
+  privacyModalBullet4: "Sofortige Wiederherstellung – Nach der Analyse werden die echten Daten blitzschnell wieder eingesetzt.",
+  privacyModalRights: "Ihre Rechte: Sie können der Datenverarbeitung jederzeit widersprechen. Weitere Informationen in unserer Datenschutzerklärung.",
+  privacyModalBtn: "Verstanden",
+  pseudonymPreviewLink: "Pseudonymisierung in Aktion ansehen →",
+  pseudonymPreviewTitle: "Pseudonymisierung in Aktion",
+  pseudonymPreviewBefore: "Beispiel: Original",
+  pseudonymPreviewAfter: "So wird analysiert",
+  pseudonymPreviewNote: "Diese Vorschau nutzt nur Beispieltext. Bei Ihrem eigenen Bescheid läuft der gleiche Ablauf automatisch im Hintergrund.",
+  pseudonymPreviewBtn: "Verstanden",
 };
 
 const EN: PageT = {
@@ -214,7 +250,7 @@ const EN: PageT = {
   headlineSub: "Upload letter. Find errors.",
   text: "Official letters are complicated – BescheidRecht is simple. We analyse your documents for typical problem areas and give you the right facts for your response. Not legal advice, but clear support so you can act with confidence.",
   button: "Upload document now",
-  consent: "I consent to my (possibly sensitive) data being processed by AI for analysis. I am aware that this does not replace legal advice.",
+  consent: "I consent to data processing and have read the Privacy information.",
   tabAnalyze: "Analyse notice",
   tabLetter: "Create letter",
   formBehoerdeLabel: "Which authority is the letter for?",
@@ -223,10 +259,12 @@ const EN: PageT = {
   formSchreibentypPlaceholder: "Select type...",
   formStichpunkteLabel: "Briefly describe your situation",
   formStichpunktePlaceholder: "e.g. \"Notice received on..., benefit cut by...\"",
-  formStichpunkteHint: "At least 20 characters. Max 500.",
-  formAktenzeichenLabel: "Reference / Case number: *",
-  formAktenzeichenHint: "Shown top right on your notice. (Required)",
-  formBescheiddatumLabel: "Date of notice: *",
+  formStichpunkteHint: "At least 10 characters. Max 500.",
+  formAktenzeichenLabel: "Reference / Case number:",
+  formAktenzeichenOptional: "(optional)",
+  formAktenzeichenHint: "Shown top right on your notice.",
+  formBescheiddatumLabel: "Date of notice:",
+  formBescheiddatumOptional: "(optional)",
   formBescheiddatumPlaceholder: "DD.MM.YYYY",
   formAdresseLabel: "Your address:",
   formAdresseOptional: "(optional – for the letter)",
@@ -272,9 +310,24 @@ const EN: PageT = {
   navBlog: "Blog",
   navLogin: "Log in",
   navRegister: "Register",
+  footerDisclaimer: "Not a substitute for legal advice. Information service acc. to § 2 RDG.",
   footerCopyright: "© 2026 BescheidRecht. All rights reserved.",
   letterGreeting: "Dear Sir or Madam,",
   letterClosing: "Yours sincerely",
+  consentPrivacyLink: "Privacy information",
+  privacyModalTitle: "Privacy in document analysis",
+  privacyModalBullet1: "Automatic pseudonymization – Names, addresses, dates of birth, email, phone, IBAN, BIC, tax ID and social security numbers are replaced by placeholders before analysis.",
+  privacyModalBullet2: "External processing – Analysis is performed via our AI provider. The pseudonymized text is transmitted there.",
+  privacyModalBullet3: "No permanent storage – Our AI provider does not store your data permanently. It is deleted after analysis.",
+  privacyModalBullet4: "Immediate restoration – After analysis, the original data is quickly restored.",
+  privacyModalRights: "Your rights: You may object to data processing at any time. Further information in our privacy policy.",
+  privacyModalBtn: "Understood",
+  pseudonymPreviewLink: "See pseudonymization in action →",
+  pseudonymPreviewTitle: "Pseudonymization in action",
+  pseudonymPreviewBefore: "Example: Original",
+  pseudonymPreviewAfter: "As sent for analysis",
+  pseudonymPreviewNote: "This preview uses sample text only. With your own document, the same process runs automatically in the background.",
+  pseudonymPreviewBtn: "Understood",
 };
 
 const RU: PageT = {
@@ -284,7 +337,7 @@ const RU: PageT = {
   headlineSub: "Загрузите письмо. Найдите ошибки.",
   text: "Анализ социальных и административных документов не должен отнимать ценные ресурсы. BescheidRecht – цифровой инструмент для автоматизированной проверки. Загрузите документ и получите анализ.",
   button: "Загрузить документ",
-  consent: "Я даю согласие на обработку моих данных с помощью ИИ для анализа. Я знаю, что это не замена юридической консультации.",
+  consent: "Я даю согласие на обработку данных и прочитал Информацию о защите данных.",
   tabAnalyze: "Анализ решения",
   tabLetter: "Создать письмо",
   formBehoerdeLabel: "Для какого ведомства письмо?",
@@ -293,10 +346,12 @@ const RU: PageT = {
   formSchreibentypPlaceholder: "Выберите тип...",
   formStichpunkteLabel: "Кратко опишите ситуацию",
   formStichpunktePlaceholder: "Напр. «Получил решение от..., выплаты снижены...»",
-  formStichpunkteHint: "Минимум 20 символов. Макс. 500.",
-  formAktenzeichenLabel: "Номер дела / ссылка: *",
-  formAktenzeichenHint: "Указан вверху справа на решении. (Обязательно)",
-  formBescheiddatumLabel: "Дата решения: *",
+  formStichpunkteHint: "Минимум 10 символов. Макс. 500.",
+  formAktenzeichenLabel: "Номер дела / ссылка:",
+  formAktenzeichenOptional: "(необязательно)",
+  formAktenzeichenHint: "Указан вверху справа на решении.",
+  formBescheiddatumLabel: "Дата решения:",
+  formBescheiddatumOptional: "(необязательно)",
   formBescheiddatumPlaceholder: "ДД.ММ.ГГГГ",
   formAdresseLabel: "Ваш адрес:",
   formAdresseOptional: "(по желанию – для письма)",
@@ -346,9 +401,24 @@ const RU: PageT = {
   footerImpressum: "Импрессум",
   footerDatenschutz: "Защита данных",
   footerAgb: "Условия",
+  footerDisclaimer: "Не заменяет юридическую консультацию. Информационный сервис согл. § 2 RDG.",
   footerCopyright: "© 2026 BescheidRecht. Все права защищены.",
   letterGreeting: "Уважаемые дамы и господа,",
   letterClosing: "С уважением",
+  consentPrivacyLink: "Информацию о защите данных",
+  privacyModalTitle: "Защита данных при анализе документов",
+  privacyModalBullet1: "Автоматическая псевдонимизация – Имена, адреса, даты рождения, e-mail, телефон, IBAN, BIC, ИНН и номера соцстрахования заменяются плейсхолдерами перед анализом.",
+  privacyModalBullet2: "Внешняя обработка – Анализ выполняется через нашего ИИ-провайдера. Псевдонимизированный текст передаётся туда.",
+  privacyModalBullet3: "Без постоянного хранения – Наш ИИ-провайдер не хранит ваши данные постоянно. Они удаляются после анализа.",
+  privacyModalBullet4: "Мгновенное восстановление – После анализа подлинные данные быстро восстанавливаются.",
+  privacyModalRights: "Ваши права: Вы можете в любое время возразить против обработки данных. Подробнее в нашей политике конфиденциальности.",
+  privacyModalBtn: "Понятно",
+  pseudonymPreviewLink: "Посмотреть псевдонимизацию в действии →",
+  pseudonymPreviewTitle: "Псевдонимизация в действии",
+  pseudonymPreviewBefore: "Пример: оригинал",
+  pseudonymPreviewAfter: "Отправляется на анализ",
+  pseudonymPreviewNote: "Этот предпросмотр использует только пример текста. С вашим документом тот же процесс выполняется автоматически.",
+  pseudonymPreviewBtn: "Понятно",
 };
 
 const AR: PageT = {
@@ -358,7 +428,7 @@ const AR: PageT = {
   headlineSub: "ارفع الخطاب. اكتشف الأخطاء.",
   text: "لا ينبغي أن يستهلك تحليل المراسلات الاجتماعية والإدارية قدرات قيمة. BescheidRecht هي الأداة الرقمية للتحليل الآلي. ارفع مستندك واحصل على التحليل.",
   button: "رفع المستند الآن",
-  consent: "أوافق على معالجة بياناتي بواسطة الذكاء الاصطناعي للتحليل. أعلم أن هذا لا يحل محل الاستشارة القانونية.",
+  consent: "أوافق على معالجة البيانات وقرأت معلومات الخصوصية.",
   tabAnalyze: "تحليل القرار",
   tabLetter: "إنشاء خطاب",
   formBehoerdeLabel: "لمصلحة أي جهة الخطاب؟",
@@ -367,10 +437,12 @@ const AR: PageT = {
   formSchreibentypPlaceholder: "اختر النوع...",
   formStichpunkteLabel: "صف وضعك باختصار",
   formStichpunktePlaceholder: "مثلاً: «استلمت القرار في...، تم خفض المنفعة...»",
-  formStichpunkteHint: "20 حرفاً على الأقل. 500 كحد أقصى.",
-  formAktenzeichenLabel: "رقم الملف / المرجع: *",
-  formAktenzeichenHint: "يظهر أعلى اليمين في القرار. (مطلوب)",
-  formBescheiddatumLabel: "تاريخ القرار: *",
+  formStichpunkteHint: "10 أحرف على الأقل. 500 كحد أقصى.",
+  formAktenzeichenLabel: "رقم الملف / المرجع:",
+  formAktenzeichenOptional: "(اختياري)",
+  formAktenzeichenHint: "يظهر أعلى اليمين في القرار.",
+  formBescheiddatumLabel: "تاريخ القرار:",
+  formBescheiddatumOptional: "(اختياري)",
   formBescheiddatumPlaceholder: "يوم.شهر.سنة",
   formAdresseLabel: "عنوانك:",
   formAdresseOptional: "(اختياري – للخطاب)",
@@ -416,9 +488,24 @@ const AR: PageT = {
   navBlog: "المدونة",
   navLogin: "تسجيل الدخول",
   navRegister: "التسجيل",
+  footerDisclaimer: "لا يُغني عن الاستشارة القانونية. خدمة معلومات وفقاً لـ § 2 RDG.",
   footerCopyright: "© 2026 BescheidRecht. جميع الحقوق محفوظة.",
   letterGreeting: "السيدات والسادة المحترمون،",
   letterClosing: "مع خالص التقدير",
+  consentPrivacyLink: "معلومات الخصوصية",
+  privacyModalTitle: "الخصوصية في تحليل المستندات",
+  privacyModalBullet1: "إخفاء الهوية تلقائياً – يتم استبدال الأسماء والعناوين وتواريخ الميلاد والبريد الإلكتروني والهاتف ورقم الآيبان ورقم البنك ورقم الضريبة وأرقام الضمان الاجتماعي بواصفات قبل التحليل.",
+  privacyModalBullet2: "المعالجة الخارجية – يتم التحليل عبر مزود الذكاء الاصطناعي. يُرسل النص المُستعار إليه.",
+  privacyModalBullet3: "بدون تخزين دائم – لا يخزن مزود الذكاء الاصطناعي بياناتك بشكل دائم. تُحذف بعد التحليل.",
+  privacyModalBullet4: "استعادة فورية – بعد التحليل تُستعاد البيانات الأصلية بسرعة.",
+  privacyModalRights: "حقوقك: يمكنك الاعتراض على معالجة البيانات في أي وقت. مزيد من المعلومات في سياسة الخصوصية.",
+  privacyModalBtn: "فهمت",
+  pseudonymPreviewLink: "عرض إخفاء الهوية في العمل ←",
+  pseudonymPreviewTitle: "إخفاء الهوية في العمل",
+  pseudonymPreviewBefore: "مثال: الأصل",
+  pseudonymPreviewAfter: "كما يُرسل للتحليل",
+  pseudonymPreviewNote: "هذا المعاينة تستخدم نصاً مثالياً فقط. مع مستندك يتم تنفيذ نفس العملية تلقائياً في الخلفية.",
+  pseudonymPreviewBtn: "فهمت",
 };
 
 const TR: PageT = {
@@ -428,7 +515,7 @@ const TR: PageT = {
   headlineSub: "Belge yükleyin. Hataları bulun.",
   text: "Sosyal ve idari yazıların analizi değerli kapasiteleri bağlamamalıdır. BescheidRecht, karmaşık belgelerin otomatik yapılandırılması için dijital araçtır. Belgenizi yükleyin, anında analiz alın.",
   button: "Belgeyi şimdi yükle",
-  consent: "Verilerimin analiz için yapay zeka tarafından işlenmesine izin veriyorum. Bunun hukuki danışmanlığın yerini tutmadığını biliyorum.",
+  consent: "Veri işlemeye izin veriyorum ve Gizlilik bilgilerini okudum.",
   tabAnalyze: "Karar analizi",
   tabLetter: "Yazı oluştur",
   formBehoerdeLabel: "Yazı hangi kurum için?",
@@ -437,10 +524,12 @@ const TR: PageT = {
   formSchreibentypPlaceholder: "Tür seçin...",
   formStichpunkteLabel: "Durumunuzu kısaca anlatın",
   formStichpunktePlaceholder: "Örn: \"... tarihli karar alındı, ödeme kısıldı...\"",
-  formStichpunkteHint: "En az 20 karakter. Maks. 500.",
-  formAktenzeichenLabel: "Dosya no / Referans: *",
-  formAktenzeichenHint: "Kararın sağ üstünde. (Zorunlu)",
-  formBescheiddatumLabel: "Karar tarihi: *",
+  formStichpunkteHint: "En az 10 karakter. Maks. 500.",
+  formAktenzeichenLabel: "Dosya no / Referans:",
+  formAktenzeichenOptional: "(isteğe bağlı)",
+  formAktenzeichenHint: "Kararın sağ üstünde.",
+  formBescheiddatumLabel: "Karar tarihi:",
+  formBescheiddatumOptional: "(isteğe bağlı)",
   formBescheiddatumPlaceholder: "GG.AA.YYYY",
   formAdresseLabel: "Adresiniz:",
   formAdresseOptional: "(isteğe bağlı – yazı için)",
@@ -486,9 +575,24 @@ const TR: PageT = {
   navBlog: "Blog",
   navLogin: "Giriş",
   navRegister: "Kayıt",
+  footerDisclaimer: "Hukuki danışmanlık yerine geçmez. § 2 RDG kapsamında bilgi hizmeti.",
   footerCopyright: "© 2026 BescheidRecht. Tüm hakları saklıdır.",
   letterGreeting: "Sayın Yetkili,",
   letterClosing: "Saygılarımla",
+  consentPrivacyLink: "Gizlilik bilgilerini",
+  privacyModalTitle: "Belge analizinde gizlilik",
+  privacyModalBullet1: "Otomatik anonimleştirme – İsimler, adresler, doğum tarihleri, e-posta, telefon, IBAN, BIC, vergi kimlik no ve sosyal güvenlik numaraları analizden önce yer tutucularla değiştirilir.",
+  privacyModalBullet2: "Harici işleme – Analiz yapay zeka sağlayıcımız üzerinden yapılır. Anonimleştirilmiş metin oraya iletilir.",
+  privacyModalBullet3: "Kalıcı depolama yok – Yapay zeka sağlayıcımız verilerinizi kalıcı olarak saklamaz. Analizden sonra silinir.",
+  privacyModalBullet4: "Anında geri yükleme – Analizden sonra gerçek veriler hızla geri yüklenir.",
+  privacyModalRights: "Haklarınız: Veri işlemeye her zaman itiraz edebilirsiniz. Daha fazla bilgi gizlilik politikamızda.",
+  privacyModalBtn: "Anladım",
+  pseudonymPreviewLink: "Anonimleştirmeyi göster →",
+  pseudonymPreviewTitle: "Anonimleştirme önizlemesi",
+  pseudonymPreviewBefore: "Örnek: Orijinal",
+  pseudonymPreviewAfter: "Analize böyle gönderilir",
+  pseudonymPreviewNote: "Bu önizleme yalnızca örnek metin kullanır. Kendi belgenizde aynı işlem arka planda otomatik çalışır.",
+  pseudonymPreviewBtn: "Anladım",
 };
 
 export const pageTranslations: Record<Lang, PageT> = { DE, EN, RU, AR, TR };

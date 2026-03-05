@@ -1,0 +1,12 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/rechts-update",
+      "schedule": "0 6 1 * *"
+    },
+    {
+      "path": "/api/cron/agent-batch",
+      "schedule": "0 2 * * 0"
+    }
+  ]
+}

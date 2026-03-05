@@ -39,7 +39,7 @@ export default async function BlogPostPage({ params }: PageProps) {
   if (!post) notFound();
 
   return (
-    <main className="min-h-screen bg-[#05070a] text-white flex flex-col">
+    <main className="min-h-screen bg-mesh text-white flex flex-col">
       <SiteNavSimple backHref="/blog" backLabel="Alle Beiträge" />
       <article className="max-w-3xl mx-auto px-6 py-16 flex-grow w-full text-left">
         <time className="text-[11px] font-bold text-white/50 uppercase tracking-widest">

@@ -1,6 +1,10 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { runAgentAnalysis, type AgentAnalysisResult } from '@/lib/logic/agent_engine';
 import { runForensicAnalysis } from '@/lib/logic/engine';
+import { pseudonymizeText, depseudonymizeText } from '@/lib/privacy/pseudonymizer';
+import { getAuthenticatedUser } from '@/lib/supabase/auth';
+import { getAnthropicKey } from '@/lib/logic/agents/utils';
 import PDFParser from 'pdf2json';
 import OpenAI from 'openai';
 import fs from 'fs';
@@ -8,24 +12,33 @@ import path from 'path';
 
 export const runtime = 'nodejs';
 
-/** Prüft Supabase Auth (Bearer Token). Gibt User oder null zurück. */
-async function getAuthenticatedUser(req: Request): Promise<{ id: string } | null> {
-  const authHeader = req.headers.get('authorization');
-  if (!authHeader || !authHeader.startsWith('Bearer ')) return null;
-  const token = authHeader.replace('Bearer ', '').trim();
-  if (!token) return null;
+// ---------------------------------------------------------------------------
+// Rate-Limiter — schützt vor Missbrauch und unerwarteten API-Kosten
+// Limit: 5 Analysen pro User pro 15 Minuten (per Serverless-Instanz)
+// ---------------------------------------------------------------------------
+const _rateMap = new Map<string, { count: number; resetAt: number }>();
+const RATE_WINDOW_MS = 15 * 60 * 1000; // 15 Minuten
+const RATE_MAX = 5;
 
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL || '';
-  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY || '';
-  if (!url || !anonKey) return null;
-
-  const supabase = createClient(url, anonKey, {
-    global: { headers: { Authorization: `Bearer ${token}` } },
-  });
-  const { data: { user }, error } = await supabase.auth.getUser();
-  if (error || !user) return null;
-  return { id: user.id };
+function checkRateLimit(userId: string): boolean {
+  const now = Date.now();
+  const entry = _rateMap.get(userId);
+  if (!entry || entry.resetAt < now) {
+    _rateMap.set(userId, { count: 1, resetAt: now + RATE_WINDOW_MS });
+    return true;
+  }
+  if (entry.count >= RATE_MAX) return false;
+  entry.count++;
+  return true;
 }
+
+// Cleanup alle 30 Minuten
+setInterval(() => {
+  const now = Date.now();
+  for (const [id, e] of _rateMap.entries()) {
+    if (e.resetAt < now) _rateMap.delete(id);
+  }
+}, 30 * 60 * 1000).unref();
 
 function getOpenAIKey(): string | null {
   try {
@@ -41,8 +54,10 @@ function getOpenAIKey(): string | null {
 
 async function extractTextFromPdf(buffer: Buffer): Promise<string> {
   return new Promise<string>((resolve, reject) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const pdfParser = new (PDFParser as any)(null, 1);
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     pdfParser.on('pdfParser_dataError', (errData: any) => {
       reject(errData?.parserError || new Error('Fehler beim PDF-Parsing.'));
     });
@@ -60,11 +75,32 @@ async function extractTextFromPdf(buffer: Buffer): Promise<string> {
   });
 }
 
-async function extractTextFromImage(buffer: Buffer, mimeType: string): Promise<string> {
-  const apiKey = getOpenAIKey();
-  if (!apiKey) {
-    throw new Error('OpenAI Key fehlt.');
+/**
+ * Lokale OCR via Tesseract.js — Bilder verlassen NICHT den Server.
+ * DSGVO-konform: keine personenbezogenen Daten an externe APIs.
+ */
+async function extractTextFromImageLocal(buffer: Buffer): Promise<string> {
+  try {
+    const { createWorker } = await import('tesseract.js');
+    const worker = await createWorker('deu', 1, {
+      logger: () => {}, // Kein Logging
+    });
+    const { data: { text } } = await worker.recognize(buffer);
+    await worker.terminate();
+    return text.trim();
+  } catch {
+    return '';
   }
+}
+
+/**
+ * OpenAI OCR — NUR als letzter Fallback wenn Tesseract versagt.
+ * Nutzer wird in der UI informiert (privacy-notice in der Antwort).
+ * Bild enthält zu diesem Zeitpunkt noch PII — daher nur wenn unbedingt nötig.
+ */
+async function extractTextFromImageOpenAI(buffer: Buffer, mimeType: string): Promise<string> {
+  const apiKey = getOpenAIKey();
+  if (!apiKey) throw new Error('OpenAI Key fehlt.');
 
   const openai = new OpenAI({ apiKey });
   const base64 = buffer.toString('base64');
@@ -75,20 +111,14 @@ async function extractTextFromImage(buffer: Buffer, mimeType: string): Promise<s
     messages: [
       {
         role: 'system',
-        content:
-          'Du bist ein OCR-Tool. Extrahiere den vollständigen Text des Bescheids. Gib NUR den reinen Text zurück, ohne Erklärungen.',
+        content: 'Du bist ein OCR-Tool. Extrahiere den vollständigen Text des Bescheids. Gib NUR den reinen Text zurück, ohne Erklärungen.',
       },
       {
         role: 'user',
         content: [
-          {
-            type: 'text',
-            text: 'Bitte extrahiere den gesamten Text aus diesem Schreiben.',
-          },
-          {
-            type: 'image_url',
-            image_url: { url: dataUrl },
-          },
+          { type: 'text', text: 'Bitte extrahiere den gesamten Text aus diesem Schreiben.' },
+          { type: 'image_url', image_url: { url: dataUrl } },
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         ] as any,
       },
     ],
@@ -98,6 +128,32 @@ async function extractTextFromImage(buffer: Buffer, mimeType: string): Promise<s
   return response.choices[0]?.message?.content?.trim() ?? '';
 }
 
+/**
+ * Haupt-OCR für Bilder:
+ * 1. Tesseract.js lokal (DSGVO-konform, kein Datentransfer)
+ * 2. Fallback OpenAI wenn Tesseract < 50 Zeichen liefert
+ */
+async function extractTextFromImage(buffer: Buffer, mimeType: string): Promise<string> {
+  console.log('[OCR] Starte lokale Texterkennung (Tesseract)...');
+  const localText = await extractTextFromImageLocal(buffer);
+
+  if (localText.length >= 50) {
+    console.log(`[OCR] Tesseract erfolgreich: ${localText.length} Zeichen`);
+    return localText;
+  }
+
+  // Lokale OCR hat versagt — OpenAI als Fallback (mit Logging für Audit)
+  console.warn('[OCR] Tesseract unzureichend, Fallback auf OpenAI Vision (Datentransfer!)');
+  try {
+    const openAiText = await extractTextFromImageOpenAI(buffer, mimeType);
+    console.log(`[OCR] OpenAI Vision: ${openAiText.length} Zeichen`);
+    return openAiText;
+  } catch {
+    if (localText.length > 0) return localText; // Lieber schlechtes Ergebnis als keins
+    throw new Error('Texterkennung fehlgeschlagen. Bitte PDF hochladen oder Foto in besserer Qualität aufnehmen.');
+  }
+}
+
 export async function POST(req: Request) {
   try {
     const user = await getAuthenticatedUser(req);
@@ -105,6 +161,13 @@ export async function POST(req: Request) {
       return NextResponse.json(
         { error: 'Nicht angemeldet. Bitte zuerst einloggen.' },
         { status: 401 }
+      );
+    }
+
+    if (!checkRateLimit(user.id)) {
+      return NextResponse.json(
+        { error: 'Zu viele Anfragen. Du hast bereits 5 Analysen in den letzten 15 Minuten durchgeführt. Bitte kurz warten.' },
+        { status: 429 }
       );
     }
 
@@ -136,9 +199,10 @@ export async function POST(req: Request) {
     } else if (mimeType.startsWith('image/')) {
       try {
         extractedText = await extractTextFromImage(buffer, mimeType);
-      } catch (imgErr: any) {
+      } catch (imgErr: unknown) {
         console.error('Bild-OCR Fehler:', imgErr);
-        const msg = imgErr?.message?.includes('Key') || imgErr?.message?.includes('key')
+        const imgMsg = imgErr instanceof Error ? imgErr.message : '';
+        const msg = imgMsg.includes('Key') || imgMsg.includes('key')
           ? 'Bildanalyse ist derzeit nicht verfügbar. Bitte PDF hochladen oder später erneut versuchen.'
           : 'Text aus dem Bild konnte nicht gelesen werden. Bitte Foto erneut aufnehmen (gut beleuchtet, leserlich) oder PDF verwenden.';
         return NextResponse.json({ error: msg }, { status: 500 });
@@ -161,13 +225,103 @@ export async function POST(req: Request) {
       );
     }
 
-    const result = await runForensicAnalysis(extractedText);
+    const { pseudonymized, map } = pseudonymizeText(extractedText);
+
+    console.log('[Privacy] Erkannte sensible Daten:', {
+      namen: map.name.length,
+      adressen: map.address.length,
+      geburtsdaten: map.birthdate.length,
+      bankkonten: map.bankAccount.length,
+      steuerIds: map.taxId.length,
+      svNummern: map.socialSecurityNumber.length,
+      emails: map.email.length,
+      telefon: map.phone.length,
+      bic: map.bic.length,
+    });
+
+    // Versuche zuerst den neuen Agent (Claude Tool-Use), Fallback auf alte Engine
+    let result: AgentAnalysisResult;
+
+    if (getAnthropicKey()) {
+      console.log('[Analyze] Verwende Agent-Engine (Claude Tool-Use)');
+      result = await runAgentAnalysis(pseudonymized);
+    } else {
+      console.log('[Analyze] Fallback auf Legacy-Engine (OpenAI)');
+      const legacyResult = await runForensicAnalysis(pseudonymized);
+      result = { routing_stufe: 'NORMAL', agenten_aktiv: ['legacy-engine'], ...legacyResult };
+    }
+
+    result = {
+      ...result,
+      fehler: Array.isArray(result.fehler)
+        ? result.fehler.map((f: string) => depseudonymizeText(String(f), map))
+        : result.fehler,
+      musterschreiben: depseudonymizeText(result.musterschreiben || '', map),
+    };
+
+    // Supabase User-Client für nachgelagerte DB-Operationen
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL || '';
+    const supabaseAnonKey =
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY || '';
+    const supabaseUser =
+      supabaseUrl && supabaseAnonKey
+        ? createClient(supabaseUrl, supabaseAnonKey, {
+            global: { headers: { Authorization: `Bearer ${user.token}` } },
+          })
+        : null;
+
+    // Auto-Save Frist in Supabase (kein Service-Key nötig, nutzt User-JWT)
+    if (result.frist_datum && supabaseUser) {
+      try {
+        await supabaseUser.from('user_fristen').insert({
+          user_id: user.id,
+          behoerde: result.zuordnung?.behoerde ?? null,
+          rechtsgebiet: result.zuordnung?.rechtsgebiet ?? null,
+          untergebiet: result.zuordnung?.untergebiet ?? null,
+          frist_datum: result.frist_datum,
+          status: 'offen',
+          musterschreiben: result.musterschreiben,
+          analyse_meta: {
+            frist_tage: result.frist_tage,
+            auffaelligkeiten: result.fehler?.slice(0, 3),
+            routing_stufe: result.routing_stufe,
+            token_kosten_eur: result.token_kosten_eur,
+            agenten_aktiv: result.agenten_aktiv,
+            erfolgschance: result.kritik?.erfolgschance_prozent,
+          },
+        });
+        console.log('[Fristen] Frist auto-gespeichert:', result.frist_datum);
+      } catch (fristErr) {
+        // Frist-Save-Fehler darf Hauptergebnis nicht blockieren
+        console.warn('[Fristen] Auto-Save fehlgeschlagen:', fristErr);
+      }
+    }
+
+    // Kosten-Monitoring: persistiere Token-Kosten in analysis_results
+    if (result.token_kosten_eur !== undefined && supabaseUser) {
+      try {
+        await supabaseUser.from('analysis_results').insert({
+          user_id: user.id,
+          session_id: null,
+          behoerde: result.zuordnung?.behoerde ?? null,
+          rechtsgebiet: result.zuordnung?.rechtsgebiet ?? null,
+          fehler: result.fehler ?? [],
+          frist_datum: result.frist_datum ?? null,
+          dringlichkeit: result.routing_stufe ?? null,
+          model_used: result.model_used ?? (result.routing_stufe === 'NOTFALL' ? 'claude-opus-4-6' : 'claude-sonnet-4-6'),
+          token_cost_eur: result.token_kosten_eur,
+        });
+        console.log('[Monitoring] Token-Kosten gespeichert:', result.token_kosten_eur, 'EUR');
+      } catch {
+        // Silent fail — Monitoring darf Hauptergebnis nicht blockieren
+      }
+    }
 
     return NextResponse.json(result);
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Analyze API Fehler:', error);
     return NextResponse.json(
-      { error: error.message || 'Interner Serverfehler.' },
+      { error: error instanceof Error ? error.message : 'Interner Serverfehler.' },
       { status: 500 }
     );
   }

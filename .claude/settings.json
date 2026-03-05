@@ -1,0 +1,94 @@
+{
+  "permissions": {
+    "allow": [
+      "Read",
+      "Glob",
+      "Grep",
+      "Bash(cd /home/henne1990/bescheidrecht-frontend && npx tsc --noEmit)",
+      "Bash(cd /home/henne1990/bescheidrecht-frontend && npm run lint)",
+      "Bash(cd /home/henne1990/bescheidrecht-frontend && npm run test)",
+      "Bash(cd /home/henne1990/bescheidrecht-frontend && npm run build)",
+      "Bash(cd /home/henne1990/bescheidrecht-frontend && npm run dev)",
+      "Bash(cd /home/henne1990/bescheidrecht-frontend && npm run start)",
+      "Bash(cd /home/henne1990/bescheidrecht-frontend && git status)",
+      "Bash(cd /home/henne1990/bescheidrecht-frontend && git diff*)",
+      "Bash(cd /home/henne1990/bescheidrecht-frontend && git log*)",
+      "Bash(cd /home/henne1990/bescheidrecht-frontend && git add *)",
+      "Bash(cd /home/henne1990/bescheidrecht-frontend && git commit *)",
+      "Bash(ls:*)"
+    ],
+    "deny": [
+      "Bash(rm -rf *)",
+      "Bash(rm -fr *)",
+      "Bash(rm -r /*)",
+      "Bash(*--force*)",
+      "Bash(*--no-verify*)",
+      "Bash(*SUPABASE_SERVICE_ROLE*)",
+      "Bash(*ANTHROPIC_API_KEY*)",
+      "Bash(*OPENAI_API_KEY*)",
+      "Bash(*CRON_SECRET*)",
+      "Bash(cat*.env*)",
+      "Bash(cat*vault*)",
+      "Bash(cat*credentials*)",
+      "Bash(cat*secret*)",
+      "Bash(*printenv*)",
+      "Bash(*> .env*)",
+      "Bash(*>> .env*)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "filepath=\"$CLAUDE_FILE_PATH\"; case \"$filepath\" in */content/*) echo 'BLOCKED: content/ ist geschuetzt. Explizite Freigabe vom User noetig.' >&2; exit 2;; */vault/*|*/src/lib/vault/*) echo 'BLOCKED: vault/ ist geschuetzt. Niemals ohne Freigabe.' >&2; exit 2;; *.env*) echo 'BLOCKED: .env-Datei. Niemals automatisch editieren.' >&2; exit 2;; *credentials*|*secret*) echo 'BLOCKED: Sensible Datei erkannt.' >&2; exit 2;; *package-lock.json) echo 'BLOCKED: Lock-File nur via npm install aendern.' >&2; exit 2;; *package.json) echo 'BLOCKED: package.json nur mit expliziter Freigabe aendern.' >&2; exit 2;; esac; exit 0"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cmd=\"$CLAUDE_BASH_COMMAND\"; case \"$cmd\" in *rm\\ -r*) echo 'BLOCKED: Rekursives Loeschen verhindert.' >&2; exit 2;; *DROP\\ *|*TRUNCATE\\ *|*DELETE\\ FROM*) echo 'BLOCKED: Destruktive DB-Operation verhindert.' >&2; exit 2;; esac; exit 0"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "filepath=\"$CLAUDE_FILE_PATH\"; case \"$filepath\" in *.ts|*.tsx) cd /home/henne1990/bescheidrecht-frontend 2>/dev/null && output=$(timeout 30 npx tsc --noEmit --pretty 2>&1); tsc_exit=$?; echo \"$output\" | tail -25; if [ $tsc_exit -ne 0 ]; then echo 'TypeScript-Fehler gefunden. Bitte beheben.' >&2; fi; lint_out=$(timeout 20 npx next lint --file \"$filepath\" 2>&1); lint_exit=$?; if [ $lint_exit -ne 0 ]; then echo \"$lint_out\" | tail -15; echo 'ESLint-Fehler gefunden. Bitte beheben.' >&2; fi; exit 0;; esac; exit 0"
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "matcher": ".",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo \"[KONTEXT] Projekt: bescheidrecht-frontend | Stack: Next.js 14 + TypeScript strict + Supabase + Claude API | Regeln: kein any, keine hardcoded Strings (page-translations.ts), Auth vor Logik, supabase/client.ts nicht supabase.ts, content/ und vault/ geblockt | Qualitaet: Weltklasse\""
+          }
+        ]
+      }
+    ],
+    "Notification": [
+      {
+        "matcher": ".",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "printf '\\a'"
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -133,14 +133,14 @@ function RegisterForm() {
     <main className="min-h-screen bg-mesh text-white flex flex-col">
       <SiteNavSimple backHref="/" backLabel="Zurück zur Startseite" />
       <div className="flex-1 flex items-center justify-center p-6 py-16">
-        <div className="w-full max-w-xl rounded-3xl border border-white/10 bg-white/[0.04] p-8 md:p-10 shadow-xl">
+        <div className="w-full max-w-xl rounded-3xl border border-white/10 bg-white/[0.04] p-8 md:p-10 shadow-xl animate-slideUp">
           <Link href="/" className="text-[11px] text-white/40 hover:text-white uppercase tracking-wider transition-colors mb-6 inline-block">
             ← Startseite
           </Link>
           <h1 className="text-3xl font-black tracking-tight mb-8">Registrierung</h1>
 
           {emailConfirmSent ? (
-            <div className="rounded-2xl bg-green-500/10 border border-green-500/30 p-6 space-y-4">
+            <div className="rounded-2xl bg-green-500/10 border border-green-500/30 p-6 space-y-4 animate-fadeIn">
               <p className="text-green-200 text-sm leading-relaxed">
                 Wir haben Ihnen eine E-Mail an <strong className="text-white">{formData.email}</strong> gesendet.
                 Bitte klicken Sie den Link in der E-Mail, um Ihr Konto zu bestätigen.

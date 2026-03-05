@@ -11,7 +11,7 @@ function loadVaultJson<T>(filename: string, fallback: T): T {
   }
 }
 
-export async function analyzeDocument(documentText: string) {
+export async function analyzeDocument(_documentText: string) {
   const omegaCore = loadVaultJson<{ instructions?: string }>('omega_core.json', { instructions: '' });
   const systemPrompt = omegaCore.instructions ?? '';
 

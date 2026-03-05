@@ -1,6 +1,6 @@
 'use client';
 import React, { useState } from 'react';
-import { Upload, FileText, AlertCircle, Loader2 } from 'lucide-react';
+import { Upload, FileText, Loader2 } from 'lucide-react';
 
 export default function FileUpload() {
   const [file, setFile] = useState<File | null>(null);

@@ -62,15 +62,25 @@ export async function POST(request: NextRequest) {
       .eq('user_id', user.id)
       .single();
 
+    // Testmodus: Nur aktiv wenn DEV_UNLIMITED_ANALYSES=true explizit gesetzt
+    const isDevUnlimited = process.env.DEV_UNLIMITED_ANALYSES === 'true';
+
     if (subError || !subscription) {
+      if (isDevUnlimited) {
+        return NextResponse.json({
+          success: true,
+          analyses_remaining: 999,
+          analyses_used: 0,
+          subscription_type: 'dev_test'
+        });
+      }
       return NextResponse.json(
         { error: 'No subscription found' },
         { status: 404 }
       );
     }
 
-    // Prüfen ob noch Analysen verfügbar
-    if (subscription.analyses_remaining <= 0) {
+    if (!isDevUnlimited && subscription.analyses_remaining <= 0) {
       return NextResponse.json(
         {
           error: 'No analyses remaining',
@@ -79,6 +89,15 @@ export async function POST(request: NextRequest) {
         },
         { status: 403 }
       );
+    }
+
+    if (isDevUnlimited) {
+      return NextResponse.json({
+        success: true,
+        analyses_remaining: 999,
+        analyses_used: subscription.analyses_used,
+        subscription_type: 'dev_test'
+      });
     }
 
     // Counter reduzieren
@@ -108,10 +127,11 @@ export async function POST(request: NextRequest) {
       subscription_type: updated.subscription_type
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Use analysis error:', error);
+    const msg = error instanceof Error ? error.message : 'Internal server error';
     return NextResponse.json(
-      { error: error.message || 'Internal server error' },
+      { error: msg },
       { status: 500 }
     );
   }

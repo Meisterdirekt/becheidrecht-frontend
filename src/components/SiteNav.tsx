@@ -1,7 +1,10 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Link from "next/link";
+import { ThemeToggle } from "@/components/ThemeToggle";
+import { MobileNav } from "@/components/MobileNav";
+import { Menu } from "lucide-react";
 
 type Lang = "DE" | "EN" | "RU" | "AR" | "TR";
 
@@ -14,41 +17,70 @@ interface SiteNavFullProps {
   navRegister: string;
 }
 
-export function SiteNavFull({ lang, onLangChange, dir, navBlog, navLogin, navRegister }: SiteNavFullProps) {
+export function SiteNavFull({ lang, onLangChange, dir: _dir, navBlog, navLogin, navRegister }: SiteNavFullProps) {
   const langs: Lang[] = ["DE", "EN", "RU", "AR", "TR"];
+  const [mobileOpen, setMobileOpen] = useState(false);
+
   return (
-    <nav className="sticky top-0 z-50 flex justify-between items-center px-6 py-5 max-w-7xl mx-auto w-full bg-[var(--bg)]/80 backdrop-blur-xl border-b border-white/5">
-      <div className="flex items-center gap-8">
-        <Link href="/" className="text-white font-black text-xl tracking-tight hover:opacity-90 transition-opacity">
-          BESCHEID<span className="text-[var(--accent)]">RECHT</span>
-        </Link>
-        <div className="flex gap-3" dir="ltr">
-          {langs.map((l) => (
-            <button
-              key={l}
-              type="button"
-              onClick={() => onLangChange(l)}
-              className={`text-[11px] font-bold tracking-widest transition-colors rounded-lg px-2 py-1 ${
-                lang === l ? "text-[var(--accent)] bg-[var(--accent)]/10" : "text-white/40 hover:text-white"
-              }`}
-            >
-              {l}
-            </button>
-          ))}
+    <>
+      <nav className="sticky top-0 z-50 flex justify-between items-center px-6 py-5 max-w-7xl mx-auto w-full bg-[var(--bg)]/80 backdrop-blur-xl border-b border-white/5">
+        <div className="flex items-center gap-8">
+          <Link href="/" className="text-white font-black text-xl tracking-tight hover:opacity-90 transition-opacity">
+            BESCHEID<span className="text-[var(--accent)]">RECHT</span>
+          </Link>
+          {/* Desktop: lang selector + theme toggle */}
+          <div className="hidden md:flex gap-3 items-center" dir="ltr">
+            {langs.map((l) => (
+              <button
+                key={l}
+                type="button"
+                onClick={() => onLangChange(l)}
+                className={`text-[11px] font-bold tracking-widest transition-colors rounded-lg px-2 py-1 ${
+                  lang === l ? "text-[var(--accent)] bg-[var(--accent)]/10" : "text-white/40 hover:text-white"
+                }`}
+              >
+                {l}
+              </button>
+            ))}
+            <ThemeToggle />
+          </div>
         </div>
-      </div>
-      <div className="flex gap-6 items-center">
-        <Link href="/blog" className="btn-ghost">
-          {navBlog}
-        </Link>
-        <Link href="/login" className="btn-ghost">
-          {navLogin}
-        </Link>
-        <Link href="/register" className="btn-primary">
-          {navRegister}
-        </Link>
-      </div>
-    </nav>
+
+        {/* Desktop links */}
+        <div className="hidden md:flex gap-6 items-center">
+          <Link href="/blog" className="btn-ghost">
+            {navBlog}
+          </Link>
+          <Link href="/login" className="btn-ghost">
+            {navLogin}
+          </Link>
+          <Link href="/register" className="btn-primary">
+            {navRegister}
+          </Link>
+        </div>
+
+        {/* Mobile hamburger */}
+        <button
+          type="button"
+          className="md:hidden p-2 text-white/50 hover:text-white transition-colors"
+          onClick={() => setMobileOpen(true)}
+          aria-label="Menü öffnen"
+        >
+          <Menu className="w-5 h-5" />
+        </button>
+      </nav>
+
+      {/* Mobile overlay */}
+      <MobileNav
+        open={mobileOpen}
+        onClose={() => setMobileOpen(false)}
+        lang={lang}
+        onLangChange={onLangChange}
+        navBlog={navBlog}
+        navLogin={navLogin}
+        navRegister={navRegister}
+      />
+    </>
   );
 }
 
@@ -73,6 +105,7 @@ export function SiteNavSimple({ backHref, backLabel, right }: SiteNavSimpleProps
         </Link>
       </div>
       <div className="flex items-center gap-4 min-w-[120px] justify-end">
+        <ThemeToggle />
         {right ?? <span />}
       </div>
     </nav>

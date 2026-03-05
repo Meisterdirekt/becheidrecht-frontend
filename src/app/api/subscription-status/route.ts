@@ -58,37 +58,40 @@ export async function GET(request: NextRequest) {
       .eq('user_id', user.id)
       .single();
 
+    // Testmodus: Nur aktiv wenn DEV_UNLIMITED_ANALYSES=true explizit gesetzt
+    const isDevUnlimited = process.env.DEV_UNLIMITED_ANALYSES === 'true';
     if (subError || !subscription) {
-      // Kein Subscription-Eintrag → Free User
       return NextResponse.json({
         user_id: user.id,
         email: user.email,
-        subscription_type: 'free',
+        subscription_type: isDevUnlimited ? 'dev_test' : 'free',
         status: 'active',
-        analyses_total: 0,
+        analyses_total: isDevUnlimited ? 999 : 0,
         analyses_used: 0,
-        analyses_remaining: 0,
+        analyses_remaining: isDevUnlimited ? 999 : 0,
         expires_at: null
       });
     }
 
-    // Subscription gefunden
+    const analysesRemaining = isDevUnlimited ? Math.max(subscription.analyses_remaining, 999) : subscription.analyses_remaining;
+
     return NextResponse.json({
       user_id: subscription.user_id,
       email: subscription.email,
-      subscription_type: subscription.subscription_type,
+      subscription_type: isDevUnlimited ? 'dev_test' : subscription.subscription_type,
       status: subscription.status,
       analyses_total: subscription.analyses_total,
       analyses_used: subscription.analyses_used,
-      analyses_remaining: subscription.analyses_remaining,
+      analyses_remaining: analysesRemaining,
       expires_at: subscription.expires_at,
       purchased_at: subscription.purchased_at
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Subscription status error:', error);
+    const msg = error instanceof Error ? error.message : 'Internal server error';
     return NextResponse.json(
-      { error: error.message || 'Internal server error', subscription_type: 'free', analyses_remaining: 0 },
+      { error: msg, subscription_type: 'free', analyses_remaining: 0 },
       { status: 500 }
     );
   }

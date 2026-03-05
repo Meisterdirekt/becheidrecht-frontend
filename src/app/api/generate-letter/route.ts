@@ -4,9 +4,36 @@ import Anthropic from "@anthropic-ai/sdk";
 import fs from "fs";
 import path from "path";
 import { TRAEGER_TO_PREFIX, getTraegerLabel, getSchreibentypLabel } from "@/lib/letter-generator";
+import { getAuthenticatedUser } from "@/lib/supabase/auth";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
+
+// ---------------------------------------------------------------------------
+// Rate-Limiter — 10 Anfragen pro Stunde pro User
+// ---------------------------------------------------------------------------
+const _rateMap = new Map<string, { count: number; resetAt: number }>();
+const RATE_WINDOW_MS = 60 * 60 * 1000; // 1 Stunde
+const RATE_MAX = 10;
+
+function checkRateLimit(userId: string): boolean {
+  const now = Date.now();
+  const entry = _rateMap.get(userId);
+  if (!entry || entry.resetAt < now) {
+    _rateMap.set(userId, { count: 1, resetAt: now + RATE_WINDOW_MS });
+    return true;
+  }
+  if (entry.count >= RATE_MAX) return false;
+  entry.count++;
+  return true;
+}
+
+setInterval(() => {
+  const now = Date.now();
+  for (const [id, e] of _rateMap.entries()) {
+    if (e.resetAt < now) _rateMap.delete(id);
+  }
+}, 60 * 60 * 1000).unref();
 
 interface BehoerdenLogikItem {
   id: string;
@@ -15,25 +42,6 @@ interface BehoerdenLogikItem {
   rechtsbasis?: string[];
   musterschreiben_hinweis?: string;
   severity?: string;
-}
-
-async function getAuthenticatedUser(req: NextRequest): Promise<{ id: string } | null> {
-  const authHeader = req.headers.get("authorization");
-  if (!authHeader?.startsWith("Bearer ")) return null;
-  const token = authHeader.replace("Bearer ", "").trim();
-  if (!token) return null;
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL || "";
-  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY || "";
-  if (!url || !anonKey) return null;
-  const supabase = createClient(url, anonKey, {
-    global: { headers: { Authorization: `Bearer ${token}` } },
-  });
-  const {
-    data: { user },
-    error,
-  } = await supabase.auth.getUser();
-  if (error || !user) return null;
-  return { id: user.id };
 }
 
 async function getSubscriptionRemaining(userId: string): Promise<number> {
@@ -87,12 +95,23 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Nicht angemeldet. Bitte zuerst anmelden." }, { status: 401 });
     }
 
-    const remaining = await getSubscriptionRemaining(user.id);
-    if (remaining <= 0) {
+    if (!checkRateLimit(user.id)) {
       return NextResponse.json(
-        { error: "Keine Analysen mehr verfügbar. Bitte Abo oder Einzelanalyse erwerben." },
-        { status: 403 }
+        { error: "Zu viele Anfragen. Du hast bereits 10 Schreiben in der letzten Stunde erstellt. Bitte warte." },
+        { status: 429 }
       );
+    }
+
+    // Testmodus: Nur aktiv wenn DEV_UNLIMITED_ANALYSES=true explizit gesetzt
+    const isDevUnlimited = process.env.DEV_UNLIMITED_ANALYSES === "true";
+    if (!isDevUnlimited) {
+      const remaining = await getSubscriptionRemaining(user.id);
+      if (remaining <= 0) {
+        return NextResponse.json(
+          { error: "Keine Analysen mehr verfügbar. Bitte Abo oder Einzelanalyse erwerben." },
+          { status: 403 }
+        );
+      }
     }
 
     const body = await req.json();
@@ -118,30 +137,20 @@ export async function POST(req: NextRequest) {
     }
     const aktenzeichen = typeof aktenzeichenBody === "string" ? aktenzeichenBody.trim() : "";
     const bescheiddatum = typeof bescheiddatumBody === "string" ? bescheiddatumBody.trim() : "";
-    if (aktenzeichen.length < 4) {
-      return NextResponse.json(
-        { error: "Bitte Aktenzeichen eingeben – steht oben auf Ihrem Bescheid." },
-        { status: 400 }
-      );
-    }
-    if (!bescheiddatum) {
-      return NextResponse.json(
-        { error: "Bitte Datum des Bescheids eingeben." },
-        { status: 400 }
-      );
-    }
-    const bescheiddatumDate = new Date(bescheiddatum);
-    if (Number.isNaN(bescheiddatumDate.getTime())) {
-      return NextResponse.json(
-        { error: "Bitte gültiges Datum des Bescheids eingeben." },
-        { status: 400 }
-      );
+    if (bescheiddatum) {
+      const bescheiddatumDate = new Date(bescheiddatum);
+      if (Number.isNaN(bescheiddatumDate.getTime())) {
+        return NextResponse.json(
+          { error: "Bitte ein gültiges Datum eingeben." },
+          { status: 400 }
+        );
+      }
     }
 
     const stichpunkteTrim = stichpunkte.trim();
-    if (stichpunkteTrim.length < 20) {
+    if (stichpunkteTrim.length < 10) {
       return NextResponse.json(
-        { error: "Bitte mindestens 20 Zeichen zu Ihrer Situation eingeben." },
+        { error: "Bitte mindestens 10 Zeichen zu Ihrer Situation eingeben." },
         { status: 400 }
       );
     }
@@ -179,8 +188,8 @@ export async function POST(req: NextRequest) {
 
     const userMessage = `Behörde: ${behoerdeLabel}
 Schreibentyp: ${typLabel}
-Aktenzeichen: ${aktenzeichen}
-Bescheiddatum: ${bescheiddatum}
+Aktenzeichen: ${aktenzeichen || "[vom Nutzer nicht angegeben – im Schreiben Platzhalter verwenden]"}
+Bescheiddatum: ${bescheiddatum || "[vom Nutzer nicht angegeben – im Schreiben Platzhalter verwenden]"}
 
 Situation:
 ${stichpunkteTrim}
@@ -191,21 +200,29 @@ ${kontextText}
 Erstelle nun das fertige Schreiben gemäß der Systemanweisung.`;
 
     const response = await anthropic.messages.create({
-      model: "claude-3-5-sonnet-20241022",
+      model: "claude-sonnet-4-6",
       max_tokens: 2048,
       system: SYSTEM_PROMPT,
       messages: [{ role: "user", content: userMessage }],
     });
 
     const textBlock = response.content.find((b) => b.type === "text");
-    const letter = textBlock && "text" in textBlock ? (textBlock.text as string).trim() : "";
+    const rawLetter = textBlock && "text" in textBlock ? (textBlock.text as string).trim() : "";
 
-    if (!letter) {
+    if (!rawLetter) {
       return NextResponse.json(
         { error: "Schreiben konnte nicht erstellt werden. Bitte erneut versuchen." },
         { status: 500 }
       );
     }
+
+    const RDG_DISCLAIMER =
+      "\n\n---\n⚠ WICHTIGER HINWEIS: Dieser Entwurf wurde von einer KI erstellt und stellt keine " +
+      "Rechtsberatung im Sinne des Rechtsdienstleistungsgesetzes (RDG § 2) dar. Er ersetzt nicht die " +
+      "Beratung durch einen zugelassenen Rechtsanwalt oder eine anerkannte Beratungsstelle " +
+      "(z.B. VdK, Sozialverband). Vor dem Absenden bitte vollständig prüfen und eigene Angaben ergänzen.\n---";
+
+    const letter = rawLetter.includes("RDG") ? rawLetter : rawLetter + RDG_DISCLAIMER;
 
     return NextResponse.json({ letter });
   } catch (e) {

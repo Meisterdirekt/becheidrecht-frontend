@@ -2,12 +2,14 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import Link from "next/link";
-import { Search, FileText, Shield, Copy, Download, Loader2, Printer } from "lucide-react";
+import { Search, FileText, Shield, Copy, Download, Loader2, Printer, Lock, Zap, ClipboardList, PenLine, Check } from "lucide-react";
+import { toast } from "sonner";
 import { createBrowserClient } from "@supabase/ssr";
 import { SiteNavFull } from "@/components/SiteNav";
 import { SiteFooter } from "@/components/SiteFooter";
 import DemoAnimation from "@/components/DemoAnimation";
 import ScrollReveal from "@/components/ScrollReveal";
+import TestimonialsBlock from "@/components/TestimonialsBlock";
 import { pdf } from "@react-pdf/renderer";
 import LetterPDF, { type LetterPDFData } from "@/components/LetterPDF";
 import {
@@ -17,6 +19,8 @@ import {
   getSchreibentypLabel,
 } from "@/lib/letter-generator";
 import { getPageT, type Lang } from "@/lib/page-translations";
+import { PrivacyModal } from "@/components/PrivacyModal";
+import { PseudonymizationPreviewModal } from "@/components/PseudonymizationPreviewModal";
 
 export default function Page() {
   const [lang, setLang] = useState<Lang>("DE");
@@ -36,7 +40,16 @@ export default function Page() {
   const [generatedLetter, setGeneratedLetter] = useState<string | null>(null);
   const [letterUser, setLetterUser] = useState<{ name: string; email: string } | null>(null);
   const [supabaseClient, setSupabaseClient] = useState<ReturnType<typeof createBrowserClient> | null>(null);
+  const [showPrivacyModal, setShowPrivacyModal] = useState(false);
+  const [showPseudonymPreview, setShowPseudonymPreview] = useState(false);
+  const [loaded, setLoaded] = useState(false);
+  const [tabTransition, setTabTransition] = useState(false);
   const heroTabRef = useRef<HTMLDivElement>(null);
+
+  // Orchestrated page-load entrance
+  useEffect(() => {
+    requestAnimationFrame(() => setLoaded(true));
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -61,24 +74,32 @@ export default function Page() {
     return () => { cancelled = true; };
   }, []);
 
+  const switchTab = (tab: 1 | 2) => {
+    if (tab === activeTab) return;
+    setTabTransition(true);
+    setTimeout(() => {
+      setActiveTab(tab);
+      setTabTransition(false);
+    }, 150);
+  };
+
   const scrollToHeroTab = (tab: 1 | 2) => {
-    setActiveTab(tab);
+    switchTab(tab);
     heroTabRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
   };
 
   const validateLetterForm = (): string | null => {
-    if (!aktenzeichen.trim()) return "Bitte Aktenzeichen eingeben – steht oben auf Ihrem Bescheid";
-    if (aktenzeichen.trim().length < 4) return "Bitte Aktenzeichen eingeben – steht oben auf Ihrem Bescheid";
-    if (!bescheiddatum.trim()) return "Bitte Datum des Bescheids eingeben";
-    const d = new Date(bescheiddatum.trim());
-    if (Number.isNaN(d.getTime())) return "Bitte Datum des Bescheids eingeben";
+    if (bescheiddatum.trim()) {
+      const d = new Date(bescheiddatum.trim());
+      if (Number.isNaN(d.getTime())) return "Bitte ein gültiges Datum eingeben.";
+    }
     if (plz.trim() && !ort.trim()) return "Bitte Ort angeben, wenn PLZ ausgefüllt ist.";
     return null;
   };
 
   const handleGenerateLetter = async () => {
-    if (!behoerde || !schreibentyp || stichpunkte.trim().length < 20 || !consentLetter) {
-      setLetterError("Bitte alle Felder ausfüllen und mindestens 20 Zeichen eingeben.");
+    if (!behoerde || !schreibentyp || stichpunkte.trim().length < 10 || !consentLetter) {
+      setLetterError("Bitte Behörde, Schreibentyp und mindestens 10 Zeichen Stichpunkte ausfüllen sowie den Hinweis bestätigen.");
       return;
     }
     const formErr = validateLetterForm();
@@ -145,6 +166,7 @@ export default function Page() {
   const copyToClipboard = () => {
     if (generatedLetter) {
       navigator.clipboard.writeText(generatedLetter);
+      toast.success("Kopiert!");
     }
   };
 
@@ -163,8 +185,8 @@ export default function Page() {
       empfaengerName: getTraegerLabel(behoerde),
       empfaengerAdresse: "[Adresse der Behörde eintragen]",
       datum: heute,
-      aktenzeichen: aktenzeichen.trim(),
-      bescheiddatum: bescheiddatum.trim(),
+      aktenzeichen: aktenzeichen.trim() || "[bitte ergänzen]",
+      bescheiddatum: bescheiddatum.trim() || "[bitte ergänzen]",
       schreibentypLabel: getSchreibentypLabel(schreibentyp),
       letter: generatedLetter,
     };
@@ -185,13 +207,14 @@ export default function Page() {
       const mm = String(today.getMonth() + 1).padStart(2, "0");
       const yyyy = today.getFullYear();
       const dateStr = dd + mm + yyyy;
-      const safeAktenzeichen = aktenzeichen.trim().replace(/[^a-zA-Z0-9-]/g, "_");
+      const safeAktenzeichen = (aktenzeichen.trim() || "Schreiben").replace(/[^a-zA-Z0-9-]/g, "_");
       a.download = `BescheidRecht_${safeAktenzeichen}_${dateStr}.pdf`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
       setTimeout(() => URL.revokeObjectURL(url), 1000);
-    } catch (e) {
+      toast.success("PDF wird heruntergeladen");
+    } catch {
       setLetterError("PDF konnte nicht erstellt werden. Bitte erneut versuchen.");
     }
   };
@@ -207,7 +230,7 @@ export default function Page() {
       <SiteNavFull lang={lang} onLangChange={setLang} dir={t.dir} navBlog={t.navBlog} navLogin={t.navLogin} navRegister={t.navRegister} />
 
       {/* Hero */}
-      <section className="relative max-w-5xl mx-auto pt-12 sm:pt-16 md:pt-20 pb-16 sm:pb-24 md:pb-28 px-4 sm:px-6 text-center overflow-hidden">
+      <section className="relative max-w-5xl mx-auto pt-12 sm:pt-16 md:pt-20 pb-16 sm:pb-24 md:pb-28 px-4 sm:px-6 text-center overflow-hidden" aria-label="Hero">
         {/* Pulsierende blaue Lichtkreise (radial gradient, opacity 0.15) */}
         <div className="absolute inset-0 pointer-events-none">
           <div
@@ -224,11 +247,11 @@ export default function Page() {
             }}
           />
         </div>
-        <h1 className="relative text-5xl md:text-7xl font-black leading-[1.05] tracking-tight bg-gradient-to-b from-white to-blue-200 bg-clip-text text-transparent">
+        <h1 className={`hero-headline relative text-5xl md:text-7xl font-black leading-[1.05] tracking-tight bg-gradient-to-b from-white to-blue-200 bg-clip-text text-transparent transition-all duration-700 ${loaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}>
           {t.headlineSub != null ? (
             <>
               <span className="block">{t.headline}</span>
-              <span className="block mt-4 text-2xl md:text-3xl font-bold tracking-wide opacity-90">
+              <span className="hero-headline-sub block mt-4 text-2xl md:text-3xl font-bold tracking-wide opacity-90">
                 {t.headlineSub}
               </span>
             </>
@@ -236,33 +259,35 @@ export default function Page() {
             t.headline
           )}
         </h1>
-        <p className="relative mt-10 mb-14 text-gray-400 text-lg md:text-xl leading-relaxed max-w-3xl mx-auto">
+        <p className={`relative mt-10 mb-14 text-gray-400 text-lg md:text-xl leading-relaxed max-w-3xl mx-auto transition-all duration-700 delay-150 ${loaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}>
           {t.text}
         </p>
 
-        <div ref={heroTabRef} id="hero-tab" className="relative w-full max-w-2xl mx-auto rounded-2xl sm:rounded-3xl border border-white/10 bg-white/[0.04] p-4 sm:p-6 md:p-10 shadow-[0_0_60px_-15px_var(--accent-glow)] transition-all duration-300">
+        <div ref={heroTabRef} id="hero-tab" className={`relative w-full max-w-2xl mx-auto rounded-2xl sm:rounded-3xl border border-white/10 bg-white/[0.04] p-4 sm:p-6 md:p-10 shadow-[0_0_60px_-15px_var(--accent-glow)] transition-all duration-700 delay-300 ${loaded ? "opacity-100 translate-y-0 scale-100" : "opacity-0 translate-y-6 scale-[0.98]"}`}>
           {/* Tabs */}
           <div className="flex border-b border-white/10 mb-6 sm:mb-8">
             <button
               type="button"
-              onClick={() => setActiveTab(1)}
-              className={`flex-1 py-3 text-[11px] sm:text-[13px] font-bold uppercase tracking-wider transition-all duration-300 min-w-0 ${
+              onClick={() => switchTab(1)}
+              className={`flex-1 py-3 text-[11px] sm:text-[13px] font-bold uppercase tracking-wider transition-all duration-300 min-w-0 flex items-center justify-center gap-1.5 ${
                 activeTab === 1 ? "text-[var(--accent)] border-b-2 border-[var(--accent)]" : "text-white/40 hover:text-white/70"
               }`}
             >
-              📄 {t.tabAnalyze}
+              <FileText className="h-3.5 w-3.5 flex-shrink-0" /> {t.tabAnalyze}
             </button>
             <button
               type="button"
-              onClick={() => setActiveTab(2)}
-              className={`flex-1 py-3 text-[11px] sm:text-[13px] font-bold uppercase tracking-wider transition-all duration-300 min-w-0 ${
+              onClick={() => switchTab(2)}
+              className={`flex-1 py-3 text-[11px] sm:text-[13px] font-bold uppercase tracking-wider transition-all duration-300 min-w-0 flex items-center justify-center gap-1.5 ${
                 activeTab === 2 ? "text-[var(--accent)] border-b-2 border-[var(--accent)]" : "text-white/40 hover:text-white/70"
               }`}
             >
-              ✍️ {t.tabLetter}
+              <PenLine className="h-3.5 w-3.5 flex-shrink-0" /> {t.tabLetter}
             </button>
           </div>
 
+          {/* Tab content with fade transition */}
+          <div className={`transition-opacity duration-150 ${tabTransition ? "opacity-0" : "opacity-100"}`}>
           {/* Tab 1: Bescheid analysieren */}
           {activeTab === 1 && (
             <>
@@ -275,9 +300,28 @@ export default function Page() {
                   className="mt-1.5 h-5 w-5 rounded border-white/20 bg-white/5 text-[var(--accent)] focus:ring-[var(--accent)] cursor-pointer flex-shrink-0"
                 />
                 <label htmlFor="consent-checkbox" className="text-[13px] leading-snug font-medium text-white/90 select-none cursor-pointer">
-                  {t.consent}
+                  {t.consent.split(t.consentPrivacyLink)[0]}
+                  <button
+                    type="button"
+                    onClick={(e) => { e.preventDefault(); setShowPrivacyModal(true); }}
+                    className="text-[var(--accent)] hover:underline mx-0.5 inline"
+                  >
+                    {t.consentPrivacyLink}
+                  </button>
+                  {t.consent.split(t.consentPrivacyLink)[1] ?? ""}
                 </label>
               </div>
+              <PrivacyModal
+                isOpen={showPrivacyModal}
+                onClose={() => setShowPrivacyModal(false)}
+                title={t.privacyModalTitle}
+                bullet1={t.privacyModalBullet1}
+                bullet2={t.privacyModalBullet2}
+                bullet3={t.privacyModalBullet3}
+                bullet4={t.privacyModalBullet4}
+                rights={t.privacyModalRights}
+                btnLabel={t.privacyModalBtn}
+              />
               <Link
                 href={consent ? "/analyze" : "#"}
                 className={`block w-full py-4 rounded-2xl font-bold text-sm tracking-wide text-center transition-all duration-300 ${
@@ -286,12 +330,33 @@ export default function Page() {
               >
                 {t.button}
               </Link>
+              <p className="mt-4 text-center">
+                <button
+                  type="button"
+                  onClick={() => setShowPseudonymPreview(true)}
+                  className="text-[13px] text-[var(--accent)] hover:underline"
+                >
+                  {t.pseudonymPreviewLink}
+                </button>
+              </p>
+              <PseudonymizationPreviewModal
+                isOpen={showPseudonymPreview}
+                onClose={() => setShowPseudonymPreview(false)}
+                title={t.pseudonymPreviewTitle}
+                labelBefore={t.pseudonymPreviewBefore}
+                labelAfter={t.pseudonymPreviewAfter}
+                note={t.pseudonymPreviewNote}
+                btnLabel={t.pseudonymPreviewBtn}
+              />
             </>
           )}
 
           {/* Tab 2: Schreiben erstellen */}
           {activeTab === 2 && !generatedLetter && (
             <div className="text-left space-y-6">
+              <p className="text-[10px] text-white/30 text-center leading-relaxed">
+                {t.footerDisclaimer}
+              </p>
               {/* Schritt A – Träger */}
               <div>
                 <label className="block text-[10px] font-bold uppercase tracking-widest text-white/50 mb-2">
@@ -348,7 +413,7 @@ export default function Page() {
                   {/* Aktenzeichen / Bescheiddatum / Adresse */}
                   <div>
                     <label className="block text-[10px] font-bold uppercase tracking-widest text-white/50 mb-2">
-                      {t.formAktenzeichenLabel}
+                      {t.formAktenzeichenLabel} <span className="font-normal text-white/40">{t.formAktenzeichenOptional}</span>
                     </label>
                     <input
                       type="text"
@@ -361,7 +426,7 @@ export default function Page() {
                   </div>
                   <div>
                     <label className="block text-[10px] font-bold uppercase tracking-widest text-white/50 mb-2">
-                      {t.formBescheiddatumLabel}
+                      {t.formBescheiddatumLabel} <span className="font-normal text-white/40">{t.formBescheiddatumOptional}</span>
                     </label>
                     <input
                       type="text"
@@ -417,7 +482,7 @@ export default function Page() {
                   <button
                     type="button"
                     onClick={handleGenerateLetter}
-                    disabled={letterLoading || stichpunkte.trim().length < 20 || !consentLetter || aktenzeichen.trim().length < 4 || !bescheiddatum.trim() || (!!plz.trim() && !ort.trim())}
+                    disabled={letterLoading || stichpunkte.trim().length < 10 || !consentLetter || (!!plz.trim() && !ort.trim())}
                     className="w-full py-4 rounded-2xl font-bold text-sm uppercase tracking-wider bg-[var(--accent)] text-white hover:bg-[var(--accent-hover)] disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 flex items-center justify-center gap-2"
                   >
                     {letterLoading ? (
@@ -436,6 +501,7 @@ export default function Page() {
 
           {/* Tab 2 – Ergebnis (fertiges Schreiben) */}
           {activeTab === 2 && generatedLetter && (() => {
+
             const heute = new Date().toLocaleDateString("de-DE");
             const absenderStrasse = strasse.trim() || "[Ihre Straße und Hausnummer]";
             const absenderPlzOrt = [plz.trim(), ort.trim()].filter(Boolean).join(" ") || "[PLZ Ort]";
@@ -445,7 +511,7 @@ export default function Page() {
               <div className="text-left space-y-4 sm:space-y-6 w-full min-w-0">
                 <div className="no-print rounded-xl border border-white/10 bg-white/5 p-3 sm:p-4 text-white">
                   <h3 className="font-bold text-sm sm:text-base mb-1">📄 {t.resultTitle}</h3>
-                  <p className="text-xs sm:text-sm text-white/80 break-words">{t.resultAktenzeichen} {aktenzeichen.trim()}</p>
+                  <p className="text-xs sm:text-sm text-white/80 break-words">{t.resultAktenzeichen} {aktenzeichen.trim() || "[bitte ergänzen]"}</p>
                   <p className="text-xs sm:text-sm text-white/80 break-words">{t.resultBehoerde} {getTraegerLabel(behoerde)}</p>
                 </div>
                 <div className="letter-content bg-white text-black p-4 sm:p-6 md:p-8 rounded-xl font-sans text-[10pt] sm:text-[11pt] leading-[1.5] w-full min-w-0 overflow-x-auto break-words">
@@ -461,19 +527,19 @@ export default function Page() {
                   </div>
                   <div className="flex flex-col sm:flex-row sm:justify-between gap-1 text-[9pt] sm:text-[10pt] mb-6">
                     <span>{t.resultDatum} {heute}</span>
-                    <span className="break-all">{t.resultUnserZeichen} {aktenzeichen.trim()}</span>
+                    <span className="break-all">{t.resultUnserZeichen} {aktenzeichen.trim() || "[bitte ergänzen]"}</span>
                   </div>
                   <div className="mb-5">
                     <p className="font-bold text-[11pt] sm:text-[13pt] underline break-words">
-                      {getSchreibentypLabel(schreibentyp)}: Aktenzeichen {aktenzeichen.trim()}
+                      {getSchreibentypLabel(schreibentyp)}: Aktenzeichen {aktenzeichen.trim() || "[bitte ergänzen]"}
                     </p>
-                    <p className="font-bold text-[11pt] sm:text-[13pt] underline break-words">Bescheid vom {bescheiddatum.trim()}</p>
+                    <p className="font-bold text-[11pt] sm:text-[13pt] underline break-words">Bescheid vom {bescheiddatum.trim() || "[bitte ergänzen]"}</p>
                   </div>
                   <p className="mb-4">{t.letterGreeting}</p>
                   <div className="text-justify whitespace-pre-wrap mb-6 break-words">{generatedLetter}</div>
                   <p className="mb-4">{t.letterClosing}</p>
                   <div className="mt-8 sm:mt-12 pt-2 border-t border-black w-40 sm:w-48 text-[9pt] sm:text-[10pt]">{displayName}</div>
-                  <p className="mt-4 sm:mt-6 text-[9pt] sm:text-[10pt] break-words">{t.resultAnlage} {bescheiddatum.trim()}</p>
+                  <p className="mt-4 sm:mt-6 text-[9pt] sm:text-[10pt] break-words">{t.resultAnlage} {bescheiddatum.trim() || "[bitte ergänzen]"}</p>
                 </div>
                 <div className="no-print rounded-xl border border-yellow-500/30 bg-yellow-500/10 p-3 sm:p-4 text-left">
                   <p className="text-[11px] sm:text-[12px] text-yellow-300 leading-relaxed">
@@ -516,6 +582,7 @@ export default function Page() {
               </div>
             );
           })()}
+          </div>{/* end tab-transition wrapper */}
         </div>
 
         {/* Zweiter CTA: direkt zum Schreiben-Generator */}
@@ -530,10 +597,10 @@ export default function Page() {
         </div>
 
         {/* Trust-Badges */}
-        <div className="relative flex flex-wrap justify-center gap-6 md:gap-10 mt-8 text-white/60 text-[13px] font-medium">
-          <span className="flex items-center gap-2">🔒 {t.trustDsgvo}</span>
-          <span className="flex items-center gap-2">⚡ {t.trustSofort}</span>
-          <span className="flex items-center gap-2">📋 {t.trustPrice}</span>
+        <div className={`relative flex flex-wrap justify-center gap-6 md:gap-10 mt-8 text-white/60 text-[13px] font-medium transition-all duration-700 delay-500 ${loaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}>
+          <span className="flex items-center gap-2"><Lock className="h-3.5 w-3.5" /> {t.trustDsgvo}</span>
+          <span className="flex items-center gap-2"><Zap className="h-3.5 w-3.5" /> {t.trustSofort}</span>
+          <span className="flex items-center gap-2"><ClipboardList className="h-3.5 w-3.5" /> {t.trustPrice}</span>
         </div>
       </section>
 
@@ -550,7 +617,7 @@ export default function Page() {
           <h2 className="text-3xl md:text-4xl font-black tracking-tight text-center mb-16">
             {t.sectionAnalyseWriteSecure}
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 stagger-group">
             {[
               { title: t.feature1Title, desc: t.feature1Desc, icon: Search },
               { title: t.feature2Title, desc: t.feature2Desc, icon: FileText },
@@ -558,7 +625,7 @@ export default function Page() {
             ].map((f) => (
               <div
                 key={f.title}
-                className="p-8 rounded-2xl border border-white/10 backdrop-blur-sm bg-white/[0.03] text-left transition-transform duration-300 hover:-translate-y-1 hover:border-white/20"
+                className="p-8 rounded-2xl border border-white/10 backdrop-blur-sm bg-white/[0.03] text-left transition-all duration-300 hover:-translate-y-1 hover:border-white/20 hover:shadow-[0_8px_30px_-8px_var(--accent-glow)] animate-slideUp opacity-0"
               >
                 <f.icon className="h-6 w-6 text-[var(--accent)] mb-4" aria-hidden />
                 <h3 className="font-bold text-base uppercase tracking-wider text-white/90 mb-4">{f.title}</h3>
@@ -567,6 +634,11 @@ export default function Page() {
             ))}
           </div>
         </section>
+      </ScrollReveal>
+
+      {/* Was Nutzer sagen */}
+      <ScrollReveal>
+        <TestimonialsBlock />
       </ScrollReveal>
 
       {/* Pricing (PRO mit Glow + EMPFOHLEN Badge) */}
@@ -578,14 +650,14 @@ export default function Page() {
           <h2 className="text-3xl md:text-4xl font-black tracking-tight text-center mb-16">
             {t.sectionTransparentPrices}
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 items-start">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 items-start stagger-group">
             {[
               { name: t.pricingBasicName, price: t.pricingBasicPrice, features: [t.pricingBasicF1, t.pricingBasicF2, t.pricingBasicF3], cta: t.pricingBasicCta, highlight: false },
               { name: t.pricingStandardName, price: t.pricingStandardPrice, features: [t.pricingStandardF1, t.pricingStandardF2, t.pricingStandardF3], cta: t.pricingStandardCta, highlight: false },
               { name: t.pricingProName, price: t.pricingProPrice, features: [t.pricingProF1, t.pricingProF2, t.pricingProF3], cta: t.pricingProCta, highlight: true },
               { name: t.pricingBusinessName, price: t.pricingBusinessPrice, features: [t.pricingBusinessF1, t.pricingBusinessF2, t.pricingBusinessF3], cta: t.pricingBusinessCta, highlight: false },
             ].map((p) => (
-              <div key={p.name} className="relative pt-8">
+              <div key={p.name} className="relative pt-8 animate-slideUp opacity-0">
                 {p.highlight && (
                   <div className="absolute -top-1 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-[var(--accent)] text-white text-[10px] font-bold uppercase tracking-widest whitespace-nowrap">
                     {t.recommended}
@@ -602,7 +674,10 @@ export default function Page() {
                   <p className={`mt-2 mb-6 font-black ${p.highlight ? "text-4xl" : "text-3xl"} text-white`}>{p.price}</p>
                   <ul className="text-[13px] text-gray-500 space-y-3 flex-grow mb-8">
                     {p.features.map((f) => (
-                      <li key={f}>• {f}</li>
+                      <li key={f} className="flex items-start gap-2">
+                        <Check className="h-3.5 w-3.5 text-[var(--accent)] mt-0.5 flex-shrink-0" />
+                        {f}
+                      </li>
                     ))}
                   </ul>
                   <button
@@ -664,9 +739,11 @@ export default function Page() {
 
       <SiteFooter
         blog={t.footerBlog}
+        feedback={t.footerFeedback}
         impressum={t.footerImpressum}
         datenschutz={t.footerDatenschutz}
         agb={t.footerAgb}
+        disclaimer={t.footerDisclaimer}
         copyright={t.footerCopyright}
       />
     </main>

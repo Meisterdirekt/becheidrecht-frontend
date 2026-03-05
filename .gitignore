@@ -52,3 +52,16 @@ SYSTEM_MAP.md
 backups/
 ersatz/
 src/lib/vault/
+
+# Claude Code lokale Settings (enthält ggf. lokale Permissions)
+.claude/settings.local.json
+
+# MCP-Server Config (enthält ggf. Tokens)
+.mcp.json
+
+# Interne Dokumente und ODT-Dateien
+docs/intern/
+*.odt
+
+# Soziale Gesetze PDFs (lokal, nicht in git)
+sozial\ Gestze/

@@ -15,11 +15,16 @@ export const TRAEGER_OPTIONS = [
   { value: "unfallversicherung", label: "Unfallversicherung (SGB VII)" },
   { value: "versorgungsamt", label: "Versorgungsamt (Schwerbehinderung)" },
   { value: "bamf", label: "BAMF / Ausländerbehörde" },
+  { value: "bafoeg", label: "BAföG-Amt (Ausbildungsförderung)" },
+  { value: "elterngeld", label: "Elterngeldstelle" },
+  { value: "wohngeld", label: "Wohngeldstelle" },
+  { value: "unterhaltsvorschuss", label: "Unterhaltsvorschuss-Stelle" },
 ] as const;
 
 export const SCHREIBENTYP_OPTIONS = [
   { value: "widerspruch", label: "Widerspruch gegen Bescheid" },
   { value: "erstantrag", label: "Erstantrag stellen" },
+  { value: "aenderungsantrag", label: "Änderungsantrag / Höherstufung (z. B. Pflegegrad)" },
   { value: "untaetigkeit", label: "Untätigkeitsklage androhen" },
   { value: "akteneinsicht", label: "Akteneinsicht beantragen" },
   { value: "fristverlaengerung", label: "Fristverlängerung beantragen" },
@@ -39,6 +44,10 @@ export const TRAEGER_TO_PREFIX: Record<string, string[]> = {
   unfallversicherung: ["UV_"],
   versorgungsamt: ["VA_"],
   bamf: ["BAMF_"],
+  bafoeg: ["BAF_"],
+  elterngeld: ["EG_"],
+  wohngeld: ["WG_"],
+  unterhaltsvorschuss: ["UVS_"],
 };
 
 export function getTraegerLabel(value: string): string {
