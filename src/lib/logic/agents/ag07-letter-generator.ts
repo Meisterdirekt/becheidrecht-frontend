@@ -127,6 +127,20 @@ async function execute(ctx: AgentContext): Promise<AgentResult<MusterschreibenRe
     }
   }
 
+  if (ctx.pipeline.praezedenz) {
+    const p = ctx.pipeline.praezedenz;
+    if (p.aehnliche_faelle > 0) {
+      vorabInfo += `\n\nPRÄZEDENZFÄLLE (AG14) — ${p.aehnliche_faelle} ähnliche Fälle:`;
+      if (p.erfolgsquote_prozent !== null) {
+        vorabInfo += `\nHistorische Erfolgsquote: ${p.erfolgsquote_prozent}%`;
+      }
+      if (p.haeufigste_fehler.length > 0) {
+        vorabInfo += `\nHäufigste Fehler in ähnlichen Fällen: ${p.haeufigste_fehler.join(", ")}`;
+        vorabInfo += `\n→ Priorisiere diese Fehler in der Begründung wenn sie auch hier vorhanden sind.`;
+      }
+    }
+  }
+
   const messages: Anthropic.MessageParam[] = [
     {
       role: "user",
@@ -138,15 +152,29 @@ async function execute(ctx: AgentContext): Promise<AgentResult<MusterschreibenRe
   let auffaelligkeiten: string[] = [];
   let forderung = "";
 
+  // Extended Thinking für NOTFALL — maximale Briefqualität bei life-critical Fällen
+  const useExtendedThinking = ctx.routingStufe === "NOTFALL";
+
   // Tool-Use Loop
   for (let i = 0; i < 6; i++) {
-    const response = await anthropic.messages.create({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const createParams: any = {
       model,
-      max_tokens: 4096,
+      max_tokens: useExtendedThinking ? 20000 : 6144,
       system: getSystemPrompt("AG07"),
       tools: TOOLS,
       messages,
-    });
+    };
+    if (useExtendedThinking) {
+      createParams.thinking = { type: "enabled", budget_tokens: 10000 };
+      // interleaved-thinking-2025-05-14 gilt nur für Claude 3.7 Sonnet.
+      // Claude 4 Modelle (opus-4-x, sonnet-4-x) unterstützen thinking nativ ohne Beta-Header.
+      if (model.includes("3-7") || model.includes("3-5")) {
+        createParams.betas = ["interleaved-thinking-2025-05-14"];
+      }
+    }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const response: Anthropic.Message = await anthropic.messages.create(createParams as any);
 
     const tokens = extractTokenUsage(response);
     totalTokens = mergeTokenUsage(totalTokens, tokens);

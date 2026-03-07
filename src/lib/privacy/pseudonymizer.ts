@@ -67,10 +67,20 @@ export function pseudonymizeText(text: string): {
   );
 
   // BIC/SWIFT (8 oder 11 Zeichen, alphanumerisch)
-  const bicRegex = /\b[A-Z]{4}[A-Z]{2}[A-Z0-9]{2}(?:[A-Z0-9]{3})?\b/g;
-  pseudonymized = pseudonymized.replace(bicRegex, (match) =>
-    pushAndReplace(map, 'bic', match, '[BIC')
+  // Kontext-gebunden: nur nach "BIC", "SWIFT", "BLZ" oder am Ende eines Bankdaten-Blocks
+  const bicRegex = /(?:BIC|SWIFT|BIC-Code|Bankleitzahl)[:\s]+([A-Z]{4}[A-Z]{2}[A-Z0-9]{2}(?:[A-Z0-9]{3})?)\b/gi;
+  pseudonymized = pseudonymized.replace(bicRegex, (full, bic) =>
+    full.replace(bic, pushAndReplace(map, 'bic', bic, '[BIC'))
   );
+  // Standalone BIC nur wenn genau 8 oder 11 Zeichen und nicht reines Wort (mind. 1 Ziffer oder lowercase-Mix)
+  const bicStandaloneRegex = /\b([A-Z]{4}[A-Z]{2}[A-Z0-9]{2}[A-Z0-9]{3})\b/g;
+  pseudonymized = pseudonymized.replace(bicStandaloneRegex, (match) => {
+    // Filtere reine Großbuchstaben-Wörter ohne Ziffer (z. B. "JOBCENTER", "BESCHEID")
+    if (/\d/.test(match) || match.length === 8) {
+      return pushAndReplace(map, 'bic', match, '[BIC');
+    }
+    return match;
+  });
 
   // SOZIALVERSICHERUNGSNUMMERN (verschiedene Formate)
   const svnRegex = /\b(\d{2}\s?\d{6}\s?[A-Z]\s?\d{3})\b/g;
@@ -83,20 +93,26 @@ export function pseudonymizeText(text: string): {
     pushAndReplace(map, 'socialSecurityNumber', match, '[SV_NUMMER')
   );
 
-  // STEUER-IDs (11 Ziffern, nur wenn Kontext „Steuer“/„Id“ in Nähe – sonst zu viele False Positives)
-  // Fallback: 11 Ziffern in typischen ID-Kontexten (nach „Nr.“, „Nummer“, „ID“, etc.)
-  const taxIdRegex = /\b(\d{3}\s?\d{3}\s?\d{3}\s?\d{2})\b/g; // Format mit Leerzeichen
-  pseudonymized = pseudonymized.replace(taxIdRegex, (match) =>
+  // STEUER-IDs (11 Ziffern in allen gängigen Formaten)
+  // Format 1: Nach Kontext-Schlüsselwort (mit oder ohne Leerzeichen in der Nummer)
+  const taxIdContextRegex = /(?:Steuer-?ID|Steuer-?Identifikationsnummer|IdNr\.?|Identifikationsnummer|St\.-?Nr\.?|Steuernummer)[:\s]*(\d[\d\s]{9,14}\d)/gi;
+  pseudonymized = pseudonymized.replace(taxIdContextRegex, (full, id) => {
+    const digits = id.replace(/\s/g, '');
+    if (digits.length === 11) {
+      return full.replace(id, pushAndReplace(map, 'taxId', id.trim(), '[STEUER_ID'));
+    }
+    return full;
+  });
+
+  // Format 2: Typisches DE-Steuer-ID-Muster — 2+3+3+3 oder 3+3+3+2 mit optionalen Leerzeichen
+  const taxIdSpacedRegex = /\b(\d{2}\s\d{3}\s\d{3}\s\d{3}|\d{3}\s\d{3}\s\d{3}\s\d{2})\b/g;
+  pseudonymized = pseudonymized.replace(taxIdSpacedRegex, (match) =>
     pushAndReplace(map, 'taxId', match, '[STEUER_ID')
   );
 
-  const taxIdCompactRegex = /(?:Steuer-?ID|IdNr|Identifikationsnummer|Steueridentifikationsnummer)[:\s]*(\d{11})\b/gi;
-  pseudonymized = pseudonymized.replace(taxIdCompactRegex, (_, id) =>
-    pushAndReplace(map, 'taxId', id, '[STEUER_ID')
-  );
-
-  const taxIdStandaloneRegex = /\b(\d{11})\b/g;
-  pseudonymized = pseudonymized.replace(taxIdStandaloneRegex, (match) =>
+  // Format 3: Kompakt 11 Ziffern ohne Leerzeichen
+  const taxIdCompactRegex = /\b(\d{11})\b/g;
+  pseudonymized = pseudonymized.replace(taxIdCompactRegex, (match) =>
     pushAndReplace(map, 'taxId', match, '[STEUER_ID')
   );
 
@@ -124,23 +140,91 @@ export function pseudonymizeText(text: string): {
     pushAndReplace(map, 'address', match, '[ADRESSE')
   );
 
-  // PLZ + Ort
-  const plzOrtRegex = /\b(\d{5}\s+[A-ZÄÖÜ][a-zäöüß]+(?:\s+[A-ZÄÖÜ][a-zäöüß]+)?)\b/g;
+  // PLZ + Ort (nur horizontaler Whitespace, kein Newline — verhindert Aktenzeichen-Matches)
+  const plzOrtRegex = /\b(\d{5}[ \t]+[A-ZÄÖÜ][a-zäöüß]{3,}(?:[ \t]+[A-ZÄÖÜ][a-zäöüß]{2,})?)\b/g;
   pseudonymized = pseudonymized.replace(plzOrtRegex, (match) =>
     pushAndReplace(map, 'address', match, '[PLZ_ORT')
   );
 
-  // NAMEN "NACHNAME, Vorname" (vor Standard-Namen)
-  const nameCommaRegex = /\b([A-ZÄÖÜ][a-zäöüß]{2,},\s*[A-ZÄÖÜ][a-zäöüß]+(?:\s+[A-ZÄÖÜ][a-zäöüß]+)*)\b/g;
-  pseudonymized = pseudonymized.replace(nameCommaRegex, (match) =>
-    pushAndReplace(map, 'name', match, '[NAME')
-  );
+  // Häufige deutsche Wörter/Begriffe die KEINE Namen sind (Behörden-Sprache)
+  const NO_NAME = new Set([
+    // Anreden / Grußformeln
+    'Sehr','Geehrte','Geehrter','Geehrten','Damen','Herren','Freundlichen','Grüßen',
+    'Hochachtungsvoll','Mit','Bitte','Danke','Liebe','Lieber',
+    // Deutsche Artikel / Pronomen / Adjektive (Satzanfang)
+    'Eine','Einen','Einem','Einer','Eines',
+    'Der','Die','Das','Dem','Den','Des',
+    'Ein','Kein','Keine','Keinen','Keinem','Keiner',
+    'Ihrer','Ihrem','Ihren','Ihres','Ihre','Ihr','Sie','Ihnen',
+    'Dieser','Diese','Dieses','Diesem','Diesen',
+    'Alle','Allen','Allem','Aller',
+    'Gegen','Auf','Über','Unter','Nach','Vor','Bei','Seit',
+    'Ordnungsgemäße','Ordnungsgemäßen','Vollständige','Vollständigen',
+    'Fehlende','Fehlenden','Falsche','Falschen',
+    // Behörden-Substantive
+    'Bescheid','Hinweis','Begründung','Rechtsbehelfsbelehrung','Sachbearbeiter',
+    'Aktenzeichen','Zeitraum','Leistungen','Leistung','Antrag','Widerspruch',
+    'Anhörung','Zustellung','Bekanntgabe','Bewilligung','Festsetzung',
+    'Widerspruchsfrist','Klagefrist','Einspruchsfrist','Rechtsmittelfrist',
+    'Anspruch','Ansprüche','Kosten','Regelbedarf','Regelbedarfsstufe',
+    'Unterkunft','Heizung','Warmwasser','Gesamtleistung','Monatlich',
+    'Antragsteller','Bearbeiter','Bearbeiterin',
+    // Behörden-Institutionen
+    'Jobcenter','Bundesagentur','Rentenversicherung','Krankenkasse','Pflegekasse',
+    'Sozialamt','Versorgungsamt','Familienkasse','Jugendamt','Finanzamt',
+    'Bundessozialgericht','Sozialgericht','Verwaltungsgericht','Landessozialgericht',
+    // Rechtsbegriffe
+    'Sozialgesetzbuch','Grundgesetz','Zweiten','Dritten','Ersten','Zweites',
+    'Drittes','Erstes','Viertes','Fünftes','Buch',
+    // Monate / Wochentage
+    'Januar','Februar','März','April','Mai','Juni','Juli','August',
+    'September','Oktober','November','Dezember',
+    'Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag','Sonntag',
+    // Richtungsangaben / Straßenzusätze
+    'Nord','Süd','West','Ost','Mitte','Straße','Platz','Weg','Ring','Allee','Damm',
+    // Häufige Städtenamen
+    'Dortmund','Berlin','Hamburg','München','Köln','Frankfurt','Stuttgart',
+    'Düsseldorf','Leipzig','Dresden','Hannover','Nürnberg','Duisburg','Bochum',
+    // Sonstiges
+    'Telefon','Fax','Datum','Ort','Seite',
+  ]);
 
-  // NAMEN (Vor- und Nachnamen, Vorname Nachname)
-  const nameRegex = /\b([A-ZÄÖÜ][a-zäöüß]{1,}(?:\s+[A-ZÄÖÜ][a-zäöüß]{1,})+)\b/g;
-  pseudonymized = pseudonymized.replace(nameRegex, (match) =>
-    pushAndReplace(map, 'name', match, '[NAME')
+  function isName(word: string): boolean {
+    return !NO_NAME.has(word);
+  }
+
+  // Namens-Segment: Groß-Buchstabe + Kleinbuchstaben, optional mit Bindestrich-Teil
+  const nameSeg = '[A-ZÄÖÜ][a-zäöüß]+(?:-[A-ZÄÖÜ][a-zäöüß]+)*';
+
+  // NAMEN "NACHNAME, Vorname" — Komma-Format ist eindeutig (z.B. "Maier-Schulze, Karl-Heinz")
+  const nameCommaRegex = new RegExp(`\\b(${nameSeg},\\s*${nameSeg}(?:\\s+${nameSeg})*)`, 'g');
+  pseudonymized = pseudonymized.replace(nameCommaRegex, (match) => {
+    const firstWord = match.split(/[-,\s]/)[0];
+    return isName(firstWord) ? pushAndReplace(map, 'name', match, '[NAME') : match;
+  });
+
+  // NAMEN nach expliziten Kontext-Signalen: "Herr/Frau X", "Sachbearbeiter: X Y"
+  const nameContextRegex = new RegExp(
+    `(?:(?:Herr|Frau|Sachbearbeiter|Antragsteller(?:in)?|Bearbeiter(?:in)?)\\s+)(${nameSeg}(?:\\s+${nameSeg})*)`,
+    'g'
   );
+  pseudonymized = pseudonymized.replace(nameContextRegex, (full, name) => {
+    const parts = name.trim().split(/\s+/);
+    if (parts.every((p: string) => isName(p.split('-')[0]))) {
+      return full.replace(name, pushAndReplace(map, 'name', name.trim(), '[NAME'));
+    }
+    return full;
+  });
+
+  // NAMEN im "Vorname Nachname"-Format
+  const nameRegex = new RegExp(`\\b(${nameSeg}(?:\\s+${nameSeg})+)\\b`, 'g');
+  pseudonymized = pseudonymized.replace(nameRegex, (match) => {
+    const parts = match.split(/\s+/);
+    if (parts.length >= 2 && parts.every((p: string) => isName(p.split('-')[0]))) {
+      return pushAndReplace(map, 'name', match, '[NAME');
+    }
+    return match;
+  });
 
   return { pseudonymized, map };
 }

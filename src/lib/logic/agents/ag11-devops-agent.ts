@@ -26,14 +26,18 @@ async function execute(ctx: AgentContext): Promise<AgentResult<BatchResult>> {
   const start = Date.now();
   const apiKey = getAnthropicKey();
 
-  if (!apiKey || !process.env.GITHUB_TOKEN || !process.env.GITHUB_REPO) {
+  if (!apiKey || !process.env.GITHUB_TOKEN || !process.env.GITHUB_REPO || !process.env.VERCEL_TOKEN) {
     return {
       agentId: "AG11",
       success: true,
       data: { issues_created: 0, issue_urls: [] },
       tokens: emptyTokenUsage(),
       durationMs: Date.now() - start,
-      error: !apiKey ? "Kein API-Key" : "GITHUB_TOKEN oder GITHUB_REPO fehlt",
+      error: !apiKey
+        ? "Kein API-Key"
+        : !process.env.VERCEL_TOKEN
+          ? "VERCEL_TOKEN fehlt"
+          : "GITHUB_TOKEN oder GITHUB_REPO fehlt",
     };
   }
 

@@ -5,40 +5,13 @@ import { runForensicAnalysis } from '@/lib/logic/engine';
 import { pseudonymizeText, depseudonymizeText } from '@/lib/privacy/pseudonymizer';
 import { getAuthenticatedUser } from '@/lib/supabase/auth';
 import { getAnthropicKey } from '@/lib/logic/agents/utils';
+import { analyzeLimiter, analyzeAnonLimiter } from '@/lib/rate-limit';
 import PDFParser from 'pdf2json';
 import OpenAI from 'openai';
 import fs from 'fs';
 import path from 'path';
 
 export const runtime = 'nodejs';
-
-// ---------------------------------------------------------------------------
-// Rate-Limiter — schützt vor Missbrauch und unerwarteten API-Kosten
-// Limit: 5 Analysen pro User pro 15 Minuten (per Serverless-Instanz)
-// ---------------------------------------------------------------------------
-const _rateMap = new Map<string, { count: number; resetAt: number }>();
-const RATE_WINDOW_MS = 15 * 60 * 1000; // 15 Minuten
-const RATE_MAX = 5;
-
-function checkRateLimit(userId: string): boolean {
-  const now = Date.now();
-  const entry = _rateMap.get(userId);
-  if (!entry || entry.resetAt < now) {
-    _rateMap.set(userId, { count: 1, resetAt: now + RATE_WINDOW_MS });
-    return true;
-  }
-  if (entry.count >= RATE_MAX) return false;
-  entry.count++;
-  return true;
-}
-
-// Cleanup alle 30 Minuten
-setInterval(() => {
-  const now = Date.now();
-  for (const [id, e] of _rateMap.entries()) {
-    if (e.resetAt < now) _rateMap.delete(id);
-  }
-}, 30 * 60 * 1000).unref();
 
 function getOpenAIKey(): string | null {
   try {
@@ -156,19 +129,29 @@ async function extractTextFromImage(buffer: Buffer, mimeType: string): Promise<s
 
 export async function POST(req: Request) {
   try {
+    // Auth ist optional — eingeloggte User haben mehr Features, anonyme 1 Demo-Analyse
     const user = await getAuthenticatedUser(req);
-    if (!user) {
-      return NextResponse.json(
-        { error: 'Nicht angemeldet. Bitte zuerst einloggen.' },
-        { status: 401 }
-      );
-    }
 
-    if (!checkRateLimit(user.id)) {
-      return NextResponse.json(
-        { error: 'Zu viele Anfragen. Du hast bereits 5 Analysen in den letzten 15 Minuten durchgeführt. Bitte kurz warten.' },
-        { status: 429 }
-      );
+    if (user) {
+      const { success } = await analyzeLimiter.limit(user.id);
+      if (!success) {
+        return NextResponse.json(
+          { error: 'Zu viele Anfragen. Du hast bereits 5 Analysen in den letzten 15 Minuten durchgeführt. Bitte kurz warten.' },
+          { status: 429 }
+        );
+      }
+    } else {
+      const ip =
+        req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+        req.headers.get('x-real-ip') ||
+        'anon';
+      const { success } = await analyzeAnonLimiter.limit(ip);
+      if (!success) {
+        return NextResponse.json(
+          { error: 'Sie haben heute bereits eine kostenlose Demo-Analyse genutzt. Registrieren Sie sich kostenlos für unbegrenzte Analysen.' },
+          { status: 429 }
+        );
+      }
     }
 
     const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
@@ -239,16 +222,18 @@ export async function POST(req: Request) {
       bic: map.bic.length,
     });
 
-    // Versuche zuerst den neuen Agent (Claude Tool-Use), Fallback auf alte Engine
+    // 13-Agenten-Pipeline (Claude) — primäre Engine
+    // Fallback auf Legacy-GPT-4o wenn ANTHROPIC_API_KEY fehlt (wird intern in den Agenten geprüft)
+    const anthropicAvailable = !!getAnthropicKey();
     let result: AgentAnalysisResult;
 
-    if (getAnthropicKey()) {
-      console.log('[Analyze] Verwende Agent-Engine (Claude Tool-Use)');
+    if (anthropicAvailable) {
+      console.log('[Analyze] 13-Agenten-Pipeline (Claude) gestartet');
       result = await runAgentAnalysis(pseudonymized);
     } else {
-      console.log('[Analyze] Fallback auf Legacy-Engine (OpenAI)');
+      console.warn('[Analyze] ANTHROPIC_API_KEY fehlt — Fallback auf Legacy GPT-4o Engine');
       const legacyResult = await runForensicAnalysis(pseudonymized);
-      result = { routing_stufe: 'NORMAL', agenten_aktiv: ['legacy-engine'], ...legacyResult };
+      result = { routing_stufe: 'NORMAL', agenten_aktiv: ['gpt4o-legacy'], ...legacyResult };
     }
 
     result = {
@@ -259,12 +244,12 @@ export async function POST(req: Request) {
       musterschreiben: depseudonymizeText(result.musterschreiben || '', map),
     };
 
-    // Supabase User-Client für nachgelagerte DB-Operationen
+    // Supabase User-Client — nur für eingeloggte User
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL || '';
     const supabaseAnonKey =
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY || '';
     const supabaseUser =
-      supabaseUrl && supabaseAnonKey
+      user && supabaseUrl && supabaseAnonKey
         ? createClient(supabaseUrl, supabaseAnonKey, {
             global: { headers: { Authorization: `Bearer ${user.token}` } },
           })
@@ -274,7 +259,7 @@ export async function POST(req: Request) {
     if (result.frist_datum && supabaseUser) {
       try {
         await supabaseUser.from('user_fristen').insert({
-          user_id: user.id,
+          user_id: user!.id,
           behoerde: result.zuordnung?.behoerde ?? null,
           rechtsgebiet: result.zuordnung?.rechtsgebiet ?? null,
           untergebiet: result.zuordnung?.untergebiet ?? null,
@@ -301,7 +286,7 @@ export async function POST(req: Request) {
     if (result.token_kosten_eur !== undefined && supabaseUser) {
       try {
         await supabaseUser.from('analysis_results').insert({
-          user_id: user.id,
+          user_id: user!.id,
           session_id: null,
           behoerde: result.zuordnung?.behoerde ?? null,
           rechtsgebiet: result.zuordnung?.rechtsgebiet ?? null,

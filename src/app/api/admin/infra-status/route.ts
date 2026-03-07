@@ -176,7 +176,7 @@ export async function GET(req: NextRequest) {
   const secretParam = req.nextUrl.searchParams.get("secret");
   const providedSecret = authHeader?.replace("Bearer ", "") || secretParam || "";
 
-  if (CRON_SECRET && providedSecret !== CRON_SECRET) {
+  if (!CRON_SECRET || providedSecret !== CRON_SECRET) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

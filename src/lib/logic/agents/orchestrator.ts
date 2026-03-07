@@ -40,6 +40,7 @@ import { ag03Critic } from "./ag03-critic";
 import { ag04Researcher } from "./ag04-researcher";
 import { ag07LetterGenerator } from "./ag07-letter-generator";
 import { ag13UserExplainer } from "./ag13-user-explainer";
+import { ag14PraezedenzAnalyzer } from "./ag14-praezedenz-analyzer";
 
 // ---------------------------------------------------------------------------
 // Hintergrund-Agenten (fire-and-forget nach Response)
@@ -117,12 +118,30 @@ export async function runPipeline(documentText: string): Promise<AgentAnalysisRe
 
   console.log(`[Orchestrator] Vorab-Routing: ${routingStufe} (${urgency.tage ?? "?"} Tage)`);
 
-  // --- Phase 1: AG08 Security Gate ---
-  const securityResult = await safeExecute(
-    "AG08",
-    () => ag08SecurityGate.execute(baseCtx),
-    { freigabe: true }
-  );
+  // --- Phase 1: AG08 Security Gate + AG12 Dokumentstruktur PARALLEL ---
+  // Beide sind vollständig unabhängig voneinander → parallele Ausführung spart ~50% Latenz
+  console.log("[Orchestrator] Phase 1: AG08 + AG12 parallel");
+  const [securitySettled, dokSettled] = await Promise.allSettled([
+    safeExecute(
+      "AG08",
+      () => ag08SecurityGate.execute(baseCtx),
+      { freigabe: true }
+    ),
+    safeExecute(
+      "AG12",
+      () => ag12DocumentProcessor.execute(baseCtx),
+      { rubrum: "", begruendung: "", rechtsbehelfsbelehrung: "", volltext: documentText }
+    ),
+  ]);
+
+  const securityResult = securitySettled.status === "fulfilled"
+    ? securitySettled.value
+    : { agentId: "AG08" as const, success: false, data: { freigabe: true }, tokens: emptyTokenUsage(), durationMs: 0, error: "AG08 rejected" };
+
+  const dokResult = dokSettled.status === "fulfilled"
+    ? dokSettled.value
+    : { agentId: "AG12" as const, success: false, data: { rubrum: "", begruendung: "", rechtsbehelfsbelehrung: "", volltext: documentText }, tokens: emptyTokenUsage(), durationMs: 0, error: "AG12 rejected" };
+
   agentenAktiv.push("AG08");
   agentenDetails["AG08"] = { success: securityResult.success, durationMs: securityResult.durationMs, error: securityResult.error };
   totalTokens = mergeTokenUsage(totalTokens, securityResult.tokens);
@@ -142,12 +161,6 @@ export async function runPipeline(documentText: string): Promise<AgentAnalysisRe
     };
   }
 
-  // --- Phase 2: AG12 Dokumentstruktur ---
-  const dokResult = await safeExecute(
-    "AG12",
-    () => ag12DocumentProcessor.execute(baseCtx),
-    { rubrum: "", begruendung: "", rechtsbehelfsbelehrung: "", volltext: documentText }
-  );
   agentenAktiv.push("AG12");
   agentenDetails["AG12"] = { success: dokResult.success, durationMs: dokResult.durationMs, error: dokResult.error };
   totalTokens = mergeTokenUsage(totalTokens, dokResult.tokens);
@@ -181,64 +194,47 @@ export async function runPipeline(documentText: string): Promise<AgentAnalysisRe
   // Routing-Stufe ist jetzt final — für AG02/AG07 wird das korrekte Modell genutzt
   const adaptiveModel = modelForStufe(routingStufe);
 
-  // --- Phase 4: AG02 Analyse (+ optional AG04 parallel) ---
+  // --- Phase 4: AG02 + AG04 immer parallel ---
+  // AG04 läuft jetzt für ALLE Routing-Stufen:
+  // NORMAL → DB-only (kostenlos), HOCH/NOTFALL → Web-Search (wenn Tavily vorhanden)
   const ctxForAnalysis: AgentContext = { ...baseCtx, pipeline };
 
+  console.log(`[Orchestrator] Phase 4: AG02 + AG04 parallel (Routing: ${routingStufe})`);
+  const [analyseSettled, rechercheSettled] = await Promise.allSettled([
+    safeExecute<AnalyseResult>(
+      "AG02",
+      () => ag02Analyst.execute(ctxForAnalysis),
+      { fehler: [], auffaelligkeiten: [] }
+    ),
+    safeExecute<RechercheResult>(
+      "AG04",
+      () => ag04Researcher.execute(ctxForAnalysis),
+      { urteile: [], quellen: [] }
+    ),
+  ]);
+
+  const analyseResult = analyseSettled.status === "fulfilled" ? analyseSettled.value : null;
+  const rechercheResult = rechercheSettled.status === "fulfilled" ? rechercheSettled.value : null;
+
+  if (analyseResult) {
+    agentenAktiv.push("AG02");
+    agentenDetails["AG02"] = { success: analyseResult.success, durationMs: analyseResult.durationMs, error: analyseResult.error };
+    totalTokens = mergeTokenUsage(totalTokens, analyseResult.tokens);
+    agentCosts.push({ tokens: analyseResult.tokens, model: adaptiveModel });
+    pipeline.analyse = analyseResult.data;
+  }
+
+  if (rechercheResult) {
+    agentenAktiv.push("AG04");
+    agentenDetails["AG04"] = { success: rechercheResult.success, durationMs: rechercheResult.durationMs, error: rechercheResult.error };
+    totalTokens = mergeTokenUsage(totalTokens, rechercheResult.tokens);
+    // AG04 für NORMAL ist DB-only (kein Modell-Call) — keine Kosten
+    agentCosts.push({ tokens: rechercheResult.tokens, model: SONNET_MODEL });
+    pipeline.recherche = rechercheResult.data;
+  }
+
+  // Budget-Check vor AG03 (läuft jetzt für HOCH + NOTFALL)
   if (routingStufe === "HOCH" || routingStufe === "NOTFALL") {
-    const tavilyAvailable = !!process.env.TAVILY_API_KEY;
-
-    if (tavilyAvailable) {
-      // AG02 + AG04 parallel
-      console.log("[Orchestrator] HOCH/NOTFALL → AG02 + AG04 parallel");
-      const [analyseSettled, rechercheSettled] = await Promise.allSettled([
-        safeExecute<AnalyseResult>(
-          "AG02",
-          () => ag02Analyst.execute(ctxForAnalysis),
-          { fehler: [], auffaelligkeiten: [] }
-        ),
-        safeExecute<RechercheResult>(
-          "AG04",
-          () => ag04Researcher.execute(ctxForAnalysis),
-          { urteile: [], quellen: [] }
-        ),
-      ]);
-
-      const analyseResult = analyseSettled.status === "fulfilled" ? analyseSettled.value : null;
-      const rechercheResult = rechercheSettled.status === "fulfilled" ? rechercheSettled.value : null;
-
-      if (analyseResult) {
-        agentenAktiv.push("AG02");
-        agentenDetails["AG02"] = { success: analyseResult.success, durationMs: analyseResult.durationMs, error: analyseResult.error };
-        totalTokens = mergeTokenUsage(totalTokens, analyseResult.tokens);
-        agentCosts.push({ tokens: analyseResult.tokens, model: adaptiveModel });
-        pipeline.analyse = analyseResult.data;
-      }
-
-      if (rechercheResult) {
-        agentenAktiv.push("AG04");
-        agentenDetails["AG04"] = { success: rechercheResult.success, durationMs: rechercheResult.durationMs, error: rechercheResult.error };
-        totalTokens = mergeTokenUsage(totalTokens, rechercheResult.tokens);
-        agentCosts.push({ tokens: rechercheResult.tokens, model: SONNET_MODEL });
-        pipeline.recherche = rechercheResult.data;
-      }
-    } else {
-      // TAVILY_API_KEY fehlt → nur AG02
-      console.log("[Orchestrator] HOCH/NOTFALL → nur AG02 (TAVILY_API_KEY fehlt, AG04 übersprungen)");
-      const analyseResult = await safeExecute<AnalyseResult>(
-        "AG02",
-        () => ag02Analyst.execute(ctxForAnalysis),
-        { fehler: [], auffaelligkeiten: [] }
-      );
-      agentenAktiv.push("AG02");
-      agentenDetails["AG02"] = { success: analyseResult.success, durationMs: analyseResult.durationMs, error: analyseResult.error };
-      totalTokens = mergeTokenUsage(totalTokens, analyseResult.tokens);
-      agentCosts.push({ tokens: analyseResult.tokens, model: adaptiveModel });
-      pipeline.analyse = analyseResult.data;
-
-      agentenDetails["AG04"] = { success: true, durationMs: 0, error: "Übersprungen — TAVILY_API_KEY fehlt" };
-    }
-
-    // Budget-Check vor AG03
     if (!isBudgetExceeded(totalTokens)) {
       const kritikResult = await safeExecute<KritikResult>(
         "AG03",
@@ -248,36 +244,49 @@ export async function runPipeline(documentText: string): Promise<AgentAnalysisRe
       agentenAktiv.push("AG03");
       agentenDetails["AG03"] = { success: kritikResult.success, durationMs: kritikResult.durationMs, error: kritikResult.error };
       totalTokens = mergeTokenUsage(totalTokens, kritikResult.tokens);
-      agentCosts.push({ tokens: kritikResult.tokens, model: SONNET_MODEL });
+      agentCosts.push({ tokens: kritikResult.tokens, model: adaptiveModel });
       pipeline.kritik = kritikResult.data;
     } else {
       console.warn("[Orchestrator] Budget überschritten — AG03 übersprungen");
     }
-  } else {
-    // NORMAL: Nur AG02
-    const analyseResult = await safeExecute<AnalyseResult>(
-      "AG02",
-      () => ag02Analyst.execute(ctxForAnalysis),
-      { fehler: [], auffaelligkeiten: [] }
-    );
-    agentenAktiv.push("AG02");
-    agentenDetails["AG02"] = { success: analyseResult.success, durationMs: analyseResult.durationMs, error: analyseResult.error };
-    totalTokens = mergeTokenUsage(totalTokens, analyseResult.tokens);
-    agentCosts.push({ tokens: analyseResult.tokens, model: SONNET_MODEL });
-    pipeline.analyse = analyseResult.data;
   }
 
-  // --- Phase 5: AG07 Musterschreiben ---
-  const letterResult = await safeExecute(
-    "AG07",
-    () => ag07LetterGenerator.execute({ ...baseCtx, pipeline }),
-    { volltext: "", auffaelligkeiten: [], forderung: "" }
-  );
+  // --- Phase 5: AG07 Musterschreiben + AG14 Präzedenzfall-Analyse PARALLEL ---
+  // AG14 braucht AG01 (triage) aber nicht AG07 — läuft parallel zum Brief
+  console.log("[Orchestrator] Phase 5: AG07 + AG14 parallel");
+  const [letterSettled, praezedenzSettled] = await Promise.allSettled([
+    safeExecute(
+      "AG07",
+      () => ag07LetterGenerator.execute({ ...baseCtx, pipeline }),
+      { volltext: "", auffaelligkeiten: [], forderung: "" }
+    ),
+    safeExecute(
+      "AG14",
+      () => ag14PraezedenzAnalyzer.execute({ ...baseCtx, pipeline }),
+      { aehnliche_faelle: 0, erfolgsquote_prozent: null, haeufigste_fehler: [], hinweis: "" }
+    ),
+  ]);
+
+  const letterResult = letterSettled.status === "fulfilled"
+    ? letterSettled.value
+    : { agentId: "AG07" as const, success: false, data: { volltext: "", auffaelligkeiten: [], forderung: "" }, tokens: emptyTokenUsage(), durationMs: 0, error: "AG07 rejected" };
+
+  const praezedenzResult = praezedenzSettled.status === "fulfilled"
+    ? praezedenzSettled.value
+    : null;
+
   agentenAktiv.push("AG07");
   agentenDetails["AG07"] = { success: letterResult.success, durationMs: letterResult.durationMs, error: letterResult.error };
   totalTokens = mergeTokenUsage(totalTokens, letterResult.tokens);
   agentCosts.push({ tokens: letterResult.tokens, model: adaptiveModel });
   pipeline.musterschreiben = letterResult.data;
+
+  if (praezedenzResult) {
+    agentenAktiv.push("AG14");
+    agentenDetails["AG14"] = { success: praezedenzResult.success, durationMs: praezedenzResult.durationMs, error: praezedenzResult.error };
+    pipeline.praezedenz = praezedenzResult.data;
+    // AG14 hat keine Token-Kosten (reine DB-Aggregation)
+  }
 
   // --- Phase 6: AG13 Nutzer-Erklärer ---
   const explainerResult = await safeExecute(
@@ -358,5 +367,6 @@ export async function runPipeline(documentText: string): Promise<AgentAnalysisRe
     security_check: pipeline.security,
     dokumentstruktur: pipeline.dokumentstruktur,
     agenten_details: agentenDetails,
+    praezedenz: pipeline.praezedenz,
   };
 }

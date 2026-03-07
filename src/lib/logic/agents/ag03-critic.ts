@@ -12,7 +12,7 @@ import {
   emptyTokenUsage,
 } from "./types";
 import { getSystemPrompt } from "./prompts";
-import { SONNET_MODEL, extractTokenUsage, getAnthropicKey, createAnthropicClient } from "./utils";
+import { modelForStufe, extractTokenUsage, getAnthropicKey, createAnthropicClient, extractJsonSafe } from "./utils";
 
 async function execute(ctx: AgentContext): Promise<AgentResult<KritikResult>> {
   const start = Date.now();
@@ -36,6 +36,7 @@ async function execute(ctx: AgentContext): Promise<AgentResult<KritikResult>> {
   }
 
   const anthropic = createAnthropicClient(apiKey);
+  const model = modelForStufe(ctx.routingStufe);
 
   // Kontext aus AG02 + AG04
   let kontext = "";
@@ -65,8 +66,8 @@ async function execute(ctx: AgentContext): Promise<AgentResult<KritikResult>> {
   kontext += `\nBescheid (Auszug):\n${ctx.documentText.slice(0, 3000)}`;
 
   const response = await anthropic.messages.create({
-    model: SONNET_MODEL,
-    max_tokens: 1024,
+    model,
+    max_tokens: 2048,
     system: getSystemPrompt("AG03"),
     messages: [
       {
@@ -80,34 +81,32 @@ async function execute(ctx: AgentContext): Promise<AgentResult<KritikResult>> {
   const textContent = response.content.find((b) => b.type === "text");
   const rawText = textContent && textContent.type === "text" ? textContent.text : "";
 
-  try {
-    const parsed = JSON.parse(rawText);
-    return {
-      agentId: "AG03",
-      success: true,
-      data: {
-        gegenargumente: parsed.gegenargumente ?? [],
-        erfolgschance_prozent: parsed.erfolgschance_prozent ?? 50,
-        schwachstellen: parsed.schwachstellen ?? [],
-      },
-      tokens,
-      durationMs: Date.now() - start,
-    };
-  } catch {
-    return {
-      agentId: "AG03",
-      success: true,
-      data: fallback,
-      tokens,
-      durationMs: Date.now() - start,
-      error: "JSON-Parse fehlgeschlagen",
-    };
-  }
+  const parsed = extractJsonSafe<{
+    gegenargumente?: string[];
+    erfolgschance_prozent?: number;
+    schwachstellen?: string[];
+  }>(rawText, {});
+
+  const erfolgschance = parsed.erfolgschance_prozent ?? 50;
+  const confidence = Math.min(1, Math.max(0, erfolgschance / 100));
+
+  return {
+    agentId: "AG03",
+    success: true,
+    data: {
+      gegenargumente: parsed.gegenargumente ?? fallback.gegenargumente,
+      erfolgschance_prozent: erfolgschance,
+      schwachstellen: parsed.schwachstellen ?? fallback.schwachstellen,
+    },
+    tokens,
+    durationMs: Date.now() - start,
+    confidence,
+  };
 }
 
 export const ag03Critic: Agent<KritikResult> = {
   id: "AG03",
   name: "Kritiker",
-  model: () => SONNET_MODEL,
+  model: modelForStufe,
   execute,
 };

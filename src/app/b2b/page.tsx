@@ -81,14 +81,14 @@ const TARIFE = [
   {
     name: "Enterprise",
     analysen: "2.500+",
-    preis: "Individuell",
-    zeitraum: "",
+    preis: "ab 799",
+    zeitraum: "/ Monat",
     ideal: "Landes-/Bundesverband",
     features: [
       "Ab 2.500 Analysen",
       "Alle Professional-Features",
       "Persönlicher Ansprechpartner",
-      "API-Zugang & Integration",
+      "Individuelles Angebot & SLA",
     ],
   },
 ];
@@ -139,25 +139,25 @@ const DATENSCHUTZ_ITEMS = [
 
 const TESTIMONIALS = [
   {
-    name: "Sarah K.",
-    role: "Schuldnerberaterin",
-    org: "Caritas",
-    text: "Wir prüfen täglich 10–15 Bescheide. BescheidRecht hat unsere Bearbeitungszeit halbiert — und unsere Klienten bekommen jetzt viel schneller Klarheit über ihre Situation.",
-    stars: 5,
+    name: "Schuldnerberatung",
+    role: "Typisches Szenario",
+    org: "Sozialberatungsstelle",
+    text: "Täglich 10–15 Bescheide zu prüfen kostet Stunden. Mit KI-Unterstützung lässt sich die Bearbeitungszeit deutlich reduzieren — und Klienten bekommen schneller Klarheit.",
+    stars: 0,
   },
   {
-    name: "Thomas W.",
-    role: "Teamleiter Sozialberatung",
-    org: "AWO Kreisverband",
-    text: "Das Fristen-Dashboard allein ist jeden Cent wert. Wir haben früher wichtige Widerspruchsfristen fast verpasst — das ist jetzt nicht mehr möglich.",
-    stars: 5,
+    name: "Teamleitung Sozialberatung",
+    role: "Typisches Szenario",
+    org: "Kreisverband",
+    text: "Widerspruchsfristen manuell zu tracken ist fehleranfällig. Ein zentrales Fristen-Dashboard verhindert, dass wichtige 30-Tage-Fristen ungenutzt ablaufen.",
+    stars: 0,
   },
   {
-    name: "Miriam H.",
-    role: "Koordinatorin",
+    name: "Koordination",
+    role: "Typisches Szenario",
     org: "Wohlfahrtsverband",
-    text: "Die 16 Rechtsgebiete abzudecken war das Entscheidende für uns. Bürgergeld, Pflegegrad, BAföG — ein Tool für alles. Das hat unsere Einarbeitung für neue Kollegen massiv vereinfacht.",
-    stars: 5,
+    text: "Bürgergeld, Pflegegrad, BAföG — ein Tool für alle Bescheide vereinfacht die Einarbeitung neuer Mitarbeitender erheblich und schafft einheitliche Qualitätsstandards.",
+    stars: 0,
   },
 ];
 
@@ -168,7 +168,7 @@ const FAQ_ITEMS = [
   },
   {
     q: "Können mehrere Berater gleichzeitig die Plattform nutzen?",
-    a: "Ja. Alle Tarife sind für unbegrenzte Nutzerkonten ausgelegt. Die Analyse-Credits werden gemeinschaftlich genutzt und im Dashboard getrackt. Jeder Berater sieht nur seine eigenen Fristen.",
+    a: "Ja. Jeder Berater erhält einen eigenen Zugang. Die Analyse-Credits werden gemeinschaftlich genutzt und im Dashboard getrackt.",
   },
   {
     q: "Was passiert mit den hochgeladenen Bescheidsdaten?",
@@ -180,11 +180,15 @@ const FAQ_ITEMS = [
   },
   {
     q: "Gibt es eine Mindestvertragslaufzeit?",
-    a: "Nein. Alle Tarife sind monatlich kündbar. Es gibt keine Einrichtungsgebühr und keinen Lock-in. Sie starten mit 30 Tagen kostenlosem Test — ohne Kreditkarte.",
+    a: "Nein. Alle Tarife sind monatlich kündbar. Es gibt keine Einrichtungsgebühr und keinen Lock-in.",
   },
   {
     q: "Kann BescheidRecht in bestehende Systeme integriert werden?",
-    a: "Der Enterprise-Tarif beinhaltet API-Zugang für die Integration in bestehende Fallverwaltungssysteme. Für Starter und Professional steht BescheidRecht als eigenständige Web-Plattform zur Verfügung.",
+    a: "BescheidRecht steht aktuell als eigenständige Web-Plattform zur Verfügung. Eine API-Schnittstelle für die Integration in bestehende Fallverwaltungssysteme ist für den Enterprise-Bereich in Planung. Bei konkretem Bedarf sprechen Sie uns gerne an.",
+  },
+  {
+    q: "Gibt es einen Auftragsverarbeitungsvertrag (AVV) gemäß Art. 28 DSGVO?",
+    a: "Ja. Als Auftragsverarbeiter stellen wir für alle B2B-Kunden einen standardisierten AVV gemäß Art. 28 DSGVO bereit. Dieser ist online abrufbar und auf Wunsch auch als unterzeichnetes Dokument erhältlich. Alle technischen und organisatorischen Maßnahmen (TOMs) sind darin dokumentiert.",
   },
 ];
 
@@ -328,7 +332,7 @@ export default function B2BPage() {
             ].map((t) => (
               <span
                 key={t}
-                className="px-4 py-2 bg-white/[0.03] border border-white/8 rounded-full text-[12px] sm:text-[13px] text-white/38"
+                className="px-4 py-2 bg-white/[0.03] border border-white/[0.08] rounded-full text-[12px] sm:text-[13px] text-white/38"
               >
                 {t}
               </span>
@@ -437,17 +441,20 @@ export default function B2BPage() {
         <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-[var(--accent)] mb-3 text-center">
           Stimmen aus der Praxis
         </p>
-        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight text-center mb-14 sm:mb-16">
-          Was unsere Nutzer sagen
+        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight text-center mb-4">
+          Typische Anwendungsszenarien
         </h2>
+        <p className="text-center text-white/30 text-[13px] mb-14 sm:mb-16">
+          Illustrative Beispiele — keine echten Kundenzitate
+        </p>
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
           {TESTIMONIALS.map((t) => (
             <div
               key={t.name}
               className="bg-white/[0.03] border border-white/10 rounded-2xl p-6 sm:p-8 flex flex-col gap-5 hover:border-white/20 transition-colors"
             >
-              <div className="flex gap-0.5">
-                {Array.from({ length: t.stars }).map((_, i) => (
+              <div className="flex gap-0.5 h-3.5">
+                {t.stars > 0 && Array.from({ length: t.stars }).map((_, i) => (
                   <Star key={i} className="h-3.5 w-3.5 fill-[var(--accent)] text-[var(--accent)]" />
                 ))}
               </div>
@@ -579,8 +586,11 @@ export default function B2BPage() {
         <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight text-center mb-3 sm:mb-4">
           Tarife für Einrichtungen
         </h2>
-        <p className="text-center text-white/35 mb-12 sm:mb-16 text-[14px] sm:text-[15px]">
-          30 Tage kostenlos testen. Keine Einrichtungsgebühr. Monatlich kündbar.
+        <p className="text-center text-white/35 mb-2 text-[14px] sm:text-[15px]">
+          Keine Einrichtungsgebühr. Monatlich kündbar.
+        </p>
+        <p className="text-center text-white/20 mb-12 sm:mb-16 text-[12px]">
+          Alle Preise netto zzgl. 19 % MwSt.
         </p>
         <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-5 sm:gap-6">
           {TARIFE.map((tarif) => (
@@ -601,7 +611,7 @@ export default function B2BPage() {
               <p className="text-white/35 text-[12px] sm:text-[13px] mt-1 mb-5">{tarif.ideal}</p>
               <div className="mb-6">
                 <span className="text-3xl sm:text-4xl font-black">{tarif.preis}</span>
-                {tarif.preis !== "Individuell" && (
+                {tarif.zeitraum && (
                   <span className="text-white/35 text-[14px] sm:text-[15px]"> €{tarif.zeitraum}</span>
                 )}
               </div>
@@ -622,7 +632,7 @@ export default function B2BPage() {
                 }`}
               >
                 <CalendarDays className="h-4 w-4" />
-                {tarif.preis === "Individuell" ? "Kontakt aufnehmen" : "30 Tage kostenlos testen"}
+                {tarif.name === "Enterprise" ? "Angebot anfragen" : "Demo anfragen"}
               </a>
             </div>
           ))}
@@ -719,7 +729,8 @@ export default function B2BPage() {
             </a>
           </div>
           <p className="text-white/20 text-[12px] mt-6 tracking-wide">
-            30 Tage kostenlos &nbsp;&middot;&nbsp; Keine Kreditkarte &nbsp;&middot;&nbsp; Monatlich kündbar
+            Keine Einrichtungsgebühr &nbsp;&middot;&nbsp; Monatlich kündbar &nbsp;&middot;&nbsp;{" "}
+            <a href="/avv" className="underline hover:text-white/40 transition-colors">AVV (Art. 28 DSGVO)</a>
           </p>
         </div>
       </section>

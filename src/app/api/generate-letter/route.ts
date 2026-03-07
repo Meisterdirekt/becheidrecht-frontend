@@ -1,39 +1,25 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import Anthropic from "@anthropic-ai/sdk";
+import OpenAI from "openai";
 import fs from "fs";
 import path from "path";
 import { TRAEGER_TO_PREFIX, getTraegerLabel, getSchreibentypLabel } from "@/lib/letter-generator";
 import { getAuthenticatedUser } from "@/lib/supabase/auth";
+import { letterLimiter } from "@/lib/rate-limit";
+
+function getOpenAIKey(): string | null {
+  try {
+    const envContent = fs.readFileSync(path.join(process.cwd(), "vault", "keys.env"), "utf8");
+    const match = envContent.match(/OPENAI_API_KEY\s*=\s*["']?([^\s"'\n]+)/);
+    if (match?.[1]) return match[1];
+  } catch {
+    // Vault nicht vorhanden (z.B. auf Vercel)
+  }
+  return process.env.OPENAI_API_KEY || null;
+}
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
-
-// ---------------------------------------------------------------------------
-// Rate-Limiter — 10 Anfragen pro Stunde pro User
-// ---------------------------------------------------------------------------
-const _rateMap = new Map<string, { count: number; resetAt: number }>();
-const RATE_WINDOW_MS = 60 * 60 * 1000; // 1 Stunde
-const RATE_MAX = 10;
-
-function checkRateLimit(userId: string): boolean {
-  const now = Date.now();
-  const entry = _rateMap.get(userId);
-  if (!entry || entry.resetAt < now) {
-    _rateMap.set(userId, { count: 1, resetAt: now + RATE_WINDOW_MS });
-    return true;
-  }
-  if (entry.count >= RATE_MAX) return false;
-  entry.count++;
-  return true;
-}
-
-setInterval(() => {
-  const now = Date.now();
-  for (const [id, e] of _rateMap.entries()) {
-    if (e.resetAt < now) _rateMap.delete(id);
-  }
-}, 60 * 60 * 1000).unref();
 
 interface BehoerdenLogikItem {
   id: string;
@@ -95,7 +81,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Nicht angemeldet. Bitte zuerst anmelden." }, { status: 401 });
     }
 
-    if (!checkRateLimit(user.id)) {
+    const { success } = await letterLimiter.limit(user.id);
+    if (!success) {
       return NextResponse.json(
         { error: "Zu viele Anfragen. Du hast bereits 10 Schreiben in der letzten Stunde erstellt. Bitte warte." },
         { status: 429 }
@@ -174,7 +161,7 @@ export async function POST(req: NextRequest) {
           .join("\n")
         : "Allgemeine Verfahrensrechte SGB I, SGB X (Begründung, Rechtsbehelfsbelehrung, Fristen).";
 
-    const apiKey = process.env.ANTHROPIC_API_KEY;
+    const apiKey = getOpenAIKey();
     if (!apiKey) {
       return NextResponse.json(
         { error: "Schreiben-Generierung ist derzeit nicht konfiguriert." },
@@ -182,7 +169,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const anthropic = new Anthropic({ apiKey });
+    const openai = new OpenAI({ apiKey });
     const behoerdeLabel = getTraegerLabel(behoerde);
     const typLabel = getSchreibentypLabel(schreibentyp);
 
@@ -199,15 +186,16 @@ ${kontextText}
 
 Erstelle nun das fertige Schreiben gemäß der Systemanweisung.`;
 
-    const response = await anthropic.messages.create({
-      model: "claude-sonnet-4-6",
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o",
       max_tokens: 2048,
-      system: SYSTEM_PROMPT,
-      messages: [{ role: "user", content: userMessage }],
+      messages: [
+        { role: "system", content: SYSTEM_PROMPT },
+        { role: "user", content: userMessage },
+      ],
     });
 
-    const textBlock = response.content.find((b) => b.type === "text");
-    const rawLetter = textBlock && "text" in textBlock ? (textBlock.text as string).trim() : "";
+    const rawLetter = response.choices[0]?.message?.content?.trim() ?? "";
 
     if (!rawLetter) {
       return NextResponse.json(
@@ -216,15 +204,8 @@ Erstelle nun das fertige Schreiben gemäß der Systemanweisung.`;
       );
     }
 
-    const RDG_DISCLAIMER =
-      "\n\n---\n⚠ WICHTIGER HINWEIS: Dieser Entwurf wurde von einer KI erstellt und stellt keine " +
-      "Rechtsberatung im Sinne des Rechtsdienstleistungsgesetzes (RDG § 2) dar. Er ersetzt nicht die " +
-      "Beratung durch einen zugelassenen Rechtsanwalt oder eine anerkannte Beratungsstelle " +
-      "(z.B. VdK, Sozialverband). Vor dem Absenden bitte vollständig prüfen und eigene Angaben ergänzen.\n---";
-
-    const letter = rawLetter.includes("RDG") ? rawLetter : rawLetter + RDG_DISCLAIMER;
-
-    return NextResponse.json({ letter });
+    // Kein RDG-Disclaimer im Brief-Text — wird rein als UI-Element angezeigt, nicht im PDF
+    return NextResponse.json({ letter: rawLetter });
   } catch (e) {
     console.error("generate-letter error:", e);
     const message = e instanceof Error ? e.message : "Unbekannter Fehler";

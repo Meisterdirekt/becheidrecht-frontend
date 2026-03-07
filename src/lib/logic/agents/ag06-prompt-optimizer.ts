@@ -14,7 +14,7 @@ import {
 } from "./types";
 import { getSystemPrompt } from "./prompts";
 // Downgrade von Opus auf Sonnet — AG06 analysiert nur Zahlen/Text, braucht kein Opus
-import { SONNET_MODEL, extractTokenUsage, getAnthropicKey, createAnthropicClient } from "./utils";
+import { SONNET_MODEL, extractTokenUsage, getAnthropicKey, createAnthropicClient, extractJsonSafe } from "./utils";
 
 interface OptimierungResult {
   vorschlaege: string[];
@@ -74,15 +74,14 @@ async function execute(ctx: AgentContext): Promise<AgentResult<OptimierungResult
   const rawText = textContent && textContent.type === "text" ? textContent.text : "";
 
   let vorschlaege: string[] = [];
-  let analyseParsed: Record<string, unknown> = {};
 
-  try {
-    analyseParsed = JSON.parse(rawText);
-    vorschlaege = (analyseParsed.vorschlaege as string[]) ?? (analyseParsed.suggestions as string[]) ?? [];
-  } catch {
-    if (rawText.length > 10) {
-      vorschlaege = [rawText.slice(0, 500)];
-    }
+  const analyseParsed = extractJsonSafe<{ vorschlaege?: string[]; suggestions?: string[]; problem_agent?: string; ursache?: string; prioritaet?: string }>(rawText, {});
+  if (Array.isArray(analyseParsed.vorschlaege)) {
+    vorschlaege = analyseParsed.vorschlaege;
+  } else if (Array.isArray(analyseParsed.suggestions)) {
+    vorschlaege = analyseParsed.suggestions;
+  } else if (rawText.length > 10) {
+    vorschlaege = [rawText.slice(0, 500)];
   }
 
   // Vorschläge in update_protokoll persistieren — nicht nur console.log

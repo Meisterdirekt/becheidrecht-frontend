@@ -22,6 +22,18 @@ export default function DownloadButton({
     doc.setFontSize(12);
     const splitText = doc.splitTextToSize(content, 170);
     doc.text(splitText, 15, 20);
+
+    // § 2 RDG Disclaimer (Pflicht)
+    const disclaimer =
+      "Hinweis gemäß § 2 RDG: Dieses Schreiben ist ein KI-gestützter Entwurf und kein Ersatz für eine " +
+      "qualifizierte Rechtsberatung. Bei rechtlich komplexen Sachverhalten empfehlen wir die Konsultation " +
+      "eines Rechtsanwalts oder einer Beratungsstelle.";
+    const pageHeight = doc.internal.pageSize.getHeight();
+    doc.setFontSize(8);
+    doc.setTextColor(120);
+    const disclaimerLines = doc.splitTextToSize(disclaimer, 170);
+    doc.text(disclaimerLines, 15, pageHeight - 20);
+
     doc.save(fileName);
   };
 

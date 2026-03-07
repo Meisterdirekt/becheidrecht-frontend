@@ -9,8 +9,9 @@ function getOpenAIKey(): string | null {
   try {
     const vaultPath = (file: string) => path.join(process.cwd(), 'vault', file);
     const envContent = fs.readFileSync(vaultPath('keys.env'), 'utf8');
-    const key = envContent.match(/sk-[a-zA-Z0-9_-]+/)?.[0];
-    if (key) return key;
+    // Explizit nach OPENAI_API_KEY= suchen (nicht einfach erstes sk-... — das könnte Anthropic-Key sein)
+    const match = envContent.match(/OPENAI_API_KEY\s*=\s*["']?([^\s"'\n]+)/);
+    if (match?.[1]) return match[1];
   } catch {
     // Vault nicht vorhanden (z. B. auf Vercel)
   }
@@ -67,7 +68,7 @@ export async function runForensicAnalysis(documentText: string) {
     const weisungenBA = loadWeisungenBA();
 
     const response = await openai.chat.completions.create({
-      model: "gpt-4o",
+      model: "gpt-4o-mini",
       messages: [
         {
           role: "system",

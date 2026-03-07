@@ -55,6 +55,58 @@ export async function POST(request: NextRequest) {
       ? createClient(supabaseUrl, serviceRoleKey)
       : supabase;
 
+    // ── Org-Pool prüfen (B2B) ──────────────────────────────────────────────
+    // Ist der User Mitglied einer Einrichtung? Dann aus dem gemeinsamen Pool abbuchen.
+    if (serviceRoleKey) {
+      const { data: membership } = await supabaseAdmin
+        .from('organization_members')
+        .select('org_id, analyses_used')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      if (membership?.org_id) {
+        const { data: org } = await supabaseAdmin
+          .from('organizations')
+          .select('analyses_total, analyses_used')
+          .eq('id', membership.org_id)
+          .single();
+
+        if (!org) {
+          return NextResponse.json({ error: 'Einrichtung nicht gefunden' }, { status: 404 });
+        }
+
+        const remaining = org.analyses_total - org.analyses_used;
+
+        if (remaining <= 0) {
+          return NextResponse.json(
+            { error: 'Analyse-Kontingent Ihrer Einrichtung erschöpft. Bitte den Einrichtungs-Admin kontaktieren.', analyses_remaining: 0 },
+            { status: 403 }
+          );
+        }
+
+        // Org-Pool abbuchen
+        await supabaseAdmin
+          .from('organizations')
+          .update({ analyses_used: org.analyses_used + 1 })
+          .eq('id', membership.org_id);
+
+        // Per-Member-Counter erhöhen
+        await supabaseAdmin
+          .from('organization_members')
+          .update({ analyses_used: (membership.analyses_used ?? 0) + 1 })
+          .eq('org_id', membership.org_id)
+          .eq('user_id', user.id);
+
+        return NextResponse.json({
+          success: true,
+          analyses_remaining: remaining - 1,
+          analyses_used: org.analyses_used + 1,
+          subscription_type: 'b2b_pool',
+        });
+      }
+    }
+    // ── Ende Org-Pool ──────────────────────────────────────────────────────
+
     // Subscription holen
     const { data: subscription, error: subError } = await supabaseAdmin
       .from('user_subscriptions')

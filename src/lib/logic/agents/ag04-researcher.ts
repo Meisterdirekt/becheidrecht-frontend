@@ -14,7 +14,7 @@ import {
   emptyTokenUsage,
 } from "./types";
 import { getSystemPrompt } from "./prompts";
-import { SONNET_MODEL, extractTokenUsage, getAnthropicKey, createAnthropicClient, mergeTokenUsage } from "./utils";
+import { SONNET_MODEL, extractTokenUsage, getAnthropicKey, createAnthropicClient, mergeTokenUsage, extractJsonSafe } from "./utils";
 import { TOOL_WEB_SEARCH, executeWebSearch } from "./tools/web-search";
 import { TOOL_FETCH_URL, executeFetchUrl } from "./tools/fetch-url";
 import { TOOL_DB_READ, executeDbRead } from "./tools/db-read";
@@ -42,7 +42,38 @@ async function execute(ctx: AgentContext): Promise<AgentResult<RechercheResult>>
     };
   }
 
-  // Prüfe ob Tavily verfügbar ist
+  // NORMAL-Routing: kostenlose DB-only-Suche (kein LLM, kein Tavily nötig)
+  if (ctx.routingStufe === "NORMAL") {
+    const rechtsgebiet = ctx.pipeline.triage?.rechtsgebiet;
+    if (rechtsgebiet && rechtsgebiet !== "Unbekannt") {
+      const dbResult = await executeDbRead("urteile", { rechtsgebiet }, 5);
+      const urteile: UrteilItem[] = dbResult.rows.map((u) => ({
+        gericht: String(u.gericht ?? ""),
+        aktenzeichen: String(u.aktenzeichen ?? ""),
+        datum: String(u.entscheidungsdatum ?? u.datum ?? ""),
+        leitsatz: String(u.leitsatz ?? ""),
+        relevanz: `Aus Wissensdatenbank — ${rechtsgebiet}`,
+        url: u.volltext_url ? String(u.volltext_url) : undefined,
+      }));
+      return {
+        agentId: "AG04",
+        success: true,
+        data: { urteile, quellen: [] },
+        tokens: emptyTokenUsage(),
+        durationMs: Date.now() - start,
+      };
+    }
+    return {
+      agentId: "AG04",
+      success: true,
+      data: fallback,
+      tokens: emptyTokenUsage(),
+      durationMs: Date.now() - start,
+      error: "NORMAL-Routing ohne Rechtsgebiet — DB-Suche übersprungen",
+    };
+  }
+
+  // HOCH/NOTFALL: Prüfe ob Tavily verfügbar ist
   if (!process.env.TAVILY_API_KEY) {
     return {
       agentId: "AG04",
@@ -50,7 +81,7 @@ async function execute(ctx: AgentContext): Promise<AgentResult<RechercheResult>>
       data: fallback,
       tokens: emptyTokenUsage(),
       durationMs: Date.now() - start,
-      error: "TAVILY_API_KEY fehlt — Recherche übersprungen",
+      error: "TAVILY_API_KEY fehlt — Web-Recherche übersprungen",
     };
   }
 
@@ -77,7 +108,7 @@ async function execute(ctx: AgentContext): Promise<AgentResult<RechercheResult>>
   for (let i = 0; i < 6; i++) {
     const response = await anthropic.messages.create({
       model: SONNET_MODEL,
-      max_tokens: 2048,
+      max_tokens: 3072,
       system: getSystemPrompt("AG04"),
       tools: TOOLS,
       messages,
@@ -92,22 +123,18 @@ async function execute(ctx: AgentContext): Promise<AgentResult<RechercheResult>>
       // Versuche Urteile aus letztem Text-Block zu extrahieren
       const textBlock = response.content.find((b) => b.type === "text");
       if (textBlock && textBlock.type === "text") {
-        try {
-          const parsed = JSON.parse(textBlock.text);
-          if (Array.isArray(parsed.urteile)) {
-            for (const u of parsed.urteile) {
-              urteile.push({
-                gericht: u.gericht ?? "",
-                aktenzeichen: u.aktenzeichen ?? "",
-                datum: u.datum ?? "",
-                leitsatz: u.leitsatz ?? "",
-                relevanz: u.relevanz ?? "",
-                url: u.url,
-              });
-            }
+        const parsed = extractJsonSafe<{ urteile?: UrteilItem[] }>(textBlock.text, {});
+        if (Array.isArray(parsed.urteile)) {
+          for (const u of parsed.urteile) {
+            urteile.push({
+              gericht: u.gericht ?? "",
+              aktenzeichen: u.aktenzeichen ?? "",
+              datum: u.datum ?? "",
+              leitsatz: u.leitsatz ?? "",
+              relevanz: u.relevanz ?? "",
+              url: u.url,
+            });
           }
-        } catch {
-          // Kein JSON — kein Problem
         }
       }
       break;

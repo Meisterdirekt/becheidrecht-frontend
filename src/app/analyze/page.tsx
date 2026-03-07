@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { createBrowserClient } from "@supabase/ssr";
 import {
   Upload,
@@ -236,19 +235,55 @@ function RefineSection({
 }
 
 // ---------------------------------------------------------------------------
+// Save-Prompt — erscheint nach anonymer Analyse
+// ---------------------------------------------------------------------------
+function SavePromptBanner() {
+  return (
+    <div className="rounded-2xl border border-[var(--accent)]/30 bg-[var(--accent)]/5 p-6 animate-slideUp opacity-0">
+      <div className="flex items-start gap-4">
+        <div className="w-10 h-10 bg-[var(--accent)]/15 rounded-xl flex items-center justify-center flex-shrink-0">
+          <Sparkles size={18} className="text-[var(--accent)]" />
+        </div>
+        <div className="flex-1">
+          <h3 className="font-bold text-white text-sm mb-1">
+            Ergebnis speichern & Frist verfolgen
+          </h3>
+          <p className="text-white/60 text-sm mb-4">
+            Kostenlos registrieren — Widerspruchsfrist automatisch speichern, Musterschreiben jederzeit abrufen, weitere Analysen durchführen.
+          </p>
+          <div className="flex items-center gap-3 flex-wrap">
+            <Link
+              href="/register?next=/analyze"
+              className="px-5 py-2 bg-[var(--accent)] hover:bg-[var(--accent-hover)] rounded-xl text-[11px] font-bold uppercase tracking-widest text-white transition-all"
+            >
+              Kostenlos registrieren
+            </Link>
+            <Link
+              href="/login?next=/analyze"
+              className="text-[11px] font-bold uppercase tracking-widest text-white/40 hover:text-white/70 transition-colors"
+            >
+              Bereits registriert? Anmelden →
+            </Link>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Main Page
 // ---------------------------------------------------------------------------
 export default function AnalyzePage() {
-  const router = useRouter();
   const [supabase, setSupabase] = useState<ReturnType<typeof createBrowserClient> | null>(null);
   const [configLoading, setConfigLoading] = useState(true);
-  const [authReady, setAuthReady] = useState(false);
   const [token, setToken] = useState<string | null>(null);
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [analysesRemaining, setAnalysesRemaining] = useState<number | null>(null);
+  const [showSavePrompt, setShowSavePrompt] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -282,50 +317,43 @@ export default function AnalyzePage() {
     async function checkAuth() {
       const { data: { session } } = await supabase!.auth.getSession();
       if (cancelled) return;
-      if (!session) {
-        router.replace("/login?next=/analyze");
-        return;
+      if (session) {
+        setToken(session.access_token);
+        const statusRes = await fetch("/api/subscription-status", {
+          headers: { Authorization: `Bearer ${session.access_token}` },
+        });
+        if (!cancelled && statusRes.ok) {
+          const data = await statusRes.json();
+          setAnalysesRemaining(data.analyses_remaining ?? 0);
+        }
       }
-      setToken(session.access_token);
-      setAuthReady(true);
-      const statusRes = await fetch("/api/subscription-status", {
-        headers: { Authorization: `Bearer ${session.access_token}` },
-      });
-      if (cancelled) return;
-      if (statusRes.ok) {
-        const data = await statusRes.json();
-        setAnalysesRemaining(data.analyses_remaining ?? 0);
-      } else {
-        setAnalysesRemaining(0);
-      }
+      // Kein Redirect — anonyme Nutzung erlaubt
     }
     checkAuth();
     return () => { cancelled = true; };
-  }, [configLoading, supabase, router]);
+  }, [configLoading, supabase]);
 
   const handleUpload = async () => {
-    if (!file || !supabase || !authReady) return;
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) {
-      router.replace("/login?next=/analyze");
-      return;
-    }
+    if (!file) return;
     setError(null);
     setResult(null);
+    setShowSavePrompt(false);
     setLoading(true);
     try {
       const formData = new FormData();
       formData.append("file", file);
+      const headers: Record<string, string> = {};
+      if (token) headers["Authorization"] = `Bearer ${token}`;
       const analyzeRes = await fetch("/api/analyze", {
         method: "POST",
-        headers: { Authorization: `Bearer ${session.access_token}` },
+        headers,
         body: formData,
       });
       const data = await analyzeRes.json();
       if (!analyzeRes.ok) {
-        if (analyzeRes.status === 401) {
-          router.replace("/login?next=/analyze");
-          return;
+        if (analyzeRes.status === 429 && !token) {
+          // Anonym + Limit erreicht → Registrierung anbieten
+          setShowSavePrompt(true);
         }
         setError(data.error || "Analyse fehlgeschlagen.");
         return;
@@ -354,18 +382,21 @@ export default function AnalyzePage() {
         recherche: data.recherche,
         agenten_details: data.agenten_details,
       });
-      const useRes = await fetch("/api/use-analysis", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${session.access_token}`,
-        },
-      });
-      if (useRes.ok) {
-        const useData = await useRes.json();
-        setAnalysesRemaining(useData.analyses_remaining ?? 0);
-      } else if (useRes.status === 403) {
-        setAnalysesRemaining(0);
+      if (token) {
+        // Eingeloggt: Credit verbrauchen
+        const useRes = await fetch("/api/use-analysis", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        });
+        if (useRes.ok) {
+          const useData = await useRes.json();
+          setAnalysesRemaining(useData.analyses_remaining ?? 0);
+        } else if (useRes.status === 403) {
+          setAnalysesRemaining(0);
+        }
+      } else {
+        // Anonym: Save-Prompt anzeigen
+        setShowSavePrompt(true);
       }
     } catch {
       setError("Ein Fehler ist aufgetreten. Bitte erneut versuchen.");
@@ -374,7 +405,7 @@ export default function AnalyzePage() {
     }
   };
 
-  if (configLoading || !authReady) {
+  if (configLoading) {
     return (
       <main className="min-h-screen bg-mesh text-white flex flex-col">
         <SiteNavSimple backHref="/" backLabel="Zurück zur Startseite" />
@@ -465,7 +496,7 @@ export default function AnalyzePage() {
                 <button
                   type="button"
                   onClick={handleUpload}
-                  disabled={loading || analysesRemaining === 0}
+                  disabled={loading || (token !== null && analysesRemaining === 0)}
                   className="text-[var(--accent)] font-bold text-[11px] uppercase tracking-widest hover:text-[var(--accent-hover)] disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                 >
                   {loading ? (
@@ -499,9 +530,15 @@ export default function AnalyzePage() {
           </div>
         )}
 
+        {/* Save-Prompt (anonym, kein Ergebnis) */}
+        {showSavePrompt && !result && <SavePromptBanner />}
+
         {/* Ergebnis */}
         {result && (
           <div className="space-y-6 stagger-group">
+
+            {/* Save-Prompt (nach anonymer Analyse, direkt oben) */}
+            {showSavePrompt && <SavePromptBanner />}
 
             {/* Frist-Banner */}
             {result.frist_datum && (
@@ -655,9 +692,13 @@ export default function AnalyzePage() {
             {result.musterschreiben && (
               <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
                 <h2 className="text-[10px] font-bold uppercase tracking-widest text-white/50 mb-3">Musterschreiben</h2>
-                <pre className="text-sm text-white/80 whitespace-pre-wrap font-sans leading-relaxed mb-6">
+                <pre className="text-sm text-white/80 whitespace-pre-wrap font-sans leading-relaxed mb-4">
                   {result.musterschreiben}
                 </pre>
+                {/* RDG-Disclaimer — nur sichtbar, NICHT im PDF */}
+                <p className="text-[11px] text-amber-400/70 border border-amber-400/20 rounded-xl px-4 py-2.5 mb-5 leading-relaxed">
+                  ⚠ Dieser Entwurf wurde von einer KI erstellt und stellt keine Rechtsberatung im Sinne des § 2 RDG dar. Er ersetzt nicht die Beratung durch einen Rechtsanwalt oder eine Beratungsstelle (z. B. VdK, Sozialverband). Vor dem Absenden alle Platzhalter in [eckigen Klammern] ersetzen.
+                </p>
                 <DownloadButton content={result.musterschreiben} />
 
                 {/* Inline Verfeinern */}

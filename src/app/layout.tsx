@@ -25,7 +25,7 @@ export const viewport: Viewport = {
 const themeScript = `
 (function(){
   var t = localStorage.getItem('theme');
-  if (t !== 'light' && t !== 'dark') t = 'dark';
+  if (t !== 'light' && t !== 'dark') t = 'light';
   document.documentElement.setAttribute('data-theme', t);
 })();
 `;
@@ -40,7 +40,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <RecoveryRedirect />
         <CommandPalette />
         <Toaster
-          theme="dark"
+          theme="system"
           position="top-right"
           toastOptions={{
             style: {

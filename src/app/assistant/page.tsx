@@ -271,6 +271,11 @@ function Schritt4({
             {musterschreiben}
           </div>
 
+          {/* RDG-Disclaimer — nur sichtbar, NICHT im Download */}
+          <p className="text-[11px] text-amber-400/70 border border-amber-400/20 rounded-xl px-4 py-2.5 mt-4 leading-relaxed">
+            ⚠ Dieser Entwurf wurde von einer KI erstellt und stellt keine Rechtsberatung im Sinne des § 2 RDG dar. Er ersetzt nicht die Beratung durch einen Rechtsanwalt oder eine Beratungsstelle (z. B. VdK, Sozialverband). Vor dem Absenden alle Platzhalter in [eckigen Klammern] ersetzen.
+          </p>
+
           {loading && (
             <div className="flex items-center gap-2 mt-3 text-white/30 text-[11px]">
               <Loader2 className="animate-spin h-3 w-3" />

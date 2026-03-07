@@ -126,7 +126,7 @@ export default function ResetPasswordPage() {
                 <label className="label-upper">Neues Passwort</label>
                 <input
                   type="password"
-                  minLength={6}
+                  minLength={8}
                   className="input-field"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -137,7 +137,7 @@ export default function ResetPasswordPage() {
                 <label className="label-upper">Passwort bestätigen</label>
                 <input
                   type="password"
-                  minLength={6}
+                  minLength={8}
                   className="input-field"
                   value={confirm}
                   onChange={(e) => setConfirm(e.target.value)}

@@ -62,6 +62,13 @@ async function execute(ctx: AgentContext): Promise<AgentResult<ErklaerungResult>
     kontext += `\nKernforderung: ${ctx.pipeline.musterschreiben.forderung}`;
   }
 
+  if (ctx.pipeline.praezedenz) {
+    const p = ctx.pipeline.praezedenz;
+    if (p.aehnliche_faelle > 0 && p.erfolgsquote_prozent !== null) {
+      kontext += `\nPräzedenzfälle: ${p.aehnliche_faelle} ähnliche Fälle, historische Erfolgsquote ${p.erfolgsquote_prozent}%`;
+    }
+  }
+
   const response = await anthropic.messages.create({
     model: HAIKU_MODEL,
     max_tokens: 256,

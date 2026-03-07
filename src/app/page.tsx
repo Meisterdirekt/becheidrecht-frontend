@@ -777,7 +777,7 @@ export default function Page() {
       {/* Demo CTA */}
       <ScrollReveal>
         <section className="max-w-4xl mx-auto px-6 mb-32">
-          <div className="relative rounded-3xl border border-[var(--accent)]/40 bg-[var(--accent)]/8 p-10 md:p-16 text-center overflow-hidden">
+          <div className="relative rounded-3xl border border-[var(--accent)]/40 bg-[var(--accent)]/[0.08] p-10 md:p-16 text-center overflow-hidden">
             <div className="absolute inset-0 pointer-events-none">
               <div
                 className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] rounded-full blur-[80px]"

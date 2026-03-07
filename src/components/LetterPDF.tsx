@@ -118,7 +118,7 @@ export default function LetterPDF({ data }: { data: LetterPDFData }) {
         {/* Datum + Unser Zeichen */}
         <View style={styles.datumZeichen}>
           <Text>Datum: {data.datum}</Text>
-          <Text>Unser Zeichen: {data.aktenzeichen}</Text>
+          <Text>Aktenzeichen: {data.aktenzeichen}</Text>
         </View>
 
         {/* Betreff */}

@@ -100,22 +100,23 @@ describe('Auth-Guard: API-Routen', () => {
   });
 
   // Test 1
-  it('/api/analyze POST ohne Auth-Header → 401', async () => {
+  // /api/analyze ist bewusst öffentlich (anonyme Demo-Analysen erlaubt).
+  // Ohne Auth und ohne gültiges formData wird 400 oder 422 zurückgegeben (kein 401).
+  it('/api/analyze POST ohne Auth-Header → kein 401 (öffentliche Route)', async () => {
     const req = makeRequest('http://localhost/api/analyze', { method: 'POST' });
     const res = await analyzePost(req);
-    expect(res.status).toBe(401);
-    const body = await res.json();
-    expect(body.error).toBeTruthy();
+    expect(res.status).not.toBe(401);
   });
 
   // Test 2
-  it('/api/analyze POST mit leerem Bearer → 401', async () => {
+  // Leerer Bearer → anonymer Pfad → Rate-Limit oder Bad Request, aber kein 401.
+  it('/api/analyze POST mit leerem Bearer → kein 401 (öffentliche Route)', async () => {
     const req = makeRequest('http://localhost/api/analyze', {
       method: 'POST',
       headers: { Authorization: 'Bearer ' },
     });
     const res = await analyzePost(req);
-    expect(res.status).toBe(401);
+    expect(res.status).not.toBe(401);
   });
 
   // Test 3

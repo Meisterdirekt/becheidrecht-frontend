@@ -51,6 +51,45 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    // ── Org-Pool prüfen (B2B) ──────────────────────────────────────────────
+    const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY ?? '';
+    if (serviceRoleKey) {
+      const supabaseAdmin = createClient(supabaseUrl, serviceRoleKey, { auth: { persistSession: false } });
+      const { data: rawMembership } = await supabaseAdmin
+        .from('organization_members')
+        .select('org_id, role, analyses_used, organizations(id, name, org_type, subscription_type, analyses_total, analyses_used, expires_at)')
+        .eq('user_id', user.id)
+        .maybeSingle();
+      const membership = rawMembership as {
+        org_id: string; role: string; analyses_used: number;
+        organizations: { id: string; name: string; org_type: string; subscription_type: string; analyses_total: number; analyses_used: number; expires_at: string | null; } | null;
+      } | null;
+
+      if (membership?.org_id) {
+        const org = membership.organizations as {
+          id: string; name: string; org_type: string; subscription_type: string;
+          analyses_total: number; analyses_used: number; expires_at: string | null;
+        } | null;
+        if (org) {
+          return NextResponse.json({
+            user_id: user.id,
+            email: user.email ?? '',
+            subscription_type: org.subscription_type,
+            status: 'active',
+            analyses_total: org.analyses_total,
+            analyses_used: org.analyses_used,
+            analyses_remaining: Math.max(0, org.analyses_total - org.analyses_used),
+            expires_at: org.expires_at,
+            org_id: membership.org_id,
+            org_name: org.name,
+            org_role: membership.role,
+            member_analyses_used: (membership as { analyses_used?: number }).analyses_used ?? 0,
+          });
+        }
+      }
+    }
+    // ── Ende Org-Pool ──────────────────────────────────────────────────────
+
     // Subscription Status aus Datenbank holen
     const { data: subscription, error: subError } = await supabase
       .from('user_subscriptions')

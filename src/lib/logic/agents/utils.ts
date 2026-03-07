@@ -7,6 +7,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import fs from "fs";
 import path from "path";
 import { type RoutingStufe, type TokenUsage, type AgentResult, type AgentId, emptyTokenUsage, mergeTokenUsage } from "./types";
+import { BUDGET_LIMIT_EUR } from "./tools/constants";
 
 // Re-export für bequemen Import aus ./utils
 export { emptyTokenUsage, mergeTokenUsage };
@@ -72,7 +73,7 @@ export function detectUrgency(text: string): { stufe: RoutingStufe; tage: number
     const month = parseInt(match[2]) - 1;
     const year = parseInt(match[3]);
 
-    if (year < 2025 || year > 2030) continue;
+    if (year < 2024 || year > 2035) continue;
 
     const date = new Date(year, month, day);
     const daysLeft = Math.floor(
@@ -109,6 +110,7 @@ export function detectTraegerKey(behoerde: string): string {
 
   if (
     lower.includes("arbeitsagentur") || lower.includes("agentur für arbeit") ||
+    lower.includes("bundesagentur für arbeit") ||
     lower.includes("alg i") || lower.includes("arbeitslosengeld i") ||
     lower.includes("sgb iii")
   ) return "jobcenter";
@@ -213,7 +215,8 @@ export function estimateCost(tokens: TokenUsage, model: string): number {
   const usd =
     (tokens.input_tokens / 1_000_000) * p.input +
     (tokens.output_tokens / 1_000_000) * p.output +
-    (tokens.cache_read_tokens / 1_000_000) * p.cacheRead;
+    (tokens.cache_read_tokens / 1_000_000) * p.cacheRead +
+    (tokens.cache_creation_tokens / 1_000_000) * p.input * 1.25; // Cache-Write: 1.25× Input-Preis
   return Math.round(usd * 0.92 * 10000) / 10000;
 }
 
@@ -266,7 +269,38 @@ export function extractTokenUsage(response: Anthropic.Message): TokenUsage {
 }
 
 /** Kosten-Budget-Check: Gibt true zurück wenn Budget überschritten */
-export function isBudgetExceeded(totalTokens: TokenUsage, maxEur: number = 0.80): boolean {
+export function isBudgetExceeded(totalTokens: TokenUsage, maxEur: number = BUDGET_LIMIT_EUR): boolean {
   // Konservative Schätzung mit Sonnet-Preisen
   return estimateCost(totalTokens, SONNET_MODEL) > maxEur;
+}
+
+// ---------------------------------------------------------------------------
+// Robuste JSON-Extraktion (kein stiller Datenverlust bei Parse-Fehler)
+// ---------------------------------------------------------------------------
+
+/**
+ * Versucht JSON aus einem Text zu extrahieren.
+ * Strategie 1: Direktes JSON.parse(text)
+ * Strategie 2: Regex-Extraktion des ersten {...} Blocks
+ * Fallback: gibt fallback zurück — nie Exception
+ */
+export function extractJsonSafe<T>(text: string, fallback: T): T {
+  // Strategie 1: Direktes Parse
+  try {
+    return JSON.parse(text) as T;
+  } catch {
+    // weiter
+  }
+
+  // Strategie 2: Ersten JSON-Block per Regex extrahieren
+  const match = text.match(/\{[\s\S]*\}/);
+  if (match) {
+    try {
+      return JSON.parse(match[0]) as T;
+    } catch {
+      // weiter
+    }
+  }
+
+  return fallback;
 }

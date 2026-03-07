@@ -153,6 +153,19 @@ export async function POST(req: NextRequest) {
 
   const userId = (rows[0] as { user_id: string }).user_id;
 
+  // Idempotenz: Prüfen ob diese paymentId bereits verarbeitet wurde
+  const { data: existing } = await supabase
+    .from('user_subscriptions')
+    .select('order_id')
+    .eq('user_id', userId)
+    .eq('order_id', paymentId)
+    .limit(1);
+
+  if (existing && existing.length > 0) {
+    console.log(`[Mollie] ℹ️ Bereits verarbeitet: ${paymentId} — übersprungen.`);
+    return NextResponse.json({ received: true, status: 'already_processed' });
+  }
+
   const expiresAt = product.months > 0
     ? new Date(Date.now() + product.months * 30 * 24 * 60 * 60 * 1000).toISOString()
     : null;

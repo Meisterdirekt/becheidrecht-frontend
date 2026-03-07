@@ -21,8 +21,9 @@ import {
   createAnthropicClient,
   detectTraegerKey,
   mergeTokenUsage,
+  extractJsonSafe,
 } from "./utils";
-import { TOOL_SUCHE_FEHLERKATALOG, executeSucheFehlerkatalog } from "./tools/fehlerkatalog";
+import { TOOL_SUCHE_FEHLERKATALOG, executeSucheFehlerkatalogMitDb } from "./tools/fehlerkatalog";
 import { TOOL_GET_WEISUNGEN, executeGetWeisungen } from "./tools/weisungen";
 import { TOOL_DB_READ, executeDbRead } from "./tools/db-read";
 
@@ -68,18 +69,33 @@ async function execute(ctx: AgentContext): Promise<AgentResult<AnalyseResult>> {
     ? detectTraegerKey(ctx.pipeline.triage.behoerde)
     : "jobcenter";
 
-  let gefundeneFehler: AnalyseResult["fehler"] = [];
+  const gefundeneIds = new Set<string>();
+  const gefundeneFehler: AnalyseResult["fehler"] = [];
   let auffaelligkeiten: string[] = [];
+
+  // Extended Thinking für NOTFALL — maximale Analysetiefe bei life-critical Fällen
+  const useExtendedThinking = ctx.routingStufe === "NOTFALL";
 
   // Tool-Use Loop
   for (let i = 0; i < 6; i++) {
-    const response = await anthropic.messages.create({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const createParams: any = {
       model,
-      max_tokens: 2048,
+      max_tokens: useExtendedThinking ? 16000 : 4096,
       system: getSystemPrompt("AG02"),
       tools: TOOLS,
       messages,
-    });
+    };
+    if (useExtendedThinking) {
+      createParams.thinking = { type: "enabled", budget_tokens: 8000 };
+      // interleaved-thinking-2025-05-14 gilt nur für Claude 3.7 Sonnet.
+      // Claude 4 Modelle (opus-4-x, sonnet-4-x) unterstützen thinking nativ ohne Beta-Header.
+      if (model.includes("3-7") || model.includes("3-5")) {
+        createParams.betas = ["interleaved-thinking-2025-05-14"];
+      }
+    }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const response: Anthropic.Message = await anthropic.messages.create(createParams as any);
 
     const tokens = extractTokenUsage(response);
     totalTokens = mergeTokenUsage(totalTokens, tokens);
@@ -87,16 +103,15 @@ async function execute(ctx: AgentContext): Promise<AgentResult<AnalyseResult>> {
     messages.push({ role: "assistant", content: response.content });
 
     if (response.stop_reason === "end_turn") {
-      // Versuche Auffälligkeiten aus dem letzten Text-Block zu extrahieren
+      // Auffälligkeiten aus dem letzten Text-Block extrahieren (mit Fallback)
       const textBlock = response.content.find((b) => b.type === "text");
       if (textBlock && textBlock.type === "text") {
-        try {
-          const parsed = JSON.parse(textBlock.text);
-          if (Array.isArray(parsed.auffaelligkeiten)) {
-            auffaelligkeiten = parsed.auffaelligkeiten;
-          }
-        } catch {
-          // Text ist kein JSON — kein Problem
+        const parsed = extractJsonSafe<{ auffaelligkeiten?: string[] }>(
+          textBlock.text,
+          {}
+        );
+        if (Array.isArray(parsed.auffaelligkeiten)) {
+          auffaelligkeiten = parsed.auffaelligkeiten;
         }
       }
       break;
@@ -114,8 +129,15 @@ async function execute(ctx: AgentContext): Promise<AgentResult<AnalyseResult>> {
         case "suche_fehlerkatalog": {
           const input = block.input as { stichworten: string[] };
           const prefixes = TRAEGER_TO_PREFIX[traegerKey] ?? [];
-          const fehler = executeSucheFehlerkatalog(prefixes, input.stichworten);
-          gefundeneFehler = fehler;
+          // Statische JSON + dynamische DB-Einträge von AG15
+          const fehler = await executeSucheFehlerkatalogMitDb(prefixes, input.stichworten);
+          // Bug-Fix: Akkumulieren statt überschreiben — Dedup via id
+          for (const f of fehler) {
+            if (!gefundeneIds.has(f.id)) {
+              gefundeneIds.add(f.id);
+              gefundeneFehler.push(f);
+            }
+          }
           resultContent = JSON.stringify(
             fehler.map((f) => ({
               id: f.id,
@@ -159,6 +181,8 @@ async function execute(ctx: AgentContext): Promise<AgentResult<AnalyseResult>> {
     messages.push({ role: "user", content: toolResults });
   }
 
+  const confidence = gefundeneFehler.length > 0 ? 0.9 : auffaelligkeiten.length > 0 ? 0.7 : 0.5;
+
   return {
     agentId: "AG02",
     success: true,
@@ -168,6 +192,7 @@ async function execute(ctx: AgentContext): Promise<AgentResult<AnalyseResult>> {
     },
     tokens: totalTokens,
     durationMs: Date.now() - start,
+    confidence,
   };
 }
 

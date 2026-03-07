@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { createClient } from "@supabase/supabase-js";
+import { supabase } from "@/lib/supabase/client";
 import type { RealtimeChannel } from "@supabase/supabase-js";
 
 const CHANNEL_NAME = "site:visitors";
@@ -16,11 +16,10 @@ export function VisitorCount() {
 
     async function run() {
       try {
-        const res = await fetch("/api/auth-config", { cache: "no-store" });
-        const data = await res.json();
-        if (cancelled || !data?.configured || !data?.url || !data?.anonKey) return;
+        const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+        const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+        if (!url || !key) return;
 
-        const supabase = createClient(data.url, data.anonKey);
         const channel = supabase.channel(CHANNEL_NAME);
 
         channel.on("presence", { event: "sync" }, () => {

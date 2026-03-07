@@ -19,7 +19,9 @@ export type AgentId =
   | "AG10" // Backend-Agent
   | "AG11" // DevOps-Agent
   | "AG12" // Dokumenten-Prozessor
-  | "AG13"; // Nutzer-Erklärer
+  | "AG13" // Nutzer-Erklärer
+  | "AG14" // Präzedenzfall-Analyzer
+  | "AG15"; // Rechts-Monitor (wöchentlicher Cron)
 
 export type RoutingStufe = "NORMAL" | "HOCH" | "NOTFALL";
 
@@ -79,6 +81,8 @@ export interface PipelineState {
   musterschreiben?: MusterschreibenResult;
   /** AG13 Erklärung */
   erklaerung?: ErklaerungResult;
+  /** AG14 Präzedenzfall-Analyse */
+  praezedenz?: PraezedenzResult;
 }
 
 // ---------------------------------------------------------------------------
@@ -92,6 +96,8 @@ export interface AgentResult<T = unknown> {
   tokens: TokenUsage;
   durationMs: number;
   error?: string;
+  /** Konfidenzwert 0–1: Wie sicher ist der Agent in seinem Ergebnis */
+  confidence?: number;
 }
 
 // ---------------------------------------------------------------------------
@@ -176,6 +182,34 @@ export interface ErklaerungResult {
   klartext: string;
 }
 
+export interface MonitorResult {
+  /** Neue Urteile in die DB eingefügt */
+  urteile_neu: number;
+  /** Kennzahlen die aktualisiert wurden (Regelbedarfe, Freibeträge etc.) */
+  kennzahlen_geaendert: number;
+  /** Neue Fehlertypen in behoerdenfehler-Tabelle eingefügt */
+  fehler_hinzugefuegt: number;
+  /** Neue Weisungen erkannt */
+  weisungen_neu: number;
+  /** Anzahl geprüfter Quellen */
+  quellen_gecheckt: number;
+  /** Quellen die nicht erreichbar waren */
+  fehler_quellen: string[];
+  /** Zusammenfassung des Laufs für Audit */
+  zusammenfassung: string;
+}
+
+export interface PraezedenzResult {
+  /** Anzahl ähnlicher Fälle in der Datenbank (gleiche Behörde + Rechtsgebiet) */
+  aehnliche_faelle: number;
+  /** Durchschnittliche Erfolgsquote ähnlicher Fälle (null wenn keine Daten) */
+  erfolgsquote_prozent: number | null;
+  /** Häufigste Fehler in ähnlichen Fällen */
+  haeufigste_fehler: string[];
+  /** Kontextueller Hinweis für AG07 + AG13 */
+  hinweis: string;
+}
+
 // ---------------------------------------------------------------------------
 // Erweitertes AgentAnalysisResult (rückwärtskompatibel)
 // ---------------------------------------------------------------------------
@@ -197,4 +231,5 @@ export interface AgentAnalysisResult {
   dokumentstruktur?: DokumentstrukturResult;
   agenten_details?: Record<string, { success: boolean; durationMs: number; error?: string }>;
   model_used?: string;
+  praezedenz?: PraezedenzResult;
 }

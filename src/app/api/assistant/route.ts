@@ -16,35 +16,10 @@ import fs from "fs";
 import path from "path";
 import { getTraegerLabel } from "@/lib/letter-generator";
 import { getAuthenticatedUser } from "@/lib/supabase/auth";
+import { assistantLimiter } from "@/lib/rate-limit";
 
 export const runtime = "nodejs";
 export const maxDuration = 90;
-
-// ---------------------------------------------------------------------------
-// Rate-Limiter — 20 Anfragen pro Stunde pro User
-// ---------------------------------------------------------------------------
-const _rateMap = new Map<string, { count: number; resetAt: number }>();
-const RATE_WINDOW_MS = 60 * 60 * 1000; // 1 Stunde
-const RATE_MAX = 20;
-
-function checkRateLimit(userId: string): boolean {
-  const now = Date.now();
-  const entry = _rateMap.get(userId);
-  if (!entry || entry.resetAt < now) {
-    _rateMap.set(userId, { count: 1, resetAt: now + RATE_WINDOW_MS });
-    return true;
-  }
-  if (entry.count >= RATE_MAX) return false;
-  entry.count++;
-  return true;
-}
-
-setInterval(() => {
-  const now = Date.now();
-  for (const [id, e] of _rateMap.entries()) {
-    if (e.resetAt < now) _rateMap.delete(id);
-  }
-}, 60 * 60 * 1000).unref();
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -251,7 +226,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Nicht angemeldet." }, { status: 401 });
   }
 
-  if (!checkRateLimit(user.id)) {
+  const { success } = await assistantLimiter.limit(user.id);
+  if (!success) {
     return NextResponse.json(
       { error: "Zu viele Anfragen. Bitte warte kurz und versuche es erneut." },
       { status: 429 }

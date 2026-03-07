@@ -7,10 +7,10 @@ const THEME_KEY = "theme";
 export type Theme = "dark" | "light";
 
 function getStoredTheme(): Theme {
-  if (typeof window === "undefined") return "dark";
+  if (typeof window === "undefined") return "light";
   const t = window.localStorage.getItem(THEME_KEY);
   if (t === "light" || t === "dark") return t;
-  return "dark";
+  return "light";
 }
 
 function applyTheme(theme: Theme) {
@@ -19,7 +19,7 @@ function applyTheme(theme: Theme) {
 }
 
 export function ThemeToggle() {
-  const [theme, setTheme] = useState<Theme>("dark");
+  const [theme, setTheme] = useState<Theme>("light");
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {

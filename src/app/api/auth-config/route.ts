@@ -32,8 +32,6 @@ export async function GET() {
   const urlPrefix = url.replace(/^https?:\/\//, '').slice(0, 40);
   return NextResponse.json({
     configured: true,
-    url,
-    anonKey,
-    debug: { urlPrefix, hint: 'Vergleichen Sie urlPrefix mit Supabase Dashboard → Project Settings → API → Project URL' },
+    debug: { urlPrefix },
   });
 }

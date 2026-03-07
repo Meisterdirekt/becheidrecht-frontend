@@ -51,6 +51,12 @@ export function SiteFooter({
           <Link href="/agb" className="text-[12px] font-bold tracking-[0.2em] text-white/40 uppercase hover:text-white transition-colors">
             {agb}
           </Link>
+          <Link href="/avv" className="text-[12px] font-bold tracking-[0.2em] text-white/40 uppercase hover:text-white transition-colors">
+            AVV
+          </Link>
+          <Link href="/b2b" className="text-[12px] font-bold tracking-[0.2em] text-white/40 uppercase hover:text-white transition-colors">
+            Für Einrichtungen
+          </Link>
         </div>
         <p className="text-[10px] text-center text-white/25 leading-relaxed">
           {disclaimer}

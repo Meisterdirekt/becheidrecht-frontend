@@ -347,23 +347,23 @@ export default function PitchDeckPage() {
             {[
               {
                 name: "Starter",
-                price: "89 €",
-                users: "Bis 3 Fachkräfte",
-                features: ["Unbegrenzte Analysen", "Schreiben-Generator", "DSGVO-Dokumentation"],
+                price: "199 €",
+                users: "1 Nutzer-Zugang",
+                features: ["50 Analysen / Monat", "Schreiben-Generator", "Automatische Pseudonymisierung"],
                 highlight: false,
               },
               {
                 name: "Team",
-                price: "199 €",
-                users: "Bis 10 Fachkräfte",
+                price: "399 €",
+                users: "Bis 3 Nutzer-Zugänge",
                 features: ["Alles aus Starter", "Fristen-Dashboard", "Prioritäts-Support & Onboarding"],
                 highlight: true,
               },
               {
                 name: "Einrichtung",
-                price: "399 €",
-                users: "Unbegrenzte Nutzer",
-                features: ["Alles aus Team", "Mandantenverwaltung & API", "Eigene Vorlagen & Branding"],
+                price: "699 €",
+                users: "Bis 10 Nutzer-Zugänge",
+                features: ["Unbegrenzte Analysen", "Prioritäts-Support & Onboarding", "Persönlicher Ansprechpartner"],
                 highlight: false,
               },
               {
@@ -512,7 +512,7 @@ export default function PitchDeckPage() {
           <div className="grid grid-cols-3 gap-6 border-t border-slate-200 pt-10 mb-16">
             {[
               { val: "< 1 Woche", lbl: "Onboarding" },
-              { val: "30 Tage", lbl: "Pilotphase kostenlos" },
+              { val: "Pilot", lbl: "Auf Anfrage" },
               { val: "Monatlich", lbl: "Kündbar" },
             ].map(({ val, lbl }) => (
               <div key={lbl}>

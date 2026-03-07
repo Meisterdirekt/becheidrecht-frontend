@@ -8,7 +8,7 @@ import type { Agent, AgentId } from "./types";
 const agents = new Map<AgentId, Agent>();
 let initialized = false;
 
-/** Registriert alle 13 Agenten (lazy, einmalig). */
+/** Registriert alle 15 Agenten (lazy, einmalig). */
 function ensureInitialized(): void {
   if (initialized) return;
   initialized = true;
@@ -47,12 +47,22 @@ function ensureInitialized(): void {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   const { ag11DevopsAgent } = require("./ag11-devops-agent");
 
+  // Präzedenzfall-Analyzer (DB-only, kein LLM)
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { ag14PraezedenzAnalyzer } = require("./ag14-praezedenz-analyzer");
+
+  // Rechts-Monitor (wöchentlicher Cron, AG15)
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { ag15RechtsMonitor } = require("./ag15-rechts-monitor");
+
   const allAgents: Agent[] = [
     ag08SecurityGate, ag12DocumentProcessor, ag01Orchestrator,
     ag02Analyst, ag07LetterGenerator, ag13UserExplainer,
     ag03Critic, ag04Researcher,
     ag05KnowledgeManager, ag06PromptOptimizer,
     ag09FrontendAgent, ag10BackendAgent, ag11DevopsAgent,
+    ag14PraezedenzAnalyzer,
+    ag15RechtsMonitor,
   ];
 
   for (const agent of allAgents) {

@@ -65,6 +65,7 @@ export function SiteNavFull({ lang, onLangChange, dir: _dir, navBlog, navLogin, 
           className="md:hidden p-2 text-white/50 hover:text-white transition-colors"
           onClick={() => setMobileOpen(true)}
           aria-label="Menü öffnen"
+          aria-expanded={mobileOpen}
         >
           <Menu className="w-5 h-5" />
         </button>

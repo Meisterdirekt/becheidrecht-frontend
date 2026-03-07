@@ -7,6 +7,7 @@ import fs from "fs";
 import path from "path";
 import type { FehlerItem } from "../types";
 import type Anthropic from "@anthropic-ai/sdk";
+import { executeDbRead } from "./db-read";
 
 export const TOOL_SUCHE_FEHLERKATALOG: Anthropic.Tool = {
   name: "suche_fehlerkatalog",
@@ -26,6 +27,51 @@ export const TOOL_SUCHE_FEHLERKATALOG: Anthropic.Tool = {
     required: ["stichworten"],
   },
 };
+
+/**
+ * Erweiterte Version: Statische JSON + dynamische DB-Einträge (von AG15 hinzugefügt).
+ * Statische Einträge haben Vorrang bei id-Kollisionen.
+ */
+export async function executeSucheFehlerkatalogMitDb(
+  prefixes: string[],
+  stichworten: string[]
+): Promise<FehlerItem[]> {
+  // Statische Einträge (core, immer verfügbar)
+  const staticFehler = executeSucheFehlerkatalog(prefixes, stichworten);
+  const staticIds = new Set(staticFehler.map(f => f.id));
+
+  try {
+    // Dynamische Einträge aus DB (von AG15 hinzugefügt)
+    const dbResult = await executeDbRead("behoerdenfehler", {}, 30);
+    if (!dbResult.available || dbResult.rows.length === 0) return staticFehler;
+
+    const dbFehler: FehlerItem[] = dbResult.rows
+      .filter(r => !staticIds.has(String(r.fehler_id ?? "")))
+      .map(r => ({
+        id: String(r.fehler_id ?? ""),
+        titel: String(r.titel ?? ""),
+        beschreibung: String(r.beschreibung ?? ""),
+        rechtsbasis: Array.isArray(r.rechtsbasis) ? r.rechtsbasis.map(String) : [],
+        severity: (r.severity as FehlerItem["severity"]) ?? "hinweis",
+        musterschreiben_hinweis: r.musterschreiben_hinweis ? String(r.musterschreiben_hinweis) : undefined,
+      }))
+      .filter(f => f.id && f.titel);
+
+    // Stichwort-Filter auf DB-Einträge anwenden
+    const lowerStichworte = stichworten.map(s => s.toLowerCase());
+    const filteredDbFehler = stichworten.length > 0
+      ? dbFehler.filter(f => {
+          const haystack = [f.titel, f.beschreibung, ...(f.rechtsbasis ?? [])].join(" ").toLowerCase();
+          return lowerStichworte.some(s => haystack.includes(s));
+        })
+      : dbFehler.slice(0, 5);
+
+    // Merge: statische zuerst, dann dynamische — max 10 gesamt
+    return [...staticFehler, ...filteredDbFehler].slice(0, 10);
+  } catch {
+    return staticFehler;
+  }
+}
 
 export function executeSucheFehlerkatalog(
   prefixes: string[],

@@ -10,14 +10,14 @@ import type Anthropic from "@anthropic-ai/sdk";
 export const TOOL_DB_READ: Anthropic.Tool = {
   name: "db_read",
   description:
-    "Liest Daten aus der Wissensdatenbank (urteile, kennzahlen, behoerdenfehler). " +
+    "Liest Daten aus der Wissensdatenbank (urteile, kennzahlen, behoerdenfehler, analysis_results). " +
     "Max 100 Zeilen pro Query. Gibt { available: false } zurück wenn Tabelle nicht existiert.",
   input_schema: {
     type: "object" as const,
     properties: {
       tabelle: {
         type: "string",
-        enum: ["urteile", "kennzahlen", "behoerdenfehler"],
+        enum: ["urteile", "kennzahlen", "behoerdenfehler", "analysis_results"],
         description: "Name der Tabelle",
       },
       filter: {
@@ -45,7 +45,7 @@ export async function executeDbRead(
   filter?: Record<string, string>,
   limit?: number,
 ): Promise<{ available: boolean; rows: Record<string, unknown>[] }> {
-  const allowed = ["urteile", "kennzahlen", "behoerdenfehler"];
+  const allowed = ["urteile", "kennzahlen", "behoerdenfehler", "analysis_results"];
   if (!allowed.includes(tabelle)) {
     return { available: false, rows: [] };
   }
