@@ -1,0 +1,208 @@
+import { NextRequest, NextResponse } from "next/server";
+import { createClient } from "@supabase/supabase-js";
+
+/**
+ * POST /api/admin/create-customer
+ *
+ * Erstellt einen neuen Kunden komplett vom Admin aus:
+ * 1. Auth-User anlegen (Supabase Admin API)
+ * 2. Trigger erstellt automatisch user_subscriptions (free)
+ * 3. Abo auf gewählten Typ upgraden
+ * 4. Einladungs-E-Mail wird automatisch gesendet (Passwort setzen)
+ *
+ * Body: { first_name, last_name, email, subscription_type }
+ */
+
+const ADMIN_EMAILS = (process.env.ADMIN_EMAILS ?? "")
+  .split(",")
+  .map((e) => e.trim().toLowerCase())
+  .filter(Boolean);
+
+async function verifyAdmin(request: NextRequest): Promise<boolean> {
+  const adminSecret = process.env.ADMIN_SECRET;
+  if (adminSecret && request.headers.get("x-admin-token") === adminSecret)
+    return true;
+
+  const authHeader = request.headers.get("authorization");
+  if (!authHeader?.startsWith("Bearer ")) return false;
+
+  const token = authHeader.replace("Bearer ", "").trim();
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
+  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "";
+  if (!url || !anonKey) return false;
+
+  const supabase = createClient(url, anonKey, {
+    global: { headers: { Authorization: `Bearer ${token}` } },
+  });
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user?.email) return false;
+  return ADMIN_EMAILS.includes(user.email.toLowerCase());
+}
+
+const ANALYSES_MAP: Record<string, number> = {
+  single: 1,
+  basic: 5,
+  standard: 15,
+  pro: 50,
+  business: 120,
+  b2b_starter: 300,
+  b2b_professional: 1000,
+  b2b_enterprise: 2500,
+  b2b_corporate: 6000,
+};
+
+export async function POST(request: NextRequest) {
+  const authorized = await verifyAdmin(request);
+  if (!authorized) {
+    return NextResponse.json({ error: "Kein Admin-Zugang" }, { status: 403 });
+  }
+
+  const body = await request.json();
+  const { first_name, last_name, email, subscription_type } = body as {
+    first_name?: string;
+    last_name?: string;
+    email?: string;
+    subscription_type?: string;
+  };
+
+  if (!email?.trim() || !subscription_type) {
+    return NextResponse.json(
+      { error: "E-Mail und Abo-Typ sind Pflichtfelder." },
+      { status: 400 },
+    );
+  }
+
+  const analyses = ANALYSES_MAP[subscription_type];
+  if (!analyses) {
+    return NextResponse.json(
+      {
+        error: `Ungültiger Abo-Typ. Erlaubt: ${Object.keys(ANALYSES_MAP).join(", ")}`,
+      },
+      { status: 400 },
+    );
+  }
+
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY ?? "";
+  if (!url || !serviceKey) {
+    return NextResponse.json(
+      { error: "Supabase nicht konfiguriert" },
+      { status: 500 },
+    );
+  }
+
+  const admin = createClient(url, serviceKey, {
+    auth: { persistSession: false },
+  });
+
+  const cleanEmail = email.toLowerCase().trim();
+
+  // Prüfen ob User bereits existiert
+  const { data: existing } = await admin
+    .from("user_subscriptions")
+    .select("user_id")
+    .eq("email", cleanEmail)
+    .maybeSingle();
+
+  if (existing) {
+    return NextResponse.json(
+      {
+        error: `Ein Account mit "${cleanEmail}" existiert bereits. Nutze stattdessen "User freischalten".`,
+      },
+      { status: 409 },
+    );
+  }
+
+  // 1. Auth-User erstellen + Einladungs-E-Mail senden
+  const { data: inviteData, error: inviteError } =
+    await admin.auth.admin.inviteUserByEmail(cleanEmail, {
+      data: {
+        first_name: first_name?.trim() || "",
+        last_name: last_name?.trim() || "",
+      },
+    });
+
+  if (inviteError || !inviteData?.user) {
+    const msg = inviteError?.message ?? "User konnte nicht erstellt werden.";
+    return NextResponse.json({ error: msg }, { status: 500 });
+  }
+
+  const userId = inviteData.user.id;
+
+  // 2. Warten bis der Trigger die user_subscriptions-Zeile erstellt hat
+  //    (passiert synchron im DB-Trigger, sollte sofort da sein)
+  let retries = 0;
+  let subExists = false;
+  while (retries < 5 && !subExists) {
+    const { data } = await admin
+      .from("user_subscriptions")
+      .select("user_id")
+      .eq("user_id", userId)
+      .maybeSingle();
+    if (data) {
+      subExists = true;
+    } else {
+      retries++;
+      await new Promise((r) => setTimeout(r, 500));
+    }
+  }
+
+  if (!subExists) {
+    // Trigger hat nicht gefeuert — manuell anlegen
+    await admin.from("user_subscriptions").insert({
+      user_id: userId,
+      email: cleanEmail,
+      subscription_type: "free",
+      status: "active",
+      analyses_total: 0,
+      analyses_used: 0,
+      analyses_remaining: 0,
+    });
+  }
+
+  // 3. Abo upgraden
+  const isYearly = subscription_type.startsWith("b2b_");
+  const months = isYearly ? 12 : subscription_type === "single" ? 0 : 1;
+  const expiresAt =
+    months > 0
+      ? new Date(
+          Date.now() + months * 30 * 24 * 60 * 60 * 1000,
+        ).toISOString()
+      : null;
+
+  const { error: updateError } = await admin
+    .from("user_subscriptions")
+    .update({
+      subscription_type,
+      status: "active",
+      analyses_total: analyses,
+      analyses_remaining: analyses,
+      analyses_used: 0,
+      order_id: `ADMIN_${Date.now()}`,
+      payment_method: "admin_created",
+      purchased_at: new Date().toISOString(),
+      expires_at: expiresAt,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("user_id", userId);
+
+  if (updateError) {
+    return NextResponse.json(
+      { error: "Account erstellt, aber Abo konnte nicht gesetzt werden: " + updateError.message },
+      { status: 500 },
+    );
+  }
+
+  return NextResponse.json({
+    success: true,
+    user_id: userId,
+    email: cleanEmail,
+    name: [first_name?.trim(), last_name?.trim()].filter(Boolean).join(" ") || cleanEmail,
+    subscription_type,
+    analyses,
+    expires_at: expiresAt,
+    message: `Account "${cleanEmail}" erstellt. Einladungs-E-Mail wurde gesendet.`,
+  });
+}

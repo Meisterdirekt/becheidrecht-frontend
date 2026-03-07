@@ -12,6 +12,16 @@ import { createBrowserClient } from "@supabase/ssr";
  */
 
 export default function AdminPage() {
+  // ── Neuen Kunden anlegen ────────────────────────────────────────────────
+  const [newFirstName, setNewFirstName] = useState('');
+  const [newLastName, setNewLastName] = useState('');
+  const [newEmail, setNewEmail] = useState('');
+  const [newSubType, setNewSubType] = useState('basic');
+  const [newLoading, setNewLoading] = useState(false);
+  const [newResult, setNewResult] = useState<string | null>(null);
+  const [newError, setNewError] = useState<string | null>(null);
+
+  // ── Bestehenden User freischalten ─────────────────────────────────────
   const [email, setEmail] = useState('');
   const [subscriptionType, setSubscriptionType] = useState('basic');
   const [loading, setLoading] = useState(false);
@@ -156,6 +166,39 @@ export default function AdminPage() {
       setOrgError(e instanceof Error ? e.message : 'Fehler aufgetreten');
     } finally {
       setOrgLoading(false);
+    }
+  }
+
+  async function handleCreateCustomer() {
+    if (!newEmail.trim()) {
+      setNewError('E-Mail-Adresse ist Pflichtfeld');
+      return;
+    }
+    setNewLoading(true);
+    setNewError(null);
+    setNewResult(null);
+    try {
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (session) headers['Authorization'] = `Bearer ${session.access_token}`;
+      const res = await fetch('/api/admin/create-customer', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          first_name: newFirstName.trim(),
+          last_name: newLastName.trim(),
+          email: newEmail.trim(),
+          subscription_type: newSubType,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Fehler beim Anlegen');
+      setNewResult(data.message);
+      setNewFirstName(''); setNewLastName(''); setNewEmail('');
+      if (customersLoaded) loadCustomers(customersSearch, customersStatusFilter);
+    } catch (e: unknown) {
+      setNewError(e instanceof Error ? e.message : 'Fehler aufgetreten');
+    } finally {
+      setNewLoading(false);
     }
   }
 
@@ -373,76 +416,83 @@ export default function AdminPage() {
           )}
         </div>
 
-        {/* Formular */}
+        {/* Neuen Kunden anlegen */}
         <div className="bg-white rounded-2xl shadow-lg p-8">
-          <h2 className="text-xl font-bold text-slate-900 mb-6">User freischalten</h2>
+          <h2 className="text-xl font-bold text-slate-900 mb-1">Neuen Kunden anlegen</h2>
+          <p className="text-slate-500 text-sm mb-6">
+            Erstellt Account + Abo und sendet automatisch eine Einladungs-E-Mail zum Passwort setzen.
+          </p>
 
-          {/* E-Mail */}
-          <div className="mb-6">
-            <label className="block text-sm font-bold text-slate-700 mb-2">
-              E-Mail-Adresse des Users
-            </label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="user@beispiel.de"
-              className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-blue-500 text-slate-900"
-            />
+          <div className="grid grid-cols-2 gap-4 mb-4">
+            <div>
+              <label className="block text-sm font-bold text-slate-700 mb-1">Vorname</label>
+              <input type="text" value={newFirstName} onChange={e => setNewFirstName(e.target.value)}
+                placeholder="Max" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-blue-500 text-slate-900" />
+            </div>
+            <div>
+              <label className="block text-sm font-bold text-slate-700 mb-1">Nachname</label>
+              <input type="text" value={newLastName} onChange={e => setNewLastName(e.target.value)}
+                placeholder="Mustermann" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-blue-500 text-slate-900" />
+            </div>
           </div>
 
-          {/* Subscription Type */}
+          <div className="mb-4">
+            <label className="block text-sm font-bold text-slate-700 mb-1">E-Mail-Adresse *</label>
+            <input type="email" value={newEmail} onChange={e => setNewEmail(e.target.value)}
+              placeholder="kunde@beispiel.de" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-blue-500 text-slate-900" />
+          </div>
+
           <div className="mb-6">
-            <label className="block text-sm font-bold text-slate-700 mb-2">
-              Abo-Typ
-            </label>
-            <select
-              value={subscriptionType}
-              onChange={(e) => setSubscriptionType(e.target.value)}
-              className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-blue-500 text-slate-900"
-            >
-              {subscriptionTypes.map((type) => (
-                <option key={type.value} value={type.value}>
-                  {type.label}
-                </option>
+            <label className="block text-sm font-bold text-slate-700 mb-1">Abo-Typ *</label>
+            <select value={newSubType} onChange={e => setNewSubType(e.target.value)}
+              className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-blue-500 text-slate-900">
+              {subscriptionTypes.map(t => (
+                <option key={t.value} value={t.value}>{t.label}</option>
               ))}
             </select>
           </div>
 
-          {/* Erfolgs-/Fehlermeldung */}
-          {result && (
-            <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-xl text-green-800 text-sm">
-              {result}
-            </div>
+          {newResult && (
+            <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-xl text-green-800 text-sm">{newResult}</div>
+          )}
+          {newError && (
+            <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-xl text-red-800 text-sm">{newError}</div>
           )}
 
-          {error && (
-            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl text-red-800 text-sm">
-              {error}
-            </div>
-          )}
-
-          {/* Button */}
-          <button
-            onClick={handleGrant}
-            disabled={loading}
-            className="w-full bg-blue-600 text-white py-4 rounded-xl font-bold uppercase tracking-widest hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-          >
-            {loading ? 'Wird freigeschaltet...' : 'User freischalten'}
+          <button onClick={handleCreateCustomer} disabled={newLoading}
+            className="w-full bg-blue-600 text-white py-4 rounded-xl font-bold uppercase tracking-widest hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all">
+            {newLoading ? 'Wird angelegt...' : 'Kunden anlegen + Einladung senden'}
           </button>
         </div>
 
-        {/* Anleitung */}
-        <div className="bg-slate-100 rounded-2xl p-6 mt-6">
-          <h3 className="font-bold text-slate-900 mb-3">📝 Anleitung</h3>
-          <ol className="text-sm text-slate-700 space-y-2 list-decimal list-inside">
-            <li>User muss sich ZUERST registriert haben</li>
-            <li>Geben Sie die E-Mail-Adresse des Users ein</li>
-            <li>Wählen Sie den Abo-Typ</li>
-            <li>Klicken Sie &quot;User freischalten&quot;</li>
-            <li>User kann jetzt Dokumente hochladen (limitiert)</li>
-          </ol>
-        </div>
+        {/* Bestehenden User freischalten (Fallback) */}
+        <details className="mt-6">
+          <summary className="bg-slate-100 rounded-2xl p-6 cursor-pointer font-bold text-slate-900 hover:bg-slate-200 transition-colors">
+            Bestehenden User freischalten (bereits registriert)
+          </summary>
+          <div className="bg-white rounded-b-2xl shadow-lg p-8 -mt-2">
+            <div className="mb-4">
+              <label className="block text-sm font-bold text-slate-700 mb-1">E-Mail-Adresse</label>
+              <input type="email" value={email} onChange={e => setEmail(e.target.value)}
+                placeholder="user@beispiel.de" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-blue-500 text-slate-900" />
+            </div>
+            <div className="mb-6">
+              <label className="block text-sm font-bold text-slate-700 mb-1">Abo-Typ</label>
+              <select value={subscriptionType} onChange={e => setSubscriptionType(e.target.value)}
+                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-blue-500 text-slate-900">
+                {subscriptionTypes.map(t => (
+                  <option key={t.value} value={t.value}>{t.label}</option>
+                ))}
+              </select>
+            </div>
+            {result && <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-xl text-green-800 text-sm">{result}</div>}
+            {error && <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-xl text-red-800 text-sm">{error}</div>}
+            <button onClick={handleGrant} disabled={loading}
+              className="w-full bg-slate-700 text-white py-4 rounded-xl font-bold uppercase tracking-widest hover:bg-slate-800 disabled:opacity-50 transition-all">
+              {loading ? 'Wird freigeschaltet...' : 'User freischalten'}
+            </button>
+          </div>
+        </details>
 
         {/* B2B Einrichtung erstellen */}
         <div className="bg-white rounded-2xl shadow-lg p-8 mt-6">
