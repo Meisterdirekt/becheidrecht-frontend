@@ -117,7 +117,7 @@ async function checkHealthEndpoint(baseUrl: string): Promise<{ ok: boolean; late
       signal: AbortSignal.timeout(8_000),
     });
     return { ok: res.ok, latencyMs: Date.now() - t0, status: res.status };
-  } catch (err) {
+  } catch {
     return { ok: false, latencyMs: Date.now() - t0, status: 0 };
   }
 }
