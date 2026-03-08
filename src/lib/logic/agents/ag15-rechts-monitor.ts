@@ -1,17 +1,19 @@
 /**
  * AG15 — Autonomer Rechts-Monitor (Sonnet/Haiku · wöchentlicher Cron)
  *
- * 5-Phasen-Pipeline:
- *   1. Urteile-Update     — 15 Quellen, Claude Sonnet, Supabase upsert
- *   2. Kennzahlen-Check   — Regelbedarfe/Freibeträge, Claude Haiku, Supabase upsert
- *   3. Fehlerkatalog-Ext. — neue Fehlertypen aus Änderungen, Claude Sonnet, DB insert
- *   4. Weisungen-Monitor  — BA/DRV/Pflege, Claude Haiku, DB + Protokoll
- *   5. Audit-Report       — update_protokoll, MonitorResult
+ * 6-Phasen-Pipeline:
+ *   1. Urteile-Update      — 15 Quellen, Claude Sonnet, Supabase upsert
+ *   2. Kennzahlen-Check    — Regelbedarfe/Freibeträge, Claude Haiku, Supabase upsert
+ *   3. Fehlerkatalog-Ext.  — neue Fehlertypen aus Änderungen, Claude Sonnet, DB insert
+ *   4. Weisungen-Monitor   — BA/DRV/Pflege, Claude Haiku, DB + Protokoll
+ *   5. Struktur-Monitor    — Gesetzesumbenennungen/Behördenreformen → GitHub PR
+ *   6. Audit-Report        — update_protokoll, MonitorResult
  *
  * Sicherheit:
- *   - Whitelist-only (15 definierte Domains)
+ *   - Whitelist-only (18 definierte Domains)
  *   - Max 20 Urteile + 5 Fehlerkatalog-Einträge pro Lauf
- *   - Kein Update existierender Fehlerkatalog-JSON-Einträge
+ *   - Kein Update existierender Fehlerkatalog-JSON-Einträge direkt
+ *   - Strukturänderungen NUR via GitHub PR (human review vor Merge)
  *   - 15s Timeout pro Source-Fetch
  *   - Graceful Degradation: jede Phase kann unabhängig fehlschlagen
  */
@@ -29,9 +31,21 @@ export interface MonitorResult {
   kennzahlen_geaendert: number;
   fehler_hinzugefuegt: number;
   weisungen_neu: number;
+  struktur_prs: number;
   quellen_gecheckt: number;
   fehler_quellen: string[];
   zusammenfassung: string;
+}
+
+interface StrukturAenderung {
+  typ: "umbenennung" | "neues_gesetz" | "behorden_reform" | "paragraph_aenderung";
+  was_alt: string;
+  was_neu: string;
+  gesetz: string;
+  ikraft_ab: string | null;
+  quelle_url: string;
+  beschreibung: string;
+  betroffene_bereiche: string[];
 }
 
 interface UrteileEintrag {
@@ -97,6 +111,13 @@ const QUELLEN = {
   ],
   weisungen: [
     { name: "BA Weisungen SGB II",     url: "https://www.arbeitsagentur.de/institutionen/arbeitgeber/hinweise-informationen/fachliche-weisungen-sgb-ii", traeger: "jobcenter", rechtsgebiet: "SGB_II" },
+  ],
+  struktur: [
+    { name: "Bundesgesetzblatt",       url: "https://www.bgbl.de/xaver/bgbl/start.xav", typ: "gesetzblatt" },
+    { name: "BMAS Gesetze & Vorhaben", url: "https://www.bmas.de/DE/Service/Gesetze-und-Gesetzesvorhaben/gesetze-und-gesetzesvorhaben.html", typ: "ministerium" },
+    { name: "Bundesrat Tagesordnung",  url: "https://www.bundesrat.de/DE/plenum/tagesordnung/to-node.html", typ: "bundesrat" },
+    { name: "Bundestag Gesetze",       url: "https://www.bundestag.de/gesetze", typ: "bundestag" },
+    { name: "gesetze-im-internet SGB II", url: "https://www.gesetze-im-internet.de/sgb_2/", typ: "gesetz" },
   ],
 };
 
@@ -488,6 +509,370 @@ Traeger: jobcenter | arbeitsagentur | drv | pflegekasse | sozialhilfe`,
 }
 
 // ---------------------------------------------------------------------------
+// Phase 5: Struktur-Monitor — Gesetzgebungsänderungen → GitHub PR
+// ---------------------------------------------------------------------------
+
+// Bekannte strukturelle Änderungen die überwacht werden (Stand 2026)
+const BEKANNTE_REFORMEN: Array<{
+  stichwort: string[];
+  typ: StrukturAenderung["typ"];
+  was_alt: string;
+  was_neu: string;
+  gesetz: string;
+  betroffene_bereiche: string[];
+}> = [
+  {
+    stichwort: ["Grundsicherung für Arbeitsuchende", "Bürgergeld", "Jobcenter umbenannt", "Grundsicherungsbehörde"],
+    typ: "umbenennung",
+    was_alt: "Jobcenter",
+    was_neu: "Grundsicherungsbehörde",
+    gesetz: "SGB II",
+    betroffene_bereiche: ["BA_", "content/behoerdenfehler_logik.json", "content/weisungen_2025_2026.json"],
+  },
+  {
+    stichwort: ["Bürgergeld abgeschafft", "Bürgergeld wird ersetzt", "Grundsicherung statt Bürgergeld"],
+    typ: "umbenennung",
+    was_alt: "Bürgergeld",
+    was_neu: "Grundsicherung",
+    gesetz: "SGB II",
+    betroffene_bereiche: ["BA_", "content/behoerdenfehler_logik.json"],
+  },
+  {
+    stichwort: ["SGB II aufgehoben", "SGB II wird SGB III", "Zusammenlegung SGB II SGB III"],
+    typ: "neues_gesetz",
+    was_alt: "SGB II",
+    was_neu: "Neues Grundsicherungsgesetz",
+    gesetz: "SGB II/III Reform",
+    betroffene_bereiche: ["BA_", "ALG_", "content/behoerdenfehler_logik.json"],
+  },
+];
+
+async function generateFehlerkatalogPatch(
+  aenderung: StrukturAenderung,
+  fehlerkatalogPath: string
+): Promise<string> {
+  const fs = await import("fs/promises");
+  const raw = await fs.readFile(fehlerkatalogPath, "utf-8");
+  const data: Array<Record<string, unknown>> = JSON.parse(raw);
+
+  let patched = JSON.stringify(data, null, 2);
+
+  // Einfache String-Ersetzung — nur wenn alt != neu und nicht schon enthalten
+  const altLower = aenderung.was_alt.toLowerCase();
+  const neuStr = aenderung.was_neu;
+
+  // Nur in beschreibung, titel, musterschreiben_hinweis ersetzen — nie in id/rechtsbasis
+  const patched_data = data.map((item) => {
+    const updated = { ...item };
+    for (const field of ["titel", "beschreibung", "musterschreiben_hinweis", "severity_beschreibung"]) {
+      if (typeof updated[field] === "string") {
+        const val = updated[field] as string;
+        // Case-insensitive Replace
+        if (val.toLowerCase().includes(altLower)) {
+          const regex = new RegExp(aenderung.was_alt.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "gi");
+          updated[field] = val.replace(regex, neuStr);
+        }
+      }
+    }
+    return updated;
+  });
+
+  patched = JSON.stringify(patched_data, null, 2);
+  return patched;
+}
+
+async function createGitHubPR(
+  branchName: string,
+  title: string,
+  body: string,
+  files: Array<{ path: string; content: string }>
+): Promise<string | null> {
+  const token = process.env.GITHUB_TOKEN;
+  const repo = process.env.GITHUB_REPO;
+  if (!token || !repo) {
+    console.warn("[AG15 P5] GITHUB_TOKEN oder GITHUB_REPO fehlt — PR übersprungen");
+    return null;
+  }
+
+  const [owner, repoName] = repo.split("/");
+  const baseUrl = `https://api.github.com/repos/${owner}/${repoName}`;
+  const headers = {
+    Authorization: `Bearer ${token}`,
+    Accept: "application/vnd.github+json",
+    "X-GitHub-Api-Version": "2022-11-28",
+    "Content-Type": "application/json",
+  };
+
+  const ghFetch = async (method: string, path: string, data?: unknown) => {
+    const res = await fetch(`${baseUrl}${path}`, {
+      method,
+      headers,
+      body: data ? JSON.stringify(data) : undefined,
+      signal: AbortSignal.timeout(15_000),
+    });
+    const json = await res.json();
+    return { json, status: res.status };
+  };
+
+  try {
+    // 1. Default Branch SHA holen
+    const { json: repoInfo } = await ghFetch("GET", "");
+    const defaultBranch = (repoInfo as { default_branch: string }).default_branch || "main";
+
+    const { json: refInfo } = await ghFetch("GET", `/git/ref/heads/${defaultBranch}`);
+    const baseSha = (refInfo as { object: { sha: string } }).object.sha;
+
+    // 2. Neuen Branch erstellen
+    const { status: branchStatus } = await ghFetch("POST", "/git/refs", {
+      ref: `refs/heads/${branchName}`,
+      sha: baseSha,
+    });
+
+    if (branchStatus !== 201 && branchStatus !== 422) {
+      console.warn(`[AG15 P5] Branch-Erstellung fehlgeschlagen: HTTP ${branchStatus}`);
+      return null;
+    }
+
+    // 3. Dateien committen
+    for (const file of files) {
+      // Aktuellen Blob SHA holen (für Update)
+      const { json: fileInfo } = await ghFetch("GET", `/contents/${file.path}?ref=${branchName}`);
+      const existingSha = (fileInfo as { sha?: string }).sha;
+
+      const contentBase64 = Buffer.from(file.content, "utf-8").toString("base64");
+
+      await ghFetch("PUT", `/contents/${file.path}`, {
+        message: `chore(ag15): ${title} — automatische Aktualisierung`,
+        content: contentBase64,
+        branch: branchName,
+        sha: existingSha,
+      });
+    }
+
+    // 4. PR erstellen
+    const { json: pr, status: prStatus } = await ghFetch("POST", "/pulls", {
+      title,
+      body,
+      head: branchName,
+      base: defaultBranch,
+    });
+
+    if (prStatus === 201) {
+      const prUrl = (pr as { html_url: string }).html_url;
+      console.log(`[AG15 P5] PR erstellt: ${prUrl}`);
+      return prUrl;
+    }
+
+    console.warn(`[AG15 P5] PR-Erstellung fehlgeschlagen: HTTP ${prStatus}`);
+    return null;
+  } catch (err) {
+    console.warn("[AG15 P5] GitHub PR Fehler:", err instanceof Error ? err.message : String(err));
+    return null;
+  }
+}
+
+async function runPhase5StrukturMonitor(
+  anthropic: Anthropic,
+): Promise<{ prs_erstellt: number; fehlerQuellen: string[] }> {
+  let prs_erstellt = 0;
+  const fehlerQuellen: string[] = [];
+  const today = new Date().toISOString().split("T")[0];
+
+  const systemPrompt: Anthropic.TextBlockParam[] = [{
+    type: "text",
+    text: `Du analysierst offizielle deutsche Gesetzgebungsquellen auf STRUKTURELLE Änderungen im Sozialrecht.
+Erkenne NUR wenn offiziell beschlossen/in Kraft getreten:
+- Umbenennungen von Behörden (z.B. "Jobcenter" → "Grundsicherungsbehörde")
+- Neue Gesetze die alte ersetzen (z.B. SGB II Reform)
+- Neue Paragraphen-Nummern
+- Neue offizielle Bezeichnungen für Leistungen
+Heute: ${today}.
+
+Antworte mit JSON-Array oder leerem Array []:
+[{
+  "typ": "umbenennung" | "neues_gesetz" | "behorden_reform" | "paragraph_aenderung",
+  "was_alt": "Alter Begriff/Name",
+  "was_neu": "Neuer Begriff/Name",
+  "gesetz": "SGB II / SGB III / etc.",
+  "ikraft_ab": "YYYY-MM-DD" | null,
+  "quelle_url": "URL der Quelle",
+  "beschreibung": "Kurze Erklärung was sich ändert (max 200 Zeichen)",
+  "betroffene_bereiche": ["SGB_II", "Jobcenter", "Bürgergeld"]
+}]
+
+WICHTIG: Nur wenn OFFIZIELL BESCHLOSSEN oder IN KRAFT GETRETEN — keine Vorhaben, Pläne oder Entwürfe.`,
+    cache_control: { type: "ephemeral" },
+  }];
+
+  const erkannteAenderungen: StrukturAenderung[] = [];
+
+  // Quellen scannen
+  for (const quelle of QUELLEN.struktur) {
+    try {
+      const pageText = await fetchPageText(quelle.url);
+      if (!pageText) {
+        fehlerQuellen.push(`${quelle.name}: Nicht erreichbar`);
+        continue;
+      }
+
+      // Schnell-Check: Enthält Text bekannte Reform-Stichwörter?
+      const hatRelevantesKW = BEKANNTE_REFORMEN.some(r =>
+        r.stichwort.some(kw => pageText.toLowerCase().includes(kw.toLowerCase()))
+      );
+
+      if (!hatRelevantesKW) {
+        console.log(`[AG15 P5] ${quelle.name}: Keine Strukturänderungs-Keywords — übersprungen`);
+        continue;
+      }
+
+      console.log(`[AG15 P5] ${quelle.name}: Relevante Keywords gefunden — analysiere...`);
+
+      const response = await anthropic.messages.create({
+        model: "claude-sonnet-4-6",
+        max_tokens: 1024,
+        system: systemPrompt,
+        messages: [{ role: "user", content: `Quelle: ${quelle.name}\nURL: ${quelle.url}\n\n${pageText}` }],
+      });
+
+      const text = response.content.find(b => b.type === "text")?.text ?? "[]";
+      const aenderungen = extractJsonSafe<StrukturAenderung[]>(text, []);
+
+      if (!Array.isArray(aenderungen) || aenderungen.length === 0) continue;
+
+      for (const a of aenderungen) {
+        if (!a.was_alt || !a.was_neu || a.was_alt === a.was_neu) continue;
+        a.quelle_url = quelle.url;
+        erkannteAenderungen.push(a);
+        console.log(`[AG15 P5] Strukturänderung erkannt: "${a.was_alt}" → "${a.was_neu}" (${a.gesetz})`);
+      }
+    } catch (err) {
+      fehlerQuellen.push(`${quelle.name}: ${err instanceof Error ? err.message : String(err)}`);
+    }
+  }
+
+  if (erkannteAenderungen.length === 0) {
+    console.log("[AG15 P5] Keine Strukturänderungen erkannt");
+    return { prs_erstellt: 0, fehlerQuellen };
+  }
+
+  // Für jede erkannte Änderung einen GitHub PR erstellen
+  for (const aenderung of erkannteAenderungen) {
+    try {
+      const fehlerkatalogPath = process.cwd() + "/content/behoerdenfehler_logik.json";
+      const fs = await import("fs/promises");
+
+      // Prüfen ob Fehlerkatalog-Datei existiert und den alten Begriff enthält
+      let fehlerkatalogContent: string | null = null;
+      try {
+        const raw = await fs.readFile(fehlerkatalogPath, "utf-8");
+        if (raw.toLowerCase().includes(aenderung.was_alt.toLowerCase())) {
+          fehlerkatalogContent = await generateFehlerkatalogPatch(aenderung, fehlerkatalogPath);
+        }
+      } catch {
+        console.warn("[AG15 P5] Fehlerkatalog nicht lesbar — PR ohne JSON-Patch");
+      }
+
+      const branchName = `ag15/struktur-update-${aenderung.was_alt.toLowerCase().replace(/[^a-z0-9]/g, "-")}-${Date.now()}`;
+
+      const prBody = [
+        `## 🤖 AG15 Struktur-Monitor — Automatisch erkannte Gesetzesänderung`,
+        ``,
+        `**Typ:** ${aenderung.typ}`,
+        `**Alt:** \`${aenderung.was_alt}\``,
+        `**Neu:** \`${aenderung.was_neu}\``,
+        `**Gesetz:** ${aenderung.gesetz}`,
+        `**In Kraft ab:** ${aenderung.ikraft_ab ?? "Datum unbekannt"}`,
+        `**Quelle:** ${aenderung.quelle_url}`,
+        ``,
+        `### Was wurde erkannt`,
+        aenderung.beschreibung,
+        ``,
+        `### Betroffene Bereiche im System`,
+        aenderung.betroffene_bereiche.map(b => `- \`${b}\``).join("\n"),
+        ``,
+        `### Was dieser PR ändert`,
+        fehlerkatalogContent
+          ? `- \`content/behoerdenfehler_logik.json\`: Alle Vorkommen von **"${aenderung.was_alt}"** in \`titel\`, \`beschreibung\` und \`musterschreiben_hinweis\` durch **"${aenderung.was_neu}"** ersetzt`
+          : `- Kein Fehlerkatalog-Patch (Begriff nicht gefunden oder Datei nicht lesbar)`,
+        ``,
+        `### ⚠️ Vor dem Merge prüfen`,
+        `- [ ] Ist die Änderung offiziell in Kraft getreten?`,
+        `- [ ] Sind alle Ersetzungen juristisch korrekt?`,
+        `- [ ] Müssen weitere Dateien angepasst werden (Prompts, Weisungen)?`,
+        `- [ ] ID-Präfixe (BA_, etc.) beibehalten oder umbenennen?`,
+        ``,
+        `---`,
+        `*Automatisch erstellt von AG15 Struktur-Monitor • ${new Date().toISOString()}*`,
+        `*Quelle: ${aenderung.quelle_url}*`,
+      ].join("\n");
+
+      const files: Array<{ path: string; content: string }> = [];
+      if (fehlerkatalogContent) {
+        files.push({
+          path: "content/behoerdenfehler_logik.json",
+          content: fehlerkatalogContent,
+        });
+      }
+
+      // Nur PR erstellen wenn es tatsächlich Änderungen gibt
+      if (files.length === 0) {
+        console.log(`[AG15 P5] Keine Datei-Änderungen für "${aenderung.was_alt}" — nur Issue erstellen`);
+
+        // Stattdessen GitHub Issue für manuelle Prüfung
+        const githubToken = process.env.GITHUB_TOKEN;
+        const githubRepo = process.env.GITHUB_REPO;
+        if (githubToken && githubRepo) {
+          const [owner, repoName] = githubRepo.split("/");
+          await fetch(`https://api.github.com/repos/${owner}/${repoName}/issues`, {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${githubToken}`,
+              Accept: "application/vnd.github+json",
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              title: `⚖️ AG15: Gesetzesänderung erkannt — "${aenderung.was_alt}" → "${aenderung.was_neu}"`,
+              body: prBody,
+              labels: ["gesetzesaenderung", "automated", "review-needed"],
+            }),
+          });
+          prs_erstellt++;
+        }
+        continue;
+      }
+
+      const prUrl = await createGitHubPR(
+        branchName,
+        `⚖️ AG15: Gesetzesänderung — "${aenderung.was_alt}" → "${aenderung.was_neu}"`,
+        prBody,
+        files
+      );
+
+      if (prUrl) {
+        prs_erstellt++;
+
+        // In update_protokoll loggen
+        const supabase = getSupabaseServiceClient();
+        if (supabase) {
+          try {
+            await supabase.from("update_protokoll" as string).insert({
+              agent_id: "AG15",
+              tabelle: "content/behoerdenfehler_logik.json",
+              operation: "STRUKTUR_PR",
+              notiz: `PR erstellt: ${aenderung.was_alt} → ${aenderung.was_neu} | ${prUrl}`,
+            });
+          } catch { /* protokoll nicht verfügbar */ }
+        }
+      }
+    } catch (err) {
+      fehlerQuellen.push(`PR für "${aenderung.was_alt}": ${err instanceof Error ? err.message : String(err)}`);
+    }
+  }
+
+  return { prs_erstellt, fehlerQuellen };
+}
+
+// ---------------------------------------------------------------------------
 // Haupt-Einstiegspunkt
 // ---------------------------------------------------------------------------
 
@@ -498,7 +883,6 @@ export async function runRechtsMonitor(): Promise<MonitorResult> {
   const anthropic = new Anthropic({ apiKey });
 
   const alleFehlerQuellen: string[] = [];
-  const gesamtQuellen = QUELLEN.urteile.length + QUELLEN.gesetze.length + QUELLEN.weisungen.length;
 
   console.log("[AG15] Rechts-Monitor gestartet:", new Date().toISOString());
 
@@ -517,10 +901,16 @@ export async function runRechtsMonitor(): Promise<MonitorResult> {
   const p4 = await runPhase4Weisungen(anthropic);
   alleFehlerQuellen.push(...p4.fehlerQuellen);
 
-  // Phase 5: Audit-Protokoll
+  // Phase 5: Struktur-Monitor (Gesetzesumbenennungen → GitHub PR)
+  const p5 = await runPhase5StrukturMonitor(anthropic);
+  alleFehlerQuellen.push(...p5.fehlerQuellen);
+
+  // Phase 6: Audit-Protokoll
+  const gesamtQuellen = QUELLEN.urteile.length + QUELLEN.gesetze.length + QUELLEN.weisungen.length + QUELLEN.struktur.length;
   const zusammenfassung =
-    `AG15 Wochenlauf: ${p1.neu} neue Urteile, ${p2.geaendert} Kennzahlen, ` +
-    `${p3.hinzugefuegt} Fehlertypen, ${p4.neu} Weisungen. ` +
+    `AG15 Wochenlauf: ${p1.neu} Urteile, ${p2.geaendert} Kennzahlen, ` +
+    `${p3.hinzugefuegt} Fehlertypen, ${p4.neu} Weisungen, ` +
+    `${p5.prs_erstellt} Struktur-PRs. ` +
     `${alleFehlerQuellen.length} Quellen fehlgeschlagen.`;
 
   try {
@@ -535,7 +925,7 @@ export async function runRechtsMonitor(): Promise<MonitorResult> {
       await supabase.from("update_protokoll" as string).insert(auditRow);
     }
   } catch {
-    console.warn("[AG15 P5] update_protokoll Insert fehlgeschlagen");
+    console.warn("[AG15 P6] update_protokoll Insert fehlgeschlagen");
   }
 
   const result: MonitorResult = {
@@ -543,6 +933,7 @@ export async function runRechtsMonitor(): Promise<MonitorResult> {
     kennzahlen_geaendert: p2.geaendert,
     fehler_hinzugefuegt: p3.hinzugefuegt,
     weisungen_neu: p4.neu,
+    struktur_prs: p5.prs_erstellt,
     quellen_gecheckt: gesamtQuellen - alleFehlerQuellen.length,
     fehler_quellen: alleFehlerQuellen,
     zusammenfassung,
