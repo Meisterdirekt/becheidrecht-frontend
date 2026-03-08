@@ -1,0 +1,95 @@
+name: AG-CRITIC — Automatisches PR-Review
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
+
+jobs:
+  claude-review:
+    name: Claude Code-Review
+    runs-on: ubuntu-latest
+    # Nur bei externen PRs oder eigenen — immer reviewen
+    permissions:
+      contents: read
+      pull-requests: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: PR Diff holen
+        id: diff
+        run: |
+          git fetch origin ${{ github.base_ref }}
+          DIFF=$(git diff origin/${{ github.base_ref }}...HEAD -- \
+            "*.ts" "*.tsx" "*.js" "*.json" \
+            ":!node_modules" ":!package-lock.json" ":!*.min.js" \
+            | head -c 40000)
+
+          echo "diff<<EOF" >> $GITHUB_OUTPUT
+          echo "$DIFF" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Claude Review via API
+        id: review
+        if: steps.diff.outputs.diff != ''
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          DIFF='${{ steps.diff.outputs.diff }}'
+          PR_TITLE="${{ github.event.pull_request.title }}"
+          PR_BODY="${{ github.event.pull_request.body }}"
+
+          # Escaping für JSON
+          DIFF_ESCAPED=$(echo "$DIFF" | python3 -c "import sys,json; print(json.dumps(sys.stdin.read()))")
+          TITLE_ESCAPED=$(echo "$PR_TITLE" | python3 -c "import sys,json; print(json.dumps(sys.stdin.read()))")
+          BODY_ESCAPED=$(echo "$PR_BODY" | python3 -c "import sys,json; print(json.dumps(sys.stdin.read()))")
+
+          RESPONSE=$(curl -s -X POST https://api.anthropic.com/v1/messages \
+            -H "x-api-key: $ANTHROPIC_API_KEY" \
+            -H "anthropic-version: 2023-06-01" \
+            -H "content-type: application/json" \
+            -d "{
+              \"model\": \"claude-haiku-4-5-20251001\",
+              \"max_tokens\": 1500,
+              \"system\": \"Du bist ein erfahrener Code-Reviewer für ein Next.js 14 / TypeScript / Supabase Projekt (BescheidRecht — Sozialrecht-Tool). Analysiere den Diff präzise und strukturiert auf Deutsch. Sei direkt und konkret.\",
+              \"messages\": [{
+                \"role\": \"user\",
+                \"content\": \"## PR: \" $TITLE_ESCAPED \"\n\n## Beschreibung\n\" $BODY_ESCAPED \"\n\n## Diff\n\`\`\`diff\n\" $DIFF_ESCAPED \"\n\`\`\`\n\nBitte reviewe diesen PR nach folgenden Kriterien:\n\n**1. 🔒 Security** — Auth-Prüfungen vorhanden? Keine Secrets im Code? SQL-Injection möglich? Service-Role-Key im Frontend?\n**2. 🏗 Architektur** — CLAUDE.md Regeln eingehalten? (KI-Logik nur in lib/logic/, Translations nur page-translations.ts, Legacy supabase.ts nicht verwendet)\n**3. ⚡ Performance** — N+1 Queries? Unnötige Re-Renders? Bundle-Size Auswirkung?\n**4. 🐛 Bugs** — Offensichtliche Logikfehler? Edge Cases nicht behandelt? TypeScript any?\n**5. ✅ Qualität** — Code lesbar? Konsistent mit dem Rest des Projekts?\n\nFormat:\n- Jeder Punkt mit Emoji und Status: ✅ OK / ⚠️ Hinweis / 🚨 Problem\n- Bei Problemen: konkrete Zeile + Lösungsvorschlag\n- Am Ende: **Empfehlung: APPROVE / REQUEST CHANGES / NEUTRAL**\"
+              }]
+            }")
+
+          REVIEW_TEXT=$(echo "$RESPONSE" | python3 -c "
+          import sys, json
+          data = json.load(sys.stdin)
+          if 'content' in data and data['content']:
+              print(data['content'][0]['text'])
+          else:
+              print('Review konnte nicht erstellt werden: ' + str(data))
+          ")
+
+          echo "review<<EOF" >> $GITHUB_OUTPUT
+          echo "$REVIEW_TEXT" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Review als PR-Kommentar posten
+        if: steps.review.outputs.review != ''
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const review = `${{ steps.review.outputs.review }}`;
+            const body = `## 🤖 AG-CRITIC — Automatisches Code-Review\n\n${review}\n\n---\n*Powered by Claude Haiku — [AG-CRITIC](/.github/workflows/pr-review.yml)*`;
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body,
+            });
+
+      - name: Kein Diff — überspringen
+        if: steps.diff.outputs.diff == ''
+        run: echo "Kein relevanter Diff gefunden — Review übersprungen"

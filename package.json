@@ -19,6 +19,7 @@
     "@anthropic-ai/sdk": "^0.78.0",
     "@octokit/rest": "^22.0.1",
     "@react-pdf/renderer": "^4.3.2",
+    "@sentry/nextjs": "^8.55.0",
     "@supabase/ssr": "^0.9.0",
     "@supabase/supabase-js": "^2.98.0",
     "@tavily/core": "^0.7.2",

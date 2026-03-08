@@ -63,8 +63,12 @@ src/
 │       ├── stats/customer-count/route.ts # GET — Kundenzähler
 │       ├── admin/grant-subscription/route.ts # POST — Admin: Abo manuell vergeben
 │       ├── admin/infra-status/route.ts  # GET — Admin: Infra-Status
-│       ├── cron/rechts-update/route.ts # GET — Monatlicher Cron (1. des Monats, 06:00 UTC)
-│       └── cron/agent-batch/route.ts   # GET — Wöchentlicher Cron AG09/AG10/AG11 (Sonntag 02:00 UTC)
+│       ├── health/route.ts             # GET — Öffentlicher Health-Check (kein Auth!) für UptimeRobot
+│       ├── cron/rechts-update/route.ts # GET — Monatlicher Cron (1. des Monats, 03:00 UTC)
+│       ├── cron/agent-batch/route.ts   # GET — Wöchentlicher Cron AG09/AG10/AG11 (Sonntag 02:00 UTC)
+│       ├── cron/backend-health/route.ts # GET — Täglicher Cron 03:00 UTC: DB-Health + Kosten-Anomalien
+│       ├── cron/costs-monitor/route.ts  # GET — Täglicher Cron 07:00 UTC: Claude-API-Kosten-Tracking
+│       └── cron/design-audit/route.ts   # GET — Wöchentlicher Cron Di 04:00 UTC: Lighthouse + Core Web Vitals
 ├── components/
 │   ├── FileUpload.tsx                  # Datei-Upload mit Drag&Drop
 │   ├── LetterPDF.tsx                   # DIN A4 PDF-Vorschau (@react-pdf/renderer)
@@ -94,6 +98,7 @@ src/
 │   │   ├── client.ts                   # Frontend-Client (Anon Key) ← DIESEN VERWENDEN
 │   │   ├── middleware.ts               # Server-Client (SSR Session-Refresh)
 │   │   └── auth.ts                     # Shared Auth-Helper: getAuthenticatedUser(req) → {id, token} | null
+│   ├── error-reporter.ts               # Zentrales Error-Tracking (Sentry wenn SENTRY_DSN gesetzt, sonst structured logging)
 │   ├── supabase.ts                     # LEGACY-Client — NICHT verwenden, nur noch für Abwärtskompatibilität
 │   ├── page-translations.ts            # i18n DE/RU/EN/AR/TR (32KB) ← ALLE Strings hier
 │   ├── translations.ts                 # Minimal-Wrapper (7 Zeilen) — page-translations.ts ist die echte Datei
@@ -216,7 +221,13 @@ Mobile first (375px zuerst). Arabisch (AR) → `dir="rtl"`. Fehler freundlich fo
 
 8. **OCR-Fallback (tesseract.js) ist langsam** (~5–15 Sek/Seite). `pdf2json` ist primär. Tesseract nur wenn kein Text gefunden.
 
-9. **Zwei Vercel Crons:** `rechts-update` (1. des Monats 06:00 UTC) und `agent-batch` (Sonntag 02:00 UTC für AG09/AG10/AG11). Beide: Auth via `?secret=CRON_SECRET`. Manuell: `curl "http://localhost:3000/api/cron/rechts-update?secret=$CRON_SECRET"`.
+9. **Fünf Vercel Crons (vercel.json):**
+   - `rechts-update` → 1. des Monats 03:00 UTC (war fälschlicherweise wöchentlich, jetzt gefixt auf `0 3 1 * *`)
+   - `agent-batch` → Sonntag 02:00 UTC (AG09/AG10/AG11)
+   - `backend-health` → täglich 03:00 UTC (DB-Health + Kosten-Anomalien → GitHub Issue)
+   - `costs-monitor` → täglich 07:00 UTC (Claude-API-Kosten-Tracking + Alert)
+   - `design-audit` → Di 04:00 UTC (Lighthouse + Core Web Vitals → GitHub Issue)
+   Alle: Auth via `?secret=CRON_SECRET`. Manuell: `curl "http://localhost:3000/api/cron/backend-health?secret=$CRON_SECRET"`.
 
 10. **SSE-Streaming** (`/api/assistant/route.ts`) nutzt `ReadableStream` + `TextEncoder`. Client: `reader.read()` in While-Schleife. Kein EventSource API.
 
@@ -246,6 +257,21 @@ MOLLIE_API_KEY                 # Mollie Payment Webhook (live_ oder test_)
 ```
 
 Optional: `VERCEL_TOKEN`, `GITHUB_TOKEN`, `GITHUB_REPO`
+
+Monitoring (optional aber empfohlen):
+```
+SENTRY_DSN                     # Sentry Error-Tracking (nach npm install @sentry/nextjs)
+NEXT_PUBLIC_SENTRY_DSN         # Sentry Client-Side (gleicher Wert wie SENTRY_DSN)
+NEXT_PUBLIC_APP_URL            # Produktions-URL für AG-DESIGNER Lighthouse-Audit (z.B. https://bescheidrecht.de)
+PAGESPEED_API_KEY              # Google PageSpeed Insights API Key (optional, ohne Key: 25 req/Tag limit)
+```
+
+**GitHub Actions Secrets (in Repo → Settings → Secrets):**
+```
+ANTHROPIC_API_KEY              # Für AG-CRITIC automatisches PR-Review
+NEXT_PUBLIC_SUPABASE_URL       # Für Build-Job
+NEXT_PUBLIC_SUPABASE_ANON_KEY  # Für Build-Job
+```
 
 ---
 

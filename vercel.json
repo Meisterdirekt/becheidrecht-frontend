@@ -2,11 +2,23 @@
   "crons": [
     {
       "path": "/api/cron/rechts-update",
-      "schedule": "0 3 * * 1"
+      "schedule": "0 3 1 * *"
     },
     {
       "path": "/api/cron/agent-batch",
       "schedule": "0 2 * * 0"
+    },
+    {
+      "path": "/api/cron/backend-health",
+      "schedule": "0 3 * * *"
+    },
+    {
+      "path": "/api/cron/costs-monitor",
+      "schedule": "0 7 * * *"
+    },
+    {
+      "path": "/api/cron/design-audit",
+      "schedule": "0 4 * * 2"
     }
   ]
 }
