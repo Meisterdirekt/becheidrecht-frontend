@@ -51,9 +51,17 @@ function ensureInitialized(): void {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   const { ag14PraezedenzAnalyzer } = require("./ag14-praezedenz-analyzer");
 
-  // Rechts-Monitor (wöchentlicher Cron, AG15)
+  // Rechts-Monitor (monatlicher Cron, AG15)
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   const { ag15RechtsMonitor } = require("./ag15-rechts-monitor");
+
+  // Vercel-Ops-Agent (täglich 06:00 UTC, AG16)
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { ag16VercelAgent } = require("./ag16-vercel-agent");
+
+  // Agent-Auditor (mittwochs 05:00 UTC, AG17)
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { ag17AgentAuditor } = require("./ag17-agent-auditor");
 
   const allAgents: Agent[] = [
     ag08SecurityGate, ag12DocumentProcessor, ag01Orchestrator,
@@ -63,6 +71,8 @@ function ensureInitialized(): void {
     ag09FrontendAgent, ag10BackendAgent, ag11DevopsAgent,
     ag14PraezedenzAnalyzer,
     ag15RechtsMonitor,
+    ag16VercelAgent,
+    ag17AgentAuditor,
   ];
 
   for (const agent of allAgents) {

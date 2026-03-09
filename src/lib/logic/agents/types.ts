@@ -21,7 +21,9 @@ export type AgentId =
   | "AG12" // Dokumenten-Prozessor
   | "AG13" // Nutzer-Erklärer
   | "AG14" // Präzedenzfall-Analyzer
-  | "AG15"; // Rechts-Monitor (wöchentlicher Cron)
+  | "AG15" // Rechts-Monitor (monatlicher Cron)
+  | "AG16" // Vercel-Ops-Agent (täglich 06:00 UTC)
+  | "AG17"; // Agent-Auditor (mittwochs 05:00 UTC)
 
 export type RoutingStufe = "NORMAL" | "HOCH" | "NOTFALL";
 
@@ -208,6 +210,53 @@ export interface PraezedenzResult {
   haeufigste_fehler: string[];
   /** Kontextueller Hinweis für AG07 + AG13 */
   hinweis: string;
+}
+
+// ---------------------------------------------------------------------------
+// AG16 — Vercel-Ops-Agent Result
+// ---------------------------------------------------------------------------
+
+export interface VercelMonitorResult {
+  /** Anzahl geprüfter Deployments */
+  deployments_checked: number;
+  /** Anzahl fehlgeschlagener Deployments (state=ERROR) */
+  failed_deployments: number;
+  /** Liste fehlender Required-Env-Vars */
+  env_vars_missing: string[];
+  /** URLs der erstellten GitHub Issues */
+  issues_created: string[];
+  /** Gesamtstatus: healthy | degraded | critical */
+  health_status: "healthy" | "degraded" | "critical";
+  /** Kurze Zusammenfassung des Laufs */
+  summary: string;
+}
+
+// ---------------------------------------------------------------------------
+// AG17 — Agent-Auditor Result
+// ---------------------------------------------------------------------------
+
+export interface AnomalyItem {
+  agent_id: string;
+  type: "success_rate" | "duration" | "cost" | "error_rate";
+  severity: "warning" | "critical";
+  value: number;
+  threshold: number;
+  message: string;
+}
+
+export interface AgentAuditResult {
+  /** Analysedatensätze die ausgewertet wurden */
+  analyses_checked: number;
+  /** Anzahl auditierter Agenten */
+  agents_audited: number;
+  /** Gefundene Anomalien */
+  anomalies: AnomalyItem[];
+  /** URLs der erstellten GitHub Issues */
+  issues_created: string[];
+  /** Gesamtstatus: healthy | degraded | critical */
+  health_status: "healthy" | "degraded" | "critical";
+  /** Zusammenfassung des Audit-Reports */
+  report: string;
 }
 
 // ---------------------------------------------------------------------------

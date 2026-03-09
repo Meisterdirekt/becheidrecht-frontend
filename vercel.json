@@ -19,6 +19,14 @@
     {
       "path": "/api/cron/design-audit",
       "schedule": "0 4 * * 2"
+    },
+    {
+      "path": "/api/cron/vercel-monitor",
+      "schedule": "0 6 * * *"
+    },
+    {
+      "path": "/api/cron/agent-audit",
+      "schedule": "0 5 * * 3"
     }
   ]
 }

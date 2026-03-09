@@ -194,7 +194,6 @@ export default function RahmenvertragPage() {
         <div className="paragraf">
           <h3>§ 1 Vertragsgegenstand</h3>
           <ol className="vertragslist">
-            {/* eslint-disable-next-line react/no-unescaped-entities */}
             <li>Der AN stellt dem AG die Plattform &bdquo;BescheidRecht&rdquo; als Software-as-a-Service (SaaS)
               über das Internet zur Verfügung. Die Plattform ermöglicht die KI-gestützte Analyse
               von Behördenbescheiden, die automatische Identifikation von Fehlertypen sowie die

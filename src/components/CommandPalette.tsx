@@ -116,6 +116,7 @@ export function CommandPalette() {
 
   // Reset active index when filtered results change
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setActiveIndex(0);
   }, [query]);
 

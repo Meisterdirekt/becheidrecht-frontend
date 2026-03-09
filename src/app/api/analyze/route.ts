@@ -6,6 +6,7 @@ import { pseudonymizeText, depseudonymizeText } from '@/lib/privacy/pseudonymize
 import { getAuthenticatedUser } from '@/lib/supabase/auth';
 import { getAnthropicKey } from '@/lib/logic/agents/utils';
 import { analyzeLimiter, analyzeAnonLimiter } from '@/lib/rate-limit';
+import { reportError } from '@/lib/error-reporter';
 import PDFParser from 'pdf2json';
 import OpenAI from 'openai';
 import fs from 'fs';
@@ -243,6 +244,22 @@ export async function POST(req: Request) {
         : result.fehler,
       musterschreiben: depseudonymizeText(result.musterschreiben || '', map),
     };
+
+    // Qualitäts-Alert: AG03 Erfolgschance unter 35% → Sentry + GitHub Issue
+    const erfolgschance = result.kritik?.erfolgschance_prozent;
+    if (erfolgschance !== undefined && erfolgschance < 35) {
+      reportError(
+        new Error(`Schlechte KI-Qualität: AG03 Erfolgschance nur ${erfolgschance}%`),
+        {
+          critical: true,
+          agent: 'AG03',
+          erfolgschance,
+          rechtsgebiet: result.zuordnung?.rechtsgebiet ?? 'unbekannt',
+          routing_stufe: result.routing_stufe ?? 'unbekannt',
+          user_id: user?.id ?? 'anon',
+        }
+      ).catch(() => {}); // fire-and-forget, darf Hauptergebnis nicht blockieren
+    }
 
     // Supabase User-Client — nur für eingeloggte User
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL || '';

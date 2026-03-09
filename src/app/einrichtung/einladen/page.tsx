@@ -40,6 +40,7 @@ export default function EinladungPage() {
 
   // Invite-Info laden
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (!token) { setLoadError("Kein Einladungs-Token angegeben."); return; }
     fetch(`/api/einrichtung/invite/accept?token=${encodeURIComponent(token)}`)
       .then(async (res) => {

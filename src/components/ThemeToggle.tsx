@@ -19,11 +19,11 @@ function applyTheme(theme: Theme) {
 }
 
 export function ThemeToggle() {
-  const [theme, setTheme] = useState<Theme>("light");
+  const [theme, setTheme] = useState<Theme>(getStoredTheme);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setTheme(getStoredTheme());
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
   }, []);
 

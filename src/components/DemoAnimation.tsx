@@ -56,6 +56,7 @@ export default function DemoAnimation() {
     clearTimers();
 
     if (step === STEPS.UPLOAD) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setFileLanded(false);
       setProgress(0);
       setAnalysisTextIndex(0);
