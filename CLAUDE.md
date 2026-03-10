@@ -26,10 +26,12 @@ Deploy-Workflow: `npx tsc --noEmit && npm run lint && npm run build`
 
 ```
 middleware.ts                           # Root — Supabase Session-Refresh (delegiert an lib/supabase/middleware.ts)
+eslint.config.mjs                      # ESLint Flat Config (next/core-web-vitals + typescript)
+postcss.config.js                      # Tailwind v4 via @tailwindcss/postcss
 src/
 ├── app/
 │   ├── layout.tsx                      # Root Layout (Outfit Font, Metadata)
-│   ├── page.tsx                        # Landingpage (721 Zeilen)
+│   ├── page.tsx                        # Landingpage (Pricing inline)
 │   ├── error.tsx                       # Error Boundary
 │   ├── loading.tsx                     # Global Loading
 │   ├── not-found.tsx                   # 404
@@ -48,6 +50,14 @@ src/
 │   ├── agb/page.tsx                    # AGB
 │   ├── datenschutz/page.tsx            # Datenschutzerklärung
 │   ├── impressum/page.tsx              # Impressum
+│   ├── avv/page.tsx                    # Auftragsverarbeitungsvertrag
+│   ├── b2b/page.tsx                    # B2B-Landingpage
+│   ├── pitch-deck/page.tsx             # Pitch-Deck (intern)
+│   ├── intern/page.tsx                 # Interner Hub (B2B-Tools)
+│   ├── angebot/page.tsx                # Angebots-Generator (intern)
+│   ├── rahmenvertrag/page.tsx          # Rahmenvertrag-Generator (intern)
+│   ├── einrichtung/page.tsx            # Einrichtungs-Dashboard (B2B Org-Verwaltung)
+│   ├── einrichtung/einladen/page.tsx   # Mitarbeiter einladen
 │   └── api/
 │       ├── analyze/route.ts            # POST — Agent-Engine Analyse + Auto-Frist-Save
 │       ├── assistant/route.ts          # POST — SSE-Streaming Assistent
@@ -63,17 +73,27 @@ src/
 │       ├── stats/customer-count/route.ts # GET — Kundenzähler
 │       ├── admin/grant-subscription/route.ts # POST — Admin: Abo manuell vergeben
 │       ├── admin/infra-status/route.ts  # GET — Admin: Infra-Status
+│       ├── admin/create-customer/route.ts # POST — Admin: Kunden anlegen
+│       ├── admin/create-org/route.ts    # POST — Admin: B2B-Organisation anlegen
+│       ├── admin/customers/route.ts     # GET — Admin: Kundenliste
+│       ├── einrichtung/status/route.ts  # GET — Org-Status für eingeloggte Einrichtung
+│       ├── einrichtung/invite/route.ts  # POST — Einladung senden
+│       ├── einrichtung/invite/accept/route.ts # POST — Einladung annehmen
+│       ├── einrichtung/members/route.ts # GET — Mitgliederliste der Einrichtung
 │       ├── health/route.ts             # GET — Öffentlicher Health-Check (kein Auth!) für UptimeRobot
 │       ├── cron/rechts-update/route.ts # GET — Monatlicher Cron (1. des Monats, 03:00 UTC)
 │       ├── cron/agent-batch/route.ts   # GET — Wöchentlicher Cron AG09/AG10/AG11 (Sonntag 02:00 UTC)
 │       ├── cron/backend-health/route.ts # GET — Täglicher Cron 03:00 UTC: DB-Health + Kosten-Anomalien
 │       ├── cron/costs-monitor/route.ts  # GET — Täglicher Cron 07:00 UTC: Claude-API-Kosten-Tracking
-│       └── cron/design-audit/route.ts   # GET — Wöchentlicher Cron Di 04:00 UTC: Lighthouse + Core Web Vitals
+│       ├── cron/design-audit/route.ts   # GET — Wöchentlicher Cron Di 04:00 UTC: Lighthouse + Core Web Vitals
+│       ├── cron/vercel-monitor/route.ts # GET — Täglicher Cron 06:00 UTC: AG16 Deployment-Check
+│       ├── cron/agent-audit/route.ts    # GET — Wöchentlicher Cron Mi 05:00 UTC: AG17 Metriken
+│       └── cron/content-audit/route.ts  # GET — Monatlicher Cron 15. 01:00 UTC: AG18 Content-Audit
 ├── components/
 │   ├── LetterPDF.tsx                   # DIN A4 PDF-Vorschau (@react-pdf/renderer)
 │   ├── DownloadButton.tsx              # PDF-Download (jspdf)
-│   ├── Pricing.tsx                     # Preisübersicht
-│   ├── SiteNav.tsx                     # Navigation
+│   ├── SiteNav.tsx                     # Navigation (Desktop)
+│   ├── MobileNav.tsx                   # Navigation (Mobile)
 │   ├── SiteFooter.tsx                  # Footer
 │   ├── DemoAnimation.tsx               # Startseiten-Animation (größte Komponente)
 │   ├── PrivacyModal.tsx                # Datenschutz-Modal
@@ -84,7 +104,12 @@ src/
 │   ├── CustomerCount.tsx               # Live-Kundenzähler
 │   ├── VisitorCount.tsx                # Besucherzähler
 │   ├── MarkdownContent.tsx             # Markdown-Renderer
-│   └── RecoveryRedirect.tsx            # Auth-Recovery-Redirect
+│   ├── RecoveryRedirect.tsx            # Auth-Recovery-Redirect
+│   ├── CommandPalette.tsx              # Cmd+K Command Palette
+│   ├── B2BThemeInit.tsx                # B2B Theme-Initialisierung
+│   ├── RoiCalculator.tsx               # ROI-Kalkulator (B2B)
+│   ├── EmptyState.tsx                  # Leerzustand-Platzhalter
+│   └── Skeleton.tsx                    # Loading-Skeleton
 ├── lib/
 │   ├── logic/
 │   │   ├── agent_engine.ts             # KERN — Claude Tool-Use Loop, 4 Skills, Routing
@@ -92,12 +117,13 @@ src/
 │   │   └── forensic_engine.ts          # Stub — nicht produktiv
 │   ├── privacy/
 │   │   ├── pseudonymizer.ts            # PII-Anonymisierung (Namen, IBAN, Geburtsdaten, etc.)
-│   │   └── pseudonymizer.test.ts       # 8 Tests (einzige Testdatei im Projekt)
+│   │   └── pseudonymizer.test.ts       # Tests
 │   ├── supabase/
 │   │   ├── client.ts                   # Frontend-Client (Anon Key) ← DIESEN VERWENDEN
 │   │   ├── middleware.ts               # Server-Client (SSR Session-Refresh)
 │   │   └── auth.ts                     # Shared Auth-Helper: getAuthenticatedUser(req) → {id, token} | null
 │   ├── error-reporter.ts               # Zentrales Error-Tracking (Sentry wenn SENTRY_DSN gesetzt, sonst structured logging)
+│   ├── rate-limit.ts                   # API Rate-Limiting
 │   ├── supabase.ts                     # LEGACY-Client — NICHT verwenden, nur noch für Abwärtskompatibilität
 │   ├── page-translations.ts            # i18n DE/RU/EN/AR/TR (32KB) ← ALLE Strings hier
 │   ├── translations.ts                 # Minimal-Wrapper (7 Zeilen) — page-translations.ts ist die echte Datei
@@ -108,16 +134,20 @@ src/
 ├── data/blog/posts.ts                  # Blog-Metadaten
 content/                                # GESCHÜTZT — Hook blockiert Edits ohne Freigabe
 ├── behoerdenfehler_logik.json          # 130 Fehlertypen, 16 Träger/Rechtsgebiete, 3 Severity-Stufen
-├── weisungen_2025_2026.json            # BA-Weisungen Jan 2026
+├── weisungen_2025_2026.json            # BA-Weisungen 2025/2026
 ├── *_quellen.md                        # 12 Quellensammlungen pro Rechtsgebiet (SGB II–IX, BAMF, etc.)
 ├── behoerden_checkliste.md             # Prüfliste Behörden
 ├── behoerden_traeger_uebersicht.md     # Träger-Übersicht
 └── blog/                               # 5 Markdown-Blogartikel
-supabase/                               # SQL-Migrations
+supabase/                               # SQL-Migrations (manuell via SQL-Editor deployen)
 ├── wissensdatenbank.sql                # urteile, kennzahlen, behoerdenfehler, update_protokoll, sessions, analysis_results
 ├── fristen_table.sql                   # user_fristen
 ├── feedback_table.sql                  # site_feedback
-└── feedback_policies.sql               # RLS für Feedback
+├── feedback_policies.sql               # RLS für Feedback
+├── b2b_organizations.sql               # B2B-Organisationen + Einladungen + RLS
+├── ag15-monitor.sql                    # AG15 Rechts-Monitor Tabellen
+├── rls_fix_plans_single_purchases.sql  # RLS-Fix für plans/single_purchases
+└── supabase_subscription_table_FIXED.sql # Subscription-Tabelle (korrigiert)
 ```
 
 ---
@@ -168,7 +198,7 @@ supabase/                               # SQL-Migrations
 ## Supabase
 
 - Projekt: `xprrzmcickfparpogbpj`
-- **Aktive Tabellen:** analyses, documents, plans, profiles, single_purchases, site_feedback, subscriptions, usage, usage_counters, user_subscriptions, user_fristen
+- **Aktive Tabellen:** analyses, documents, plans, profiles, single_purchases, site_feedback, subscriptions, usage, usage_counters, user_subscriptions, user_fristen, organizations, organization_members, organization_invites, analysis_results
 - **Wissensdatenbank (SQL existiert in `supabase/wissensdatenbank.sql`, manuell via SQL-Editor zu deployen):** urteile, kennzahlen, behoerdenfehler, update_protokoll, sessions, analysis_results
 - **Setup:** `npx ts-node -r tsconfig-paths/register scripts/setup-wissensdatenbank.ts` prüft Tabellen-Status und gibt Deploy-Anleitung aus
 - Keys in `.env.local` — Werte nie ausgeben, nur Existenz prüfen
@@ -246,6 +276,12 @@ Mobile first (375px zuerst). Arabisch (AR) → `dir="rtl"`. Fehler freundlich fo
 
 14. **`vault/` enthält echte Credentials** (`keys.env`, `provider_logins.txt`). In `.gitignore`, aber als Entwickler nie darin stöbern oder Inhalte ausgeben.
 
+15. **Tailwind v4 + ESLint Flat Config.** Keine `tailwind.config.js` — Tailwind läuft über `postcss.config.js` mit `@tailwindcss/postcss`. Keine `.eslintrc.json` — ESLint nutzt `eslint.config.mjs` (Flat Config). Theme-Werte in CSS-Variablen, nicht in JS-Config.
+
+16. **B2B-Modul (Einrichtungen).** `einrichtung/` Pages + API-Routes bilden ein Org-Verwaltungssystem: Org anlegen (`admin/create-org`), Mitarbeiter einladen (`einrichtung/invite`), Einladung annehmen (`einrichtung/invite/accept`), Mitglieder verwalten (`einrichtung/members`). DB-Schema in `supabase/b2b_organizations.sql`. Einrichtungs-Routes nutzen User-JWT + Org-Zugehörigkeitsprüfung.
+
+17. **GitHub Actions (4 Workflows).** `ci.yml` (Build/Test), `pr-review.yml` (AG-CRITIC Claude PR-Review), `security.yml` (npm audit + Secrets-Scan), `uptime.yml` (Health-Check alle 5 Min). Secrets: ANTHROPIC_API_KEY, NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, CRON_SECRET, NEXT_PUBLIC_APP_URL.
+
 ---
 
 ## Environment Variables
@@ -258,18 +294,34 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY  # Öffentlicher Anon Key
 SUPABASE_SERVICE_ROLE_KEY      # Server-Only, NIE im Frontend
 ANTHROPIC_API_KEY              # Claude API
 OPENAI_API_KEY                 # GPT-4o Fallback (OCR)
-CRON_SECRET                    # Auth für beide Cron-Endpunkte
+CRON_SECRET                    # Auth für alle Cron-Endpunkte
 TAVILY_API_KEY                 # Web-Recherche für AG04 (optional, AG04 läuft ohne)
-MOLLIE_API_KEY                 # Mollie Payment Webhook (live_ oder test_)
+MOLLIE_API_KEY                 # Mollie Payment Webhook (live_ oder test_) — noch nicht aktiv, KYC offen
+ADMIN_EMAILS                   # Komma-separierte Admin-E-Mails
+ADMIN_SECRET                   # Admin-Authentifizierung
 ```
 
-Optional: `VERCEL_TOKEN`, `GITHUB_TOKEN`, `GITHUB_REPO`
-
-Monitoring (optional aber empfohlen):
+Infrastruktur:
 ```
-SENTRY_DSN                     # Sentry Error-Tracking (nach npm install @sentry/nextjs)
+VERCEL_TOKEN                   # Vercel API (AG16 Deployment-Check)
+VERCEL_TEAM_ID                 # Vercel Team-ID
+GITHUB_TOKEN                   # GitHub API (AG15/AG16/AG17 Issues/PRs)
+GITHUB_REPO                    # Format: owner/repo
+CLOUDFLARE_DOMAIN              # Cloudflare Domain
+CLOUDFLARE_TOKEN               # Cloudflare API-Token
+UPSTASH_REDIS_REST_URL         # Redis für Rate-Limiting (rate-limit.ts)
+UPSTASH_REDIS_REST_TOKEN       # Redis Auth-Token
+```
+
+Monitoring:
+```
+SENTRY_DSN                     # Sentry Error-Tracking
 NEXT_PUBLIC_SENTRY_DSN         # Sentry Client-Side (gleicher Wert wie SENTRY_DSN)
-NEXT_PUBLIC_APP_URL            # Produktions-URL für AG-DESIGNER Lighthouse-Audit (z.B. https://bescheidrecht.de)
+SENTRY_AUTH_TOKEN              # Sentry Release-Upload
+SENTRY_ORG                     # Sentry Organisation
+SENTRY_PROJECT                 # Sentry Projektname
+SENTRY_URL                     # Sentry URL
+NEXT_PUBLIC_APP_URL            # Produktions-URL für Lighthouse-Audit (https://bescheidrecht.de)
 PAGESPEED_API_KEY              # Google PageSpeed Insights API Key (optional, ohne Key: 25 req/Tag limit)
 ```
 
@@ -278,6 +330,8 @@ PAGESPEED_API_KEY              # Google PageSpeed Insights API Key (optional, oh
 ANTHROPIC_API_KEY              # Für AG-CRITIC automatisches PR-Review
 NEXT_PUBLIC_SUPABASE_URL       # Für Build-Job
 NEXT_PUBLIC_SUPABASE_ANON_KEY  # Für Build-Job
+CRON_SECRET                    # Für Cron-Endpunkte
+NEXT_PUBLIC_APP_URL            # Für Lighthouse
 ```
 
 ---
