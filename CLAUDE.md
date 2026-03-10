@@ -70,7 +70,6 @@ src/
 │       ├── cron/costs-monitor/route.ts  # GET — Täglicher Cron 07:00 UTC: Claude-API-Kosten-Tracking
 │       └── cron/design-audit/route.ts   # GET — Wöchentlicher Cron Di 04:00 UTC: Lighthouse + Core Web Vitals
 ├── components/
-│   ├── FileUpload.tsx                  # Datei-Upload mit Drag&Drop
 │   ├── LetterPDF.tsx                   # DIN A4 PDF-Vorschau (@react-pdf/renderer)
 │   ├── DownloadButton.tsx              # PDF-Download (jspdf)
 │   ├── Pricing.tsx                     # Preisübersicht
@@ -153,6 +152,11 @@ supabase/                               # SQL-Migrations
 | AG07 | ag07-letter-generator.ts | Musterschreiben-Generator |
 | AG08 | ag08-security-gate.ts | Eingangs-Sicherheitsfilter |
 | AG09–13 | ag09–ag13-*.ts | Frontend/Backend/DevOps/Dokument/Erklärer |
+| AG14 | ag14-praezedenz-analyzer.ts | Präzedenzfall-Analyse (DB-only) |
+| AG15 | ag15-rechts-monitor.ts | Rechts-Monitor (1. des Monats) |
+| AG16 | ag16-vercel-agent.ts | Vercel-Ops (täglich 06:00 UTC) |
+| AG17 | ag17-agent-auditor.ts | Agent-Auditor (Mi 05:00 UTC) |
+| AG18 | ag18-content-auditor.ts | Content-Auditor (15. des Monats 01:00 UTC) |
 
 **Routing nach Dringlichkeit:**
 - NORMAL (>14 Tage Frist) → `claude-sonnet-4-6`
@@ -221,13 +225,16 @@ Mobile first (375px zuerst). Arabisch (AR) → `dir="rtl"`. Fehler freundlich fo
 
 8. **OCR-Fallback (tesseract.js) ist langsam** (~5–15 Sek/Seite). `pdf2json` ist primär. Tesseract nur wenn kein Text gefunden.
 
-9. **Fünf Vercel Crons (vercel.json):**
-   - `rechts-update` → 1. des Monats 03:00 UTC (war fälschlicherweise wöchentlich, jetzt gefixt auf `0 3 1 * *`)
+9. **Acht Vercel Crons (vercel.json):**
+   - `rechts-update` → 1. des Monats 03:00 UTC (AG15 Rechts-Monitor)
    - `agent-batch` → Sonntag 02:00 UTC (AG09/AG10/AG11)
    - `backend-health` → täglich 03:00 UTC (DB-Health + Kosten-Anomalien → GitHub Issue)
    - `costs-monitor` → täglich 07:00 UTC (Claude-API-Kosten-Tracking + Alert)
    - `design-audit` → Di 04:00 UTC (Lighthouse + Core Web Vitals → GitHub Issue)
-   Alle: Auth via `?secret=CRON_SECRET`. Manuell: `curl "http://localhost:3000/api/cron/backend-health?secret=$CRON_SECRET"`.
+   - `vercel-monitor` → täglich 06:00 UTC (AG16 Deployment-Check)
+   - `agent-audit` → Mi 05:00 UTC (AG17 Agent-Metriken → GitHub Issue)
+   - `content-audit` → 15. des Monats 01:00 UTC (AG18 Kennzahlen/Fehlerkatalog/Weisungen-Audit → GitHub Issue)
+   Alle: Auth via `?secret=CRON_SECRET`. Manuell: `curl "http://localhost:3000/api/cron/content-audit?secret=$CRON_SECRET"`.
 
 10. **SSE-Streaming** (`/api/assistant/route.ts`) nutzt `ReadableStream` + `TextEncoder`. Client: `reader.read()` in While-Schleife. Kein EventSource API.
 
@@ -235,7 +242,7 @@ Mobile first (375px zuerst). Arabisch (AR) → `dir="rtl"`. Fehler freundlich fo
 
 12. **`mollie/webhook/route.ts` ist der produktive Payment-Webhook** — verarbeitet Mollie-Zahlungen (paid/failed/expired). Beim Erstellen einer Zahlung via Mollie API: `metadata: { product_key: "single"|"basic"|"standard"|"pro", buyer_email: "..." }`. MOLLIE_API_KEY Pflicht.
 
-13. **13-Agenten-System vollständig implementiert** in `src/lib/logic/agents/` (AG01–AG13 + orchestrator.ts). `agent_engine.ts` ist nur ein dünner Wrapper. Die `wissensdatenbank.sql`-Tabellen (urteile, kennzahlen, analysis_results etc.) müssen noch manuell in Supabase deployed werden — erst dann können AG04/AG05 in die DB schreiben.
+13. **18-Agenten-System vollständig implementiert** in `src/lib/logic/agents/` (AG01–AG18 + orchestrator.ts). `agent_engine.ts` ist nur ein dünner Wrapper. Die `wissensdatenbank.sql`-Tabellen (urteile, kennzahlen, analysis_results etc.) müssen noch manuell in Supabase deployed werden — erst dann können AG04/AG05 in die DB schreiben.
 
 14. **`vault/` enthält echte Credentials** (`keys.env`, `provider_logins.txt`). In `.gitignore`, aber als Entwickler nie darin stöbern oder Inhalte ausgeben.
 

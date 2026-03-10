@@ -77,17 +77,16 @@ ON CONFLICT (schluessel) DO NOTHING;
 
 -- Grundwerte — Pflege (SGB XI) 2026
 INSERT INTO kennzahlen (schluessel, wert, einheit, gueltig_ab, beschreibung) VALUES
-  ('pflegegeld_2026_grad2',        332,   'EUR', '2026-01-01', 'Pflegegeld Pflegegrad 2 (§ 37 SGB XI) 2026'),
-  ('pflegegeld_2026_grad3',        573,   'EUR', '2026-01-01', 'Pflegegeld Pflegegrad 3 (§ 37 SGB XI) 2026'),
-  ('pflegegeld_2026_grad4',        765,   'EUR', '2026-01-01', 'Pflegegeld Pflegegrad 4 (§ 37 SGB XI) 2026'),
-  ('pflegegeld_2026_grad5',        947,   'EUR', '2026-01-01', 'Pflegegeld Pflegegrad 5 (§ 37 SGB XI) 2026'),
-  ('sachleistung_2026_grad2',      761,   'EUR', '2026-01-01', 'Pflegesachleistung Grad 2 (§ 36 SGB XI) 2026'),
-  ('sachleistung_2026_grad3',     1432,   'EUR', '2026-01-01', 'Pflegesachleistung Grad 3 (§ 36 SGB XI) 2026'),
-  ('sachleistung_2026_grad4',     1778,   'EUR', '2026-01-01', 'Pflegesachleistung Grad 4 (§ 36 SGB XI) 2026'),
-  ('sachleistung_2026_grad5',     2200,   'EUR', '2026-01-01', 'Pflegesachleistung Grad 5 (§ 36 SGB XI) 2026'),
-  ('entlastungsbetrag_2026',       125,   'EUR', '2026-01-01', 'Entlastungsbetrag § 45b SGB XI'),
-  ('verhinderungspflege_2026',    1612,   'EUR', '2026-01-01', 'Verhinderungspflege § 39 SGB XI Jahresbetrag'),
-  ('kurzzeitpflege_2026',         1774,   'EUR', '2026-01-01', 'Kurzzeitpflege § 42 SGB XI Jahresbetrag')
+  ('pflegegeld_2026_grad2',        347,   'EUR', '2025-01-01', 'Pflegegeld Pflegegrad 2 (§ 37 SGB XI) 2025/2026'),
+  ('pflegegeld_2026_grad3',        599,   'EUR', '2025-01-01', 'Pflegegeld Pflegegrad 3 (§ 37 SGB XI) 2025/2026'),
+  ('pflegegeld_2026_grad4',        800,   'EUR', '2025-01-01', 'Pflegegeld Pflegegrad 4 (§ 37 SGB XI) 2025/2026'),
+  ('pflegegeld_2026_grad5',        990,   'EUR', '2025-01-01', 'Pflegegeld Pflegegrad 5 (§ 37 SGB XI) 2025/2026'),
+  ('sachleistung_2026_grad2',      796,   'EUR', '2025-01-01', 'Pflegesachleistung Grad 2 (§ 36 SGB XI) 2025/2026'),
+  ('sachleistung_2026_grad3',     1497,   'EUR', '2025-01-01', 'Pflegesachleistung Grad 3 (§ 36 SGB XI) 2025/2026'),
+  ('sachleistung_2026_grad4',     1859,   'EUR', '2025-01-01', 'Pflegesachleistung Grad 4 (§ 36 SGB XI) 2025/2026'),
+  ('sachleistung_2026_grad5',     2299,   'EUR', '2025-01-01', 'Pflegesachleistung Grad 5 (§ 36 SGB XI) 2025/2026'),
+  ('entlastungsbetrag_2026',       131,   'EUR', '2025-01-01', 'Entlastungsbetrag § 45b SGB XI 2025/2026'),
+  ('gemeinsamer_jahresbetrag_2026', 3539, 'EUR', '2025-07-01', 'Gemeinsamer Jahresbetrag Verhinderungs-/Kurzzeitpflege § 42a SGB XI')
 ON CONFLICT (schluessel) DO NOTHING;
 
 -- Grundwerte — BAföG 2026
@@ -116,15 +115,15 @@ ON CONFLICT (schluessel) DO NOTHING;
 
 -- Grundwerte — Unterhaltsvorschuss (UVG) 2026
 INSERT INTO kennzahlen (schluessel, wert, einheit, gueltig_ab, beschreibung) VALUES
-  ('uvs_2026_0_5',                  187,   'EUR', '2026-01-01', 'Unterhaltsvorschuss 0-5 Jahre 2026'),
-  ('uvs_2026_6_11',                 252,   'EUR', '2026-01-01', 'Unterhaltsvorschuss 6-11 Jahre 2026'),
-  ('uvs_2026_12_17',                338,   'EUR', '2026-01-01', 'Unterhaltsvorschuss 12-17 Jahre 2026')
+  ('uvs_2026_0_5',                  227,   'EUR', '2026-01-01', 'Unterhaltsvorschuss 0-5 Jahre 2026'),
+  ('uvs_2026_6_11',                 299,   'EUR', '2026-01-01', 'Unterhaltsvorschuss 6-11 Jahre 2026'),
+  ('uvs_2026_12_17',                394,   'EUR', '2026-01-01', 'Unterhaltsvorschuss 12-17 Jahre 2026')
 ON CONFLICT (schluessel) DO NOTHING;
 
 -- Grundwerte — Rente (SGB VI)
 INSERT INTO kennzahlen (schluessel, wert, einheit, gueltig_ab, beschreibung) VALUES
-  ('rentenwert_west_2026',        39.32,   'EUR', '2026-07-01', 'Aktueller Rentenwert West (ab 01.07.2026 geschätzt)'),
-  ('rentenwert_ost_2026',         39.32,   'EUR', '2026-07-01', 'Aktueller Rentenwert Ost (angeglichen)'),
+  ('rentenwert_west_2026_h1',     40.79,   'EUR', '2026-01-01', 'Aktueller Rentenwert West 01.01.-30.06.2026'),
+  ('rentenwert_2026_h2',          42.52,   'EUR', '2026-07-01', 'Aktueller Rentenwert ab 01.07.2026 (+4,24%, Ost=West)'),
   ('regelaltersgrenze_jahrgang_1964', 67,  'Jahre','2031-01-01', 'Regelaltersgrenze Jahrgang 1964+')
 ON CONFLICT (schluessel) DO NOTHING;
 

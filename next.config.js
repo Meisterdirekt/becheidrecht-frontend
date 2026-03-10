@@ -11,7 +11,7 @@ if (sentryDsn) {
       silent: true,
       widenClientFileUpload: true,
       hideSourceMaps: true,
-      disableLogger: true,
+      disableLogger: false,
       // org/project/authToken bewusst weggelassen — verhindert CLI-Aufruf beim Build
       // Fehlerreporting läuft über DSN in sentry.client.config.ts / sentry.server.config.ts
       sourcemaps: {

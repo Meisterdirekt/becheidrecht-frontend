@@ -14,6 +14,7 @@
 
 import type Anthropic from "@anthropic-ai/sdk";
 import type { AgentId } from "./types";
+import { kennzahlenPromptBlock } from "./kennzahlen";
 
 // ---------------------------------------------------------------------------
 // System-Prompts — Alle 13 Agenten
@@ -93,18 +94,28 @@ Gute Stichwörter sind:
 • Zeiträume oder Anpassungen (Bewilligungszeitraum, Regelbedarf, Angemessenheit)
 → Mindestens 1 Fehlerkatalog-Suche ist IMMER durchzuführen.
 
-SCHRITT 3 — WEISUNGEN PRÜFEN (nur bei SGB II / SGB III):
-Wenn Behörde = Jobcenter oder Bundesagentur für Arbeit:
-→ Nutze "get_weisungen" mit traeger='jobcenter' oder traeger='arbeitsagentur'.
-Aktuelle Fachliche Weisungen sind verbindliche Handlungsanweisungen — Verstöße dagegen sind anfechtbar.
+SCHRITT 3 — WEISUNGEN PRÜFEN (alle Rechtsgebiete):
+Nutze "get_weisungen" mit dem passenden Träger:
+• Jobcenter/SGB II → traeger='jobcenter'
+• Arbeitsagentur/SGB III → traeger='arbeitsagentur'
+• DRV/Rentenversicherung/SGB VI → traeger='deutsche_rentenversicherung'
+• Krankenkasse/SGB V → traeger='krankenkasse'
+• Pflegekasse/SGB XI → traeger='pflegekasse'
+• BAMF/Asyl → traeger='bamf'
+• Familienkasse/Kindergeld → traeger='familienkasse'
+• Sozialamt/SGB XII → traeger='sozialhilfe'
+• BAföG-Amt → traeger='bafoeg'
+• Unfallversicherung/SGB VII → traeger='unfallversicherung'
+• Wohngeldstelle → traeger='wohngeld'
+• Elterngeldstelle → traeger='elterngeld'
+• Versorgungsamt → traeger='versorgungsamt'
+• Eingliederungshilfe/SGB IX → traeger='eingliederungshilfe'
+Fachliche Weisungen/Richtlinien sind verbindliche Handlungsanweisungen — Verstöße dagegen sind anfechtbar.
+→ Mindestens 1 Weisungen-Abfrage pro Analyse durchführen.
 
 SCHRITT 4 — BERECHNUNGEN PRÜFEN:
 Prüfe alle Zahlen im Bescheid gegen aktuelle Richtwerte:
-• SGB II Regelbedarfsstufen 2026: RS1=563€, RS2=506€, RS3=451€, RS4=471€, RS5=357€, RS6=357€
-• KdU: Wurde eine konkrete Angemessenheitsgrenze genannt und begründet?
-• Einkommensanrechnung § 11b SGB II: Grundfreibetrag 100€, Erwerbstätigenfreibetrag 20% von 100–1000€
-• Kindergeld: 255€/Monat (2026) — wird es korrekt als Einkommen des Kindes behandelt?
-• Überzahlungsberechnung: Ist sie nachvollziehbar und korrekt berechnet?
+${kennzahlenPromptBlock()}
 
 SCHRITT 5 — FORMELLE FEHLER PRÜFEN:
 • Begründung vorhanden? (§ 35 SGB X — Pflicht bei belastenden Bescheiden)
@@ -809,6 +820,12 @@ QUALITÄTSREGELN:
 • Keine Wertungen ("leider", "glücklicherweise")
 • Keine Angstmacherei, keine Verharmlosung
 • Antwort NUR als Klartext — kein JSON, kein Markdown, keine Aufzählungen`,
+
+  // =========================================================================
+  // AG18 — CONTENT-AUDITOR (kein LLM — reiner TypeScript-Agent)
+  // Prüft Konsistenz von Kennzahlen, Fehlerkatalog und Weisungen.
+  // =========================================================================
+  AG18: `AG18 Content-Auditor: Automatisierter Konsistenz-Check für juristische Inhalte. Kein LLM-Einsatz — reine Datenvalidierung.`,
 
 };
 

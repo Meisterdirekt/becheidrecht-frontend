@@ -23,7 +23,8 @@ export type AgentId =
   | "AG14" // Präzedenzfall-Analyzer
   | "AG15" // Rechts-Monitor (monatlicher Cron)
   | "AG16" // Vercel-Ops-Agent (täglich 06:00 UTC)
-  | "AG17"; // Agent-Auditor (mittwochs 05:00 UTC)
+  | "AG17" // Agent-Auditor (mittwochs 05:00 UTC)
+  | "AG18"; // Content-Auditor (15. des Monats, 01:00 UTC)
 
 export type RoutingStufe = "NORMAL" | "HOCH" | "NOTFALL";
 
@@ -257,6 +258,20 @@ export interface AgentAuditResult {
   health_status: "healthy" | "degraded" | "critical";
   /** Zusammenfassung des Audit-Reports */
   report: string;
+}
+
+// ---------------------------------------------------------------------------
+// AG18 — Content-Auditor Result
+// ---------------------------------------------------------------------------
+
+export interface ContentAuditResult {
+  kennzahlen_abweichungen: { schluessel: string; hardcoded_wert: number | string; db_wert: number | string | null; quelle: string; severity: string }[];
+  veraltete_eintraege: { id: string; titel: string; problem: string; severity: string }[];
+  weisungen_luecken: string[];
+  internal_rules_abweichungen: { schluessel: string; hardcoded_wert: number | string; db_wert: number | string | null; quelle: string; severity: string }[];
+  gesamt_status: "ok" | "warnung" | "kritisch";
+  issues_created: string[];
+  zusammenfassung: string;
 }
 
 // ---------------------------------------------------------------------------

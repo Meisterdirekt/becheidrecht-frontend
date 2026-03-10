@@ -1,1 +1,298 @@
-{"bundesagentur_fuer_arbeit":{"202512002":{"datum":"01.12.2025","gueltig_ab":"01.12.2025","gueltig_bis":"unbegrenzt","thema":"Aufhebung der Fachlichen Weisungen zur Förderung der beruflichen Weiterbildung im SGB 2","sgb_ii":"Weisung","sgb_iii":"Information","rechtsgrundlage":"Haushaltsfinanzierungsgesetz 2024, Zuständigkeit FbW bei AA ab 01.01.2025","hebt_auf":["202410011","Fachliche Weisungen FbW im SGB 2"],"verweise":["202406007"],"wichtig_fuer":["SGB II","SGB III","FbW","ELB"]},"202512003":{"datum":"01.12.2025","gueltig_ab":"01.12.2025","gueltig_bis":"unbegrenzt","thema":"Anpassung der Fachlichen Weisungen zu § 45 SGB III – Maßnahmen bei einem Träger","sgb_ii":"Information","sgb_iii":"Weisung","rechtsgrundlage":"§ 183 SGB III Qualitätsprüfung","hebt_auf":["202502012"],"wichtig_fuer":["SGB III","MAT","Durchführungsqualität"]},"202512004":{"datum":"05.12.2025","gueltig_ab":"01.11.2025","gueltig_bis":"unbegrenzt","thema":"Änderung der Fachlichen Weisungen zu § 52a SGB II","sgb_ii":"Weisung","sgb_iii":"nicht betroffen","rechtsgrundlage":"DÜV-AnpassG (BGBl. 2024 I Nr. 152)","wichtig_fuer":["SGB II","§ 52a SGB II","gemeinsame Einrichtungen"]},"202512012":{"datum":"17.12.2025","gueltig_ab":"01.01.2026","gueltig_bis":"unbegrenzt","thema":"Fortführung und Aktualisierung der Weisung zum elektronischen Abruf der Arbeitsunfähigkeitsbescheinigungen (eAU-Weisung)","sgb_ii":"nicht betroffen (eAU SGB II ab 01.01.2027)","sgb_iii":"Weisung","rechtsgrundlage":"§ 311 SGB III, § 38 Abs. 3 S. 3 SGB III, § 109a SGB IV","verweise":["202310006","202502008"],"hebt_auf":["202310006"],"wichtig_fuer":["SGB III","Arbeitsunfähigkeit","VerBIS","COLIBRI"]},"202512017":{"datum":"18.12.2025","gueltig_ab":"01.01.2026","gueltig_bis":"unbegrenzt","thema":"Förderung der beruflichen Weiterbildung – Anpassung der Fachlichen Weisungen (FW FbW)","sgb_ii":"nicht betroffen","sgb_iii":"Weisung","hebt_auf":["202505011"],"wichtig_fuer":["SGB III","FbW","§ 183 SGB III Qualitätsprüfung"]},"202512020":{"datum":"19.12.2025","gueltig_ab":"01.01.2026","gueltig_bis":"31.12.2026","thema":"Befristete Verlängerung der Bezugsdauer von Kurzarbeitergeld","sgb_ii":"nicht betroffen","sgb_iii":"Weisung","rechtsgrundlage":"4. KugBeV vom 17.12.2025, § 104 Abs. 1 S. 1 SGB III","verweise":["202412026"],"wichtig_fuer":["SGB III","Kurzarbeitergeld"]},"202512023":{"datum":"22.12.2025","gueltig_ab":"01.01.2026","gueltig_bis":"unbegrenzt","thema":"Fachliche Weisung für die Berufsberatung im Erwerbsleben (BBiE)","sgb_ii":"Information","sgb_iii":"Weisung","rechtsgrundlage":"§ 15 SGB II (Veröffentlichung der Fachlichen Weisungen)","verweise":["202411010","202412014","202509011","202306003","202505008","202412010"],"hebt_auf":["202412010"],"wichtig_fuer":["SGB III","Berufsberatung","BBiE"]}},"_meta_quelle":"PDFs aus Ordner 'sozial Gestze' (FachlicheWeisungen 1–7), Stand Extraktion 2025.","_meta_verweise_kurz":{"202306003":"Veröffentlichung FW § 15 SGB II (08.06.2023)","202406007":"Referenzprozess FbW ab 01.01.2025 (20.06.2024)","202411010":"mein NOW in Beratung (22.11.2024)","202412014":"Datenerfassungen, Zielwerte 2025 (17.12.2024)","202509011":"Prozesse im Kundenportal (22.09.2025)"}}
+{
+  "bundesagentur_fuer_arbeit": {
+    "202512002": {
+      "datum": "01.12.2025",
+      "gueltig_ab": "01.12.2025",
+      "gueltig_bis": "unbegrenzt",
+      "thema": "Aufhebung der Fachlichen Weisungen zur Förderung der beruflichen Weiterbildung im SGB 2",
+      "sgb_ii": "Weisung",
+      "sgb_iii": "Information",
+      "rechtsgrundlage": "Haushaltsfinanzierungsgesetz 2024, Zuständigkeit FbW bei AA ab 01.01.2025",
+      "hebt_auf": ["202410011", "Fachliche Weisungen FbW im SGB 2"],
+      "verweise": ["202406007"],
+      "wichtig_fuer": ["SGB II", "SGB III", "FbW", "ELB"]
+    },
+    "202512003": {
+      "datum": "01.12.2025",
+      "gueltig_ab": "01.12.2025",
+      "gueltig_bis": "unbegrenzt",
+      "thema": "Anpassung der Fachlichen Weisungen zu § 45 SGB III – Maßnahmen bei einem Träger",
+      "sgb_ii": "Information",
+      "sgb_iii": "Weisung",
+      "rechtsgrundlage": "§ 183 SGB III Qualitätsprüfung",
+      "hebt_auf": ["202502012"],
+      "wichtig_fuer": ["SGB III", "MAT", "Durchführungsqualität"]
+    },
+    "202512004": {
+      "datum": "05.12.2025",
+      "gueltig_ab": "01.11.2025",
+      "gueltig_bis": "unbegrenzt",
+      "thema": "Änderung der Fachlichen Weisungen zu § 52a SGB II",
+      "sgb_ii": "Weisung",
+      "sgb_iii": "nicht betroffen",
+      "rechtsgrundlage": "DÜV-AnpassG (BGBl. 2024 I Nr. 152)",
+      "wichtig_fuer": ["SGB II", "§ 52a SGB II", "gemeinsame Einrichtungen"]
+    },
+    "202512012": {
+      "datum": "17.12.2025",
+      "gueltig_ab": "01.01.2026",
+      "gueltig_bis": "unbegrenzt",
+      "thema": "Fortführung und Aktualisierung der Weisung zum elektronischen Abruf der Arbeitsunfähigkeitsbescheinigungen (eAU-Weisung)",
+      "sgb_ii": "nicht betroffen (eAU SGB II ab 01.01.2027)",
+      "sgb_iii": "Weisung",
+      "rechtsgrundlage": "§ 311 SGB III, § 38 Abs. 3 S. 3 SGB III, § 109a SGB IV",
+      "verweise": ["202310006", "202502008"],
+      "hebt_auf": ["202310006"],
+      "wichtig_fuer": ["SGB III", "Arbeitsunfähigkeit", "VerBIS", "COLIBRI"]
+    },
+    "202512017": {
+      "datum": "18.12.2025",
+      "gueltig_ab": "01.01.2026",
+      "gueltig_bis": "unbegrenzt",
+      "thema": "Förderung der beruflichen Weiterbildung – Anpassung der Fachlichen Weisungen (FW FbW)",
+      "sgb_ii": "nicht betroffen",
+      "sgb_iii": "Weisung",
+      "hebt_auf": ["202505011"],
+      "wichtig_fuer": ["SGB III", "FbW", "§ 183 SGB III Qualitätsprüfung"]
+    },
+    "202512020": {
+      "datum": "19.12.2025",
+      "gueltig_ab": "01.01.2026",
+      "gueltig_bis": "31.12.2026",
+      "thema": "Befristete Verlängerung der Bezugsdauer von Kurzarbeitergeld",
+      "sgb_ii": "nicht betroffen",
+      "sgb_iii": "Weisung",
+      "rechtsgrundlage": "4. KugBeV vom 17.12.2025, § 104 Abs. 1 S. 1 SGB III",
+      "verweise": ["202412026"],
+      "wichtig_fuer": ["SGB III", "Kurzarbeitergeld"]
+    },
+    "202512023": {
+      "datum": "22.12.2025",
+      "gueltig_ab": "01.01.2026",
+      "gueltig_bis": "unbegrenzt",
+      "thema": "Fachliche Weisung für die Berufsberatung im Erwerbsleben (BBiE)",
+      "sgb_ii": "Information",
+      "sgb_iii": "Weisung",
+      "rechtsgrundlage": "§ 15 SGB II (Veröffentlichung der Fachlichen Weisungen)",
+      "verweise": ["202411010", "202412014", "202509011", "202306003", "202505008", "202412010"],
+      "hebt_auf": ["202412010"],
+      "wichtig_fuer": ["SGB III", "Berufsberatung", "BBiE"]
+    }
+  },
+  "deutsche_rentenversicherung": {
+    "GRA_SGB6_2026_01": {
+      "datum": "01.01.2026",
+      "gueltig_ab": "01.01.2026",
+      "thema": "Gemeinsame Rechtliche Anweisungen zu § 43 SGB VI — Rente wegen Erwerbsminderung",
+      "rechtsgrundlage": "§ 43 SGB VI",
+      "wichtig_fuer": ["Erwerbsminderungsrente", "Leistungsfähigkeit", "Restleistungsvermögen"],
+      "pruef_hinweis": "Behörde muss medizinisches Leistungsvermögen auf Grundlage aller vorliegenden Gutachten würdigen. Verweisung auf allgemeinen Arbeitsmarkt nur bei mindestens 6 Stunden Restleistungsvermögen."
+    },
+    "GRA_SGB6_2026_02": {
+      "datum": "01.01.2026",
+      "gueltig_ab": "01.01.2026",
+      "thema": "Gemeinsame Rechtliche Anweisungen zu §§ 35–38 SGB VI — Altersrenten (Regelaltersrente, langjährig Versicherte, besonders langjährig Versicherte, Schwerbehinderung)",
+      "rechtsgrundlage": "§§ 35, 36, 37, 38 SGB VI",
+      "wichtig_fuer": ["Altersrente", "Wartezeit", "Vertrauensschutz", "Rentenabschläge"],
+      "pruef_hinweis": "Prüfung der Wartezeiten (5/15/35/45 Jahre). Regelaltersgrenze beachten (Jahrgang-abhängig). Abschläge korrekt berechnet?"
+    },
+    "GRA_SGB6_2026_03": {
+      "datum": "01.01.2026",
+      "gueltig_ab": "01.01.2026",
+      "thema": "Gemeinsame Rechtliche Anweisungen zu § 51 SGB VI — Anrechenbare Zeiten für Wartezeit",
+      "rechtsgrundlage": "§ 51 SGB VI",
+      "wichtig_fuer": ["Wartezeit", "Beitragszeiten", "Anrechnungszeiten", "Ersatzzeiten"],
+      "pruef_hinweis": "Alle anrechenbaren Zeiten berücksichtigt? Kindererziehungszeiten, Pflegezeiten, Ausbildungszeiten korrekt einbezogen?"
+    },
+    "GRA_SGB6_2026_04": {
+      "datum": "01.01.2026",
+      "gueltig_ab": "01.01.2026",
+      "thema": "Gemeinsame Rechtliche Anweisungen zu § 48 SGB X — Aufhebung von Rentenbescheiden bei Änderung der Verhältnisse",
+      "rechtsgrundlage": "§ 48 SGB X i.V.m. SGB VI",
+      "wichtig_fuer": ["Aufhebungsbescheid", "Überzahlung", "Vertrauensschutz", "Rückforderung"],
+      "pruef_hinweis": "Aufhebung nur bei wesentlicher Änderung. Vertrauensschutz nach § 48 Abs. 2 SGB X prüfen. Jahresfrist der Behörde beachten (§ 48 Abs. 4 SGB X)."
+    }
+  },
+  "pflegekasse": {
+    "BRi_2026_01": {
+      "datum": "01.01.2026",
+      "gueltig_ab": "01.01.2026",
+      "thema": "Begutachtungsrichtlinien (BRi) — Feststellung von Pflegebedürftigkeit nach § 15 SGB XI",
+      "rechtsgrundlage": "§§ 14, 15 SGB XI, Begutachtungsrichtlinien des GKV-Spitzenverbandes",
+      "wichtig_fuer": ["Pflegegrad", "Begutachtung", "Selbständigkeit", "Module 1-6"],
+      "pruef_hinweis": "Alle 6 Module bewertet? Gewichtung korrekt (Modul 1: 10%, M2: 15%, M3: 7.5%, M4: 40%, M5: 20%, M6: 7.5%)? Pflegegrad-Schwellen: PG1=12.5-27, PG2=27-47.5, PG3=47.5-70, PG4=70-90, PG5=90-100."
+    },
+    "BRi_2026_02": {
+      "datum": "01.01.2026",
+      "gueltig_ab": "01.01.2026",
+      "thema": "Richtlinien zur Feststellung von Pflegebedürftigkeit bei Kindern — altersgerechte Begutachtung",
+      "rechtsgrundlage": "§ 15 SGB XI, § 18 SGB XI (Verfahren)",
+      "wichtig_fuer": ["Pflegegrad Kinder", "Altersentsprechende Selbständigkeit", "Sonderbegutachtung"],
+      "pruef_hinweis": "Vergleich mit altersgerecht entwickeltem Kind. Kinder unter 18 Monate: Sonderregelung PG mindestens 2 Stufen höher."
+    },
+    "BRi_2026_03": {
+      "datum": "01.01.2026",
+      "gueltig_ab": "01.01.2026",
+      "thema": "Pflegegeld, Pflegesachleistungen und Kombinationsleistung — Leistungshöhen 2026",
+      "rechtsgrundlage": "§§ 36, 37, 38 SGB XI",
+      "wichtig_fuer": ["Pflegegeld", "Sachleistung", "Kombileistung", "Leistungshöhe"],
+      "pruef_hinweis": "Pflegegeld 2025/2026: PG2=347€, PG3=599€, PG4=800€, PG5=990€. Sachleistung: PG2=796€, PG3=1497€, PG4=1859€, PG5=2299€. Gemeinsamer Jahresbetrag Verhinderung+Kurzzeitpflege: 3539€ (§42a SGB XI ab 01.07.2025). Korrekte Berechnung der Kombinationsleistung?"
+    }
+  },
+  "krankenkasse": {
+    "AU_RL_2026": {
+      "datum": "01.01.2026",
+      "gueltig_ab": "01.01.2026",
+      "thema": "Arbeitsunfähigkeits-Richtlinie (AU-RL) — Feststellung und Bescheinigung von Arbeitsunfähigkeit",
+      "rechtsgrundlage": "§ 92 Abs. 1 Satz 2 Nr. 7 SGB V, Beschluss G-BA",
+      "wichtig_fuer": ["Krankengeld", "Arbeitsunfähigkeit", "Nahtlosigkeit", "Aussteuerung"],
+      "pruef_hinweis": "Wurde AU lückenlos bescheinigt? Nahtlosigkeitsregelung § 49 Abs. 1 Nr. 5 SGB V beachten. Krankengeld-Berechnung: 70% Brutto, max. 90% Netto."
+    },
+    "AMRL_2026": {
+      "datum": "01.01.2026",
+      "gueltig_ab": "01.01.2026",
+      "thema": "Arzneimittel-Richtlinie — Verordnungsfähigkeit und Off-Label-Use",
+      "rechtsgrundlage": "§ 92 Abs. 1 Satz 2 Nr. 6 SGB V, G-BA Beschluss",
+      "wichtig_fuer": ["Arzneimittel", "Verordnung", "Wirtschaftlichkeit", "Off-Label"],
+      "pruef_hinweis": "Ablehnung nur mit konkreter Begründung nach Wirtschaftlichkeitsgebot § 12 SGB V. Off-Label bei schwerwiegender Erkrankung und fehlendem Therapiealternativ unter bestimmten Voraussetzungen zulässig (BSG-Rechtsprechung)."
+    },
+    "HiMi_RL_2026": {
+      "datum": "01.01.2026",
+      "gueltig_ab": "01.01.2026",
+      "thema": "Hilfsmittel-Richtlinie — Versorgung mit Hilfsmitteln nach § 33 SGB V",
+      "rechtsgrundlage": "§ 33 SGB V, § 92 Abs. 1 Satz 2 Nr. 6 SGB V",
+      "wichtig_fuer": ["Hilfsmittel", "Versorgung", "Genehmigung", "Widerspruch"],
+      "pruef_hinweis": "Hilfsmittel im Hilfsmittelverzeichnis gelistet? Ärztliche Verordnung liegt vor? Ablehnung nur bei fehlender medizinischer Notwendigkeit — Kasse muss Einzelfall prüfen."
+    }
+  },
+  "bamf": {
+    "DA_Asyl_2026_01": {
+      "datum": "01.01.2026",
+      "gueltig_ab": "01.01.2026",
+      "thema": "Dienstanweisung Asylverfahren — Anhörung und Entscheidungsfindung",
+      "rechtsgrundlage": "§§ 24, 25 AsylG",
+      "wichtig_fuer": ["Asylverfahren", "Anhörung", "Glaubwürdigkeit", "Herkunftsland"],
+      "pruef_hinweis": "Wurde eine persönliche Anhörung durchgeführt (§ 25 AsylG Pflicht)? Dolmetscher der richtigen Sprache? Protokoll vom Antragsteller unterschrieben? Rückübersetzung angeboten?"
+    },
+    "DA_Asyl_2026_02": {
+      "datum": "01.01.2026",
+      "gueltig_ab": "01.01.2026",
+      "thema": "Dienstanweisung Widerruf und Rücknahme — Überprüfung von Schutzstatus",
+      "rechtsgrundlage": "§§ 73, 73b AsylG",
+      "wichtig_fuer": ["Widerruf", "Rücknahme", "Schutzstatus", "Überprüfung"],
+      "pruef_hinweis": "Widerruf nur bei wesentlicher Veränderung der Sachlage. 3-Jahres-Frist für Regelüberprüfung. Individuelles Verfolgungsschicksal hat Vorrang vor allgemeiner Lagebewertung (BVerwG-Rspr.)."
+    }
+  },
+  "sozialhilfe": {
+    "DV_RL_2026_01": {
+      "datum": "01.01.2026",
+      "gueltig_ab": "01.01.2026",
+      "thema": "Empfehlungen des Deutschen Vereins zur Gewährung von Grundsicherung im Alter und bei Erwerbsminderung (§§ 41–46 SGB XII)",
+      "rechtsgrundlage": "§§ 41–46 SGB XII",
+      "wichtig_fuer": ["Grundsicherung", "Alter", "Erwerbsminderung", "Vermögensfreibetrag"],
+      "pruef_hinweis": "Vermögensfreibetrag 10.000€ (§ 1 Bürgergeldentzug-Verordnung analog). Einkommen korrekt berechnet? Unterkunftskosten angemessen? Mehrbedarf für Gehbehinderung (17% RS) berücksichtigt?"
+    },
+    "DV_RL_2026_02": {
+      "datum": "01.01.2026",
+      "gueltig_ab": "01.01.2026",
+      "thema": "Empfehlungen zur Hilfe zum Lebensunterhalt (§§ 27–40 SGB XII)",
+      "rechtsgrundlage": "§§ 27–40 SGB XII",
+      "wichtig_fuer": ["Hilfe zum Lebensunterhalt", "Regelsatz", "Mehrbedarf", "Einmalige Beihilfen"],
+      "pruef_hinweis": "Regelsätze 2026 identisch mit SGB II (RS1=563€). Erstausstattung, Schwangerschaftsbekleidung als einmalige Beihilfen? Mehrbedarf für werdende Mütter (17% RS ab 13. Woche)."
+    }
+  },
+  "familienkasse": {
+    "DA_KG_2026_01": {
+      "datum": "01.01.2026",
+      "gueltig_ab": "01.01.2026",
+      "thema": "Dienstanweisung zum Kindergeld (DA-KG) — Anspruchsvoraussetzungen und Höhe",
+      "rechtsgrundlage": "§§ 62–78 EStG, BKGG",
+      "wichtig_fuer": ["Kindergeld", "Kinderzuschlag", "Zahlungszeitraum", "Rückforderung"],
+      "pruef_hinweis": "Kindergeld 2026: 259€/Kind/Monat. Anspruch ab Geburt bis 18 (bzw. 25 bei Ausbildung). Rückforderung nur unter Vertrauensschutzregeln § 37 Abs. 2 AO. Kinderzuschlag max. 297€."
+    },
+    "DA_KG_2026_02": {
+      "datum": "01.01.2026",
+      "gueltig_ab": "01.01.2026",
+      "thema": "Dienstanweisung zum Kinderzuschlag (DA-KiZ)",
+      "rechtsgrundlage": "§ 6a BKGG",
+      "wichtig_fuer": ["Kinderzuschlag", "Einkommensprüfung", "Mindesteinkommensgrenze"],
+      "pruef_hinweis": "Mindesteinkommensgrenze: 900€ brutto (Paare), 600€ (Alleinerziehende). Bewilligungszeitraum 6 Monate. Kein Anspruch bei SGB II-Bezug."
+    }
+  },
+  "bafoeg": {
+    "BAfoegVwV_2026_01": {
+      "datum": "01.01.2026",
+      "gueltig_ab": "01.01.2026",
+      "thema": "BAföG-Verwaltungsvorschriften — Einkommens- und Vermögensanrechnung",
+      "rechtsgrundlage": "§§ 21–30 BAföG",
+      "wichtig_fuer": ["BAföG", "Einkommen Eltern", "Vermögensfreibetrag", "Anrechnung"],
+      "pruef_hinweis": "Vermögensfreibetrag: 15.000€ (ab 30 Jahre: 45.000€). Einkommensfreibetrag Eltern korrekt berechnet? Aktualisierungsantrag bei Einkommensänderung der Eltern möglich (§ 24 Abs. 3 BAföG)."
+    },
+    "BAfoegVwV_2026_02": {
+      "datum": "01.01.2026",
+      "gueltig_ab": "01.01.2026",
+      "thema": "BAföG-Verwaltungsvorschriften — Förderungshöchstdauer und Studiengangwechsel",
+      "rechtsgrundlage": "§§ 15, 15a, 7 Abs. 3 BAföG",
+      "wichtig_fuer": ["Förderungsdauer", "Studiengangwechsel", "Verlängerung", "Leistungsnachweis"],
+      "pruef_hinweis": "Studiengangwechsel nur aus wichtigem Grund bis 4. Semester. Leistungsnachweis nach § 48 BAföG (nach 4. Semester). Verlängerungsgründe: Krankheit, Schwangerschaft, Gremientätigkeit, Behinderung."
+    }
+  },
+  "eingliederungshilfe": {
+    "EH_RL_2026_01": {
+      "datum": "01.01.2026",
+      "gueltig_ab": "01.01.2026",
+      "thema": "Richtlinien zur Bedarfsermittlung in der Eingliederungshilfe — ICF-basierte Instrumente",
+      "rechtsgrundlage": "§§ 117–122 SGB IX Teil 2",
+      "wichtig_fuer": ["Bedarfsermittlung", "ICF", "Teilhabeplan", "Persönliches Budget"],
+      "pruef_hinweis": "Bedarfsermittlung nach ICF durchgeführt? Alle Lebensbereiche berücksichtigt? Wunsch- und Wahlrecht des Leistungsberechtigten beachtet (§ 104 SGB IX)? Gesamtplanverfahren § 121 SGB IX eingehalten?"
+    }
+  },
+  "unfallversicherung": {
+    "DGUV_RL_2026_01": {
+      "datum": "01.01.2026",
+      "gueltig_ab": "01.01.2026",
+      "thema": "Handlungsanleitung zur Feststellung von Arbeitsunfällen und Berufskrankheiten",
+      "rechtsgrundlage": "§§ 7, 8, 9 SGB VII",
+      "wichtig_fuer": ["Arbeitsunfall", "Wegeunfall", "Berufskrankheit", "Kausalität"],
+      "pruef_hinweis": "Unfallkausalität (haftungsbegründende + haftungsausfüllende Kausalität) nachvollziehbar geprüft? Wegeunfall: direkter Weg? Berufskrankheit: in BK-Liste enthalten oder wie-BK nach § 9 Abs. 2 SGB VII?"
+    }
+  },
+  "wohngeld": {
+    "WoGG_VwV_2026_01": {
+      "datum": "01.01.2026",
+      "gueltig_ab": "01.01.2026",
+      "thema": "Verwaltungsvorschriften zum Wohngeldgesetz (WoGG-VwV) — Einkommensermittlung und Mietenstufen",
+      "rechtsgrundlage": "§§ 12–18 WoGG, WoGG-VwV",
+      "wichtig_fuer": ["Wohngeld", "Mietenstufe", "Einkommen", "Haushaltsgröße"],
+      "pruef_hinweis": "Richtige Mietenstufe der Gemeinde? Einkommen korrekt ermittelt (Brutto - Pauschalen)? Heizkosten-Komponente berücksichtigt? Klimabonus-Komponente berücksichtigt?"
+    }
+  },
+  "elterngeld": {
+    "BEEG_VwV_2026_01": {
+      "datum": "01.01.2026",
+      "gueltig_ab": "01.01.2026",
+      "thema": "Verwaltungsvorschriften zum BEEG — Berechnung Elterngeld und ElterngeldPlus",
+      "rechtsgrundlage": "§§ 1–4, 4a–4d BEEG",
+      "wichtig_fuer": ["Elterngeld", "ElterngeldPlus", "Partnerschaftsbonus", "Bemessungszeitraum"],
+      "pruef_hinweis": "Bemessungszeitraum korrekt (12 Monate vor Geburt des Kindes)? Selbständige: Steuerbescheid des Vorjahres. Elterngeld: 65-67% des Einkommens (min. 300€, max. 1800€). ElterngeldPlus: halber Betrag, doppelte Dauer."
+    }
+  },
+  "versorgungsamt": {
+    "VersmedV_2026_01": {
+      "datum": "01.01.2026",
+      "gueltig_ab": "01.01.2026",
+      "thema": "Versorgungsmedizin-Verordnung (VersMedV) — GdB-Feststellung und Merkzeichen",
+      "rechtsgrundlage": "§ 152 SGB IX, VersMedV Anlage (Versorgungsmedizinische Grundsätze)",
+      "wichtig_fuer": ["GdB", "Schwerbehinderung", "Merkzeichen", "Nachteilsausgleich"],
+      "pruef_hinweis": "GdB nach Versorgungsmedizinischen Grundsätzen korrekt gebildet? Bei Mehrfachbehinderung: Gesamt-GdB nicht addieren, sondern Gesamtauswirkung bewerten. Merkzeichen (G, aG, B, H, Bl, TBl, RF) korrekt zuerkannt?"
+    }
+  },
+  "_meta_quelle": "PDFs aus Ordner 'sozial Gestze' (FachlicheWeisungen 1–7), Stand Extraktion 2025. Erweitert um DRV GRA, Pflegekasse BRi, GKV-Richtlinien, BAMF DA, Sozialhilfe DV, DA-KG, BAföG-VwV, EH-RL, DGUV-RL, WoGG-VwV, BEEG-VwV, VersMedV (Stand 2026-03).",
+  "_meta_verweise_kurz": {
+    "202306003": "Veröffentlichung FW § 15 SGB II (08.06.2023)",
+    "202406007": "Referenzprozess FbW ab 01.01.2025 (20.06.2024)",
+    "202411010": "mein NOW in Beratung (22.11.2024)",
+    "202412014": "Datenerfassungen, Zielwerte 2025 (17.12.2024)",
+    "202509011": "Prozesse im Kundenportal (22.09.2025)"
+  }
+}

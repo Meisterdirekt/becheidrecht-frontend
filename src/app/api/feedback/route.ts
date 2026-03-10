@@ -1,6 +1,33 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 
+// ---------------------------------------------------------------------------
+// Rate Limiting (10 Feedbacks / Stunde pro IP)
+// ---------------------------------------------------------------------------
+const feedbackCounts = new Map<string, { count: number; resetAt: number }>();
+const FEEDBACK_MAX = 10;
+const FEEDBACK_WINDOW = 3_600_000; // 1h
+
+function checkFeedbackLimit(ip: string): boolean {
+  const now = Date.now();
+  const entry = feedbackCounts.get(ip);
+  if (!entry || entry.resetAt < now) {
+    feedbackCounts.set(ip, { count: 1, resetAt: now + FEEDBACK_WINDOW });
+    return true;
+  }
+  if (entry.count >= FEEDBACK_MAX) return false;
+  entry.count++;
+  return true;
+}
+
+// Cleanup alle 5 Min
+setInterval(() => {
+  const now = Date.now();
+  for (const [k, v] of feedbackCounts.entries()) {
+    if (v.resetAt < now) feedbackCounts.delete(k);
+  }
+}, 300_000).unref();
+
 function getSupabaseClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL || "";
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || "";
@@ -42,6 +69,14 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
+  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+  if (!checkFeedbackLimit(ip)) {
+    return NextResponse.json(
+      { error: "Zu viele Anfragen. Bitte später erneut versuchen." },
+      { status: 429 }
+    );
+  }
+
   try {
     const body = await req.json();
     const message = typeof body.message === "string" ? body.message.trim() : "";

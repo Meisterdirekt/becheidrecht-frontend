@@ -1,13 +1,14 @@
 /**
  * AG15 — Autonomer Rechts-Monitor (Sonnet/Haiku · wöchentlicher Cron)
  *
- * 6-Phasen-Pipeline:
- *   1. Urteile-Update      — 15 Quellen, Claude Sonnet, Supabase upsert
- *   2. Kennzahlen-Check    — Regelbedarfe/Freibeträge, Claude Haiku, Supabase upsert
- *   3. Fehlerkatalog-Ext.  — neue Fehlertypen aus Änderungen, Claude Sonnet, DB insert
- *   4. Weisungen-Monitor   — BA/DRV/Pflege, Claude Haiku, DB + Protokoll
- *   5. Struktur-Monitor    — Gesetzesumbenennungen/Behördenreformen → GitHub PR
- *   6. Audit-Report        — update_protokoll, MonitorResult
+ * 7-Phasen-Pipeline:
+ *   1.  Urteile-Update       — 6 Quellen, Claude Sonnet, Supabase upsert
+ *   2.  Kennzahlen-Check     — Regelbedarfe/Freibeträge, Claude Haiku, Supabase upsert
+ *   3.  Fehlerkatalog-Ext.   — neue Fehlertypen aus Änderungen, Claude Sonnet, DB insert
+ *   3b. Fehlerkatalog-Valid.  — 10er-Stichprobe bestehender Einträge, Haiku + Web, GitHub Issue
+ *   4.  Weisungen-Monitor    — 8 Quellen (BA×3/GKV/MDS/BAMF/DRV/BZSt), Claude Haiku, DB
+ *   5.  Struktur-Monitor     — Gesetzesumbenennungen/Behördenreformen → GitHub PR
+ *   6.  Audit-Report         — update_protokoll, MonitorResult
  *
  * Sicherheit:
  *   - Whitelist-only (18 definierte Domains)
@@ -87,7 +88,7 @@ interface WeisungEintrag {
 }
 
 // ---------------------------------------------------------------------------
-// Quellen-Konfiguration (15 Quellen — vollständige Whitelist)
+// Quellen-Konfiguration (22 Quellen — vollständige Whitelist)
 // ---------------------------------------------------------------------------
 
 const QUELLEN = {
@@ -96,7 +97,7 @@ const QUELLEN = {
     { name: "BVerfG Entscheidungen",   url: "https://www.bundesverfassungsgericht.de/DE/Entscheidungen/entscheidungen_node.html", rechtsgebiet: "VERFASSUNG" },
     { name: "Sozialgerichtsbarkeit",   url: "https://www.sozialgerichtsbarkeit.de/sgb/", rechtsgebiet: "SGG" },
     { name: "BMAS Meldungen",          url: "https://www.bmas.de/DE/Service/Presse/Meldungen/meldungen.html", rechtsgebiet: "ALLGEMEIN" },
-    { name: "DRV Aktuelles",           url: "https://www.deutsche-rentenversicherung.de/DRV/DE/Aktuelles/Meldungen/meldungen_node.html", rechtsgebiet: "SGB_VI" },
+    { name: "DRV Aktuelles",           url: "https://www.deutsche-rentenversicherung.de/DRV/DE/Ueber-uns-und-Presse/Presse/Meldungen/Meldungen_node.html", rechtsgebiet: "SGB_VI" },
     { name: "BAMF Asyl",               url: "https://www.bamf.de/DE/Themen/AsylFluechtlingsschutz/asylfluechtlingsschutz-node.html", rechtsgebiet: "ASYL" },
   ],
   gesetze: [
@@ -110,12 +111,19 @@ const QUELLEN = {
     { name: "BMAS Gesetze", url: "https://www.bmas.de/DE/Service/Gesetze-und-Gesetzesvorhaben/gesetze-und-gesetzesvorhaben.html", rechtsgebiet: "ALLGEMEIN" },
   ],
   weisungen: [
-    { name: "BA Weisungen SGB II",     url: "https://www.arbeitsagentur.de/institutionen/arbeitgeber/hinweise-informationen/fachliche-weisungen-sgb-ii", traeger: "jobcenter", rechtsgebiet: "SGB_II" },
+    { name: "BA Weisungen SGB II",     url: "https://www.arbeitsagentur.de/ueber-uns/veroeffentlichungen/gesetze-und-weisungen/sgbii-grundsicherung", traeger: "jobcenter", rechtsgebiet: "SGB_II" },
+    { name: "BA Weisungen SGB III",    url: "https://www.arbeitsagentur.de/ueber-uns/veroeffentlichungen/gesetze-und-weisungen/sgbiii-arbeitsfoerderung", traeger: "arbeitsagentur", rechtsgebiet: "SGB_III" },
+    { name: "MDS Begutachtungs-RL",    url: "https://md-bund.de/richtlinien-publikationen/richtlinien/grundlagen-fuer-begutachtungen-und-qualitaetspruefungen.html", traeger: "pflegekasse", rechtsgebiet: "SGB_XI" },
+    { name: "GKV Richtlinien",         url: "https://www.gkv-spitzenverband.de/krankenversicherung/krankenversicherung.jsp", traeger: "krankenkasse", rechtsgebiet: "SGB_V" },
+    { name: "BAMF Verfahrenssteuerung", url: "https://www.bamf.de/DE/Themen/AsylFluechtlingsschutz/VerfahresteuerungQualitaetssicherung/verfahresteuerungqualitaetssicherung-node.html", traeger: "bamf", rechtsgebiet: "ASYL" },
+    { name: "DRV rvRecht GRA",        url: "https://rvrecht.deutsche-rentenversicherung.de/", traeger: "drv", rechtsgebiet: "SGB_VI" },
+    { name: "BZSt DA-KG Kindergeld",  url: "https://www.bzst.de/SharedDocs/Downloads/DE/Kindergeldberechtigte/da_kg_2024_randstrichfassung.html", traeger: "familienkasse", rechtsgebiet: "KINDERGELD" },
+    { name: "BA Weisungen BKGG/KiZ",  url: "https://www.arbeitsagentur.de/ueber-uns/veroeffentlichungen/gesetze-und-weisungen/sonstige-rechtsnormen", traeger: "familienkasse", rechtsgebiet: "KINDERGELD" },
   ],
   struktur: [
-    { name: "Bundesgesetzblatt",       url: "https://www.bgbl.de/xaver/bgbl/start.xav", typ: "gesetzblatt" },
+    { name: "Bundesgesetzblatt",       url: "https://www.recht.bund.de/bgbl/1", typ: "gesetzblatt" },
     { name: "BMAS Gesetze & Vorhaben", url: "https://www.bmas.de/DE/Service/Gesetze-und-Gesetzesvorhaben/gesetze-und-gesetzesvorhaben.html", typ: "ministerium" },
-    { name: "Bundesrat Tagesordnung",  url: "https://www.bundesrat.de/DE/plenum/tagesordnung/to-node.html", typ: "bundesrat" },
+    { name: "Bundesrat Tagesordnung",  url: "https://www.bundesrat.de/DE/plenum/to-plenum/to-plenum-node.html", typ: "bundesrat" },
     { name: "Bundestag Gesetze",       url: "https://www.bundestag.de/gesetze", typ: "bundestag" },
     { name: "gesetze-im-internet SGB II", url: "https://www.gesetze-im-internet.de/sgb_2/", typ: "gesetz" },
   ],
@@ -422,6 +430,165 @@ Nur echte, neue Fehlermuster die aus den Urteilen direkt ableitbar sind.`,
 }
 
 // ---------------------------------------------------------------------------
+// Phase 3b: Fehlerkatalog-Validierung (bestehende Einträge prüfen)
+// ---------------------------------------------------------------------------
+
+interface ValidierungsErgebnis {
+  geprueft: number;
+  veraltet: number;
+  details: Array<{ fehler_id: string; problem: string }>;
+}
+
+async function runPhase3bValidierung(
+  anthropic: Anthropic,
+): Promise<ValidierungsErgebnis> {
+  const fs = await import("fs/promises");
+  const fehlerkatalogPath = process.cwd() + "/content/behoerdenfehler_logik.json";
+
+  let fehlerkatalog: Array<Record<string, unknown>>;
+  try {
+    const raw = await fs.readFile(fehlerkatalogPath, "utf-8");
+    fehlerkatalog = JSON.parse(raw);
+  } catch {
+    console.warn("[AG15 P3b] Fehlerkatalog nicht lesbar");
+    return { geprueft: 0, veraltet: 0, details: [] };
+  }
+
+  // Sample: 10 zufällige Einträge pro Lauf (Kosten- + Rate-Limit-Kontrolle)
+  const shuffled = [...fehlerkatalog].sort(() => Math.random() - 0.5);
+  const sample = shuffled.slice(0, 10);
+
+  const details: Array<{ fehler_id: string; problem: string }> = [];
+
+  // Batch: Alle 10 Einträge in einem einzigen LLM-Call validieren
+  const eintraege = sample.map((e) => ({
+    id: String(e.id || ""),
+    titel: String(e.titel || ""),
+    beschreibung: String(e.beschreibung || ""),
+    rechtsbasis: Array.isArray(e.rechtsbasis) ? e.rechtsbasis : [],
+    severity: String(e.severity || ""),
+  }));
+
+  try {
+    // Für jeden referenzierten Paragraphen: aktuelle Gesetzestexte prüfen
+    const paragraphen = new Set<string>();
+    for (const e of eintraege) {
+      for (const r of e.rechtsbasis) {
+        // Extrahiere Gesetz aus Rechtsbasis (z.B. "§ 22 SGB II" → "sgb_2")
+        const match = String(r).match(/SGB\s*(II|III|IV|V|VI|VII|VIII|IX|X|XI|XII)/i);
+        if (match) paragraphen.add(match[0].replace(/\s+/g, " "));
+      }
+    }
+
+    // Stichproben-Fetch von gesetze-im-internet für Kontext
+    const gesetzesKontext: string[] = [];
+    const sgbMapping: Record<string, string> = {
+      "SGB II": "sgb_2", "SGB III": "sgb_3", "SGB V": "sgb_5",
+      "SGB VI": "sgb_6", "SGB IX": "sgb_9_2018", "SGB X": "sgb_10",
+      "SGB XI": "sgb_11", "SGB XII": "sgb_12",
+    };
+
+    const uniqueGesetze = new Set<string>();
+    for (const p of paragraphen) {
+      const gesetz = Object.entries(sgbMapping).find(([key]) => p.includes(key));
+      if (gesetz) uniqueGesetze.add(gesetz[1]);
+    }
+
+    // Max 3 Gesetzes-Seiten fetchen
+    const gesetzeToFetch = Array.from(uniqueGesetze).slice(0, 3);
+    for (const g of gesetzeToFetch) {
+      const pageText = await fetchPageText(`https://www.gesetze-im-internet.de/${g}/`);
+      if (pageText) {
+        gesetzesKontext.push(`--- ${g} ---\n${pageText.slice(0, 2000)}`);
+      }
+    }
+
+    const response = await anthropic.messages.create({
+      model: "claude-haiku-4-5-20251001",
+      max_tokens: 2048,
+      system: [{
+        type: "text",
+        text: `Du validierst bestehende Einträge eines Behörden-Fehlerkatalogs auf Aktualität.
+Prüfe für jeden Eintrag:
+1. Existieren die referenzierten Paragraphen noch? (Wurden sie umbenannt, verschoben, aufgehoben?)
+2. Stimmt die Severity noch? (z.B. "kritisch" für einen inzwischen unwichtigen Fehler)
+3. Enthält die Beschreibung veraltete Begriffe? (z.B. "Hartz IV" statt "Bürgergeld", alte Beträge)
+4. Ist die Rechtsbasis noch korrekt? (Gesetzesänderungen seit Eintrag-Erstellung)
+
+Antworte mit JSON-Array — nur Einträge die PROBLEME haben:
+[{"fehler_id": "BA_001", "problem": "§ 31a SGB II wurde 2024 geändert — Sanktionsregeln verschärft, Beschreibung veraltet"}]
+Leeres Array [] wenn alles aktuell ist. Nur echte Probleme — kein Nitpicking.`,
+        cache_control: { type: "ephemeral" },
+      }],
+      messages: [{
+        role: "user",
+        content: `Zu prüfende Fehlerkatalog-Einträge:\n${JSON.stringify(eintraege, null, 2)}\n\n${
+          gesetzesKontext.length > 0
+            ? `Aktuelle Gesetzestexte (Auszüge):\n${gesetzesKontext.join("\n\n")}`
+            : "(Keine Gesetzestexte abrufbar — prüfe nur auf offensichtliche Fehler)"
+        }`,
+      }],
+    });
+
+    const text = response.content.find(b => b.type === "text")?.text ?? "[]";
+    const probleme = extractJsonSafe<Array<{ fehler_id: string; problem: string }>>(text, []);
+
+    if (Array.isArray(probleme)) {
+      details.push(...probleme);
+    }
+
+    console.log(`[AG15 P3b] ${sample.length} Einträge geprüft, ${details.length} veraltet`);
+  } catch (err) {
+    console.warn("[AG15 P3b] Validierung fehlgeschlagen:", err instanceof Error ? err.message : String(err));
+  }
+
+  // Bei Funden: GitHub Issue erstellen
+  if (details.length > 0) {
+    const githubToken = process.env.GITHUB_TOKEN;
+    const githubRepo = process.env.GITHUB_REPO;
+    if (githubToken && githubRepo) {
+      const [owner, repoName] = githubRepo.split("/");
+      const body = [
+        `## AG15 Fehlerkatalog-Validierung`,
+        ``,
+        `**Geprüft:** ${sample.length} von ${fehlerkatalog.length} Einträgen (Stichprobe)`,
+        `**Veraltet:** ${details.length}`,
+        ``,
+        `### Befunde`,
+        ...details.map(d => `- **${d.fehler_id}:** ${d.problem}`),
+        ``,
+        `### Empfohlene Maßnahme`,
+        `Die betroffenen Einträge in \`content/behoerdenfehler_logik.json\` manuell prüfen und aktualisieren.`,
+        ``,
+        `---`,
+        `*Automatisch erstellt von AG15 Phase 3b • ${new Date().toISOString()}*`,
+      ].join("\n");
+
+      try {
+        await fetch(`https://api.github.com/repos/${owner}/${repoName}/issues`, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${githubToken}`,
+            Accept: "application/vnd.github+json",
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            title: `🔍 AG15: ${details.length} veraltete Fehlerkatalog-Einträge gefunden`,
+            body,
+            labels: ["fehlerkatalog", "automated", "review-needed"],
+          }),
+        });
+        console.log("[AG15 P3b] GitHub Issue erstellt");
+      } catch {
+        console.warn("[AG15 P3b] GitHub Issue konnte nicht erstellt werden");
+      }
+    }
+  }
+
+  return { geprueft: sample.length, veraltet: details.length, details };
+}
+
+// ---------------------------------------------------------------------------
 // Phase 4: Weisungen-Monitor
 // ---------------------------------------------------------------------------
 
@@ -436,11 +603,11 @@ async function runPhase4Weisungen(
 
   const systemPrompt: Anthropic.TextBlockParam[] = [{
     type: "text",
-    text: `Du erkennst Fachliche Weisungen, Rundschreiben und Dienstanweisungen in Behörden-Webseiten.
-Suche nach Dokumenten mit Nummern wie "FH 2026/12", "HEGA 03/2026", "DA-KV 2026" oder Datumsangaben.
+    text: `Du erkennst Fachliche Weisungen, Rundschreiben, Richtlinien und Dienstanweisungen in Behörden-Webseiten.
+Suche nach Dokumenten mit Nummern wie "FH 2026/12", "HEGA 03/2026", "DA-KV 2026", "GRA zu §...", "BRi", "DA-Asyl", "DGUV" oder Datumsangaben.
 Antworte mit JSON-Array oder []:
 [{"traeger":"jobcenter","weisung_nr":"FH 2026/12","titel":"Fachliche Weisung zu...","gueltig_ab":"2026-03-01","rechtsgebiet":"SGB_II"}]
-Traeger: jobcenter | arbeitsagentur | drv | pflegekasse | sozialhilfe`,
+Traeger: jobcenter | arbeitsagentur | drv | krankenkasse | pflegekasse | bamf | familienkasse | sozialhilfe | unfallversicherung`,
     cache_control: { type: "ephemeral" },
   }];
 
@@ -897,7 +1064,10 @@ export async function runRechtsMonitor(): Promise<MonitorResult> {
   // Phase 3: Fehlerkatalog-Erweiterung (basiert auf P1+P2)
   const p3 = await runPhase3Fehlerkatalog(anthropic, p1.neu, p2.geaendert);
 
-  // Phase 4: Weisungen (1 Weisungsquelle)
+  // Phase 3b: Fehlerkatalog-Validierung (bestehende Einträge prüfen)
+  const p3b = await runPhase3bValidierung(anthropic);
+
+  // Phase 4: Weisungen (8 Weisungsquellen)
   const p4 = await runPhase4Weisungen(anthropic);
   alleFehlerQuellen.push(...p4.fehlerQuellen);
 
@@ -909,8 +1079,8 @@ export async function runRechtsMonitor(): Promise<MonitorResult> {
   const gesamtQuellen = QUELLEN.urteile.length + QUELLEN.gesetze.length + QUELLEN.weisungen.length + QUELLEN.struktur.length;
   const zusammenfassung =
     `AG15 Wochenlauf: ${p1.neu} Urteile, ${p2.geaendert} Kennzahlen, ` +
-    `${p3.hinzugefuegt} Fehlertypen, ${p4.neu} Weisungen, ` +
-    `${p5.prs_erstellt} Struktur-PRs. ` +
+    `${p3.hinzugefuegt} Fehlertypen, ${p3b.veraltet}/${p3b.geprueft} veraltet, ` +
+    `${p4.neu} Weisungen, ${p5.prs_erstellt} Struktur-PRs. ` +
     `${alleFehlerQuellen.length} Quellen fehlgeschlagen.`;
 
   try {

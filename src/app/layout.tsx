@@ -14,6 +14,19 @@ const outfit = Outfit({
 export const metadata: Metadata = {
   title: "BescheidRecht",
   description: "Softwaregestützte Analyse für Verwaltungsschreiben",
+  openGraph: {
+    title: "BescheidRecht",
+    description: "KI-gestützte Analyse von Behördenbescheiden — Fehler erkennen, Fristen wahren, Widerspruch einlegen.",
+    url: "https://www.bescheidrecht.de",
+    siteName: "BescheidRecht",
+    locale: "de_DE",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "BescheidRecht",
+    description: "KI-gestützte Analyse von Behördenbescheiden — Fehler erkennen, Fristen wahren, Widerspruch einlegen.",
+  },
 };
 
 export const viewport: Viewport = {

@@ -174,6 +174,7 @@ export async function GET(req: Request) {
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL;
   if (!appUrl) {
+    console.warn("[AG-DESIGNER] NEXT_PUBLIC_APP_URL nicht gesetzt — Audit übersprungen. Env-Var in Vercel setzen!");
     return NextResponse.json({
       success: false,
       message: "NEXT_PUBLIC_APP_URL nicht gesetzt — Audit übersprungen",

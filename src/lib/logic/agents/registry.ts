@@ -63,6 +63,10 @@ function ensureInitialized(): void {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   const { ag17AgentAuditor } = require("./ag17-agent-auditor");
 
+  // Content-Auditor (15. des Monats 01:00 UTC, AG18)
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { ag18ContentAuditor } = require("./ag18-content-auditor");
+
   const allAgents: Agent[] = [
     ag08SecurityGate, ag12DocumentProcessor, ag01Orchestrator,
     ag02Analyst, ag07LetterGenerator, ag13UserExplainer,
@@ -73,6 +77,7 @@ function ensureInitialized(): void {
     ag15RechtsMonitor,
     ag16VercelAgent,
     ag17AgentAuditor,
+    ag18ContentAuditor,
   ];
 
   for (const agent of allAgents) {
