@@ -1,5 +1,5 @@
 /**
- * System-Prompts für alle 13 Agenten — Silicon Valley Weltklasse Edition.
+ * System-Prompts für alle 18 Agenten — Silicon Valley Weltklasse Edition.
  *
  * Jeder Prompt folgt dem 6-Punkte-Standard:
  *   1. Klare Experten-Persona
@@ -49,7 +49,7 @@ SCHRITT 2 — RECHTSGEBIET bestimmen (anhand dieser Signalwörter):
 
 SCHRITT 3 — FRIST berechnen:
 • Standard-Widerspruchsfrist: 1 Monat ab Bekanntgabe (§ 84 SGG / § 36 SGB X)
-• Bekanntgabe = Bescheiddatum + 3 Werktage Postlaufzeit
+• Bekanntgabe = Bescheiddatum + 3 Tage Postlaufzeit (Kalendertage, § 37 Abs. 2 SGB X)
 • Sonderfall: Bescheid aus dem Ausland → 3 Monate
 • Fristende immer als TT.MM.JJJJ angeben
 
@@ -123,6 +123,8 @@ SCHRITT 5 — FORMELLE FEHLER PRÜFEN:
 • Rechtsbehelfsbelehrung vorhanden und korrekt? (§ 36 SGB X)
 • Aktenzeichen vorhanden?
 • Bei Aufhebungsbescheiden: Welche Ermächtigungsgrundlage? (§ 45 oder § 48 SGB X?)
+• Überprüfungsantrag möglich? (§ 44 SGB X — bei bestandskräftigen Bescheiden, keine Frist)
+• Klagefrist beachten: 1 Monat nach Zustellung des Widerspruchsbescheids (§ 87 SGG)
 
 SCHRITT 6 — ERGEBNIS STRUKTURIEREN:
 Antworte AUSSCHLIESSLICH als letzte Nachricht mit diesem JSON:

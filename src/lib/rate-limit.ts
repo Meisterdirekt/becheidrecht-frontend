@@ -101,4 +101,7 @@ export const letterLimiter = buildLimiter([10, "1h"]);
 /** /api/assistant — 20 Anfragen / 1 Std */
 export const assistantLimiter = buildLimiter([20, "1h"]);
 
+/** /api/fristen — 30 Anfragen / 1 Min pro User */
+export const fristenLimiter = buildLimiter([30, "1m"]);
+
 export { isRedisConfigured };

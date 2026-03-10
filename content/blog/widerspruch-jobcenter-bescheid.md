@@ -35,7 +35,7 @@ Das Jobcenter prüft Ihren Widerspruch. Es kann Ihrem Widerspruch **abhilfen** o
 
 ## Fehler im Bescheid
 
-Bescheide müssen bestimmte Anforderungen erfüllen: Die **Rechtsbehelfsbelehrung** (§ 25 SGB X) muss korrekt sein, und der Bescheid muss **begründet** werden. Fehlt die Belehrung oder ist sie fehlerhaft, kann dies rechtliche Folgen haben. Ein Tool wie **BescheidRecht** kann Ihnen helfen, Bescheide auf typische Auffälligkeiten und Fristen hin zu prüfen – es ersetzt keine anwaltliche Beratung.
+Bescheide müssen bestimmte Anforderungen erfüllen: Die **Rechtsbehelfsbelehrung** (§ 36 SGB X) muss korrekt sein, und der Bescheid muss **begründet** werden. Fehlt die Belehrung oder ist sie fehlerhaft, kann dies rechtliche Folgen haben. Ein Tool wie **BescheidRecht** kann Ihnen helfen, Bescheide auf typische Auffälligkeiten und Fristen hin zu prüfen – es ersetzt keine anwaltliche Beratung.
 
 ## Kurz zusammengefasst
 

@@ -9,11 +9,11 @@ import { Printer, ArrowLeft } from "lucide-react";
 const ANBIETER = {
   name: "BescheidRecht",
   inhaber: "Hendrik Berkensträter",
-  adresse: "Deine Straße 1, 12345 Deine Stadt", // ← anpassen
+  adresse: process.env.NEXT_PUBLIC_COMPANY_ADDRESS || "[Geschäftsadresse konfigurieren]",
   email: "kontakt@bescheidrecht.de",
   web: "bescheidrecht.de",
-  steuernummer: "DE XXX XXX XXX", // ← USt-IdNr. eintragen
-  gerichtsstand: "Deine Stadt", // ← anpassen
+  steuernummer: process.env.NEXT_PUBLIC_COMPANY_TAX_ID || "[USt-IdNr. konfigurieren]",
+  gerichtsstand: process.env.NEXT_PUBLIC_COMPANY_CITY || "[Gerichtsstand konfigurieren]",
 };
 
 const PAKETE: Record<string, { nutzer: string; analysen: string; preis: string; sla: string }> = {

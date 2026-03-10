@@ -21,7 +21,9 @@
 
 import Anthropic from "@anthropic-ai/sdk";
 import { createClient } from "@supabase/supabase-js";
-import { extractJsonSafe } from "./utils";
+import { extractJsonSafe, SONNET_MODEL } from "./utils";
+import type { Agent, AgentContext, AgentResult } from "./types";
+import { emptyTokenUsage } from "./types";
 
 // ---------------------------------------------------------------------------
 // Typen
@@ -1112,3 +1114,28 @@ export async function runRechtsMonitor(): Promise<MonitorResult> {
   console.log("[AG15] Fertig:", result);
   return result;
 }
+
+// ---------------------------------------------------------------------------
+// Agent-Interface (für Registry-Registrierung)
+// ---------------------------------------------------------------------------
+
+async function execute(
+  _ctx: AgentContext,
+): Promise<AgentResult<MonitorResult>> {
+  const start = Date.now();
+  const data = await runRechtsMonitor();
+  return {
+    agentId: "AG15",
+    success: true,
+    data,
+    tokens: emptyTokenUsage(),
+    durationMs: Date.now() - start,
+  };
+}
+
+export const ag15RechtsMonitor: Agent<MonitorResult> = {
+  id: "AG15",
+  name: "Rechts-Monitor",
+  model: () => SONNET_MODEL,
+  execute,
+};

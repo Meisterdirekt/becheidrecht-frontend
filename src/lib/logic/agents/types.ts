@@ -1,5 +1,5 @@
 /**
- * Shared Interfaces für das Multi-Agent-System (AG01–AG13)
+ * Shared Interfaces für das Multi-Agent-System (AG01–AG18)
  */
 
 // ---------------------------------------------------------------------------

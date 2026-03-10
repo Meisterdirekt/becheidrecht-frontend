@@ -17,7 +17,7 @@
 | **Unterhaltsvorschuss** | Unterhaltsvorschussgesetz, Antrag, Bescheid |
 | **Kindertagesbetreuung** | Platz, Kostenbeteiligung |
 | **Inobhutnahme, Pflegekinder** | Verfahren, Bescheide |
-| **Verfahren** | § 14, § 16, § 60 SGB I, § 24, § 25 SGB X |
+| **Verfahren** | § 14, § 16, § 60 SGB I, § 24, § 36 SGB X |
 
 ---
 
@@ -29,4 +29,4 @@
 | JA_003 | Antragstellung § 16 SGB I | SGB I |
 | JA_004 | Mitwirkung § 60 SGB I | SGB I |
 | JA_005 | Leistungsbescheid SGB VIII (Hilfe zur Erziehung, Unterhaltsvorschuss, etc.) | SGB VIII |
-| JA_006 | Bescheidbegründung / Widerspruchsfrist | § 24, § 25 SGB X |
+| JA_006 | Bescheidbegründung / Rechtsbehelfsbelehrung | § 24 SGB X (Anhörung), § 36 SGB X (Rechtsbehelfsbelehrung) |

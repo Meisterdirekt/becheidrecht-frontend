@@ -8,7 +8,7 @@
 
 ## Gängige Bereiche
 
-Leistungen zur Teilhabe (Wohnen, Arbeit, soziale Teilhabe, Assistenz, Persönliches Budget). Bescheid, Bewilligung, Ablehnung. Verfahren: § 14, § 16, § 60 SGB I, § 24, § 25 SGB X.
+Leistungen zur Teilhabe (Wohnen, Arbeit, soziale Teilhabe, Assistenz, Persönliches Budget). Bescheid, Bewilligung, Ablehnung. Verfahren: § 14, § 16, § 60 SGB I, § 24, § 36 SGB X.
 
 ---
 
@@ -20,4 +20,4 @@ Leistungen zur Teilhabe (Wohnen, Arbeit, soziale Teilhabe, Assistenz, Persönlic
 | EH_003 | Antragstellung § 16 SGB I | SGB I |
 | EH_004 | Mitwirkung § 60 SGB I | SGB I |
 | EH_005 | Leistungsbescheid Eingliederungshilfe | SGB IX |
-| EH_006 | Bescheidbegründung / Widerspruchsfrist | § 24, § 25 SGB X |
+| EH_006 | Bescheidbegründung / Rechtsbehelfsbelehrung | § 24 SGB X (Anhörung), § 36 SGB X (Rechtsbehelfsbelehrung) |

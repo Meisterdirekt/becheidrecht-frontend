@@ -133,7 +133,7 @@ src/
 │   └── vault/internal_rules.json       # Interne Regeln (in .gitignore)
 ├── data/blog/posts.ts                  # Blog-Metadaten
 content/                                # GESCHÜTZT — Hook blockiert Edits ohne Freigabe
-├── behoerdenfehler_logik.json          # 130 Fehlertypen, 16 Träger/Rechtsgebiete, 3 Severity-Stufen
+├── behoerdenfehler_logik.json          # 128 Fehlertypen, 16 Träger/Rechtsgebiete, 3 Severity-Stufen
 ├── weisungen_2025_2026.json            # BA-Weisungen 2025/2026
 ├── *_quellen.md                        # 12 Quellensammlungen pro Rechtsgebiet (SGB II–IX, BAMF, etc.)
 ├── behoerden_checkliste.md             # Prüfliste Behörden
@@ -245,7 +245,7 @@ Mobile first (375px zuerst). Arabisch (AR) → `dir="rtl"`. Fehler freundlich fo
 
 3. **Fristen-API nutzt User-JWT, nicht Service-Role-Key.** RLS-Policies von `user_fristen` filtern nach `auth.uid()`. Service-Key umgeht RLS → Sicherheitslücke.
 
-4. **Fehlerkatalog hat 130 Einträge (16 Rechtsgebiete)** mit festem Schema: `id` (string, z.B. "BA_001"), `titel`, `beschreibung`, `rechtsbasis[]`, `severity` ("hinweis"|"wichtig"|"kritisch"), `prueflogik` ({bedingungen[], suchbegriffe[]}), `musterschreiben_hinweis`, `severity_beschreibung`. Schema wird per Test validiert (`content/__tests__/fehlerkatalog-schema.test.ts`).
+4. **Fehlerkatalog hat 128 Einträge (16 Rechtsgebiete)** mit festem Schema: `id` (string, z.B. "BA_001"), `titel`, `beschreibung`, `rechtsbasis[]`, `severity` ("hinweis"|"wichtig"|"kritisch"), `prueflogik` ({bedingungen[], suchbegriffe[]}), `musterschreiben_hinweis`, `severity_beschreibung`. Schema wird per Test validiert (`content/__tests__/fehlerkatalog-schema.test.ts`).
 
 5. **Middleware refresht Supabase-Session bei JEDEM Request.** Fehlende Keys → silent `NextResponse.next()` statt Crash. Fehlende Env-Vars verursachen leise Auth-Fehler, keine lauten.
 

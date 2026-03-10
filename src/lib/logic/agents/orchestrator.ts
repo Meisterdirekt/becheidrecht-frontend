@@ -2,7 +2,7 @@
  * Pipeline-Orchestrator
  *
  * Steuert die Reihenfolge aller Agenten:
- * AG08 → AG12 → AG01 → [AG02 ║ AG04] → AG03 → AG07 → AG13
+ * AG08 → AG12 → AG01 → [AG02 ║ AG04] → AG03 → [AG07 ║ AG14] → AG13
  * + async: AG05, AG06
  *
  * Parallelismus via Promise.allSettled(), Graceful Degradation via safeExecute().

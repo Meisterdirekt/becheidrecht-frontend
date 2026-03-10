@@ -15,7 +15,8 @@ export const maxDuration = 25;
 
 function verifySecret(req: Request): boolean {
   const url = new URL(req.url);
-  const secret = url.searchParams.get("secret");
+  const authHeader = req.headers?.get?.("authorization") || "";
+  const secret = url.searchParams.get("secret") || authHeader.replace("Bearer ", "");
   const expected = process.env.CRON_SECRET;
   return !!expected && secret === expected;
 }

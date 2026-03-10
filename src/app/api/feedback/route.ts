@@ -28,12 +28,12 @@ setInterval(() => {
   }
 }, 300_000).unref();
 
-function getSupabaseClient() {
+function getSupabaseClient(useServiceRole = false) {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL || "";
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || "";
   const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY || "";
   if (!url) return null;
-  const key = serviceKey || anonKey;
+  const key = useServiceRole ? (serviceKey || anonKey) : (anonKey || serviceKey);
   if (!key) return null;
   return createClient(url, key);
 }
@@ -41,7 +41,7 @@ function getSupabaseClient() {
 /** GET: Öffentliche Feedback-Liste (für Anzeige auf der Website – ohne E-Mail) */
 export async function GET() {
   try {
-    const supabase = getSupabaseClient();
+    const supabase = getSupabaseClient(true);
     if (!supabase) {
       return NextResponse.json({ items: [] });
     }

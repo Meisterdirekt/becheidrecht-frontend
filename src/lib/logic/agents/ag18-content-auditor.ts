@@ -67,9 +67,9 @@ const PROMPT_HARDCODES: Record<string, { wert: number; einheit: string; quelle: 
   "regelbedarf_rs2": { wert: 506, einheit: "EUR", quelle: "prompts.ts AG02 Zeile 103" },
   "regelbedarf_rs3": { wert: 451, einheit: "EUR", quelle: "prompts.ts AG02 Zeile 103" },
   "regelbedarf_rs4": { wert: 471, einheit: "EUR", quelle: "prompts.ts AG02 Zeile 103" },
-  "regelbedarf_rs5": { wert: 357, einheit: "EUR", quelle: "prompts.ts AG02 Zeile 103" },
+  "regelbedarf_rs5": { wert: 390, einheit: "EUR", quelle: "kennzahlen.ts REGELBEDARF.RS5" },
   "regelbedarf_rs6": { wert: 357, einheit: "EUR", quelle: "prompts.ts AG02 Zeile 103" },
-  "kindergeld":      { wert: 255, einheit: "EUR", quelle: "prompts.ts AG02 Zeile 106" },
+  "kindergeld":      { wert: 259, einheit: "EUR", quelle: "kennzahlen.ts KINDERGELD_PRO_MONAT" },
   "grundfreibetrag_11b": { wert: 100, einheit: "EUR", quelle: "prompts.ts AG02 Zeile 105" },
 };
 
@@ -89,7 +89,7 @@ const RECHTSGEBIET_TRAEGER: Record<string, string> = {
   KK: "krankenkasse", PK: "pflegekasse", UV: "unfallversicherung",
   VA: "versorgungsamt", SH: "sozialhilfe", EH: "eingliederungshilfe",
   JA: "jugendamt", BAMF: "bamf", BAF: "bafoeg",
-  EG: "elterngeld", FK: "familienkasse", WG: "wohngeld", UVS: "unfallversicherung",
+  EG: "elterngeld", FK: "familienkasse", WG: "wohngeld", UVS: "unterhaltsvorschuss",
 };
 
 // ---------------------------------------------------------------------------

@@ -40,7 +40,7 @@ Landesspezifisch: **Runderlässe**, **Arbeitshilfen** und **Formulare** der Land
 | SH_003 | Antragstellung § 16 SGB I | SGB I |
 | SH_004 | Mitwirkung § 60 SGB I | SGB I |
 | SH_005 | Leistungsbescheid SGB XII / Grundsicherung / Hilfe zum Lebensunterhalt | SGB XII, ggf. Landeserlässe |
-| SH_006 | Bescheidbegründung / Widerspruchsfrist | § 24, § 25 SGB X |
+| SH_006 | Bescheidbegründung / Rechtsbehelfsbelehrung | § 24 SGB X (Anhörung), § 36 SGB X (Rechtsbehelfsbelehrung) |
 
 ---
 

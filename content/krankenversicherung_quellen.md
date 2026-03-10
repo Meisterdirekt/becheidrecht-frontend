@@ -28,6 +28,6 @@
 | KK_003 | Antragstellung § 16 SGB I | SGB I |
 | KK_004 | Mitwirkung § 60 SGB I | SGB I |
 | KK_005 | Leistungsbescheid SGB V (Krankengeld, Heilmittel, Hilfsmittel, Kostenübernahme) | SGB V, Richtlinien GKV-Spitzenverband |
-| KK_006 | Bescheidbegründung / Widerspruchsfrist | § 24, § 25 SGB X |
+| KK_006 | Bescheidbegründung / Rechtsbehelfsbelehrung | § 24 SGB X (Anhörung), § 36 SGB X (Rechtsbehelfsbelehrung) |
 
 Referenz: [gkv-spitzenverband.de](https://www.gkv-spitzenverband.de) – Krankenversicherung.

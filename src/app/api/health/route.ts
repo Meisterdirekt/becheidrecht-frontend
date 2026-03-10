@@ -60,14 +60,10 @@ function checkEnvVars(): CheckResult {
   return { ok: true };
 }
 
-function checkOptionalEnvVars(): Record<string, boolean> {
-  return {
-    MOLLIE_API_KEY: !!process.env.MOLLIE_API_KEY,
-    TAVILY_API_KEY: !!process.env.TAVILY_API_KEY,
-    CRON_SECRET: !!process.env.CRON_SECRET,
-    GITHUB_TOKEN: !!process.env.GITHUB_TOKEN,
-    SENTRY_DSN: !!process.env.SENTRY_DSN,
-  };
+function checkOptionalEnvVars(): { configured: number; total: number } {
+  const vars = ["MOLLIE_API_KEY", "TAVILY_API_KEY", "CRON_SECRET", "GITHUB_TOKEN", "SENTRY_DSN"];
+  const configured = vars.filter((k) => !!process.env[k]).length;
+  return { configured, total: vars.length };
 }
 
 export async function GET() {

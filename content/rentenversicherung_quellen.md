@@ -49,7 +49,7 @@ Offizielle Rechtsauskünfte und GRA der Rentenversicherung. **Nichts davon wird 
 
 - **§ 60 SGB I (Mitwirkung)** – Auskunft, Urkunden, Untersuchungen; Folgen bei Nichtmitwirkung nur nach gesetzlicher Grundlage. GRA SGB I in rvRecht.
 - **§ 24 SGB X** – Bescheid muss Begründung enthalten, soweit erforderlich.
-- **§ 25 SGB X** – Widerspruchsfrist (in der Regel einen Monat); Hinweis im Bescheid.
+- **§ 36 SGB X** – Rechtsbehelfsbelehrung (Fristhinweis: 1 Monat Widerspruchsfrist, § 84 SGG); Pflichtbestandteil im Bescheid.
 - Fehlertypen: **DRV_004** (Mitwirkung), **DRV_008** (Begründung/Widerspruchsfrist).
 
 ---
@@ -64,7 +64,7 @@ Offizielle Rechtsauskünfte und GRA der Rentenversicherung. **Nichts davon wird 
 | DRV_005 | Rente / Rentenleistung | SGB VI, GRA SGB VI (rvRecht) |
 | DRV_006 | Reha (Leistungen zur Teilhabe) | SGB VI/IX, GRA (rvRecht) |
 | DRV_007 | Erwerbsminderung | SGB VI, GRA SGB VI (rvRecht) |
-| DRV_008 | Bescheidbegründung / Widerspruchsfrist | § 24, § 25 SGB X |
+| DRV_008 | Bescheidbegründung / Rechtsbehelfsbelehrung | § 24 SGB X (Anhörung), § 36 SGB X (Rechtsbehelfsbelehrung) |
 
 ---
 

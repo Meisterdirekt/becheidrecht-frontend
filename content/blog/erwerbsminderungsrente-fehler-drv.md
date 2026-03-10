@@ -13,7 +13,7 @@ Man unterscheidet zwischen **voller** und **teiler Erwerbsminderung**: Wer unter
 
 ## Typische Fehler und Streitpunkte
 
-Häufige Gründe für Ablehnungen oder Kürzungen sind: **Versicherungszeiten** wurden nicht vollständig erfasst; **Gesundheitsbeeinträchtigungen** wurden vom Gutachter anders bewertet; **zumutbare Tätigkeiten** wurden zu optimistisch angenommen; **Nachweise** fehlten. Auch **formelle Fehler** im Bescheid sind möglich – z. B. unvollständige **Rechtsbehelfsbelehrung** (§ 25 SGB X) oder lückenhafte **Begründung**.
+Häufige Gründe für Ablehnungen oder Kürzungen sind: **Versicherungszeiten** wurden nicht vollständig erfasst; **Gesundheitsbeeinträchtigungen** wurden vom Gutachter anders bewertet; **zumutbare Tätigkeiten** wurden zu optimistisch angenommen; **Nachweise** fehlten. Auch **formelle Fehler** im Bescheid sind möglich – z. B. unvollständige **Rechtsbehelfsbelehrung** (§ 36 SGB X) oder lückenhafte **Begründung**.
 
 ## Den Bescheid der DRV prüfen
 

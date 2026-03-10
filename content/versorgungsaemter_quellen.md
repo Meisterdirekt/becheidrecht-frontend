@@ -16,7 +16,7 @@
 | **Feststellung der Behinderung** | GdB (Grad der Behinderung), Merkzeichen (G, B, aG, Bl, …), Schwerbehinderung ab GdB 50 |
 | **Schwerbehindertenausweis** | Ausstellung, Verlängerung |
 | **Versorgungsmedizin-Verordnung** | Anhaltspunkte für die ärztliche Gutachtertätigkeit |
-| **Verfahren** | § 14, § 16, § 60 SGB I, § 24, § 25 SGB X |
+| **Verfahren** | § 14, § 16, § 60 SGB I, § 24, § 36 SGB X |
 
 ---
 
@@ -28,4 +28,4 @@
 | VA_003 | Antragstellung § 16 SGB I | SGB I |
 | VA_004 | Mitwirkung § 60 SGB I | SGB I |
 | VA_005 | Feststellungsbescheid (GdB, Merkzeichen) / Versorgung | SGB IX, SchwbAwV, VersMedV |
-| VA_006 | Bescheidbegründung / Widerspruchsfrist | § 24, § 25 SGB X |
+| VA_006 | Bescheidbegründung / Rechtsbehelfsbelehrung | § 24 SGB X (Anhörung), § 36 SGB X (Rechtsbehelfsbelehrung) |

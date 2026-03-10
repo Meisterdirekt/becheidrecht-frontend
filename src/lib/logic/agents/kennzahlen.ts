@@ -20,7 +20,7 @@ export const REGELBEDARF = {
   RS2: 506, // Paare je Partner
   RS3: 451, // Erwachsene im Haushalt anderer
   RS4: 471, // Jugendliche 14–17
-  RS5: 357, // Kinder 6–13
+  RS5: 390, // Kinder 6–13
   RS6: 357, // Kinder 0–5
 } as const;
 

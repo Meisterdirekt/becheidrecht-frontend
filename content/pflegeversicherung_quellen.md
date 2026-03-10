@@ -28,7 +28,7 @@ Die **Pflegekassen** sind bei den Krankenkassen (GKV) angesiedelt; Rechtsgrundla
 | PK_004 | Mitwirkung § 60 SGB I | SGB I |
 | PK_005 | Pflegegrad / Begutachtung | § 18, § 18b SGB XI, Richtlinien GKV-Spitzenverband (Die-RiLi, UGu-RiLi) |
 | PK_006 | Pflegeleistungen (Geld-/Sachleistungen) | SGB XI, Gemeinsames Rundschreiben GKV-Spitzenverband |
-| PK_007 | Bescheidbegründung / Widerspruchsfrist | § 24, § 25 SGB X |
+| PK_007 | Bescheidbegründung / Rechtsbehelfsbelehrung | § 24 SGB X (Anhörung), § 36 SGB X (Rechtsbehelfsbelehrung) |
 
 ---
 

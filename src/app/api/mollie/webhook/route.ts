@@ -186,6 +186,6 @@ export async function POST(req: NextRequest) {
     })
     .eq('user_id', userId);
 
-  console.log(`[Mollie] ✅ ${buyerEmail} → ${product.type} (${product.analyses} Analysen)`);
+  console.log(`[Mollie] ✅ ${buyerEmail.replace(/(.{2}).*@/, "$1***@")} → ${product.type} (${product.analyses} Analysen)`);
   return NextResponse.json({ received: true, status: 'activated' });
 }

@@ -16,7 +16,7 @@
 | **Geldleistungen** | Verletztengeld, Übergangsgeld, Rente (MdE), Pflegegeld |
 | **Reha / Teilhabe** | Medizinische und berufliche Reha, Hilfsmittel |
 | **Richtlinien** | Gemeinsame Richtlinien der UV-Träger (Reisekosten, Kfz-Hilfe, Wohnungshilfe, Hilfsmittel) |
-| **Verfahren** | § 14, § 16, § 60 SGB I, § 24, § 25 SGB X |
+| **Verfahren** | § 14, § 16, § 60 SGB I, § 24, § 36 SGB X |
 
 ---
 
@@ -28,4 +28,4 @@
 | UV_003 | Antragstellung § 16 SGB I | SGB I |
 | UV_004 | Mitwirkung § 60 SGB I | SGB I |
 | UV_005 | Leistungsbescheid SGB VII (Verletztengeld, Rente, Reha, Hilfsmittel) | SGB VII, DGUV-Richtlinien |
-| UV_006 | Bescheidbegründung / Widerspruchsfrist | § 24, § 25 SGB X |
+| UV_006 | Bescheidbegründung / Rechtsbehelfsbelehrung | § 24 SGB X (Anhörung), § 36 SGB X (Rechtsbehelfsbelehrung) |

@@ -17,7 +17,7 @@
 | **Arbeitslosengeld I (ALG I)** | Anspruch, Bemessung, Dauer, Sperrzeit, Leistungsbescheid |
 | **Insolvenzgeld** | Lohnersatz bei Insolvenz des Arbeitgebers |
 | **Förderung** | Weiterbildung, Aktivierung, etc. |
-| **Verfahren** | § 14, § 16, § 60 SGB I, § 24, § 25 SGB X |
+| **Verfahren** | § 14, § 16, § 60 SGB I, § 24, § 36 SGB X |
 
 ---
 
@@ -29,4 +29,4 @@
 | ALG_003 | Antragstellung § 16 SGB I | SGB I |
 | ALG_004 | Mitwirkung § 60 SGB I | SGB I |
 | ALG_005 | Leistungsbescheid SGB III (ALG I, Insolvenzgeld, Förderung) | SGB III |
-| ALG_006 | Bescheidbegründung / Widerspruchsfrist | § 24, § 25 SGB X |
+| ALG_006 | Bescheidbegründung / Rechtsbehelfsbelehrung | § 24 SGB X (Anhörung), § 36 SGB X (Rechtsbehelfsbelehrung) |

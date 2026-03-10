@@ -1,5 +1,5 @@
 /**
- * Agent Registry — zentrale Verwaltung aller 13 Agenten.
+ * Agent Registry — zentrale Verwaltung aller 18 Agenten.
  * Registrierung erfolgt lazy beim ersten Zugriff.
  */
 
@@ -8,7 +8,7 @@ import type { Agent, AgentId } from "./types";
 const agents = new Map<AgentId, Agent>();
 let initialized = false;
 
-/** Registriert alle 15 Agenten (lazy, einmalig). */
+/** Registriert alle 18 Agenten (lazy, einmalig). */
 function ensureInitialized(): void {
   if (initialized) return;
   initialized = true;

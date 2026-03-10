@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { fristenLimiter } from "@/lib/rate-limit";
 
 export const runtime = "nodejs";
 
@@ -39,6 +40,11 @@ export async function GET(req: NextRequest) {
   const auth = await getTokenAndUser(req);
   if (!auth) {
     return NextResponse.json({ error: "Nicht angemeldet." }, { status: 401 });
+  }
+
+  const { success } = await fristenLimiter.limit(auth.userId);
+  if (!success) {
+    return NextResponse.json({ error: "Zu viele Anfragen. Bitte kurz warten." }, { status: 429 });
   }
 
   const supabase = getUserClient(auth.token);

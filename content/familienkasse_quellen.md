@@ -17,7 +17,7 @@
 |--------|--------|
 | **Kindergeld** | Anspruch, Höhe, Dauer, Antrag (KG1), volljährige Kinder, Auszahlung, Rückwirkung (bis 6 Monate) |
 | **Kinderzuschlag** | Anspruchsvoraussetzungen, Antrag, Berechnung |
-| **Verfahren** | § 14, § 16, § 60 SGB I, § 24, § 25 SGB X |
+| **Verfahren** | § 14, § 16, § 60 SGB I, § 24, § 36 SGB X |
 
 ---
 
@@ -29,4 +29,4 @@
 | FK_003 | Antragstellung § 16 SGB I | SGB I |
 | FK_004 | Mitwirkung § 60 SGB I | SGB I |
 | FK_005 | Kindergeld-/Kinderzuschlag-Bescheid | EStG/BKGG, SGB I/X |
-| FK_006 | Bescheidbegründung / Widerspruchsfrist | § 24, § 25 SGB X |
+| FK_006 | Bescheidbegründung / Rechtsbehelfsbelehrung | § 24 SGB X (Anhörung), § 36 SGB X (Rechtsbehelfsbelehrung) |
