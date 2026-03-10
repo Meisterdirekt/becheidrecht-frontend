@@ -15,6 +15,7 @@ import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { safeExecute } from "@/lib/logic/agents/utils";
 import type { PipelineState } from "@/lib/logic/agents/types";
+import { reportInfo } from "@/lib/error-reporter";
 
 export const runtime = "nodejs";
 
@@ -310,7 +311,7 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  console.log("[Agent-Audit] AG17 Cron gestartet");
+  reportInfo("[Agent-Audit] AG17 Cron gestartet");
 
   // 1. Metriken berechnen (TypeScript — kein LLM)
   const { agentMetrics, system, raw_count } = await computeMetrics();
@@ -344,10 +345,7 @@ export async function GET(req: Request) {
       },
     );
 
-    console.log(
-      `[Agent-Audit] AG17 abgeschlossen — Health: ${result.data.health_status}, ` +
-      `Anomalien: ${result.data.anomalies.length}, Issue: ${result.data.issues_created[0] ?? "keins"}`,
-    );
+    reportInfo("[Agent-Audit] AG17 abgeschlossen", { health_status: result.data.health_status, anomalien: result.data.anomalies.length, issue: result.data.issues_created[0] ?? "keins" });
 
     return NextResponse.json({
       success: result.success,

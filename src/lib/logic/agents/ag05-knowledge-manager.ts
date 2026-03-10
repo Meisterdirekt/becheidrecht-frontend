@@ -15,6 +15,7 @@ import { getSystemPrompt } from "./prompts";
 import { HAIKU_MODEL, extractTokenUsage, getAnthropicKey, createAnthropicClient, mergeTokenUsage } from "./utils";
 import { TOOL_DB_READ, executeDbRead } from "./tools/db-read";
 import { TOOL_DB_WRITE, executeDbWrite } from "./tools/db-write";
+import { reportInfo } from "@/lib/error-reporter";
 
 interface KnowledgeResult {
   saved: number;
@@ -130,7 +131,7 @@ async function execute(ctx: AgentContext): Promise<AgentResult<KnowledgeResult>>
     messages.push({ role: "user", content: toolResults });
   }
 
-  console.log(`[AG05] ${savedCount} Urteile gespeichert`);
+  reportInfo("[AG05] Urteile gespeichert", { savedCount });
 
   return {
     agentId: "AG05",

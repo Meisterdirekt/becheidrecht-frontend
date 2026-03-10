@@ -32,6 +32,7 @@ import {
   modelForStufe,
 } from "./utils";
 import { AG06_COST_TRIGGER_EUR } from "./tools/constants";
+import { reportInfo } from "@/lib/error-reporter";
 import { ag08SecurityGate } from "./ag08-security-gate";
 import { ag12DocumentProcessor } from "./ag12-document-processor";
 import { ag01Orchestrator } from "./ag01-orchestrator";
@@ -95,7 +96,7 @@ function computeAccurateCost(
 // ---------------------------------------------------------------------------
 
 export async function runPipeline(documentText: string): Promise<AgentAnalysisResult> {
-  console.log("[Orchestrator] Pipeline gestartet");
+  reportInfo("[Orchestrator] Pipeline gestartet");
 
   // --- Phase 0: Urgency-Detection (kostenlos) ---
   const urgency = detectUrgency(documentText);
@@ -116,11 +117,11 @@ export async function runPipeline(documentText: string): Promise<AgentAnalysisRe
     pipeline,
   };
 
-  console.log(`[Orchestrator] Vorab-Routing: ${routingStufe} (${urgency.tage ?? "?"} Tage)`);
+  reportInfo("[Orchestrator] Vorab-Routing", { routingStufe, tage: urgency.tage ?? null });
 
   // --- Phase 1: AG08 Security Gate + AG12 Dokumentstruktur PARALLEL ---
   // Beide sind vollständig unabhängig voneinander → parallele Ausführung spart ~50% Latenz
-  console.log("[Orchestrator] Phase 1: AG08 + AG12 parallel");
+  reportInfo("[Orchestrator] Phase 1: AG08 + AG12 parallel");
   const [securitySettled, dokSettled] = await Promise.allSettled([
     safeExecute(
       "AG08",
@@ -149,7 +150,7 @@ export async function runPipeline(documentText: string): Promise<AgentAnalysisRe
   pipeline.security = securityResult.data;
 
   if (!securityResult.data.freigabe) {
-    console.log("[Orchestrator] AG08: Freigabe verweigert —", securityResult.data.grund);
+    reportInfo("[Orchestrator] AG08: Freigabe verweigert", { grund: securityResult.data.grund ?? null });
     return {
       fehler: ["Sicherheitsprüfung: " + (securityResult.data.grund ?? "Input abgelehnt")],
       musterschreiben: "Die Sicherheitsprüfung hat den Input abgelehnt. Bitte laden Sie einen gültigen Behördenbescheid hoch.",
@@ -186,7 +187,7 @@ export async function runPipeline(documentText: string): Promise<AgentAnalysisRe
 
   // AG01 kann Routing-Stufe korrigieren
   if (triageResult.data.routing_stufe !== routingStufe) {
-    console.log(`[Orchestrator] AG01 korrigiert Routing: ${routingStufe} → ${triageResult.data.routing_stufe}`);
+    reportInfo("[Orchestrator] AG01 korrigiert Routing", { vorher: routingStufe, nachher: triageResult.data.routing_stufe });
     routingStufe = triageResult.data.routing_stufe;
     baseCtx.routingStufe = routingStufe;
   }
@@ -199,7 +200,7 @@ export async function runPipeline(documentText: string): Promise<AgentAnalysisRe
   // NORMAL → DB-only (kostenlos), HOCH/NOTFALL → Web-Search (wenn Tavily vorhanden)
   const ctxForAnalysis: AgentContext = { ...baseCtx, pipeline };
 
-  console.log(`[Orchestrator] Phase 4: AG02 + AG04 parallel (Routing: ${routingStufe})`);
+  reportInfo("[Orchestrator] Phase 4: AG02 + AG04 parallel", { routingStufe });
   const [analyseSettled, rechercheSettled] = await Promise.allSettled([
     safeExecute<AnalyseResult>(
       "AG02",
@@ -253,7 +254,7 @@ export async function runPipeline(documentText: string): Promise<AgentAnalysisRe
 
   // --- Phase 5: AG07 Musterschreiben + AG14 Präzedenzfall-Analyse PARALLEL ---
   // AG14 braucht AG01 (triage) aber nicht AG07 — läuft parallel zum Brief
-  console.log("[Orchestrator] Phase 5: AG07 + AG14 parallel");
+  reportInfo("[Orchestrator] Phase 5: AG07 + AG14 parallel");
   const [letterSettled, praezedenzSettled] = await Promise.allSettled([
     safeExecute(
       "AG07",
@@ -303,12 +304,13 @@ export async function runPipeline(documentText: string): Promise<AgentAnalysisRe
   // --- Exakte Kosten berechnen (Haiku/Sonnet/Opus separat) ---
   const tokenKostenEur = computeAccurateCost(agentCosts);
 
-  console.log(
-    `[Orchestrator] Fertig | Agenten: ${agentenAktiv.join(",")} | ` +
-    `Tokens: ${totalTokens.input_tokens + totalTokens.output_tokens} | ` +
-    `Cache-Reads: ${totalTokens.cache_read_tokens} | ` +
-    `Kosten: €${tokenKostenEur} | Modell: ${adaptiveModel}`
-  );
+  reportInfo("[Orchestrator] Fertig", {
+    agenten: agentenAktiv.join(","),
+    tokens: totalTokens.input_tokens + totalTokens.output_tokens,
+    cache_reads: totalTokens.cache_read_tokens,
+    kosten_eur: tokenKostenEur,
+    modell: adaptiveModel,
+  });
 
   // --- Ergebnis aufbauen (rückwärtskompatibel) ---
   const analyseData = pipeline.analyse;

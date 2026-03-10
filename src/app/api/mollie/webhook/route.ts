@@ -23,6 +23,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { reportInfo } from '@/lib/error-reporter';
 
 export const runtime = 'nodejs';
 
@@ -105,7 +106,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: msg }, { status: 500 });
   }
 
-  console.log(`[Mollie] Webhook: payment=${paymentId} status=${payment.status}`);
+  reportInfo('[Mollie] Webhook empfangen', { paymentId, status: payment.status });
 
   // Nur bei erfolgreicher Zahlung handeln
   if (payment.status !== 'paid') {
@@ -162,7 +163,7 @@ export async function POST(req: NextRequest) {
     .limit(1);
 
   if (existing && existing.length > 0) {
-    console.log(`[Mollie] ℹ️ Bereits verarbeitet: ${paymentId} — übersprungen.`);
+    reportInfo('[Mollie] Bereits verarbeitet — übersprungen', { paymentId });
     return NextResponse.json({ received: true, status: 'already_processed' });
   }
 
@@ -186,6 +187,6 @@ export async function POST(req: NextRequest) {
     })
     .eq('user_id', userId);
 
-  console.log(`[Mollie] ✅ ${buyerEmail.replace(/(.{2}).*@/, "$1***@")} → ${product.type} (${product.analyses} Analysen)`);
+  reportInfo('[Mollie] Abo aktiviert', { email: buyerEmail.replace(/(.{2}).*@/, "$1***@"), product: product.type, analyses: product.analyses });
   return NextResponse.json({ received: true, status: 'activated' });
 }

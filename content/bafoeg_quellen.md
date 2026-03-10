@@ -15,7 +15,7 @@
 |--------|--------|
 | **Grundförderung** | Anspruch (§ 1 BAföG), Bedarf (§ 12–14a BAföG), Freibeträge (§ 23–25 BAföG), Anrechnung Einkommen/Vermögen (§ 26–30 BAföG) |
 | **Rückzahlung** | Darlehensanteil 50%, Rückzahlungspflicht (§ 17, § 18 BAföG), Freistellung, Teilerlass |
-| **Rückforderung** | § 50 BAföG (Rückforderung bei zu Unrecht erhaltenen Leistungen), § 45/§ 48 SGB X |
+| **Rückforderung** | § 50 SGB X (Erstattung zu Unrecht erbrachter Leistungen), § 45/§ 48 SGB X |
 | **Verfahren** | § 14, § 16, § 60 SGB I, § 24, § 36 SGB X |
 
 ---

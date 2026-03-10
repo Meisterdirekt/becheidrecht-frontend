@@ -9,6 +9,7 @@
  */
 
 import { NextResponse } from "next/server";
+import { reportInfo } from "@/lib/error-reporter";
 
 export const runtime = "nodejs";
 export const maxDuration = 45;
@@ -182,7 +183,7 @@ export async function GET(req: Request) {
     });
   }
 
-  console.log("[AG-DESIGNER] Wöchentlicher Design-Audit gestartet für:", appUrl);
+  reportInfo("[AG-DESIGNER] Wöchentlicher Design-Audit gestartet", { appUrl });
 
   // Mobile + Desktop parallel prüfen
   const [mobile, desktop] = await Promise.all([

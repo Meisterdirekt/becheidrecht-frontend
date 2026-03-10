@@ -32,6 +32,7 @@ import {
   mergeTokenUsage,
 } from "./utils";
 import { TOOL_GITHUB_ACTION, executeGithubAction } from "./tools/github-action";
+import { reportInfo } from "@/lib/error-reporter";
 
 // ---------------------------------------------------------------------------
 // Tool-Set: Nur GitHub (für Issue-Erstellung)
@@ -156,9 +157,7 @@ async function execute(ctx: AgentContext): Promise<AgentResult<AgentAuditResult>
     ? "degraded"
     : "healthy";
 
-  console.log(
-    `[AG17] Audit abgeschlossen — Health: ${health}, Anomalien: ${anomalies.length}, Issue: ${issueUrls[0] ?? "keins"}`,
-  );
+  reportInfo("[AG17] Audit abgeschlossen", { health, anomalien: anomalies.length, issue: issueUrls[0] ?? "keins" });
 
   return {
     agentId: "AG17",

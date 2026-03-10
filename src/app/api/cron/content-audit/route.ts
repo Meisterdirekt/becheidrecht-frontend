@@ -9,6 +9,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { runContentAudit } from "@/lib/logic/agents/ag18-content-auditor";
+import { reportInfo } from "@/lib/error-reporter";
 
 export const runtime = "nodejs";
 export const maxDuration = 30;
@@ -29,9 +30,9 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    console.log("[ContentAudit] AG18 gestartet:", new Date().toISOString());
+    reportInfo("[ContentAudit] AG18 gestartet", { timestamp: new Date().toISOString() });
     const result = await runContentAudit();
-    console.log("[ContentAudit] AG18 fertig:", result.gesamt_status);
+    reportInfo("[ContentAudit] AG18 fertig", { gesamt_status: result.gesamt_status });
 
     return NextResponse.json({
       success: true,

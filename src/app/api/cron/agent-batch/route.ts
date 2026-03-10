@@ -8,6 +8,7 @@ import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import type { AgentContext, PipelineState } from "@/lib/logic/agents/types";
 import { safeExecute } from "@/lib/logic/agents/utils";
+import { reportInfo } from "@/lib/error-reporter";
 
 export const runtime = "nodejs";
 
@@ -62,7 +63,7 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  console.log("[Agent-Batch] Wöchentlicher Cron gestartet");
+  reportInfo("[Agent-Batch] Wöchentlicher Cron gestartet");
 
   // --- Graceful Degradation: GITHUB_TOKEN + GITHUB_REPO prüfen ---
   const githubToken = process.env.GITHUB_TOKEN;
@@ -73,7 +74,7 @@ export async function GET(req: Request) {
       ? "GITHUB_TOKEN und GITHUB_REPO"
       : !githubToken ? "GITHUB_TOKEN" : "GITHUB_REPO";
 
-    console.log(`[Agent-Batch] ${fehlend} fehlt — AG09/AG10/AG11 übersprungen`);
+    reportInfo("[Agent-Batch] GitHub-Konfiguration fehlt — übersprungen", { fehlend });
 
     return NextResponse.json({
       success: true,
@@ -151,7 +152,7 @@ export async function GET(req: Request) {
     results["AG11"] = { success: false, issues: 0, error: String(err) };
   }
 
-  console.log("[Agent-Batch] Ergebnisse:", results);
+  reportInfo("[Agent-Batch] Ergebnisse", { AG09: results["AG09"]?.success, AG10: results["AG10"]?.success, AG11: results["AG11"]?.success });
 
   return NextResponse.json({
     success: true,

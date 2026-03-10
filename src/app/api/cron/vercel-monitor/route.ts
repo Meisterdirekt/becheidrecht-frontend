@@ -13,6 +13,7 @@
 import { NextResponse } from "next/server";
 import { safeExecute } from "@/lib/logic/agents/utils";
 import type { PipelineState } from "@/lib/logic/agents/types";
+import { reportInfo } from "@/lib/error-reporter";
 
 export const runtime = "nodejs";
 
@@ -109,7 +110,7 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  console.log("[Vercel-Monitor] AG16 Cron gestartet");
+  reportInfo("[Vercel-Monitor] AG16 Cron gestartet");
 
   const context = buildContext();
 
@@ -138,9 +139,7 @@ export async function GET(req: Request) {
       },
     );
 
-    console.log(
-      `[Vercel-Monitor] AG16 abgeschlossen — Health: ${result.data.health_status}, Issues: ${result.data.issues_created.length}`,
-    );
+    reportInfo("[Vercel-Monitor] AG16 abgeschlossen", { health_status: result.data.health_status, issues_created: result.data.issues_created.length });
 
     return NextResponse.json({
       success: result.success,

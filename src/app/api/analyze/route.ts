@@ -6,7 +6,7 @@ import { pseudonymizeText, depseudonymizeText } from '@/lib/privacy/pseudonymize
 import { getAuthenticatedUser } from '@/lib/supabase/auth';
 import { getAnthropicKey } from '@/lib/logic/agents/utils';
 import { analyzeLimiter, analyzeAnonLimiter } from '@/lib/rate-limit';
-import { reportError } from '@/lib/error-reporter';
+import { reportError, reportInfo } from '@/lib/error-reporter';
 import PDFParser from 'pdf2json';
 import OpenAI from 'openai';
 import fs from 'fs';
@@ -108,11 +108,11 @@ async function extractTextFromImageOpenAI(buffer: Buffer, mimeType: string): Pro
  * 2. Fallback OpenAI wenn Tesseract < 50 Zeichen liefert
  */
 async function extractTextFromImage(buffer: Buffer, mimeType: string): Promise<string> {
-  console.log('[OCR] Starte lokale Texterkennung (Tesseract)...');
+  reportInfo('[OCR] Starte lokale Texterkennung (Tesseract)');
   const localText = await extractTextFromImageLocal(buffer);
 
   if (localText.length >= 50) {
-    console.log(`[OCR] Tesseract erfolgreich: ${localText.length} Zeichen`);
+    reportInfo('[OCR] Tesseract erfolgreich', { zeichen: localText.length });
     return localText;
   }
 
@@ -120,7 +120,7 @@ async function extractTextFromImage(buffer: Buffer, mimeType: string): Promise<s
   console.warn('[OCR] Tesseract unzureichend, Fallback auf OpenAI Vision (Datentransfer!)');
   try {
     const openAiText = await extractTextFromImageOpenAI(buffer, mimeType);
-    console.log(`[OCR] OpenAI Vision: ${openAiText.length} Zeichen`);
+    reportInfo('[OCR] OpenAI Vision', { zeichen: openAiText.length });
     return openAiText;
   } catch {
     if (localText.length > 0) return localText; // Lieber schlechtes Ergebnis als keins
@@ -211,7 +211,7 @@ export async function POST(req: Request) {
 
     const { pseudonymized, map } = pseudonymizeText(extractedText);
 
-    console.log('[Privacy] Erkannte sensible Daten:', {
+    reportInfo('[Privacy] Erkannte sensible Daten', {
       namen: map.name.length,
       adressen: map.address.length,
       geburtsdaten: map.birthdate.length,
@@ -229,7 +229,7 @@ export async function POST(req: Request) {
     let result: AgentAnalysisResult;
 
     if (anthropicAvailable) {
-      console.log('[Analyze] 13-Agenten-Pipeline (Claude) gestartet');
+      reportInfo('[Analyze] 13-Agenten-Pipeline (Claude) gestartet');
       result = await runAgentAnalysis(pseudonymized);
     } else {
       console.warn('[Analyze] ANTHROPIC_API_KEY fehlt — Fallback auf Legacy GPT-4o Engine');
@@ -292,7 +292,7 @@ export async function POST(req: Request) {
             erfolgschance: result.kritik?.erfolgschance_prozent,
           },
         });
-        console.log('[Fristen] Frist auto-gespeichert:', result.frist_datum);
+        reportInfo('[Fristen] Frist auto-gespeichert', { frist_datum: result.frist_datum });
       } catch (fristErr) {
         // Frist-Save-Fehler darf Hauptergebnis nicht blockieren
         console.warn('[Fristen] Auto-Save fehlgeschlagen:', fristErr);
@@ -313,7 +313,7 @@ export async function POST(req: Request) {
           model_used: result.model_used ?? (result.routing_stufe === 'NOTFALL' ? 'claude-opus-4-6' : 'claude-sonnet-4-6'),
           token_cost_eur: result.token_kosten_eur,
         });
-        console.log('[Monitoring] Token-Kosten gespeichert:', result.token_kosten_eur, 'EUR');
+        reportInfo('[Monitoring] Token-Kosten gespeichert', { kosten_eur: result.token_kosten_eur });
       } catch {
         // Silent fail — Monitoring darf Hauptergebnis nicht blockieren
       }

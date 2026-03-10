@@ -4,6 +4,7 @@
  */
 
 import type { Agent, AgentId } from "./types";
+import { reportInfo } from "@/lib/error-reporter";
 
 const agents = new Map<AgentId, Agent>();
 let initialized = false;
@@ -84,7 +85,7 @@ function ensureInitialized(): void {
     agents.set(agent.id, agent);
   }
 
-  console.log(`[Registry] ${agents.size} Agenten registriert.`);
+  reportInfo("[Registry] Agenten registriert", { anzahl: agents.size });
 }
 
 export function registerAgent(agent: Agent): void {

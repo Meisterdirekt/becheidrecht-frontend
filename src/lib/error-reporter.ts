@@ -92,6 +92,20 @@ export async function reportWarning(
   );
 }
 
+export function reportInfo(
+  message: string,
+  context?: ErrorContext
+): void {
+  console.log(
+    JSON.stringify({
+      level: "info",
+      message,
+      context,
+      timestamp: new Date().toISOString(),
+    })
+  );
+}
+
 async function createGitHubAlert(
   title: string,
   body: string,

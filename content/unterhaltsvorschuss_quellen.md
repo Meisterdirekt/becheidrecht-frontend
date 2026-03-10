@@ -13,7 +13,7 @@
 | Bereich | Inhalt |
 |--------|--------|
 | **Anspruch** | § 1 UVG — Kind unter 18, alleinerziehend, anderer Elternteil zahlt nicht/unregelmäßig |
-| **Höhe** | § 2 UVG — Mindestunterhalt nach Altersstufe minus Kindergeld (1. Stufe) |
+| **Höhe** | § 2 UVG — Mindestunterhalt nach Altersstufe minus Kindergeld für ein erstes Kind |
 | **Dauer** | Keine zeitliche Begrenzung mehr seit 01.07.2017 (bis 18. Lebensjahr) |
 | **Rückforderung** | § 5 UVG — Erstattungsanspruch gegen unterhaltspflichtigen Elternteil |
 | **Verfahren** | § 14, § 16, § 60 SGB I, § 24, § 36 SGB X |

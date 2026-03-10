@@ -30,6 +30,7 @@ import {
 } from "./utils";
 import { TOOL_GITHUB_ACTION, executeGithubAction } from "./tools/github-action";
 import { TOOL_VERCEL_ACTION, executeVercelAction } from "./tools/vercel-action";
+import { reportInfo } from "@/lib/error-reporter";
 
 // ---------------------------------------------------------------------------
 // Tool-Set: Vercel (read-only) + GitHub (issue creation)
@@ -167,9 +168,7 @@ async function execute(ctx: AgentContext): Promise<AgentResult<VercelMonitorResu
     ? missingVarsMatch[1].split(",").map((s) => s.trim()).filter(Boolean)
     : [];
 
-  console.log(
-    `[AG16] Abgeschlossen — Health: ${health}, Issues: ${issueUrls.length}, Fehler: ${failedDeployments}`,
-  );
+  reportInfo("[AG16] Abgeschlossen", { health, issues: issueUrls.length, fehler: failedDeployments });
 
   return {
     agentId: "AG16",

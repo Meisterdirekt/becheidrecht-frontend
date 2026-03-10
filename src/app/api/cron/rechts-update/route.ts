@@ -14,6 +14,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { runRechtsMonitor } from "@/lib/logic/agents/ag15-rechts-monitor";
+import { reportInfo } from "@/lib/error-reporter";
 
 const CRON_SECRET = process.env.CRON_SECRET;
 
@@ -31,9 +32,9 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    console.log("[RechtsUpdate] AG15 gestartet:", new Date().toISOString());
+    reportInfo("[RechtsUpdate] AG15 gestartet", { timestamp: new Date().toISOString() });
     const result = await runRechtsMonitor();
-    console.log("[RechtsUpdate] AG15 fertig:", result);
+    reportInfo("[RechtsUpdate] AG15 fertig", { urteile_neu: result.urteile_neu, kennzahlen_geaendert: result.kennzahlen_geaendert, fehler_hinzugefuegt: result.fehler_hinzugefuegt, weisungen_neu: result.weisungen_neu, struktur_prs: result.struktur_prs });
 
     return NextResponse.json({
       success: true,

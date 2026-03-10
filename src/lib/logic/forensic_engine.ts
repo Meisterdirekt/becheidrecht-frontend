@@ -1,5 +1,6 @@
 import path from 'path';
 import fs from 'fs';
+import { reportInfo } from "@/lib/error-reporter";
 
 function loadVaultJson<T>(filename: string, fallback: T): T {
   try {
@@ -16,7 +17,7 @@ export async function analyzeDocument(_documentText: string) {
   const systemPrompt = omegaCore.instructions ?? '';
 
   if (systemPrompt) {
-    console.log('Tresor-Zugriff: Omega Core geladen.');
+    reportInfo("Tresor-Zugriff: Omega Core geladen");
   }
 
   await new Promise((resolve) => setTimeout(resolve, 2500));

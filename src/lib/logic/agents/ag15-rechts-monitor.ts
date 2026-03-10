@@ -24,6 +24,7 @@ import { createClient } from "@supabase/supabase-js";
 import { extractJsonSafe, SONNET_MODEL } from "./utils";
 import type { Agent, AgentContext, AgentResult } from "./types";
 import { emptyTokenUsage } from "./types";
+import { reportInfo } from "@/lib/error-reporter";
 
 // ---------------------------------------------------------------------------
 // Typen
@@ -241,7 +242,7 @@ Heute: ${today}. Nur Entscheidungen der letzten 90 Tage. Leeres Array [] wenn ke
         if (!error) neu++;
       }
 
-      console.log(`[AG15 P1] ${quelle.name}: ${toProcess.length} verarbeitet, ${neu} gesamt neu`);
+      reportInfo("[AG15 P1] Urteile verarbeitet", { quelle: quelle.name, verarbeitet: toProcess.length, neu });
     } catch (err) {
       fehlerQuellen.push(`${quelle.name}: ${err instanceof Error ? err.message : String(err)}`);
     }
@@ -319,7 +320,7 @@ Nur wenn konkrete neue Zahlen im Text stehen — kein Raten.`,
         if (!error) geaendert++;
       }
 
-      console.log(`[AG15 P2] ${quelle.name}: ${updates.length} Kennzahlen geprüft`);
+      reportInfo("[AG15 P2] Kennzahlen geprüft", { quelle: quelle.name, anzahl: updates.length });
     } catch (err) {
       fehlerQuellen.push(`${quelle.name}: ${err instanceof Error ? err.message : String(err)}`);
     }
@@ -339,7 +340,7 @@ async function runPhase3Fehlerkatalog(
 ): Promise<{ hinzugefuegt: number }> {
   // Nur wenn in Phase 1+2 tatsächlich Änderungen gefunden wurden
   if (phase1Urteile === 0 && phase2Kennzahlen === 0) {
-    console.log("[AG15 P3] Keine Änderungen in P1/P2 — Fehlerkatalog-Erweiterung übersprungen");
+    reportInfo("[AG15 P3] Fehlerkatalog-Erweiterung übersprungen", { grund: "Keine Änderungen in P1/P2" });
     return { hinzugefuegt: 0 };
   }
 
@@ -423,7 +424,7 @@ Nur echte, neue Fehlermuster die aus den Urteilen direkt ableitbar sind.`,
       if (!error) hinzugefuegt++;
     }
 
-    console.log(`[AG15 P3] ${hinzugefuegt} neue Fehlertypen eingefügt`);
+    reportInfo("[AG15 P3] Fehlertypen eingefügt", { hinzugefuegt });
   } catch (err) {
     console.warn("[AG15 P3] Fehlerkatalog-Erweiterung fehlgeschlagen:", err);
   }
@@ -539,7 +540,7 @@ Leeres Array [] wenn alles aktuell ist. Nur echte Probleme — kein Nitpicking.`
       details.push(...probleme);
     }
 
-    console.log(`[AG15 P3b] ${sample.length} Einträge geprüft, ${details.length} veraltet`);
+    reportInfo("[AG15 P3b] Fehlerkatalog-Validierung", { geprueft: sample.length, veraltet: details.length });
   } catch (err) {
     console.warn("[AG15 P3b] Validierung fehlgeschlagen:", err instanceof Error ? err.message : String(err));
   }
@@ -580,7 +581,7 @@ Leeres Array [] wenn alles aktuell ist. Nur echte Probleme — kein Nitpicking.`
             labels: ["fehlerkatalog", "automated", "review-needed"],
           }),
         });
-        console.log("[AG15 P3b] GitHub Issue erstellt");
+        reportInfo("[AG15 P3b] GitHub Issue erstellt");
       } catch {
         console.warn("[AG15 P3b] GitHub Issue konnte nicht erstellt werden");
       }
@@ -668,7 +669,7 @@ Traeger: jobcenter | arbeitsagentur | drv | krankenkasse | pflegekasse | bamf | 
         }
       }
 
-      console.log(`[AG15 P4] ${quelle.name}: ${weisungen.length} Weisungen verarbeitet`);
+      reportInfo("[AG15 P4] Weisungen verarbeitet", { quelle: quelle.name, anzahl: weisungen.length });
     } catch (err) {
       fehlerQuellen.push(`${quelle.name}: ${err instanceof Error ? err.message : String(err)}`);
     }
@@ -828,7 +829,7 @@ async function createGitHubPR(
 
     if (prStatus === 201) {
       const prUrl = (pr as { html_url: string }).html_url;
-      console.log(`[AG15 P5] PR erstellt: ${prUrl}`);
+      reportInfo("[AG15 P5] PR erstellt", { prUrl });
       return prUrl;
     }
 
@@ -890,11 +891,11 @@ WICHTIG: Nur wenn OFFIZIELL BESCHLOSSEN oder IN KRAFT GETRETEN — keine Vorhabe
       );
 
       if (!hatRelevantesKW) {
-        console.log(`[AG15 P5] ${quelle.name}: Keine Strukturänderungs-Keywords — übersprungen`);
+        reportInfo("[AG15 P5] Quelle übersprungen — keine Keywords", { quelle: quelle.name });
         continue;
       }
 
-      console.log(`[AG15 P5] ${quelle.name}: Relevante Keywords gefunden — analysiere...`);
+      reportInfo("[AG15 P5] Relevante Keywords gefunden", { quelle: quelle.name });
 
       const response = await anthropic.messages.create({
         model: "claude-sonnet-4-6",
@@ -912,7 +913,7 @@ WICHTIG: Nur wenn OFFIZIELL BESCHLOSSEN oder IN KRAFT GETRETEN — keine Vorhabe
         if (!a.was_alt || !a.was_neu || a.was_alt === a.was_neu) continue;
         a.quelle_url = quelle.url;
         erkannteAenderungen.push(a);
-        console.log(`[AG15 P5] Strukturänderung erkannt: "${a.was_alt}" → "${a.was_neu}" (${a.gesetz})`);
+        reportInfo("[AG15 P5] Strukturänderung erkannt", { was_alt: a.was_alt, was_neu: a.was_neu, gesetz: a.gesetz });
       }
     } catch (err) {
       fehlerQuellen.push(`${quelle.name}: ${err instanceof Error ? err.message : String(err)}`);
@@ -920,7 +921,7 @@ WICHTIG: Nur wenn OFFIZIELL BESCHLOSSEN oder IN KRAFT GETRETEN — keine Vorhabe
   }
 
   if (erkannteAenderungen.length === 0) {
-    console.log("[AG15 P5] Keine Strukturänderungen erkannt");
+    reportInfo("[AG15 P5] Keine Strukturänderungen erkannt");
     return { prs_erstellt: 0, fehlerQuellen };
   }
 
@@ -985,7 +986,7 @@ WICHTIG: Nur wenn OFFIZIELL BESCHLOSSEN oder IN KRAFT GETRETEN — keine Vorhabe
 
       // Nur PR erstellen wenn es tatsächlich Änderungen gibt
       if (files.length === 0) {
-        console.log(`[AG15 P5] Keine Datei-Änderungen für "${aenderung.was_alt}" — nur Issue erstellen`);
+        reportInfo("[AG15 P5] Keine Datei-Änderungen — nur Issue", { was_alt: aenderung.was_alt });
 
         // Stattdessen GitHub Issue für manuelle Prüfung
         const githubToken = process.env.GITHUB_TOKEN;
@@ -1053,7 +1054,7 @@ export async function runRechtsMonitor(): Promise<MonitorResult> {
 
   const alleFehlerQuellen: string[] = [];
 
-  console.log("[AG15] Rechts-Monitor gestartet:", new Date().toISOString());
+  reportInfo("[AG15] Rechts-Monitor gestartet", { timestamp: new Date().toISOString() });
 
   // Phase 1: Urteile (alle 6 Urteilsquellen)
   const p1 = await runPhase1Urteile(anthropic);
@@ -1111,7 +1112,7 @@ export async function runRechtsMonitor(): Promise<MonitorResult> {
     zusammenfassung,
   };
 
-  console.log("[AG15] Fertig:", result);
+  reportInfo("[AG15] Fertig", { urteile_neu: result.urteile_neu, kennzahlen_geaendert: result.kennzahlen_geaendert, fehler_hinzugefuegt: result.fehler_hinzugefuegt, weisungen_neu: result.weisungen_neu, struktur_prs: result.struktur_prs });
   return result;
 }
 

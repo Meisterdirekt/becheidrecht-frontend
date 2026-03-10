@@ -9,6 +9,7 @@
 
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { reportInfo } from "@/lib/error-reporter";
 
 export const runtime = "nodejs";
 export const maxDuration = 25;
@@ -118,7 +119,7 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  console.log("[AG-COSTS] Tägliches Kosten-Monitoring gestartet");
+  reportInfo("[AG-COSTS] Tägliches Kosten-Monitoring gestartet");
 
   const { last24h, last7days } = await getCostData();
 

@@ -15,6 +15,7 @@ import {
 import { getSystemPrompt } from "./prompts";
 // Downgrade von Opus auf Sonnet — AG06 analysiert nur Zahlen/Text, braucht kein Opus
 import { SONNET_MODEL, extractTokenUsage, getAnthropicKey, createAnthropicClient, extractJsonSafe } from "./utils";
+import { reportInfo } from "@/lib/error-reporter";
 
 interface OptimierungResult {
   vorschlaege: string[];
@@ -109,7 +110,7 @@ async function execute(ctx: AgentContext): Promise<AgentResult<OptimierungResult
     }
   }
 
-  console.log(`[AG06] ${vorschlaege.length} Optimierungs-Vorschläge (in update_protokoll gespeichert)`);
+  reportInfo("[AG06] Optimierungs-Vorschläge", { anzahl: vorschlaege.length, gespeichert: true });
 
   return {
     agentId: "AG06",

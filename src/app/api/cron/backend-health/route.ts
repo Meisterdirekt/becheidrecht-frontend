@@ -9,6 +9,7 @@
 
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { reportInfo } from "@/lib/error-reporter";
 
 export const runtime = "nodejs";
 export const maxDuration = 30;
@@ -148,7 +149,7 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  console.log("[AG-BACKEND] Täglicher Health-Check gestartet");
+  reportInfo("[AG-BACKEND] Täglicher Health-Check gestartet");
 
   const productionUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.VERCEL_URL
     ? `https://${process.env.VERCEL_URL}`

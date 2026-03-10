@@ -16,6 +16,7 @@ import fs from "fs";
 import path from "path";
 import type { Agent, AgentContext, AgentResult } from "./types";
 import { emptyTokenUsage, HAIKU_MODEL } from "./utils";
+import { reportInfo } from "@/lib/error-reporter";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -516,23 +517,23 @@ export const ag18ContentAuditor: Agent<ContentAuditResult> = {
 // ---------------------------------------------------------------------------
 
 export async function runContentAudit(): Promise<ContentAuditResult> {
-  console.log("[AG18] Content-Audit gestartet:", new Date().toISOString());
+  reportInfo("[AG18] Content-Audit gestartet", { timestamp: new Date().toISOString() });
 
   // Phase 1: Kennzahlen vs. Hardcodes
   const kennzahlenAbw = await checkKennzahlenVsHardcodes();
-  console.log(`[AG18] Phase 1: ${kennzahlenAbw.length} Kennzahlen-Findings`);
+  reportInfo("[AG18] Phase 1 abgeschlossen", { kennzahlen_findings: kennzahlenAbw.length });
 
   // Phase 2: internal_rules.json prüfen
   const internalAbw = checkInternalRules(kennzahlenAbw);
-  console.log(`[AG18] Phase 2: ${internalAbw.length} internal_rules-Findings`);
+  reportInfo("[AG18] Phase 2 abgeschlossen", { internal_rules_findings: internalAbw.length });
 
   // Phase 3: Fehlerkatalog-Stichprobe
   const veralteteEintraege = checkFehlerkatalog();
-  console.log(`[AG18] Phase 3: ${veralteteEintraege.length} Fehlerkatalog-Findings`);
+  reportInfo("[AG18] Phase 3 abgeschlossen", { fehlerkatalog_findings: veralteteEintraege.length });
 
   // Phase 4: Weisungen-Abdeckung
   const weisungenLuecken = await checkWeisungenCoverage();
-  console.log(`[AG18] Phase 4: ${weisungenLuecken.length} Weisungen-Lücken`);
+  reportInfo("[AG18] Phase 4 abgeschlossen", { weisungen_luecken: weisungenLuecken.length });
 
   // Gesamt-Status bestimmen
   const hasCritical =
@@ -568,9 +569,9 @@ export async function runContentAudit(): Promise<ContentAuditResult> {
 
   if (issueUrl) {
     result.issues_created.push(issueUrl);
-    console.log(`[AG18] GitHub Issue erstellt: ${issueUrl}`);
+    reportInfo("[AG18] GitHub Issue erstellt", { issueUrl });
   }
 
-  console.log(`[AG18] Content-Audit abgeschlossen: ${gesamtStatus}`);
+  reportInfo("[AG18] Content-Audit abgeschlossen", { gesamtStatus });
   return result;
 }
