@@ -313,4 +313,82 @@ export const AENDERUNGEN_2026: readonly Gesetzesaenderung[] = [
     quelle: "https://www.deutsche-rentenversicherung.de/DRV/DE/Ueber-uns-und-Presse/Presse/Meldungen/2026/260305-rentenanpassung-2026.html",
     status: "in_kraft",
   },
+
+  // ── SGB VI (DRV) — Beitragsbemessungsgrenze ──────────────────────────
+  {
+    rechtsgebiet: "SGB VI",
+    kuerzel: "DRV",
+    was: "Beitragsbemessungsgrenze allgemeine RV erhöht",
+    alt: "West: 96.600€/Jahr (8.050€/Monat)",
+    neu: "West: 101.400€/Jahr (8.450€/Monat), einheitlich Ost=West",
+    ab_wann: "01.01.2026",
+    paragraph: "§ 159 SGB VI, Sozialversicherungsrechengrößenverordnung 2026",
+    quelle: "https://www.deutsche-rentenversicherung.de/DRV/DE/Ueber-uns-und-Presse/Presse/Meldungen/2026/260305-rentenanpassung-2026.html",
+    status: "in_kraft",
+  },
+
+  // ── SGB VI (DRV) — Bezugsgröße ───────────────────────────────────────
+  {
+    rechtsgebiet: "SGB VI",
+    kuerzel: "DRV",
+    was: "Bezugsgröße erhöht",
+    alt: "West: 3.745€/Monat",
+    neu: "West: 3.935€/Monat, einheitlich Ost=West",
+    ab_wann: "01.01.2026",
+    paragraph: "§ 18 SGB IV",
+    quelle: "https://www.deutsche-rentenversicherung.de/DRV/DE/Ueber-uns-und-Presse/Presse/Meldungen/2026/260305-rentenanpassung-2026.html",
+    status: "in_kraft",
+  },
+
+  // ── SGB VI (DRV) — Durchschnittsentgelt ──────────────────────────────
+  {
+    rechtsgebiet: "SGB VI",
+    kuerzel: "DRV",
+    was: "Vorläufiges Durchschnittsentgelt angepasst",
+    alt: "45.358€/Jahr (2025)",
+    neu: "47.084€/Jahr (2026, vorläufig)",
+    ab_wann: "01.01.2026",
+    paragraph: "Anlage 1 SGB VI",
+    quelle: "https://www.deutsche-rentenversicherung.de/DRV/DE/Ueber-uns-und-Presse/Presse/Meldungen/2026/260305-rentenanpassung-2026.html",
+    status: "in_kraft",
+  },
+
+  // ── SGB VI (DRV) — Regelaltersgrenze ─────────────────────────────────
+  {
+    rechtsgebiet: "SGB VI",
+    kuerzel: "DRV",
+    was: "Regelaltersgrenze weiter angehoben (Jahrgang 1961)",
+    alt: "Jahrgang 1960: 66 Jahre + 4 Monate",
+    neu: "Jahrgang 1961: 66 Jahre + 6 Monate",
+    ab_wann: "01.01.2026",
+    paragraph: "§ 235 SGB VI",
+    quelle: "https://www.deutsche-rentenversicherung.de/DRV/DE/Rente/Allgemeine-Informationen/Wann-kann-ich-in-Rente-gehen/wann-in-rente-gehen.html",
+    status: "in_kraft",
+  },
+
+  // ── SGB V (KK) — ePA-Sanktionen ──────────────────────────────────────
+  {
+    rechtsgebiet: "SGB V",
+    kuerzel: "KK",
+    was: "Elektronische Patientenakte (ePA) verpflichtend für alle Versicherten",
+    alt: "ePA freiwillig, Opt-in",
+    neu: "ePA automatisch für alle GKV-Versicherten (Opt-out möglich), Leistungserbringer müssen ePA befüllen",
+    ab_wann: "15.01.2026",
+    paragraph: "§ 341 SGB V, DigiG",
+    quelle: "https://www.bundesgesundheitsministerium.de/themen/digitalisierung/elektronische-patientenakte",
+    status: "in_kraft",
+  },
+
+  // ── SGB V (KK) — DiGA-Erweiterung ────────────────────────────────────
+  {
+    rechtsgebiet: "SGB V",
+    kuerzel: "KK",
+    was: "DiGA-Verzeichnis erweitert, Verordnungspflicht gelockert",
+    alt: "DiGA nur auf ärztliche Verordnung",
+    neu: "Versicherte können DiGA auch direkt bei Krankenkasse beantragen, erweitertes DiGA-Verzeichnis",
+    ab_wann: "01.01.2026",
+    paragraph: "§ 33a SGB V",
+    quelle: "https://www.bundesgesundheitsministerium.de/themen/digitalisierung/digitale-gesundheitsanwendungen",
+    status: "in_kraft",
+  },
 ] as const;

@@ -9,11 +9,11 @@ import { Printer, ArrowLeft } from "lucide-react";
 const ANBIETER = {
   name: "BescheidRecht",
   inhaber: "Hendrik Berkensträter",
-  adresse: process.env.NEXT_PUBLIC_COMPANY_ADDRESS || "[Geschäftsadresse konfigurieren]",
+  adresse: process.env.NEXT_PUBLIC_COMPANY_ADDRESS || "Antoniusstraße 47, 49377 Vechta",
   email: "kontakt@bescheidrecht.de",
   web: "bescheidrecht.de",
-  steuernummer: process.env.NEXT_PUBLIC_COMPANY_TAX_ID || "[USt-IdNr. konfigurieren]",
-  gerichtsstand: process.env.NEXT_PUBLIC_COMPANY_CITY || "[Gerichtsstand konfigurieren]",
+  steuernummer: "Kleinunternehmer gem. § 19 UStG (keine USt-IdNr.)",
+  gerichtsstand: process.env.NEXT_PUBLIC_COMPANY_CITY || "Vechta",
 };
 
 const PAKETE: Record<string, { nutzer: string; analysen: string; preis: string; sla: string }> = {
@@ -197,7 +197,7 @@ export default function RahmenvertragPage() {
             <li>Der AN stellt dem AG die Plattform &bdquo;BescheidRecht&rdquo; als Software-as-a-Service (SaaS)
               über das Internet zur Verfügung. Die Plattform ermöglicht die KI-gestützte Analyse
               von Behördenbescheiden, die automatische Identifikation von Fehlertypen sowie die
-              Generierung von Widerspruchsschreiben-Entwürfen.</li>
+              Generierung von Musterschreiben-Vorlagen.</li>
             <li>Die Plattform ist kein Ersatz für Rechtsberatung im Sinne des § 3 RDG
               (Rechtsdienstleistungsgesetz). Sie ist ein professionelles Analyse- und Schreibwerkzeug
               gemäß § 2 Abs. 1 RDG. Die fachliche Einschätzung und rechtliche Verantwortung
@@ -223,7 +223,7 @@ export default function RahmenvertragPage() {
             <li>Im Leistungsumfang enthalten sind: Bescheid-Upload (PDF/Scan), automatische
               Pseudonymisierung personenbezogener Daten, KI-Analyse auf Basis von 130+ dokumentierten
               Fehlertypen in 16 Rechtsgebieten (SGB II–XII, BAMF, BAföG, Wohngeld u.a.),
-              Widerspruchsschreiben-Generator (DIN A4 PDF) sowie ein Fristen-Dashboard.</li>
+              Musterschreiben-Generator (DIN A4 PDF) sowie ein Fristen-Dashboard.</li>
             <li>Der AN ist berechtigt, die Plattform weiterzuentwickeln und Funktionen zu ändern,
               sofern der vereinbarte Leistungsumfang nicht wesentlich verschlechtert wird. Der AG
               wird über wesentliche Änderungen mit einer Vorlaufzeit von mindestens 4 Wochen informiert.</li>
@@ -419,8 +419,18 @@ export default function RahmenvertragPage() {
           <p className="text-xs text-slate-300 font-bold">{ANBIETER.web}</p>
         </div>
 
+        {/* Links zu Anlagen (nur Browser) */}
+        <div className="no-print mt-10 flex gap-3 mb-6">
+          <Link href="/rahmenvertrag/anlage-1" className="px-5 py-2.5 rounded-xl text-sm font-bold bg-sky-500 text-white hover:bg-sky-400 transition-colors">
+            Anlage 1: Leistungsbeschreibung &amp; SLA
+          </Link>
+          <Link href="/rahmenvertrag/anlage-2" className="px-5 py-2.5 rounded-xl text-sm font-bold bg-sky-500 text-white hover:bg-sky-400 transition-colors">
+            Anlage 2: AV-Vertrag (Art. 28 DSGVO)
+          </Link>
+        </div>
+
         {/* Hinweis (nur Browser) */}
-        <div className="no-print mt-10 bg-amber-50 border border-amber-200 rounded-xl p-5">
+        <div className="no-print mt-4 bg-amber-50 border border-amber-200 rounded-xl p-5">
           <p className="text-xs font-bold text-amber-700 mb-1">Rechtlicher Hinweis</p>
           <p className="text-xs text-amber-600 leading-relaxed">
             Diese Vorlage ist ein Ausgangsdokument und ersetzt keine anwaltliche Beratung.

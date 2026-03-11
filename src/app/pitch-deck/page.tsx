@@ -64,13 +64,14 @@ export default function PitchDeckPage() {
             Bescheid<span className="text-sky-500">Recht</span>
           </h1>
           <p className="text-2xl md:text-3xl font-bold text-slate-700 mb-6 leading-snug max-w-2xl">
-            KI-gestützte Bescheid-Analyse<br />
+            Technische Bescheid-Analyse<br />
             für soziale Einrichtungen.
           </p>
           <p className="text-slate-500 text-lg max-w-xl leading-relaxed mb-14">
-            Wie Caritas, AWO und Diakonie täglich Stunden sparen —
-            und mehr Klientinnen und Klienten zu ihrem Recht verhelfen.
+            Wie Einrichtungen wie Caritas, AWO und Diakonie täglich Stunden sparen —
+            und mehr Klientinnen und Klienten strukturiert unterstützen.
           </p>
+          <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Gebaut für Einrichtungen wie:</p>
           <div className="flex flex-wrap items-center gap-3 mb-14">
             {["Caritas", "AWO", "Diakonie", "DRK", "Paritätischer"].map((o) => (
               <span
@@ -96,6 +97,9 @@ export default function PitchDeckPage() {
             ))}
           </div>
         </div>
+        <p className="absolute bottom-6 left-8 text-slate-400 text-[10px] max-w-md leading-relaxed">
+          Technisches Analyse-Werkzeug gem. § 2 Abs. 1 RDG. Kein Ersatz für Rechtsberatung.
+        </p>
         <p className="absolute bottom-6 right-8 text-slate-300 text-xs font-bold uppercase tracking-widest">
           1 / 8
         </p>
@@ -118,7 +122,7 @@ export default function PitchDeckPage() {
             {[
               {
                 stat: "42%",
-                label: "Erfolgreiche Widersprüche",
+                label: "Erfolgreiche Widersprüche*",
                 desc: "Der Widersprüche gegen Jobcenter-Bescheide sind erfolgreich — die Fehler sind vorhanden, sie werden nur nicht systematisch gefunden.",
                 color: "red",
               },
@@ -162,6 +166,7 @@ export default function PitchDeckPage() {
             </p>
             <p className="text-slate-400 text-sm mt-2 font-medium">Typisches Feedback aus Sozialberatungen</p>
           </div>
+          <p className="text-xs text-slate-400 mt-4">* Quelle: Statistik der Bundesagentur für Arbeit, Widersprüche und Klagen SGB II (2024). Bezieht sich auf vollständig stattgegebene und teilweise stattgegebene Widersprüche.</p>
         </div>
         <p className="absolute bottom-6 right-8 text-slate-300 text-xs font-bold uppercase tracking-widest">2 / 8</p>
       </section>
@@ -173,11 +178,11 @@ export default function PitchDeckPage() {
         <div className="max-w-5xl mx-auto w-full">
           <p className="text-sky-500 text-xs font-bold uppercase tracking-[0.35em] mb-3">02 · Die Lösung</p>
           <h2 className="text-4xl md:text-5xl font-black text-slate-900 tracking-tight mb-4 leading-tight">
-            BescheidRecht: Ihr KI-Assistent<br />für die Bescheid-Analyse.
+            BescheidRecht: Technische Analyse<br />für Ihre Fachkräfte.
           </h2>
           <p className="text-slate-500 text-lg mb-12 max-w-2xl leading-relaxed">
-            Fachkraft lädt den Bescheid hoch — BescheidRecht übernimmt die Analyse,
-            findet die Fehler und generiert den Widerspruch. In unter 60 Sekunden.
+            Fachkraft lädt den Bescheid hoch — BescheidRecht analysiert auf Unstimmigkeiten
+            und erstellt eine Musterschreiben-Vorlage. In unter 60 Sekunden.
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             {[
@@ -189,7 +194,7 @@ export default function PitchDeckPage() {
               {
                 icon: FileText,
                 title: "130+ geprüfte Fehlertypen",
-                desc: "Abdeckung über 16 Rechtsgebiete: SGB II bis XII, BAMF, BAföG, Wohngeld und mehr.",
+                desc: "Technische Prüfung über 16 Rechtsgebiete: SGB II bis XII, BAMF, BAföG, Wohngeld und mehr.",
               },
               {
                 icon: Shield,
@@ -199,7 +204,7 @@ export default function PitchDeckPage() {
               {
                 icon: Clock,
                 title: "< 60 Sekunden",
-                desc: "Von Hochladen bis Analyse-Ergebnis mit fertigem Widerspruchs-Entwurf als DIN A4 PDF.",
+                desc: "Von Hochladen bis Analyse-Ergebnis mit Musterschreiben-Vorlage als DIN A4 PDF.",
               },
             ].map(({ icon: Icon, title, desc }) => (
               <div key={title} className="p-7 rounded-2xl bg-slate-50 border border-slate-200 flex gap-5 items-start">
@@ -228,7 +233,7 @@ export default function PitchDeckPage() {
         <div className="max-w-5xl mx-auto w-full relative">
           <p className="text-sky-100 text-xs font-bold uppercase tracking-[0.35em] mb-3">03 · So funktioniert es</p>
           <h2 className="text-4xl md:text-5xl font-black text-white tracking-tight mb-14 leading-tight">
-            In 3 Schritten<br />zum Widerspruch.
+            In 3 Schritten<br />zur strukturierten Analyse.
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
             {[
@@ -240,12 +245,12 @@ export default function PitchDeckPage() {
               {
                 n: "02",
                 title: "KI analysiert",
-                desc: "13 spezialisierte KI-Agenten prüfen auf 130+ Fehlertypen, berechnen Fristen und identifizieren Rechtsbasis — in unter 60 Sekunden.",
+                desc: "13 spezialisierte Agenten prüfen auf 130+ Fehlertypen, berechnen Fristen und identifizieren Unstimmigkeiten — in unter 60 Sekunden.",
               },
               {
                 n: "03",
-                title: "Schreiben exportieren",
-                desc: "Direkt verwendbarer Widerspruch als DIN A4 PDF. Fachkraft prüft, unterschreibt — und der Klient bekommt sein Recht.",
+                title: "Vorlage exportieren",
+                desc: "Musterschreiben-Vorlage als DIN A4 PDF. Fachkraft prüft, ergänzt — als Basis für das Gespräch mit Anwalt oder Sozialverband.",
               },
             ].map(({ n, title, desc }) => (
               <div key={n} className="p-8 rounded-2xl bg-white/15 border border-white/20">
@@ -285,7 +290,7 @@ export default function PitchDeckPage() {
           </h2>
           <p className="text-slate-500 text-lg mb-12 max-w-2xl leading-relaxed">
             Überall dort, wo Fachkräfte täglich Bescheide prüfen —
-            für Klienten, die sich nicht selbst wehren können.
+            für Klienten, die strukturierte Unterstützung brauchen.
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-10">
             {[
@@ -526,8 +531,12 @@ export default function PitchDeckPage() {
               Bescheid<span className="text-sky-500">Recht</span>
             </p>
             <p className="text-slate-400 text-sm mt-1">bescheidrecht.de · 2026</p>
+            <p className="text-slate-400 text-xs mt-4">kontakt@bescheidrecht.de</p>
           </div>
         </div>
+        <p className="absolute bottom-6 left-8 text-slate-400 text-[10px] max-w-md leading-relaxed">
+          Technisches Analyse-Werkzeug gem. § 2 Abs. 1 RDG. Kein Ersatz für Rechtsberatung.
+        </p>
         <p className="absolute bottom-6 right-8 text-slate-300 text-xs font-bold uppercase tracking-widest">8 / 8</p>
       </section>
     </div>

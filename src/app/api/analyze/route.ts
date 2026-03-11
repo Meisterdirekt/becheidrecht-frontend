@@ -51,17 +51,74 @@ async function extractTextFromPdf(buffer: Buffer): Promise<string> {
 }
 
 /**
+ * Tesseract Worker-Pool: Round-Robin über POOL_SIZE Worker.
+ * Lazy-Init beim ersten OCR-Call. Jeder Worker bleibt persistent.
+ * Bei Multi-Page-PDFs werden Seiten parallel auf verschiedene Worker verteilt.
+ */
+type TesseractWorker = Awaited<ReturnType<typeof import('tesseract.js')['createWorker']>>;
+const POOL_SIZE = 3;
+const workerPool: TesseractWorker[] = [];
+let poolInitPromise: Promise<void> | null = null;
+let poolRoundRobin = 0;
+
+async function initWorkerPool(): Promise<void> {
+  if (workerPool.length >= POOL_SIZE) return;
+  if (poolInitPromise) return poolInitPromise;
+
+  poolInitPromise = (async () => {
+    const { createWorker } = await import('tesseract.js');
+    const promises = Array.from({ length: POOL_SIZE }, () =>
+      createWorker('deu', 1, { logger: () => {} })
+    );
+    const workers = await Promise.all(promises);
+    workerPool.push(...workers);
+  })();
+
+  try {
+    await poolInitPromise;
+  } catch {
+    poolInitPromise = null;
+    throw new Error('Tesseract Worker-Pool init failed');
+  }
+}
+
+function getNextWorker(): TesseractWorker {
+  const worker = workerPool[poolRoundRobin % workerPool.length];
+  poolRoundRobin++;
+  return worker;
+}
+
+async function resetWorkerPool(): Promise<void> {
+  for (const w of workerPool) {
+    try { await w.terminate(); } catch { /* ignore */ }
+  }
+  workerPool.length = 0;
+  poolInitPromise = null;
+  poolRoundRobin = 0;
+}
+
+/**
  * Lokale OCR via Tesseract.js — Bilder verlassen NICHT den Server.
  * DSGVO-konform: keine personenbezogenen Daten an externe APIs.
+ * Nutzt Round-Robin Worker-Pool (3 Worker, lazy init).
+ * Fallback: Pool-Reset + Neuinitialisierung bei Fehler.
  */
 async function extractTextFromImageLocal(buffer: Buffer): Promise<string> {
+  // Versuch 1: Worker aus Pool
   try {
-    const { createWorker } = await import('tesseract.js');
-    const worker = await createWorker('deu', 1, {
-      logger: () => {}, // Kein Logging
-    });
+    await initWorkerPool();
+    const worker = getNextWorker();
     const { data: { text } } = await worker.recognize(buffer);
-    await worker.terminate();
+    return text.trim();
+  } catch {
+    await resetWorkerPool();
+  }
+
+  // Versuch 2: Frischer Pool als Fallback
+  try {
+    await initWorkerPool();
+    const worker = getNextWorker();
+    const { data: { text } } = await worker.recognize(buffer);
     return text.trim();
   } catch {
     return '';

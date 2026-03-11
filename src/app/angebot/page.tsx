@@ -9,10 +9,10 @@ import { Check, Printer, ArrowLeft } from "lucide-react";
 const ANBIETER = {
   name: "BescheidRecht",
   inhaber: "Hendrik Berkensträter",
-  adresse: process.env.NEXT_PUBLIC_COMPANY_ADDRESS || "[Geschäftsadresse konfigurieren]",
+  adresse: process.env.NEXT_PUBLIC_COMPANY_ADDRESS || "Antoniusstraße 47, 49377 Vechta",
   email: "kontakt@bescheidrecht.de",
   web: "bescheidrecht.de",
-  steuernummer: process.env.NEXT_PUBLIC_COMPANY_TAX_ID || "[USt-IdNr. konfigurieren]",
+  steuernummer: "Kleinunternehmer gem. § 19 UStG (keine USt-IdNr.)",
 };
 
 const PAKETE = [
@@ -26,7 +26,7 @@ const PAKETE = [
     features: [
       "Alle 16 Rechtsgebiete & 130+ Fehlertypen",
       "Automatische Pseudonymisierung (DSGVO Art. 25)",
-      "KI-Widerspruchsschreiben-Generator (DIN A4 PDF)",
+      "Musterschreiben-Generator (DIN A4 PDF)",
       "Fristen-Dashboard mit 30-Tage-Überwachung",
       "E-Mail-Support (Reaktionszeit: 48h)",
       "Onboarding-Schulung (60 Min. Remote)",
@@ -245,8 +245,8 @@ export default function AngebotPage() {
           </p>
           <p className="text-slate-600 leading-relaxed text-sm max-w-3xl">
             vielen Dank für Ihr Interesse an BescheidRecht. Im Folgenden unterbreiten wir Ihnen unser
-            individuelles Angebot für einen Rahmenvertrag zur KI-gestützten Bescheidanalyse und automatischen
-            Widerspruchsschreiben-Erstellung. Unser System wurde speziell für den Einsatz in sozialen
+            individuelles Angebot für einen Rahmenvertrag zur technischen Bescheidanalyse und automatischen
+            Musterschreiben-Erstellung. Unser System wurde speziell für den Einsatz in sozialen
             Einrichtungen entwickelt und ist vollständig DSGVO-konform nach Art. 25 (Privacy by Design).
           </p>
         </div>
@@ -280,8 +280,8 @@ export default function AngebotPage() {
                 desc: "13 spezialisierte KI-Agenten prüfen auf 130+ dokumentierte Fehlertypen in 16 Rechtsgebieten. Mit Angabe der konkreten Rechtsgrundlage.",
               },
               {
-                title: "Widerspruch exportieren",
-                desc: "Direkt verwendbarer Widerspruchsschreiben-Entwurf als DIN A4 PDF. Fachkraft prüft und unterschreibt — Klient erhält sein Recht.",
+                title: "Vorlage exportieren",
+                desc: "Musterschreiben-Vorlage als DIN A4 PDF. Fachkraft prüft und ergänzt — als Basis für das Gespräch mit Anwalt oder Sozialverband.",
               },
             ].map(({ title, desc }) => (
               <div key={title}>

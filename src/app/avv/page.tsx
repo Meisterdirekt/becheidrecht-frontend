@@ -89,7 +89,7 @@ export default function AvvPage() {
             <p>
               <strong>2.2 Zweck der Verarbeitung:</strong> Prüfung von Behördenbescheiden auf formale
               und inhaltliche Fehler mittels KI-gestützter Analyse; Generierung von
-              Widerspruchsschreiben; Verwaltung von Widerspruchsfristen; Bereitstellung einer
+              Musterschreiben-Vorlagen; Verwaltung von Fristen; Bereitstellung einer
               Einrichtungs-Übersicht über Analysevorgänge.
             </p>
             <p>
