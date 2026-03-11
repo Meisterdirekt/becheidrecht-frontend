@@ -26,6 +26,7 @@ import { createClient } from '@supabase/supabase-js';
 import { reportInfo } from '@/lib/error-reporter';
 
 export const runtime = 'nodejs';
+export const maxDuration = 30;
 
 // ---------------------------------------------------------------------------
 // Produkt-Mapping (muss mit den metadata.product_key-Werten beim Payment-Create übereinstimmen)
@@ -64,6 +65,7 @@ async function fetchMolliePayment(paymentId: string): Promise<MolliePayment> {
   const apiKey = process.env.MOLLIE_API_KEY ?? '';
   const res = await fetch(`https://api.mollie.com/v2/payments/${paymentId}`, {
     headers: { Authorization: `Bearer ${apiKey}` },
+    signal: AbortSignal.timeout(5000),
   });
   if (!res.ok) {
     throw new Error(`Mollie API Fehler: ${res.status} ${res.statusText}`);

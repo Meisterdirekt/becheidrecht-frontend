@@ -113,8 +113,7 @@ src/
 ├── lib/
 │   ├── logic/
 │   │   ├── agent_engine.ts             # KERN — Claude Tool-Use Loop, 4 Skills, Routing
-│   │   ├── engine.ts                   # Legacy GPT-4o Fallback — nicht weiterentwickeln
-│   │   └── forensic_engine.ts          # Stub — nicht produktiv
+│   │   └── engine.ts                   # Legacy GPT-4o Fallback — nicht weiterentwickeln
 │   ├── privacy/
 │   │   ├── pseudonymizer.ts            # PII-Anonymisierung (Namen, IBAN, Geburtsdaten, etc.)
 │   │   └── pseudonymizer.test.ts       # Tests
@@ -152,6 +151,22 @@ supabase/                               # SQL-Migrations (manuell via SQL-Editor
 
 ---
 
+## Engineering Standards
+
+- **Demand Elegance (Boris Cherny):** Sauberste Architektur. Keine "hacky" Lösungen.
+- **Minimal Impact:** Nur das Notwendige ändern. Kein Code-Drift.
+- **Plan-First:** `/plan` für Änderungen > 3 Zeilen.
+- **No Logic Compression:** JSON-Logik in `content/` darf niemals gekürzt werden. Einzeiler = Fail.
+- **CLI Verification:** Erfolg muss durch CLI bewiesen werden (`npm run build`, `npx tsc --noEmit`).
+- **Legal Compliance:** Nur 2026er Gesetze aus `compliance/` verwenden.
+- **Contrast Excellence:** Light-Mode Kontrast gemäß WCAG AAA (> 7:1).
+- **Logic Isolation:** `schema_analysis.json` (Input) und `schema_generation.json` (Output) strikt trennen.
+- **Performance Budget:** API-Latenz < 200ms. Frontend-Bundle < 150kb (gzip).
+- **Verified Sources Only:** Jede Regel in `compliance/` braucht eine Quell-URL.
+- **Command Persistence:** Agenten-Prompts in `FINAL_SYSTEM_ORCHESTRATION.md` pflegen.
+
+---
+
 ## Architektur-Gesetze
 
 - KI-Logik **nur** in `src/lib/logic/` — nie in Komponenten oder API-Routes
@@ -169,11 +184,11 @@ supabase/                               # SQL-Migrations (manuell via SQL-Editor
 **Aktueller Stand:** 13-Agenten-Pipeline vollständig implementiert in `src/lib/logic/agents/`.
 `agent_engine.ts` ist ein dünner Wrapper über `agents/orchestrator.ts`.
 
-**Pipeline:** AG08 → AG12 → AG01 → [AG02 ‖ AG04] → AG03 → AG07 → AG13
+**Pipeline:** AG08 → AG12 → AG01 → [AG02 ‖ AG04] → AG03 → [AG07 ‖ AG14] → AG13
 
 | Agent | Datei | Rolle |
 |---|---|---|
-| AG01 | orchestrator.ts | Haupt-Orchestrator, koordiniert Pipeline |
+| AG01 | ag01-orchestrator.ts | Triage-Agent (Rechtsgebiet, Dringlichkeit, Routing) |
 | AG02 | ag02-analyst.ts | Bescheid-Analyse (Klasssifikation, Fehler) |
 | AG03 | ag03-critic.ts | Qualitätskritiker (Erfolgschance, Lücken) |
 | AG04 | ag04-researcher.ts | Recherche-Agent (Urteile, Weisungen) |
@@ -274,7 +289,7 @@ Mobile first (375px zuerst). Arabisch (AR) → `dir="rtl"`. Fehler freundlich fo
 
 13. **18-Agenten-System vollständig implementiert** in `src/lib/logic/agents/` (AG01–AG18 + orchestrator.ts). `agent_engine.ts` ist nur ein dünner Wrapper. Die `wissensdatenbank.sql`-Tabellen (urteile, kennzahlen, analysis_results etc.) müssen noch manuell in Supabase deployed werden — erst dann können AG04/AG05 in die DB schreiben.
 
-14. **`vault/` enthält echte Credentials** (`keys.env`, `provider_logins.txt`). In `.gitignore`, aber als Entwickler nie darin stöbern oder Inhalte ausgeben.
+14. **`vault/` enthält echte Credentials** (`keys.env`, `provider_logins.txt`). In `.gitignore`, aber als Entwickler nie darin stöbern oder Inhalte ausgeben. **Dev-Workaround:** 4 Routes (`analyze`, `generate-letter`, `assistant`, `agents/utils.ts`) lesen `vault/keys.env` via `fs.readFileSync` als lokalen Key-Fallback. Auf Vercel scheitert das stumm (`try/catch`) und es werden ENV-Vars verwendet. Das ist Absicht — nicht "fixen".
 
 15. **Tailwind v4 + ESLint Flat Config.** Keine `tailwind.config.js` — Tailwind läuft über `postcss.config.js` mit `@tailwindcss/postcss`. Keine `.eslintrc.json` — ESLint nutzt `eslint.config.mjs` (Flat Config). Theme-Werte in CSS-Variablen, nicht in JS-Config.
 

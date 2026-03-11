@@ -104,7 +104,8 @@ export function detectTraegerKey(behoerde: string): string {
 
   if (
     lower.includes("jobcenter") || lower.includes("bürgergeld") ||
-    lower.includes("bürgergeldbescheid") || lower.includes("sgb ii") ||
+    lower.includes("bürgergeldbescheid") || lower.includes("grundsicherungsgeld") ||
+    lower.includes("sgb ii") ||
     lower.includes("grundsicherung für arbeitsuchende")
   ) return "jobcenter";
 

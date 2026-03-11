@@ -515,7 +515,7 @@ async function runPhase3bValidierung(
 Prüfe für jeden Eintrag:
 1. Existieren die referenzierten Paragraphen noch? (Wurden sie umbenannt, verschoben, aufgehoben?)
 2. Stimmt die Severity noch? (z.B. "kritisch" für einen inzwischen unwichtigen Fehler)
-3. Enthält die Beschreibung veraltete Begriffe? (z.B. "Hartz IV" statt "Bürgergeld", alte Beträge)
+3. Enthält die Beschreibung veraltete Begriffe? (z.B. "Hartz IV" statt "Grundsicherungsgeld", alte Beträge)
 4. Ist die Rechtsbasis noch korrekt? (Gesetzesänderungen seit Eintrag-Erstellung)
 
 Antworte mit JSON-Array — nur Einträge die PROBLEME haben:
@@ -703,7 +703,7 @@ const BEKANNTE_REFORMEN: Array<{
     stichwort: ["Bürgergeld abgeschafft", "Bürgergeld wird ersetzt", "Grundsicherung statt Bürgergeld"],
     typ: "umbenennung",
     was_alt: "Bürgergeld",
-    was_neu: "Grundsicherung",
+    was_neu: "Grundsicherungsgeld",
     gesetz: "SGB II",
     betroffene_bereiche: ["BA_", "content/behoerdenfehler_logik.json"],
   },
@@ -714,6 +714,30 @@ const BEKANNTE_REFORMEN: Array<{
     was_neu: "Neues Grundsicherungsgesetz",
     gesetz: "SGB II/III Reform",
     betroffene_bereiche: ["BA_", "ALG_", "content/behoerdenfehler_logik.json"],
+  },
+  {
+    stichwort: ["Sanktionsverschärfung", "30 Prozent Kürzung", "Sanktionen verschärft", "Stufenmodell abgeschafft", "Totalkürzung Bürgergeld"],
+    typ: "paragraph_aenderung",
+    was_alt: "§ 31a SGB II (Stufenmodell)",
+    was_neu: "§ 31a SGB II n.F. (bis 30% direkt)",
+    gesetz: "SGB II",
+    betroffene_bereiche: ["BA_006", "BA_019", "content/behoerdenfehler_logik.json"],
+  },
+  {
+    stichwort: ["Vermittlungsvorrang", "Arbeitsvorrang", "Vermittlung vor Qualifizierung", "Totalrevision Eingliederung"],
+    typ: "paragraph_aenderung",
+    was_alt: "§ 15 SGB II (Kooperationsplan)",
+    was_neu: "§ 15 SGB II n.F. (Vermittlungsvorrang)",
+    gesetz: "SGB II",
+    betroffene_bereiche: ["BA_020", "content/behoerdenfehler_logik.json"],
+  },
+  {
+    stichwort: ["Vermieter-Auskunftspflicht", "Vermieter Jobcenter Auskunft", "Mietdaten Jobcenter"],
+    typ: "paragraph_aenderung",
+    was_alt: "§ 22 SGB II (KdU ohne Vermieter-Abfrage)",
+    was_neu: "§ 22 SGB II n.F. (Vermieter-Auskunftspflicht)",
+    gesetz: "SGB II",
+    betroffene_bereiche: ["BA_021", "BA_004", "content/behoerdenfehler_logik.json"],
   },
 ];
 
@@ -867,7 +891,7 @@ Antworte mit JSON-Array oder leerem Array []:
   "ikraft_ab": "YYYY-MM-DD" | null,
   "quelle_url": "URL der Quelle",
   "beschreibung": "Kurze Erklärung was sich ändert (max 200 Zeichen)",
-  "betroffene_bereiche": ["SGB_II", "Jobcenter", "Bürgergeld"]
+  "betroffene_bereiche": ["SGB_II", "Jobcenter", "Grundsicherungsgeld"]
 }]
 
 WICHTIG: Nur wenn OFFIZIELL BESCHLOSSEN oder IN KRAFT GETRETEN — keine Vorhaben, Pläne oder Entwürfe.`,

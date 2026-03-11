@@ -143,7 +143,7 @@ function Schritt2({
       <textarea
         value={beschreibung}
         onChange={(e) => onChange(e.target.value)}
-        placeholder={`Beispiel:\n\nDas Jobcenter hat meinen Antrag auf Bürgergeld abgelehnt. Sie schreiben, mein Einkommen übersteige die Grenze, aber ich glaube, sie haben meine Mietkosten nicht korrekt einberechnet. Der Bescheid ist vom 15.02.2026.`}
+        placeholder={`Beispiel:\n\nDas Jobcenter hat meinen Antrag auf Grundsicherungsgeld (ehem. Bürgergeld) abgelehnt. Sie schreiben, mein Einkommen übersteige die Grenze, aber ich glaube, sie haben meine Mietkosten nicht korrekt einberechnet. Der Bescheid ist vom 15.02.2026.`}
         rows={8}
         maxLength={1000}
         className="w-full bg-white/[0.04] border border-white/10 rounded-2xl px-4 py-3 text-sm text-white/90 placeholder:text-white/20 resize-none focus:outline-none focus:border-white/20 leading-relaxed"

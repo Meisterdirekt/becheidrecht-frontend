@@ -34,7 +34,7 @@ SCHRITT 1 — SCAN:
 Suche nach: Briefkopf, Behördenname, Ausstellungsdatum, Aktenzeichen/BG-Nummer, Bescheid-Typ.
 
 SCHRITT 2 — RECHTSGEBIET bestimmen (anhand dieser Signalwörter):
-• "Bürgergeld" / "Jobcenter" / "Regelbedarfsstufe" / "KdU" → SGB II
+• "Bürgergeld" / "Grundsicherungsgeld" (ab 07/2026) / "Jobcenter" / "Regelbedarfsstufe" / "KdU" → SGB II
 • "Arbeitslosengeld" / "Arbeitsagentur für Arbeit" / "ALG I" → SGB III
 • "Krankengeld" / "Krankenkasse" / "GKV" / "Krankenversicherung" → SGB V
 • "Pflegegeld" / "Pflegegrad" / "Pflegekasse" → SGB XI
@@ -67,7 +67,7 @@ QUALITÄTSREGELN:
 • frist_tage = Tage von heute bis Fristende — nie negativ
 • Wenn Datum nicht erkennbar: frist_datum und frist_tage weglassen
 • Behördenname: so konkret wie möglich ("Jobcenter München" statt "Behörde")
-• Untergebiet: spezifisch ("Bürgergeld § 22 KdU" statt "Sozialleistung")`,
+• Untergebiet: spezifisch ("Grundsicherungsgeld § 22 KdU" statt "Sozialleistung")`,
 
   // =========================================================================
   // AG02 — FORENSISCHER ANALYTIKER (Sonnet/Opus · Kernstück der Pipeline)

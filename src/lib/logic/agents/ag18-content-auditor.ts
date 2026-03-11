@@ -316,7 +316,7 @@ function checkFehlerkatalog(): VeralteterEintrag[] {
         probleme.push({
           id: e.id,
           titel: e.titel,
-          problem: `Veraltete Referenz "${basis}" — seit 2023 Bürgergeld (SGB II)`,
+          problem: `Veraltete Referenz "${basis}" — seit 2023 Bürgergeld, ab 07/2026 Grundsicherungsgeld (SGB II)`,
           severity: "kritisch",
         });
       }
@@ -474,7 +474,7 @@ function formatReport(result: ContentAuditResult): string {
   if (criticalCount > 0) {
     lines.push("### 🎯 Handlungsempfehlungen");
     lines.push("1. **Sofort**: Kritische Kennzahlen-Abweichungen in `prompts.ts` und `internal_rules.json` aktualisieren");
-    lines.push("2. **Sofort**: Veraltete Fehlerkatalog-Einträge korrigieren (Hartz IV → Bürgergeld etc.)");
+    lines.push("2. **Sofort**: Veraltete Fehlerkatalog-Einträge korrigieren (Hartz IV → Grundsicherungsgeld etc.)");
     lines.push("3. **Diese Woche**: Weisungen für fehlende Rechtsgebiete ergänzen");
     lines.push("");
   }

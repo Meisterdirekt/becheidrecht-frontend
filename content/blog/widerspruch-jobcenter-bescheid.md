@@ -5,7 +5,7 @@ date: "2026-02-15"
 slug: "widerspruch-jobcenter-bescheid"
 ---
 
-Ein Bescheid des Jobcenters kann Ihren Anspruch auf Arbeitslosengeld II (Bürgergeld), auf Mehrbedarfe oder auf andere Leistungen betreffen. Wenn Sie mit der Entscheidung nicht einverstanden sind, haben Sie in der Regel das Recht, **Widerspruch** einzulegen. Dieser Artikel gibt einen Überblick über Fristen, Form und typische Fehlerquellen – ohne individuelle Rechtsberatung zu ersetzen.
+Ein Bescheid des Jobcenters kann Ihren Anspruch auf Arbeitslosengeld II (Grundsicherungsgeld, ehem. Bürgergeld), auf Mehrbedarfe oder auf andere Leistungen betreffen. Wenn Sie mit der Entscheidung nicht einverstanden sind, haben Sie in der Regel das Recht, **Widerspruch** einzulegen. Dieser Artikel gibt einen Überblick über Fristen, Form und typische Fehlerquellen – ohne individuelle Rechtsberatung zu ersetzen.
 
 ## Warum Widerspruch einlegen?
 

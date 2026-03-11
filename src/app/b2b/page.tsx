@@ -156,7 +156,7 @@ const TESTIMONIALS = [
     name: "Koordination",
     role: "Typisches Szenario",
     org: "Wohlfahrtsverband",
-    text: "Bürgergeld, Pflegegrad, BAföG — ein Tool für alle Bescheide vereinfacht die Einarbeitung neuer Mitarbeitender erheblich und schafft einheitliche Qualitätsstandards.",
+    text: "Grundsicherungsgeld, Pflegegrad, BAföG — ein Tool für alle Bescheide vereinfacht die Einarbeitung neuer Mitarbeitender erheblich und schafft einheitliche Qualitätsstandards.",
     stars: 0,
   },
 ];
@@ -420,7 +420,7 @@ export default function B2BPage() {
           16 Rechtsgebiete abgedeckt
         </h2>
         <p className="text-center text-white/35 mb-10 sm:mb-12 text-[14px] sm:text-[15px]">
-          Von Bürgergeld über Pflegegrad bis BAföG — ein Tool für alle Bescheide.
+          Von Grundsicherungsgeld über Pflegegrad bis BAföG — ein Tool für alle Bescheide.
         </p>
         <div className="flex flex-wrap justify-center gap-2 sm:gap-3 max-w-3xl mx-auto">
           {TRAEGER.map((t) => (

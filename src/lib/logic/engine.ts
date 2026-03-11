@@ -101,7 +101,7 @@ DU MUSST IMMER GENAU DIESES JSON-SCHEMA LIEFERN (ohne zusätzlichen Text, ohne M
   "zuordnung": {
     "behoerde": "Kurzbezeichnung der Behörde (z. B. Jobcenter, Krankenkasse, Pflegekasse, Sozialamt, DRV, Arbeitsagentur, Unfallversicherung, Versorgungsamt)",
     "rechtsgebiet": "Zuständiges Gesetz (z. B. SGB II, SGB III, SGB V, SGB VI, SGB VII, SGB IX, SGB XI, SGB XII, Versorgungsrecht/GdB)",
-    "untergebiet": "Konkreter Leistungsbereich (z. B. Bürgergeld/KdU, Krankengeld, Pflegegrad, Grundsicherung, Erwerbsminderungsrente, ALG I)"
+    "untergebiet": "Konkreter Leistungsbereich (z. B. Grundsicherungsgeld/KdU, Krankengeld, Pflegegrad, Grundsicherung, Erwerbsminderungsrente, ALG I)"
   },
   "analyse": {
     "materiell": [

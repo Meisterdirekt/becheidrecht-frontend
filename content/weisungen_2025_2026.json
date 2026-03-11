@@ -77,6 +77,66 @@
       "verweise": ["202411010", "202412014", "202509011", "202306003", "202505008", "202412010"],
       "hebt_auf": ["202412010"],
       "wichtig_fuer": ["SGB III", "Berufsberatung", "BBiE"]
+    },
+    "202601_REGELSATZ": {
+      "datum": "01.01.2026",
+      "gueltig_ab": "01.01.2026",
+      "gueltig_bis": "30.06.2026",
+      "thema": "Regelbedarfe 2026 — Nullrunde durch Besitzschutzregelung § 28a Abs. 5 SGB XII",
+      "sgb_ii": "Weisung",
+      "sgb_iii": "Information",
+      "rechtsgrundlage": "§ 28a Abs. 5 SGB XII i.V.m. § 20 SGB II, RBSFV 2026",
+      "wichtig_fuer": ["SGB II", "Regelbedarf", "Nullrunde", "Besitzschutz"],
+      "pruef_hinweis": "RS1=563€ unverändert (rechnerisch wäre 557€). Besitzschutzregelung greift. Alle 6 Stufen unverändert.",
+      "quelle": "https://www.bundesregierung.de/breg-de/aktuelles/nullrunde-buergergeld-2383676"
+    },
+    "202601_AUSZAHLUNG": {
+      "datum": "01.01.2026",
+      "gueltig_ab": "01.01.2026",
+      "gueltig_bis": "unbegrenzt",
+      "thema": "Umstellung auf bargeldlose Auszahlung — nur noch Überweisung",
+      "sgb_ii": "Weisung",
+      "sgb_iii": "Weisung",
+      "rechtsgrundlage": "§ 42 SGB II, § 337 SGB III",
+      "wichtig_fuer": ["SGB II", "SGB III", "Auszahlung", "Überweisung"],
+      "pruef_hinweis": "Bar- und Scheckzahlung entfallen. Barzahlung nur noch in begründeten Ausnahmefällen. Bescheide die weiterhin Barzahlung nennen sind veraltet.",
+      "quelle": "https://www.vdk.de/aktuelles/aktuelle-meldungen/artikel/neue-regelungen-sozialrecht-in-2026-minijob-rente-krankenkasse/"
+    },
+    "202607_GRUNDSICHERUNGSGELD": {
+      "datum": "01.07.2026",
+      "gueltig_ab": "01.07.2026",
+      "gueltig_bis": "unbegrenzt",
+      "thema": "Umbenennung Bürgergeld → Grundsicherungsgeld + Sanktionsverschärfung + Vermittlungsvorrang",
+      "sgb_ii": "Weisung",
+      "sgb_iii": "Information",
+      "rechtsgrundlage": "SGB II (Neufassung durch Grundsicherungsgesetz 2026)",
+      "wichtig_fuer": ["SGB II", "Grundsicherungsgeld", "Sanktionen", "Vermittlungsvorrang", "Vermieter-Auskunftspflicht"],
+      "pruef_hinweis": "Ab 01.07.2026: Bürgergeld heißt Grundsicherungsgeld. Sanktionen bis 30% direkt möglich (ohne Stufenmodell). Vermittlungsvorrang kehrt zurück. Vermieter-Auskunftspflicht gegenüber Jobcenter. Bescheide vor/nach Stichtag beachten!",
+      "quelle": "https://www.bundestag.de/dokumente/textarchiv/2026/kw10-de-grundsicherung-1150460"
+    },
+    "202601_BBG": {
+      "datum": "01.01.2026",
+      "gueltig_ab": "01.01.2026",
+      "gueltig_bis": "31.12.2026",
+      "thema": "Beitragsbemessungsgrenze Arbeitslosenversicherung 2026 erhöht",
+      "sgb_ii": "nicht betroffen",
+      "sgb_iii": "Weisung",
+      "rechtsgrundlage": "§ 341 SGB III, Sozialversicherungs-Rechengrößenverordnung 2026",
+      "wichtig_fuer": ["SGB III", "Beitragsbemessungsgrenze", "ALG-Berechnung"],
+      "pruef_hinweis": "BBG 2026: 101.400€/Jahr (8.450€/Monat), Vorjahr 96.600€. ALG I Höchstbetrag entsprechend angepasst.",
+      "quelle": "https://www.gegen-hartz.de/news/arbeitslosengeld-diese-aenderungen-ab-2026-sind-jetzt-wichtig"
+    },
+    "202601_MINDESTLOHN": {
+      "datum": "01.01.2026",
+      "gueltig_ab": "01.01.2026",
+      "gueltig_bis": "unbegrenzt",
+      "thema": "Mindestlohn erhöht auf 13,90€/Std., Minijob-Grenze auf 603€/Monat",
+      "sgb_ii": "Weisung",
+      "sgb_iii": "Information",
+      "rechtsgrundlage": "MiLoG, § 8 SGB IV",
+      "wichtig_fuer": ["SGB II", "SGB III", "Mindestlohn", "Minijob", "Freibeträge", "Einkommensanrechnung"],
+      "pruef_hinweis": "Mindestlohn 13,90€/Std. (vorher 12,82€). Minijob-Grenze 603€ (vorher 556€). Relevant für Einkommensanrechnung und Freibeträge im SGB II.",
+      "quelle": "https://www.vdk.de/aktuelles/aktuelle-meldungen/artikel/neue-regelungen-sozialrecht-in-2026-minijob-rente-krankenkasse/"
     }
   },
   "deutsche_rentenversicherung": {
@@ -111,6 +171,15 @@
       "rechtsgrundlage": "§ 48 SGB X i.V.m. SGB VI",
       "wichtig_fuer": ["Aufhebungsbescheid", "Überzahlung", "Vertrauensschutz", "Rückforderung"],
       "pruef_hinweis": "Aufhebung nur bei wesentlicher Änderung. Vertrauensschutz nach § 48 Abs. 2 SGB X prüfen. Jahresfrist der Behörde beachten (§ 48 Abs. 4 SGB X)."
+    },
+    "GRA_SGB6_2026_RENTENWERT": {
+      "datum": "01.07.2026",
+      "gueltig_ab": "01.07.2026",
+      "thema": "Rentenanpassung 2026 — Aktueller Rentenwert steigt auf 42,52€ (+4,24%)",
+      "rechtsgrundlage": "§ 68 SGB VI, Rentenwertbestimmungsverordnung 2026",
+      "wichtig_fuer": ["Rentenwert", "Rentenanpassung", "Rentenerhöhung", "Entgeltpunkte"],
+      "pruef_hinweis": "Bis 30.06.2026: 40,79€. Ab 01.07.2026: 42,52€ (+4,24%). Rentenniveau-Haltelinie bei mind. 48% bis 01.07.2031 (Rentenpaket 2025, § 154 Abs. 3 SGB VI). Rentenbescheide die vor Juli 2026 erstellt werden nutzen noch 40,79€.",
+      "quelle": "https://rentenbescheid24.de/rentenerhoehung-2026-ist-amtlich-tabelle-zeigt-wie-stark-die-rente-ab-juli-steigt/"
     }
   },
   "pflegekasse": {
@@ -137,6 +206,16 @@
       "rechtsgrundlage": "§§ 36, 37, 38 SGB XI",
       "wichtig_fuer": ["Pflegegeld", "Sachleistung", "Kombileistung", "Leistungshöhe"],
       "pruef_hinweis": "Pflegegeld 2025/2026: PG2=347€, PG3=599€, PG4=800€, PG5=990€. Sachleistung: PG2=796€, PG3=1497€, PG4=1859€, PG5=2299€. Gemeinsamer Jahresbetrag Verhinderung+Kurzzeitpflege: 3539€ (§42a SGB XI ab 01.07.2025). Korrekte Berechnung der Kombinationsleistung?"
+    },
+    "BEEP_2026": {
+      "datum": "01.01.2026",
+      "gueltig_ab": "01.01.2026",
+      "gueltig_bis": "unbegrenzt",
+      "thema": "BEEP-Gesetz: Beratungsbesuche reduziert — nur noch 2x jährlich bei reinem Pflegegeldbezug",
+      "rechtsgrundlage": "§ 37 Abs. 3 SGB XI (geändert durch BEEP-Gesetz)",
+      "wichtig_fuer": ["Pflegegeld", "Beratungsbesuche", "Pflegeberatung", "BEEP"],
+      "pruef_hinweis": "Bisher quartalsweise (PG2-3) bzw. halbjährlich (PG4-5). Ab 2026: einheitlich 2x jährlich für PG 2-5 bei reinem Pflegegeldbezug. Bescheide die häufigere Besuche verlangen sind veraltet.",
+      "quelle": "https://pflege-dschungel.de/beep-2026/"
     }
   },
   "krankenkasse": {
@@ -163,6 +242,26 @@
       "rechtsgrundlage": "§ 33 SGB V, § 92 Abs. 1 Satz 2 Nr. 6 SGB V",
       "wichtig_fuer": ["Hilfsmittel", "Versorgung", "Genehmigung", "Widerspruch"],
       "pruef_hinweis": "Hilfsmittel im Hilfsmittelverzeichnis gelistet? Ärztliche Verordnung liegt vor? Ablehnung nur bei fehlender medizinischer Notwendigkeit — Kasse muss Einzelfall prüfen."
+    },
+    "GKV_ZUSATZBEITRAG_2026": {
+      "datum": "01.01.2026",
+      "gueltig_ab": "01.01.2026",
+      "gueltig_bis": "31.12.2026",
+      "thema": "Durchschnittlicher Zusatzbeitrag 2026 auf 2,9% gestiegen (Spanne 2,18–4,39%)",
+      "rechtsgrundlage": "§ 242a SGB V",
+      "wichtig_fuer": ["Zusatzbeitrag", "Krankenkassenbeitrag", "Sonderkündigungsrecht", "Kassenwechsel"],
+      "pruef_hinweis": "Durchschnittlicher Zusatzbeitrag 2,9% (2025: 2,5%). Kassenindividuelle Spanne 2,18–4,39%. Bei Erhöhung: Sonderkündigungsrecht § 175 SGB V. Prüfen ob Kasse korrekt über Beitragserhöhung informiert hat.",
+      "quelle": "https://www.krankenkassen.de/gesetzliche-krankenkassen/krankenkasse-beitrag/zusatzbeitrag/"
+    },
+    "KINDERKRANKENGELD_2026": {
+      "datum": "01.01.2026",
+      "gueltig_ab": "01.01.2026",
+      "gueltig_bis": "31.12.2026",
+      "thema": "Kinderkrankengeld — verlängerter Anspruch auf 15 Tage/Kind (Alleinerziehende: 30 Tage)",
+      "rechtsgrundlage": "§ 45 SGB V",
+      "wichtig_fuer": ["Kinderkrankengeld", "Krankengeld Kind", "Alleinerziehende", "Freistellung"],
+      "pruef_hinweis": "15 Tage pro Kind pro Elternteil (Alleinerziehende: 30 Tage). Max. 35 Tage gesamt (Alleinerz.: 70). Anspruch auch bei stationärer Mitaufnahme eines Kindes unter 12.",
+      "quelle": "https://www.vdk.de/aktuelles/aktuelle-meldungen/artikel/neue-regelungen-sozialrecht-in-2026-minijob-rente-krankenkasse/"
     }
   },
   "bamf": {
@@ -181,6 +280,26 @@
       "rechtsgrundlage": "§§ 73, 73b AsylG",
       "wichtig_fuer": ["Widerruf", "Rücknahme", "Schutzstatus", "Überprüfung"],
       "pruef_hinweis": "Widerruf nur bei wesentlicher Veränderung der Sachlage. 3-Jahres-Frist für Regelüberprüfung. Individuelles Verfolgungsschicksal hat Vorrang vor allgemeiner Lagebewertung (BVerwG-Rspr.)."
+    },
+    "UKRAINE_ASYLBLG_2026": {
+      "datum": "01.01.2026",
+      "gueltig_ab": "01.01.2026",
+      "gueltig_bis": "unbegrenzt",
+      "thema": "Ukraine-Geflüchtete (nach 01.04.2025 eingereist) erhalten Leistungen nach AsylbLG statt SGB II/XII",
+      "rechtsgrundlage": "AsylbLG i.V.m. § 24 AufenthG (Leistungsrechtsanpassungsgesetz)",
+      "wichtig_fuer": ["Ukraine", "AsylbLG", "Leistungsrecht", "Gesundheitsversorgung"],
+      "pruef_hinweis": "Nur Einreise NACH 01.04.2025 betroffen. Vorher Eingereiste bleiben im SGB II/XII. Reduzierte Gesundheitsversorgung nach §§ 4, 6 AsylbLG statt GKV-Vollversorgung. Übergangsregelungen beachten.",
+      "quelle": "https://www.asyl.net/view/gesetzesaenderungen-zum-jahreswechsel"
+    },
+    "GEAS_2026": {
+      "datum": "12.06.2026",
+      "gueltig_ab": "12.06.2026",
+      "gueltig_bis": "unbegrenzt",
+      "thema": "GEAS-Umsetzung — Anpassung an EU-Asylrecht (Asylverfahrensverordnung, Screening-VO)",
+      "rechtsgrundlage": "AsylG, AufenthG, AsylbLG (GEAS-Umsetzungsgesetz)",
+      "wichtig_fuer": ["EU-Asylrecht", "GEAS", "Grenzverfahren", "Screening", "Drittstaatenregelung"],
+      "pruef_hinweis": "Ab 12.06.2026: EU-einheitliche Asylverfahren. Grenzverfahren für bestimmte Herkunftsländer. Screening-Verordnung am Grenzübertritt. Bescheide vor/nach Stichtag prüfen — unterschiedliche Rechtsgrundlagen.",
+      "quelle": "https://www.asyl.net/view/gesetzesaenderungen-zum-jahreswechsel"
     }
   },
   "sozialhilfe": {
@@ -245,6 +364,16 @@
       "rechtsgrundlage": "§§ 117–122 SGB IX Teil 2",
       "wichtig_fuer": ["Bedarfsermittlung", "ICF", "Teilhabeplan", "Persönliches Budget"],
       "pruef_hinweis": "Bedarfsermittlung nach ICF durchgeführt? Alle Lebensbereiche berücksichtigt? Wunsch- und Wahlrecht des Leistungsberechtigten beachtet (§ 104 SGB IX)? Gesamtplanverfahren § 121 SGB IX eingehalten?"
+    },
+    "EH_FREIBETRAEGE_2026": {
+      "datum": "01.01.2026",
+      "gueltig_ab": "01.01.2026",
+      "gueltig_bis": "31.12.2026",
+      "thema": "Erhöhte Freibeträge Eingliederungshilfe 2026 — Vermögen 71.190€, Einkommen-Ref. 47.460€",
+      "rechtsgrundlage": "§§ 136, 139 SGB IX",
+      "wichtig_fuer": ["Vermögensfreigrenze", "Einkommensfreibetrag", "Eigenbeteiligung", "Eingliederungshilfe"],
+      "pruef_hinweis": "Vermögensfreigrenze 2026: 71.190€ (2025: 67.410€). Einkommensfreibetrag-Referenzwert: 47.460€ (2025: 45.540€). Bescheide die noch 2025-Werte verwenden sind fehlerhaft — Widerspruch begründet.",
+      "quelle": "https://www.gegen-hartz.de/news/schwerbehinderung-eingliederungshilfe-seit-01-01-2026-hoehere-freibetraege"
     }
   },
   "unfallversicherung": {
@@ -275,6 +404,16 @@
       "rechtsgrundlage": "§§ 1–4, 4a–4d BEEG",
       "wichtig_fuer": ["Elterngeld", "ElterngeldPlus", "Partnerschaftsbonus", "Bemessungszeitraum"],
       "pruef_hinweis": "Bemessungszeitraum korrekt (12 Monate vor Geburt des Kindes)? Selbständige: Steuerbescheid des Vorjahres. Elterngeld: 65-67% des Einkommens (min. 300€, max. 1800€). ElterngeldPlus: halber Betrag, doppelte Dauer."
+    },
+    "BEEG_2026_EINKOMMENSGRENZE": {
+      "datum": "01.01.2026",
+      "gueltig_ab": "01.01.2026",
+      "gueltig_bis": "unbegrenzt",
+      "thema": "Elterngeld-Einkommensgrenze vereinheitlicht auf 175.000€ + Parallelbezug eingeschränkt",
+      "rechtsgrundlage": "§ 1 Abs. 8 BEEG, § 4 BEEG",
+      "wichtig_fuer": ["Elterngeld", "Einkommensgrenze", "Parallelbezug", "Basiselterngeld"],
+      "pruef_hinweis": "Einkommensgrenze 2026: einheitlich 175.000€ für Paare UND Alleinerziehende (vorher 200.000€ Paare mit stufenweiser Absenkung). Parallelbezug Basiselterngeld: max. 1 Monat, nur in ersten 12 Lebensmonaten. Bescheide mit alter Grenze → Widerspruch prüfen.",
+      "quelle": "https://www.buerger-geld.org/news/finanzen/elterngeld-2026-hoehe-anspruch-und-akutelle-aenderungen-in-diesem-jahr/"
     }
   },
   "versorgungsamt": {
@@ -287,7 +426,31 @@
       "pruef_hinweis": "GdB nach Versorgungsmedizinischen Grundsätzen korrekt gebildet? Bei Mehrfachbehinderung: Gesamt-GdB nicht addieren, sondern Gesamtauswirkung bewerten. Merkzeichen (G, aG, B, H, Bl, TBl, RF) korrekt zuerkannt?"
     }
   },
-  "_meta_quelle": "PDFs aus Ordner 'sozial Gestze' (FachlicheWeisungen 1–7), Stand Extraktion 2025. Erweitert um DRV GRA, Pflegekasse BRi, GKV-Richtlinien, BAMF DA, Sozialhilfe DV, DA-KG, BAföG-VwV, EH-RL, DGUV-RL, WoGG-VwV, BEEG-VwV, VersMedV (Stand 2026-03).",
+  "unterhaltsvorschuss": {
+    "UVS_2026_01": {
+      "datum": "01.01.2026",
+      "gueltig_ab": "01.01.2026",
+      "gueltig_bis": "31.12.2026",
+      "thema": "Unterhaltsvorschuss 2026 — Mindestunterhalt leicht erhöht",
+      "rechtsgrundlage": "§ 1612a BGB, § 2 UVG, Mindestunterhaltsverordnung 2026",
+      "wichtig_fuer": ["Unterhaltsvorschuss", "Mindestunterhalt", "Alleinerziehende", "Kindergeldanrechnung"],
+      "pruef_hinweis": "Mindestunterhalt 2026: 0–5J=486€, 6–11J=558€, 12–17J=653€ (jeweils +4€). Kindergeld (259€) wird angerechnet → Auszahlungsbetrag de facto unverändert. Bescheide mit 2025-Werten (482/554/649€) sind fehlerhaft.",
+      "quelle": "https://www.fokus-sozialrecht.de/mindestunterhalt-und-unterhaltsvorschuss-2026"
+    }
+  },
+  "jugendamt": {
+    "JA_GANZTAG_2026": {
+      "datum": "01.08.2026",
+      "gueltig_ab": "01.08.2026",
+      "gueltig_bis": "unbegrenzt",
+      "thema": "Rechtsanspruch auf Ganztagsbetreuung Grundschule — Start Schuljahr 2026/27 für Erstklässler",
+      "rechtsgrundlage": "§ 24 Abs. 4 SGB VIII (GaFöG)",
+      "wichtig_fuer": ["Ganztagsbetreuung", "Grundschule", "Rechtsanspruch", "Erstklässler"],
+      "pruef_hinweis": "Ab Schuljahr 2026/27: Rechtsanspruch auf ganztägige Förderung für Kinder der 1. Klassenstufe. Schrittweiser Ausbau bis 2029/30 (alle 4 Stufen). Anspruch auf mindestens 8 Stunden werktags inkl. Unterricht. Bei Ablehnung: Widerspruch nach § 36 SGB X.",
+      "quelle": "https://www.lebenshilfe.de/informieren/kinder/reform-der-kinder-und-jugendhilfe"
+    }
+  },
+  "_meta_quelle": "PDFs aus Ordner 'sozial Gestze' (FachlicheWeisungen 1–7), Stand Extraktion 2025. Erweitert um DRV GRA, Pflegekasse BRi, GKV-Richtlinien, BAMF DA, Sozialhilfe DV, DA-KG, BAföG-VwV, EH-RL, DGUV-RL, WoGG-VwV, BEEG-VwV, VersMedV (Stand 2026-03). Legal-Watchdog-Update 11.03.2026: BA-Grundsicherungsgeld, Rentenwert, GKV-Zusatzbeitrag, BEEP, Elterngeld-Grenze, EH-Freibeträge, GEAS, Unterhaltsvorschuss, Ganztag.",
   "_meta_verweise_kurz": {
     "202306003": "Veröffentlichung FW § 15 SGB II (08.06.2023)",
     "202406007": "Referenzprozess FbW ab 01.01.2025 (20.06.2024)",

@@ -54,9 +54,9 @@
     --accent: #0ea5e9;
     --accent-hover: #0284c7;
     --accent-glow: rgba(14, 165, 233, 0.2);
-    --muted: #64748b;
+    --muted: #1e293b;
     --text: #0f172a;
-    --text-muted: #475569;
+    --text-muted: #334155;
   }
 
   html {
@@ -110,6 +110,8 @@
     color: var(--text);
   }
   /* text-white mit allen Opacity-Stufen → text-muted im Light-Mode */
+  [data-theme="light"] .text-white\/10,
+  [data-theme="light"] .text-white\/15,
   [data-theme="light"] .text-white\/20,
   [data-theme="light"] .text-white\/25,
   [data-theme="light"] .text-white\/30,
@@ -217,8 +219,38 @@
     color: var(--text-muted);
     opacity: 1;
   }
-  [data-theme="light"] .text-gray-400 {
+  [data-theme="light"] .text-gray-400,
+  [data-theme="light"] .text-gray-500 {
     color: var(--text-muted);
+  }
+  [data-theme="light"] .text-gray-300 {
+    color: var(--muted);
+  }
+
+  /* Slate-Klassen: AAA-konform im Light-Mode */
+  [data-theme="light"] .text-slate-300 {
+    color: var(--text-muted);
+  }
+  [data-theme="light"] .text-slate-400 {
+    color: var(--text-muted);
+  }
+  [data-theme="light"] .text-slate-500 {
+    color: var(--text-muted);
+  }
+
+  /* Placeholder-Texte: alle white-Opacity-Varianten → lesbar im Light-Mode */
+  [data-theme="light"] .placeholder\:text-white\/20::placeholder,
+  [data-theme="light"] .placeholder\:text-white\/25::placeholder,
+  [data-theme="light"] .placeholder\:text-white\/30::placeholder,
+  [data-theme="light"] .placeholder\:text-white\/40::placeholder {
+    color: var(--muted);
+    opacity: 1;
+  }
+
+  /* Ring/Outline Overrides für Fokus-States */
+  [data-theme="light"] .ring-white\/10,
+  [data-theme="light"] .ring-white\/20 {
+    --tw-ring-color: var(--border);
   }
 }
 

@@ -45,7 +45,7 @@ const translations = {
 ```typescript
 // Liste der unterstützten Behörden/Ämter
 const supportedAuthorities = [
-  "Jobcenter (Bürgergeld/ALG II)",
+  "Jobcenter (Grundsicherungsgeld/ALG II)",
   "Agentur für Arbeit (Arbeitslosengeld)",
   "Krankenkassen (GKV)",
   "Pflegekassen (Pflegeversicherung)",

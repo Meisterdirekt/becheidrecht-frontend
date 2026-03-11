@@ -44,10 +44,13 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Diese Einladung ist abgelaufen' }, { status: 410 });
   }
 
+  // E-Mail maskieren: nur Domain + erster Buchstabe sichtbar (Schutz gegen Token-Guessing → E-Mail-Enumeration)
+  const maskedEmail = invite.email.replace(/^(.)([^@]*)(@.+)$/, '$1***$3');
+
   return NextResponse.json({
     valid: true,
     invite_id: invite.id,
-    email: invite.email,
+    email: maskedEmail,
     role: invite.role,
     expires_at: invite.expires_at,
     org: invite.organizations,

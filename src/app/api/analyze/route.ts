@@ -13,12 +13,13 @@ import fs from 'fs';
 import path from 'path';
 
 export const runtime = 'nodejs';
+export const maxDuration = 300;
 
 function getOpenAIKey(): string | null {
   try {
     const vaultPath = (file: string) => path.join(process.cwd(), 'vault', file);
     const envContent = fs.readFileSync(vaultPath('keys.env'), 'utf8');
-    const key = envContent.match(/sk-[a-zA-Z0-9_-]+/)?.[0];
+    const key = envContent.match(/OPENAI_API_KEY\s*=\s*([^\s\n]+)/)?.[1];
     if (key) return key;
   } catch {
     // Vault nicht vorhanden (z. B. auf Vercel)
