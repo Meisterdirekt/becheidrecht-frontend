@@ -95,7 +95,12 @@ function computeAccurateCost(
 // Pipeline
 // ---------------------------------------------------------------------------
 
-export async function runPipeline(documentText: string): Promise<AgentAnalysisResult> {
+export type ProgressCallback = (phase: string, detail?: string) => void;
+
+export async function runPipeline(
+  documentText: string,
+  onProgress?: ProgressCallback
+): Promise<AgentAnalysisResult> {
   reportInfo("[Orchestrator] Pipeline gestartet");
 
   // --- Phase 0: Urgency-Detection (kostenlos) ---
@@ -118,6 +123,7 @@ export async function runPipeline(documentText: string): Promise<AgentAnalysisRe
   };
 
   reportInfo("[Orchestrator] Vorab-Routing", { routingStufe, tage: urgency.tage ?? null });
+  onProgress?.("init", `Routing: ${routingStufe}`);
 
   // --- Phase 1: AG08 Security Gate + AG12 Dokumentstruktur PARALLEL ---
   // Beide sind vollständig unabhängig voneinander → parallele Ausführung spart ~50% Latenz
@@ -148,6 +154,8 @@ export async function runPipeline(documentText: string): Promise<AgentAnalysisRe
   totalTokens = mergeTokenUsage(totalTokens, securityResult.tokens);
   agentCosts.push({ tokens: securityResult.tokens, model: HAIKU_MODEL });
   pipeline.security = securityResult.data;
+
+  onProgress?.("security", "Sicherheitspr\u00fcfung abgeschlossen");
 
   if (!securityResult.data.freigabe) {
     reportInfo("[Orchestrator] AG08: Freigabe verweigert", { grund: securityResult.data.grund ?? null });
@@ -184,6 +192,8 @@ export async function runPipeline(documentText: string): Promise<AgentAnalysisRe
   totalTokens = mergeTokenUsage(totalTokens, triageResult.tokens);
   agentCosts.push({ tokens: triageResult.tokens, model: SONNET_MODEL });
   pipeline.triage = triageResult.data;
+
+  onProgress?.("triage", `${triageResult.data.rechtsgebiet} — ${triageResult.data.behoerde}`);
 
   // AG01 kann Routing-Stufe korrigieren
   if (triageResult.data.routing_stufe !== routingStufe) {
@@ -233,6 +243,8 @@ export async function runPipeline(documentText: string): Promise<AgentAnalysisRe
     agentCosts.push({ tokens: rechercheResult.tokens, model: SONNET_MODEL });
     pipeline.recherche = rechercheResult.data;
   }
+
+  onProgress?.("analyse", `${analyseResult?.data.fehler.length ?? 0} Fehler, ${rechercheResult?.data.urteile.length ?? 0} Urteile`);
 
   // Budget-Check vor AG03 (läuft jetzt für HOCH + NOTFALL)
   if (routingStufe === "HOCH" || routingStufe === "NOTFALL") {
@@ -289,6 +301,8 @@ export async function runPipeline(documentText: string): Promise<AgentAnalysisRe
     // AG14 hat keine Token-Kosten (reine DB-Aggregation)
   }
 
+  onProgress?.("brief", "Musterschreiben erstellt");
+
   // --- Phase 6: AG13 Nutzer-Erklärer ---
   const explainerResult = await safeExecute(
     "AG13",
@@ -300,6 +314,8 @@ export async function runPipeline(documentText: string): Promise<AgentAnalysisRe
   totalTokens = mergeTokenUsage(totalTokens, explainerResult.tokens);
   agentCosts.push({ tokens: explainerResult.tokens, model: HAIKU_MODEL });
   pipeline.erklaerung = explainerResult.data;
+
+  onProgress?.("done", "Analyse abgeschlossen");
 
   // --- Exakte Kosten berechnen (Haiku/Sonnet/Opus separat) ---
   const tokenKostenEur = computeAccurateCost(agentCosts);

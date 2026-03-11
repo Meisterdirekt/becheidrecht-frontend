@@ -22,6 +22,21 @@ import { getPageT, type Lang } from "@/lib/page-translations";
 import { PrivacyModal } from "@/components/PrivacyModal";
 import { PseudonymizationPreviewModal } from "@/components/PseudonymizationPreviewModal";
 
+const supportedAuthorities = [
+  "Jobcenter (Grundsicherungsgeld/ALG II)",
+  "Agentur für Arbeit (Arbeitslosengeld)",
+  "Krankenkassen (GKV)",
+  "Pflegekassen (Pflegeversicherung)",
+  "Deutsche Rentenversicherung",
+  "Sozialamt (Grundsicherung/Sozialhilfe)",
+  "Versorgungsamt (Schwerbehinderung)",
+  "Berufsgenossenschaft (Unfallversicherung)",
+  "Wohngeldstelle",
+  "Familienkasse (Kindergeld)",
+  "BAföG-Amt",
+  "Elterngeldstelle",
+];
+
 export default function Page() {
   const [lang, setLang] = useState<Lang>("DE");
   const [consent, setConsent] = useState(false);
@@ -259,9 +274,41 @@ export default function Page() {
             t.headline
           )}
         </h1>
-        <p className={`relative mt-10 mb-14 text-gray-400 text-lg md:text-xl leading-relaxed max-w-3xl mx-auto transition-all duration-700 delay-150 ${loaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}>
+        <p className={`relative mt-10 mb-10 text-gray-400 text-lg md:text-xl leading-relaxed max-w-3xl mx-auto transition-all duration-700 delay-150 ${loaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}>
           {t.text}
         </p>
+
+        {/* Disclaimer — prominent, rot */}
+        <div className={`relative max-w-3xl mx-auto mb-10 bg-red-950/40 border-2 border-red-500/40 rounded-2xl p-5 sm:p-6 transition-all duration-700 delay-200 ${loaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}>
+          <div className="flex items-start gap-3">
+            <span className="text-2xl flex-shrink-0" aria-hidden="true">⚠️</span>
+            <div>
+              <h3 className="font-black text-red-300 uppercase tracking-wide text-sm mb-1">
+                Keine Rechtsberatung
+              </h3>
+              <p className="text-xs sm:text-sm text-red-200/80 leading-relaxed">
+                Diese technische Analyse ersetzt keine anwaltliche Beratung. Wir sind keine Rechtsanwälte. Bei rechtlichen Fragen konsultieren Sie bitte einen Fachanwalt oder eine anerkannte Beratungsstelle.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Unterstützte Behörden */}
+        <div className={`relative max-w-4xl mx-auto mb-12 text-center transition-all duration-700 delay-250 ${loaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}>
+          <p className="text-[10px] font-bold text-white/40 uppercase tracking-[0.2em] mb-4">
+            Technische Analyse von Bescheiden dieser Stellen:
+          </p>
+          <div className="flex flex-wrap justify-center gap-2 sm:gap-3">
+            {supportedAuthorities.map((authority) => (
+              <span
+                key={authority}
+                className="inline-block px-3 py-1.5 bg-white/[0.06] text-white/70 rounded-full text-[11px] font-medium border border-white/10"
+              >
+                {authority}
+              </span>
+            ))}
+          </div>
+        </div>
 
         <div ref={heroTabRef} id="hero-tab" className={`relative w-full max-w-2xl mx-auto rounded-2xl sm:rounded-3xl border border-white/10 bg-white/[0.04] p-4 sm:p-6 md:p-10 shadow-[0_0_60px_-15px_var(--accent-glow)] transition-all duration-700 delay-300 ${loaded ? "opacity-100 translate-y-0 scale-100" : "opacity-0 translate-y-6 scale-[0.98]"}`}>
           {/* Tabs */}
@@ -509,6 +556,11 @@ export default function Page() {
             const displayName = letterUser?.name ?? "Nutzer";
             return (
               <div className="text-left space-y-4 sm:space-y-6 w-full min-w-0">
+                <div className="no-print rounded-xl border border-red-500/30 bg-red-500/10 p-3 sm:p-4 text-left mb-2">
+                  <p className="text-xs text-red-300 font-bold leading-relaxed">
+                    ⚠️ VORLAGE – KEINE RECHTSSCHRIFT! Lassen Sie dieses Musterschreiben vor Verwendung von einem Anwalt oder Sozialverband prüfen!
+                  </p>
+                </div>
                 <div className="no-print rounded-xl border border-white/10 bg-white/5 p-3 sm:p-4 text-white">
                   <h3 className="font-bold text-sm sm:text-base mb-1">📄 {t.resultTitle}</h3>
                   <p className="text-xs sm:text-sm text-white/80 break-words">{t.resultAktenzeichen} {aktenzeichen.trim() || "[bitte ergänzen]"}</p>
@@ -673,6 +725,19 @@ export default function Page() {
                 <p className="text-white/60 text-sm leading-relaxed">{f.desc}</p>
               </div>
             ))}
+          </div>
+        </section>
+      </ScrollReveal>
+
+      {/* Hinweis: Software dient der Vorbereitung */}
+      <ScrollReveal>
+        <section className="max-w-3xl mx-auto px-6 mb-20">
+          <div className="bg-amber-500/10 border-2 border-amber-500/30 rounded-2xl p-6 text-center">
+            <p className="text-sm text-amber-200/90 leading-relaxed">
+              <strong className="text-amber-200">Wichtig:</strong> Unsere Software dient der Vorbereitung für Gespräche
+              mit Rechtsanwälten, Sozialverbänden (z.B. VdK, SoVD) oder Verbraucherzentralen.
+              Sie ersetzt keine individuelle rechtliche Beratung.
+            </p>
           </div>
         </section>
       </ScrollReveal>

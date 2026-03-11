@@ -280,6 +280,7 @@ export default function AnalyzePage() {
   const [token, setToken] = useState<string | null>(null);
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
+  const [progressPhase, setProgressPhase] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [analysesRemaining, setAnalysesRemaining] = useState<number | null>(null);
@@ -339,51 +340,99 @@ export default function AnalyzePage() {
     setResult(null);
     setShowSavePrompt(false);
     setLoading(true);
+    setProgressPhase(null);
     try {
       const formData = new FormData();
       formData.append("file", file);
-      const headers: Record<string, string> = {};
+      const headers: Record<string, string> = { Accept: "text/event-stream" };
       if (token) headers["Authorization"] = `Bearer ${token}`;
       const analyzeRes = await fetch("/api/analyze", {
         method: "POST",
         headers,
         body: formData,
       });
-      const data = await analyzeRes.json();
+
       if (!analyzeRes.ok) {
-        if (analyzeRes.status === 429 && !token) {
-          // Anonym + Limit erreicht → Registrierung anbieten
-          setShowSavePrompt(true);
-        }
+        const data = await analyzeRes.json().catch(() => ({}));
+        if (analyzeRes.status === 429 && !token) setShowSavePrompt(true);
         setError(data.error || "Analyse fehlgeschlagen.");
         return;
       }
-      const musterschreiben = data.musterschreiben ?? "";
-      const isEngineError =
-        typeof musterschreiben === "string" &&
-        (musterschreiben.startsWith("OpenAI-Key fehlt") ||
-          musterschreiben.startsWith("Engine-Fehler:") ||
-          musterschreiben.includes("KI-Antwort konnte nicht als JSON"));
-      if (isEngineError) {
-        setError(musterschreiben);
-        return;
+
+      const handleResult = (data: Record<string, unknown>) => {
+        const musterschreiben = (data.musterschreiben as string) ?? "";
+        const isEngineError =
+          typeof musterschreiben === "string" &&
+          (musterschreiben.startsWith("OpenAI-Key fehlt") ||
+            musterschreiben.startsWith("Engine-Fehler:") ||
+            musterschreiben.includes("KI-Antwort konnte nicht als JSON"));
+        if (isEngineError) { setError(musterschreiben); return; }
+        setResult({
+          zuordnung: data.zuordnung as AnalysisResult["zuordnung"],
+          fehler: (data.fehler as string[]) ?? [],
+          musterschreiben,
+          frist_datum: data.frist_datum as string | undefined,
+          frist_tage: data.frist_tage as number | undefined,
+          routing_stufe: data.routing_stufe as AnalysisResult["routing_stufe"],
+          agenten_aktiv: data.agenten_aktiv as string[] | undefined,
+          token_kosten_eur: data.token_kosten_eur as number | undefined,
+          erklaerung: data.erklaerung as string | undefined,
+          kritik: data.kritik as AnalysisResult["kritik"],
+          recherche: data.recherche as AnalysisResult["recherche"],
+          agenten_details: data.agenten_details as AnalysisResult["agenten_details"],
+        });
+      };
+
+      const contentType = analyzeRes.headers.get("content-type") ?? "";
+
+      if (contentType.includes("text/event-stream") && analyzeRes.body) {
+        // SSE-Streaming
+        const reader = analyzeRes.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = "";
+
+        const PHASE_LABELS: Record<string, string> = {
+          init: "Routing wird bestimmt…",
+          security: "Sicherheitsprüfung…",
+          triage: "Rechtsgebiet erkannt",
+          analyse: "Fehler werden analysiert…",
+          brief: "Musterschreiben wird erstellt…",
+          done: "Analyse abgeschlossen",
+        };
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split("\n");
+          buffer = lines.pop() ?? "";
+          let eventType = "";
+          for (const line of lines) {
+            if (line.startsWith("event: ")) { eventType = line.slice(7).trim(); continue; }
+            if (line.startsWith("data: ")) {
+              const jsonStr = line.slice(6);
+              try {
+                const parsed = JSON.parse(jsonStr);
+                if (eventType === "progress") {
+                  const label = PHASE_LABELS[parsed.phase] ?? parsed.phase;
+                  setProgressPhase(parsed.detail ? `${label} — ${parsed.detail}` : label);
+                } else if (eventType === "result") {
+                  handleResult(parsed);
+                } else if (eventType === "error") {
+                  setError(parsed.error ?? "Analyse fehlgeschlagen.");
+                }
+              } catch { /* ignore malformed */ }
+              eventType = "";
+            }
+          }
+        }
+      } else {
+        // Fallback: JSON-Response
+        const data = await analyzeRes.json();
+        handleResult(data);
       }
-      setResult({
-        zuordnung: data.zuordnung,
-        fehler: data.fehler ?? [],
-        musterschreiben,
-        frist_datum: data.frist_datum,
-        frist_tage: data.frist_tage,
-        routing_stufe: data.routing_stufe,
-        agenten_aktiv: data.agenten_aktiv,
-        token_kosten_eur: data.token_kosten_eur,
-        erklaerung: data.erklaerung,
-        kritik: data.kritik,
-        recherche: data.recherche,
-        agenten_details: data.agenten_details,
-      });
+
       if (token) {
-        // Eingeloggt: Credit verbrauchen
         const useRes = await fetch("/api/use-analysis", {
           method: "POST",
           headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
@@ -395,13 +444,13 @@ export default function AnalyzePage() {
           setAnalysesRemaining(0);
         }
       } else {
-        // Anonym: Save-Prompt anzeigen
         setShowSavePrompt(true);
       }
     } catch {
       setError("Ein Fehler ist aufgetreten. Bitte erneut versuchen.");
     } finally {
       setLoading(false);
+      setProgressPhase(null);
     }
   };
 
@@ -502,7 +551,7 @@ export default function AnalyzePage() {
                   {loading ? (
                     <>
                       <Loader2 className="h-4 w-4 animate-spin" />
-                      Analysiere …
+                      {progressPhase ?? "Analysiere …"}
                     </>
                   ) : (
                     "Analyse starten"
@@ -517,9 +566,55 @@ export default function AnalyzePage() {
         {analysesRemaining === 0 && (
           <div className="mb-10 p-4 bg-amber-500/10 border border-amber-500/30 rounded-2xl flex items-start gap-3">
             <AlertCircle className="h-5 w-5 text-amber-500 flex-shrink-0 mt-0.5" />
-            <p className="text-amber-200 text-sm">
-              Keine Analysen mehr verfügbar. Bitte erwerben Sie ein Abo oder Einzelanalyse.
-            </p>
+            <div className="flex-1">
+              <p className="text-amber-200 text-sm mb-3">
+                Keine Analysen mehr verfügbar.
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {(["single", "basic", "standard", "pro"] as const).map((key) => {
+                  const labels: Record<string, string> = {
+                    single: "1 Analyse — 19,90 €",
+                    basic: "5 Analysen — 49,90 €",
+                    standard: "15 Analysen — 89,90 €",
+                    pro: "50 Analysen — 149,90 €",
+                  };
+                  return (
+                    <button
+                      key={key}
+                      onClick={async () => {
+                        try {
+                          const supabase = createBrowserClient(
+                            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+                            process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+                          );
+                          const { data: { session } } = await supabase.auth.getSession();
+                          if (!session) { window.location.href = "/login"; return; }
+                          const res = await fetch("/api/mollie/create-payment", {
+                            method: "POST",
+                            headers: {
+                              "Content-Type": "application/json",
+                              Authorization: `Bearer ${session.access_token}`,
+                            },
+                            body: JSON.stringify({ product_key: key }),
+                          });
+                          const data = await res.json();
+                          if (data.checkout_url) {
+                            window.location.href = data.checkout_url;
+                          } else {
+                            setError(data.error ?? "Zahlung konnte nicht gestartet werden.");
+                          }
+                        } catch {
+                          setError("Verbindungsfehler beim Zahlungsstart.");
+                        }
+                      }}
+                      className="px-3 py-2 text-xs font-medium rounded-xl bg-[var(--accent)] text-white hover:bg-[var(--accent-hover)] transition-colors"
+                    >
+                      {labels[key]}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
           </div>
         )}
 

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import { runAgentAnalysis, type AgentAnalysisResult } from '@/lib/logic/agent_engine';
+import { runAgentAnalysis, type AgentAnalysisResult, type ProgressCallback } from '@/lib/logic/agent_engine';
 import { runForensicAnalysis } from '@/lib/logic/engine';
 import { pseudonymizeText, depseudonymizeText } from '@/lib/privacy/pseudonymizer';
 import { getAuthenticatedUser } from '@/lib/supabase/auth';
@@ -224,11 +224,103 @@ export async function POST(req: Request) {
       bic: map.bic.length,
     });
 
-    // 13-Agenten-Pipeline (Claude) — primäre Engine
-    // Fallback auf Legacy-GPT-4o wenn ANTHROPIC_API_KEY fehlt (wird intern in den Agenten geprüft)
-    const anthropicAvailable = !!getAnthropicKey();
-    let result: AgentAnalysisResult;
+    // SSE oder JSON?
+    const wantsSSE = req.headers.get('accept')?.includes('text/event-stream');
 
+    // Shared: Post-Processing nach Pipeline
+    async function postProcess(result: AgentAnalysisResult): Promise<AgentAnalysisResult> {
+      result = {
+        ...result,
+        fehler: Array.isArray(result.fehler)
+          ? result.fehler.map((f: string) => depseudonymizeText(String(f), map))
+          : result.fehler,
+        musterschreiben: depseudonymizeText(result.musterschreiben || '', map),
+      };
+
+      // Qualitäts-Alert
+      const erfolgschance = result.kritik?.erfolgschance_prozent;
+      if (erfolgschance !== undefined && erfolgschance < 35) {
+        reportError(
+          new Error(`Schlechte KI-Qualität: AG03 Erfolgschance nur ${erfolgschance}%`),
+          { critical: true, agent: 'AG03', erfolgschance, rechtsgebiet: result.zuordnung?.rechtsgebiet ?? 'unbekannt', routing_stufe: result.routing_stufe ?? 'unbekannt', user_id: user?.id ?? 'anon' }
+        ).catch(() => {});
+      }
+
+      // Supabase User-Client
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL || '';
+      const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY || '';
+      const supabaseUser = user && supabaseUrl && supabaseAnonKey
+        ? createClient(supabaseUrl, supabaseAnonKey, { global: { headers: { Authorization: `Bearer ${user.token}` } } })
+        : null;
+
+      // Auto-Save Frist
+      if (result.frist_datum && supabaseUser) {
+        try {
+          await supabaseUser.from('user_fristen').insert({
+            user_id: user!.id, behoerde: result.zuordnung?.behoerde ?? null,
+            rechtsgebiet: result.zuordnung?.rechtsgebiet ?? null, untergebiet: result.zuordnung?.untergebiet ?? null,
+            frist_datum: result.frist_datum, status: 'offen', musterschreiben: result.musterschreiben,
+            analyse_meta: { frist_tage: result.frist_tage, auffaelligkeiten: result.fehler?.slice(0, 3), routing_stufe: result.routing_stufe, token_kosten_eur: result.token_kosten_eur, agenten_aktiv: result.agenten_aktiv, erfolgschance: result.kritik?.erfolgschance_prozent },
+          });
+        } catch (fristErr) { console.warn('[Fristen] Auto-Save fehlgeschlagen:', fristErr); }
+      }
+
+      // Kosten-Monitoring
+      if (result.token_kosten_eur !== undefined && supabaseUser) {
+        try {
+          await supabaseUser.from('analysis_results').insert({
+            user_id: user!.id, session_id: null, behoerde: result.zuordnung?.behoerde ?? null,
+            rechtsgebiet: result.zuordnung?.rechtsgebiet ?? null, fehler: result.fehler ?? [],
+            frist_datum: result.frist_datum ?? null, dringlichkeit: result.routing_stufe ?? null,
+            model_used: result.model_used ?? (result.routing_stufe === 'NOTFALL' ? 'claude-opus-4-6' : 'claude-sonnet-4-6'),
+            token_cost_eur: result.token_kosten_eur,
+          });
+        } catch { /* Silent fail */ }
+      }
+
+      return result;
+    }
+
+    // 13-Agenten-Pipeline (Claude) — primäre Engine
+    const anthropicAvailable = !!getAnthropicKey();
+
+    if (wantsSSE && anthropicAvailable) {
+      // SSE-Streaming: Fortschritt nach jeder Phase
+      const encoder = new TextEncoder();
+      const stream = new ReadableStream({
+        async start(controller) {
+          const sendEvent = (event: string, data: unknown) => {
+            controller.enqueue(encoder.encode(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`));
+          };
+
+          try {
+            const onProgress: ProgressCallback = (phase, detail) => {
+              sendEvent('progress', { phase, detail });
+            };
+
+            reportInfo('[Analyze] SSE 13-Agenten-Pipeline gestartet');
+            let result = await runAgentAnalysis(pseudonymized, onProgress);
+            result = await postProcess(result);
+            sendEvent('result', result);
+          } catch (err: unknown) {
+            sendEvent('error', { error: err instanceof Error ? err.message : 'Interner Serverfehler.' });
+          } finally {
+            controller.close();
+          }
+        },
+      });
+
+      return new Response(stream, {
+        headers: {
+          'Content-Type': 'text/event-stream',
+          'Cache-Control': 'no-cache',
+          Connection: 'keep-alive',
+        },
+      });
+    }
+
+    // Standard JSON-Response
+    let result: AgentAnalysisResult;
     if (anthropicAvailable) {
       reportInfo('[Analyze] 13-Agenten-Pipeline (Claude) gestartet');
       result = await runAgentAnalysis(pseudonymized);
@@ -238,88 +330,7 @@ export async function POST(req: Request) {
       result = { routing_stufe: 'NORMAL', agenten_aktiv: ['gpt4o-legacy'], ...legacyResult };
     }
 
-    result = {
-      ...result,
-      fehler: Array.isArray(result.fehler)
-        ? result.fehler.map((f: string) => depseudonymizeText(String(f), map))
-        : result.fehler,
-      musterschreiben: depseudonymizeText(result.musterschreiben || '', map),
-    };
-
-    // Qualitäts-Alert: AG03 Erfolgschance unter 35% → Sentry + GitHub Issue
-    const erfolgschance = result.kritik?.erfolgschance_prozent;
-    if (erfolgschance !== undefined && erfolgschance < 35) {
-      reportError(
-        new Error(`Schlechte KI-Qualität: AG03 Erfolgschance nur ${erfolgschance}%`),
-        {
-          critical: true,
-          agent: 'AG03',
-          erfolgschance,
-          rechtsgebiet: result.zuordnung?.rechtsgebiet ?? 'unbekannt',
-          routing_stufe: result.routing_stufe ?? 'unbekannt',
-          user_id: user?.id ?? 'anon',
-        }
-      ).catch(() => {}); // fire-and-forget, darf Hauptergebnis nicht blockieren
-    }
-
-    // Supabase User-Client — nur für eingeloggte User
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL || '';
-    const supabaseAnonKey =
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY || '';
-    const supabaseUser =
-      user && supabaseUrl && supabaseAnonKey
-        ? createClient(supabaseUrl, supabaseAnonKey, {
-            global: { headers: { Authorization: `Bearer ${user.token}` } },
-          })
-        : null;
-
-    // Auto-Save Frist in Supabase (kein Service-Key nötig, nutzt User-JWT)
-    if (result.frist_datum && supabaseUser) {
-      try {
-        await supabaseUser.from('user_fristen').insert({
-          user_id: user!.id,
-          behoerde: result.zuordnung?.behoerde ?? null,
-          rechtsgebiet: result.zuordnung?.rechtsgebiet ?? null,
-          untergebiet: result.zuordnung?.untergebiet ?? null,
-          frist_datum: result.frist_datum,
-          status: 'offen',
-          musterschreiben: result.musterschreiben,
-          analyse_meta: {
-            frist_tage: result.frist_tage,
-            auffaelligkeiten: result.fehler?.slice(0, 3),
-            routing_stufe: result.routing_stufe,
-            token_kosten_eur: result.token_kosten_eur,
-            agenten_aktiv: result.agenten_aktiv,
-            erfolgschance: result.kritik?.erfolgschance_prozent,
-          },
-        });
-        reportInfo('[Fristen] Frist auto-gespeichert', { frist_datum: result.frist_datum });
-      } catch (fristErr) {
-        // Frist-Save-Fehler darf Hauptergebnis nicht blockieren
-        console.warn('[Fristen] Auto-Save fehlgeschlagen:', fristErr);
-      }
-    }
-
-    // Kosten-Monitoring: persistiere Token-Kosten in analysis_results
-    if (result.token_kosten_eur !== undefined && supabaseUser) {
-      try {
-        await supabaseUser.from('analysis_results').insert({
-          user_id: user!.id,
-          session_id: null,
-          behoerde: result.zuordnung?.behoerde ?? null,
-          rechtsgebiet: result.zuordnung?.rechtsgebiet ?? null,
-          fehler: result.fehler ?? [],
-          frist_datum: result.frist_datum ?? null,
-          dringlichkeit: result.routing_stufe ?? null,
-          model_used: result.model_used ?? (result.routing_stufe === 'NOTFALL' ? 'claude-opus-4-6' : 'claude-sonnet-4-6'),
-          token_cost_eur: result.token_kosten_eur,
-        });
-        reportInfo('[Monitoring] Token-Kosten gespeichert', { kosten_eur: result.token_kosten_eur });
-      } catch {
-        // Silent fail — Monitoring darf Hauptergebnis nicht blockieren
-      }
-    }
-
+    result = await postProcess(result);
     return NextResponse.json(result);
   } catch (error: unknown) {
     console.error('Analyze API Fehler:', error);

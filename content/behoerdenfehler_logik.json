@@ -3519,5 +3519,213 @@
     },
     "musterschreiben_hinweis": "Die verhängte Sanktion überschreitet die zulässige Grenze von 30% des Regelbedarfs bei einem erstmaligen Pflichtverstoß. Nach § 31a SGB II n.F. (ab 01.07.2026) und der Leitentscheidung des BVerfG (1 BvL 7/16) ist eine Kürzung über 30% nur bei nachgewiesener Totalverweigerung zumutbarer Arbeit zulässig. Ich fordere Sie auf, die Sanktion auf das gesetzlich zulässige Maß zu reduzieren.",
     "severity_beschreibung": "Leistungsanspruch direkt betroffen – existenzielle Auswirkung bei überhöhter Kürzung"
+  },
+  {
+    "id": "KK_012",
+    "titel": "Fahrkosten zu Behandlungen nach § 60 SGB V zu Unrecht abgelehnt",
+    "beschreibung": "Die Krankenkasse hat die Übernahme von Fahrkosten zu einer ambulanten oder stationären Behandlung abgelehnt, obwohl zwingende medizinische Gründe vorliegen. Nach § 60 Abs. 1 S. 3 SGB V sind Fahrkosten auch bei ambulanter Behandlung zu übernehmen, wenn der Versicherte aus zwingenden medizinischen Gründen auf ein Transportmittel angewiesen ist.",
+    "rechtsbasis": ["§ 60 SGB V", "§ 61 SGB V", "BSG B 1 KR 8/13 R"],
+    "severity": "wichtig",
+    "prueflogik": {
+      "bedingungen": ["Fahrkosten abgelehnt", "Medizinische Notwendigkeit gegeben", "Transport zur Behandlung erforderlich"],
+      "suchbegriffe": ["Fahrkosten", "Fahrtkosten", "Transport", "Krankentransport", "§ 60", "zwingende medizinische Gründe"]
+    },
+    "musterschreiben_hinweis": "Die Krankenkasse hat die Übernahme von Fahrkosten nach § 60 SGB V zu Unrecht abgelehnt. Es liegen zwingende medizinische Gründe vor, die eine Beförderung zur Behandlung erfordern.",
+    "severity_beschreibung": "Versicherte bleiben auf Fahrtkosten zu notwendigen Behandlungen sitzen"
+  },
+  {
+    "id": "KK_013",
+    "titel": "Zuzahlungsbefreiung / Belastungsgrenze nach § 62 SGB V falsch berechnet",
+    "beschreibung": "Die Krankenkasse hat die Belastungsgrenze nach § 62 SGB V falsch berechnet oder die Befreiung von Zuzahlungen nicht erteilt. Die Belastungsgrenze beträgt 2 % der jährlichen Bruttoeinnahmen, bei chronisch Kranken 1 %. Familienangehörige werden durch Freibeträge berücksichtigt.",
+    "rechtsbasis": ["§ 62 SGB V", "§ 61 SGB V", "§ 43b SGB V"],
+    "severity": "wichtig",
+    "prueflogik": {
+      "bedingungen": ["Zuzahlungen über Belastungsgrenze", "Befreiungsantrag gestellt oder Grenze erreicht", "Chronische Erkrankung nicht berücksichtigt"],
+      "suchbegriffe": ["Zuzahlung", "Belastungsgrenze", "Befreiung", "chronisch", "2 Prozent", "1 Prozent", "§ 62"]
+    },
+    "musterschreiben_hinweis": "Die Krankenkasse hat die Belastungsgrenze nach § 62 SGB V fehlerhaft berechnet. Bei Überschreiten der Grenze von 2 % (chronisch Kranke: 1 %) der Bruttoeinnahmen besteht Anspruch auf Befreiung von weiteren Zuzahlungen.",
+    "severity_beschreibung": "Versicherte zahlen zu viel Eigenanteil trotz Anspruch auf Befreiung"
+  },
+  {
+    "id": "KK_014",
+    "titel": "Psychotherapie-Genehmigung verzögert oder zu Unrecht abgelehnt",
+    "beschreibung": "Die Krankenkasse hat eine beantragte Psychotherapie abgelehnt oder die Genehmigung unzulässig verzögert. Nach § 27 Abs. 1 S. 2 Nr. 1 SGB V besteht Anspruch auf Psychotherapie als Krankenbehandlung. Bei langen Wartezeiten kann nach § 13 Abs. 3 SGB V Kostenerstattung für eine Privatbehandlung verlangt werden.",
+    "rechtsbasis": ["§ 27 Abs. 1 S. 2 Nr. 1 SGB V", "§ 13 Abs. 3 SGB V", "§ 13 Abs. 3a SGB V", "BSG B 1 KR 12/12 R"],
+    "severity": "kritisch",
+    "prueflogik": {
+      "bedingungen": ["Psychotherapie beantragt", "Genehmigung abgelehnt oder verzögert", "Medizinische Indikation liegt vor"],
+      "suchbegriffe": ["Psychotherapie", "Verhaltenstherapie", "tiefenpsychologisch", "Therapie abgelehnt", "Gutachterverfahren", "Kostenerstattung", "Wartezeit"]
+    },
+    "musterschreiben_hinweis": "Die Krankenkasse hat die beantragte Psychotherapie nach § 27 Abs. 1 SGB V zu Unrecht abgelehnt oder verzögert. Bei ärztlich festgestellter Indikation besteht ein Leistungsanspruch. Bei unzumutbaren Wartezeiten kommt Kostenerstattung nach § 13 Abs. 3 SGB V in Betracht.",
+    "severity_beschreibung": "Psychisch Erkrankte erhalten dringend benötigte Behandlung nicht"
+  },
+  {
+    "id": "KK_015",
+    "titel": "Krankengeld: Lückenlose AU-Feststellung nicht beachtet (§ 46 SGB V)",
+    "beschreibung": "Die Krankenkasse hat das Krankengeld eingestellt, weil eine angebliche Lücke in der AU-Bescheinigung vorliege. Nach § 46 S. 1 Nr. 2 SGB V entsteht der Anspruch von dem Tag an, der auf den Tag der ärztlichen Feststellung folgt. Seit der eAU-Einführung entfällt die Meldeobliegenheit der Versicherten (BSG B 3 KR 23/22 R).",
+    "rechtsbasis": ["§ 46 SGB V", "§ 44 SGB V", "BSG B 3 KR 23/22 R", "BSG B 1 KR 19/17 R"],
+    "severity": "kritisch",
+    "prueflogik": {
+      "bedingungen": ["Krankengeld eingestellt", "AU-Lücke behauptet", "Weiterhin arbeitsunfähig"],
+      "suchbegriffe": ["Krankengeld eingestellt", "AU-Lücke", "lückenlos", "Arbeitsunfähigkeit", "Meldeobliegenheit", "eAU", "Folgebescheinigung"]
+    },
+    "musterschreiben_hinweis": "Die Krankenkasse hat das Krankengeld wegen einer angeblichen AU-Lücke eingestellt. Nach BSG B 3 KR 23/22 R entfällt mit der eAU die Meldeobliegenheit. Die Einstellung ist zu überprüfen.",
+    "severity_beschreibung": "Versicherte verlieren Krankengeld trotz bestehender Arbeitsunfähigkeit"
+  },
+  {
+    "id": "KK_016",
+    "titel": "Rechtswidrige Aufforderung zur Reha-Antragstellung (§ 51 SGB V)",
+    "beschreibung": "Die Krankenkasse hat den Versicherten nach § 51 Abs. 1 SGB V zur Stellung eines Reha-Antrags aufgefordert, ohne dass ein ärztliches Gutachten die Rehabilitationsbedürftigkeit feststellt. Eine bloße Vermutung oder standardisierte Aufforderung ohne individuelle Prüfung ist rechtswidrig. Bei Nichtbefolgung droht das Ruhen des Krankengeldes.",
+    "rechtsbasis": ["§ 51 Abs. 1 SGB V", "§ 49 Abs. 1 Nr. 3 SGB V", "BSG B 1 KR 31/13 R"],
+    "severity": "kritisch",
+    "prueflogik": {
+      "bedingungen": ["Aufforderung Reha-Antrag", "Kein ärztliches Gutachten zugrunde gelegt", "Drohung mit Krankengeld-Ruhen"],
+      "suchbegriffe": ["Reha-Antrag", "Rehabilitation", "Aufforderung", "§ 51", "Krankengeld ruht", "umwandeln", "Rentenantrag"]
+    },
+    "musterschreiben_hinweis": "Die Krankenkasse hat zur Stellung eines Reha-Antrags nach § 51 SGB V aufgefordert, ohne dass ein den gesetzlichen Anforderungen entsprechendes ärztliches Gutachten vorliegt. Die Aufforderung ist rechtswidrig.",
+    "severity_beschreibung": "Versicherte werden unter Druck gesetzt, Rentenantrag statt Krankengeld zu beantragen"
+  },
+  {
+    "id": "KK_017",
+    "titel": "Zahnersatz-Festzuschuss nach § 55 SGB V falsch berechnet",
+    "beschreibung": "Die Krankenkasse hat den Festzuschuss für Zahnersatz nach § 55 SGB V falsch berechnet. Der Festzuschuss beträgt 60 % der Regelversorgung und erhöht sich bei lückenloser Vorsorge auf 70 % (5 Jahre) bzw. 75 % (10 Jahre). Bei geringem Einkommen besteht Anspruch auf die Härtefallregelung (§ 55 Abs. 2 SGB V).",
+    "rechtsbasis": ["§ 55 SGB V", "§ 55 Abs. 2 SGB V", "§ 56 SGB V"],
+    "severity": "wichtig",
+    "prueflogik": {
+      "bedingungen": ["Zahnersatz beantragt", "Festzuschuss zu niedrig oder Bonusheft nicht berücksichtigt", "Härtefallregelung nicht geprüft"],
+      "suchbegriffe": ["Zahnersatz", "Festzuschuss", "Bonusheft", "Härtefall", "Regelversorgung", "Heil- und Kostenplan", "§ 55"]
+    },
+    "musterschreiben_hinweis": "Die Krankenkasse hat den Festzuschuss nach § 55 SGB V fehlerhaft berechnet. Weder der Bonus für regelmäßige Vorsorge noch die Härtefallregelung wurden geprüft.",
+    "severity_beschreibung": "Versicherte erhalten zu wenig Zuschuss für notwendigen Zahnersatz"
+  },
+  {
+    "id": "KK_018",
+    "titel": "Kostenerstattung nach § 13 Abs. 3 SGB V bei Systemversagen abgelehnt",
+    "beschreibung": "Die Krankenkasse hat die Kostenerstattung für eine selbstbeschaffte Leistung nach § 13 Abs. 3 SGB V abgelehnt. Wenn die Krankenkasse eine unaufschiebbare Leistung nicht rechtzeitig erbringen kann oder einen Antrag zu Unrecht ablehnt, hat der Versicherte Anspruch auf Erstattung der Kosten einer selbstbeschafften Leistung.",
+    "rechtsbasis": ["§ 13 Abs. 3 SGB V", "BSG B 1 KR 12/12 R", "BSG B 1 KR 7/14 R"],
+    "severity": "kritisch",
+    "prueflogik": {
+      "bedingungen": ["Selbstbeschaffte Leistung", "Krankenkasse hat Leistung abgelehnt oder nicht rechtzeitig erbracht", "Kostenerstattung abgelehnt"],
+      "suchbegriffe": ["Kostenerstattung", "selbstbeschafft", "Systemversagen", "§ 13 Abs. 3", "unaufschiebbar", "Privatbehandlung", "Eigenanteil"]
+    },
+    "musterschreiben_hinweis": "Die Krankenkasse hat die Kostenerstattung nach § 13 Abs. 3 SGB V für eine selbstbeschaffte Leistung zu Unrecht abgelehnt. Da die Leistung nicht rechtzeitig erbracht wurde, besteht Anspruch auf Erstattung.",
+    "severity_beschreibung": "Versicherte bleiben auf Kosten einer notwendigen Behandlung sitzen"
+  },
+  {
+    "id": "KK_019",
+    "titel": "Rehabilitation abgelehnt trotz medizinischer Notwendigkeit (§ 40 SGB V)",
+    "beschreibung": "Die Krankenkasse hat einen Antrag auf medizinische Rehabilitation nach § 40 SGB V abgelehnt, obwohl die medizinische Notwendigkeit ärztlich bescheinigt ist. Dem MDK-Gutachten kommt keine Bindungswirkung zu, wenn es die individuelle Situation nicht ausreichend berücksichtigt.",
+    "rechtsbasis": ["§ 40 SGB V", "§ 275 SGB V", "BSG B 1 KR 26/17 R"],
+    "severity": "kritisch",
+    "prueflogik": {
+      "bedingungen": ["Reha-Antrag abgelehnt", "Ärztliche Verordnung liegt vor", "MDK-Gutachten negativ trotz Indikation"],
+      "suchbegriffe": ["Rehabilitation", "Reha abgelehnt", "Kur", "§ 40", "MDK", "medizinisch notwendig", "stationär", "ambulant"]
+    },
+    "musterschreiben_hinweis": "Die Krankenkasse hat die beantragte Rehabilitation nach § 40 SGB V zu Unrecht abgelehnt. Die ärztlich bescheinigte Notwendigkeit wurde nicht ausreichend gewürdigt.",
+    "severity_beschreibung": "Versicherte erhalten keine notwendige Rehabilitationsmaßnahme"
+  },
+  {
+    "id": "KK_020",
+    "titel": "Mutterschaftsgeld oder Schwangerschaftsleistungen nach §§ 24c ff. SGB V fehlerhaft",
+    "beschreibung": "Die Krankenkasse hat Leistungen bei Schwangerschaft und Mutterschaft nach §§ 24c bis 24i SGB V fehlerhaft berechnet oder abgelehnt. Das Mutterschaftsgeld beträgt höchstens 13 Euro pro Kalendertag, die Differenz zahlt der Arbeitgeber.",
+    "rechtsbasis": ["§§ 24c–24i SGB V", "§ 24i SGB V", "MuSchG"],
+    "severity": "wichtig",
+    "prueflogik": {
+      "bedingungen": ["Schwangerschaft oder Entbindung", "Mutterschaftsgeld abgelehnt oder falsch berechnet", "Leistungen bei Schwangerschaft verweigert"],
+      "suchbegriffe": ["Mutterschaftsgeld", "Schwangerschaft", "Entbindung", "Hebamme", "Haushaltshilfe", "Mutterschutz", "§ 24i"]
+    },
+    "musterschreiben_hinweis": "Die Krankenkasse hat Leistungen bei Schwangerschaft und Mutterschaft nach §§ 24c ff. SGB V fehlerhaft berechnet oder zu Unrecht abgelehnt.",
+    "severity_beschreibung": "Schwangere oder Mütter erhalten gesetzliche Leistungen nicht vollständig"
+  },
+  {
+    "id": "KK_021",
+    "titel": "Beitragsrückstände: Leistungsruhen nach § 16 Abs. 3a SGB V zu Unrecht angeordnet",
+    "beschreibung": "Die Krankenkasse hat das Ruhen des Leistungsanspruchs nach § 16 Abs. 3a SGB V wegen Beitragsrückständen angeordnet. Das Ruhen tritt nur ein bei einem Rückstand von mehr als zwei Monatsbeiträgen, nach Mahnung und Fristablauf. Ausgenommen sind Leistungen bei akuten Erkrankungen, Schmerzzuständen, Schwangerschaft und für Kinder.",
+    "rechtsbasis": ["§ 16 Abs. 3a SGB V", "BSG B 12 KR 19/12 R"],
+    "severity": "kritisch",
+    "prueflogik": {
+      "bedingungen": ["Leistungsruhen angeordnet", "Beitragsrückstand behauptet", "Akute Erkrankung oder Ausnahmetatbestand"],
+      "suchbegriffe": ["Ruhen", "Beitragsrückstand", "Leistungsruhen", "§ 16 Abs. 3a", "Rückstand", "Mahnung", "Notfall"]
+    },
+    "musterschreiben_hinweis": "Die Krankenkasse hat das Ruhen des Leistungsanspruchs nach § 16 Abs. 3a SGB V angeordnet. Es ist zu prüfen, ob die formellen Voraussetzungen vorliegen und ob Ausnahmetatbestände greifen.",
+    "severity_beschreibung": "Versicherte verlieren den Zugang zu medizinischer Versorgung"
+  },
+  {
+    "id": "DRV_014",
+    "titel": "Kindererziehungszeiten nicht oder fehlerhaft angerechnet (§§ 56, 249 SGB VI)",
+    "beschreibung": "Die Rentenversicherung hat Kindererziehungszeiten nach §§ 56, 249 SGB VI nicht oder fehlerhaft angerechnet. Für vor 1992 geborene Kinder werden 30 Monate, für ab 1992 geborene Kinder 36 Monate als Pflichtbeitragszeiten angerechnet. Zusätzlich sind Berücksichtigungszeiten bis zum 10. Lebensjahr zu berücksichtigen.",
+    "rechtsbasis": ["§ 56 SGB VI", "§ 57 SGB VI", "§ 249 SGB VI", "§ 307d SGB VI"],
+    "severity": "kritisch",
+    "prueflogik": {
+      "bedingungen": ["Kinder vorhanden", "Kindererziehungszeiten fehlen oder falsch zugeordnet", "Entgeltpunkte für Kindererziehung fehlen"],
+      "suchbegriffe": ["Kindererziehungszeit", "Mütterrente", "Berücksichtigungszeit", "§ 56", "§ 249", "Kindererziehung", "Kind geboren"]
+    },
+    "musterschreiben_hinweis": "Die Rentenversicherung hat Kindererziehungszeiten nach §§ 56, 249 SGB VI nicht oder fehlerhaft berücksichtigt. Für jedes Kind stehen Pflichtbeitragszeiten und Berücksichtigungszeiten zu.",
+    "severity_beschreibung": "Fehlende Kindererziehungszeiten mindern die Rente dauerhaft"
+  },
+  {
+    "id": "DRV_015",
+    "titel": "Grundrentenzuschlag nach § 76g SGB VI nicht gewährt oder falsch berechnet",
+    "beschreibung": "Die Rentenversicherung hat den Grundrentenzuschlag nach § 76g SGB VI nicht gewährt oder fehlerhaft berechnet. Der Zuschlag steht Versicherten mit mindestens 33 Jahren Grundrentenzeiten zu, deren Entgeltpunkte im Durchschnitt unter 0,8 pro Jahr liegen.",
+    "rechtsbasis": ["§ 76g SGB VI", "§ 76g Abs. 3 SGB VI", "§ 97a SGB VI"],
+    "severity": "kritisch",
+    "prueflogik": {
+      "bedingungen": ["Lange Versicherungsbiografie mit niedrigem Einkommen", "Mindestens 33 Jahre Grundrentenzeiten", "Grundrentenzuschlag fehlt oder zu niedrig"],
+      "suchbegriffe": ["Grundrente", "Grundrentenzuschlag", "§ 76g", "33 Jahre", "35 Jahre", "Zuschlag", "Grundrentenzeiten", "langjährig"]
+    },
+    "musterschreiben_hinweis": "Die Rentenversicherung hat den Grundrentenzuschlag nach § 76g SGB VI nicht gewährt oder fehlerhaft berechnet. Bei mindestens 33 Jahren Grundrentenzeiten besteht ein Anspruch.",
+    "severity_beschreibung": "Geringverdiener mit langer Erwerbsbiografie erhalten zu wenig Rente"
+  },
+  {
+    "id": "DRV_016",
+    "titel": "Hinterbliebenenrente (Witwen-/Witwerrente) falsch berechnet (§§ 46, 97 SGB VI)",
+    "beschreibung": "Die Rentenversicherung hat die Hinterbliebenenrente nach § 46 SGB VI falsch berechnet oder die Einkommensanrechnung nach § 97 SGB VI fehlerhaft durchgeführt. Die große Witwenrente beträgt 55 % (neues Recht) bzw. 60 % (altes Recht) der Versichertenrente.",
+    "rechtsbasis": ["§ 46 SGB VI", "§ 97 SGB VI", "§ 114 SGB IV"],
+    "severity": "kritisch",
+    "prueflogik": {
+      "bedingungen": ["Hinterbliebenenrente beantragt", "Rentenhöhe erscheint zu niedrig", "Einkommensanrechnung fehlerhaft"],
+      "suchbegriffe": ["Witwenrente", "Witwerrente", "Hinterbliebenenrente", "§ 46", "Einkommensanrechnung", "Freibetrag", "Versorgungsausgleich", "55 Prozent"]
+    },
+    "musterschreiben_hinweis": "Die Rentenversicherung hat die Hinterbliebenenrente nach § 46 SGB VI fehlerhaft berechnet. Die Einkommensanrechnung nach § 97 SGB VI ist zu überprüfen.",
+    "severity_beschreibung": "Hinterbliebene erhalten zu wenig Rente nach dem Verlust des Partners"
+  },
+  {
+    "id": "DRV_017",
+    "titel": "Altersrente für schwerbehinderte Menschen nach § 236a SGB VI nicht gewährt",
+    "beschreibung": "Die Rentenversicherung hat die Altersrente für schwerbehinderte Menschen nach § 236a SGB VI abgelehnt. Schwerbehinderte (GdB ab 50) können bis zu 2 Jahre vor der Regelaltersgrenze abschlagsfrei und bis zu 5 Jahre vorher mit Abschlägen in Rente gehen, wenn 35 Jahre Wartezeit erfüllt sind.",
+    "rechtsbasis": ["§ 236a SGB VI", "§ 37 SGB VI", "§ 2 Abs. 2 SGB IX"],
+    "severity": "kritisch",
+    "prueflogik": {
+      "bedingungen": ["Schwerbehinderung (GdB ab 50)", "35 Jahre Wartezeit erfüllt", "Rente für schwerbehinderte Menschen abgelehnt"],
+      "suchbegriffe": ["schwerbehindert", "Schwerbehinderung", "§ 236a", "GdB 50", "Schwerbehindertenausweis", "35 Jahre", "Altersrente", "abschlagsfrei"]
+    },
+    "musterschreiben_hinweis": "Die Rentenversicherung hat die Altersrente für schwerbehinderte Menschen nach § 236a SGB VI nicht gewährt, obwohl die Voraussetzungen vorliegen.",
+    "severity_beschreibung": "Schwerbehinderte erhalten nicht die ihnen zustehende frühere Altersrente"
+  },
+  {
+    "id": "DRV_018",
+    "titel": "Rentenanpassung zum 01.07. fehlerhaft übernommen (§ 65 SGB VI)",
+    "beschreibung": "Die Rentenversicherung hat die jährliche Rentenanpassung nach § 65 SGB VI zum 1. Juli fehlerhaft berechnet oder nicht vollständig umgesetzt. Der aktuelle Rentenwert wird jährlich durch Rechtsverordnung angepasst.",
+    "rechtsbasis": ["§ 65 SGB VI", "§ 68 SGB VI", "§ 69 SGB VI"],
+    "severity": "wichtig",
+    "prueflogik": {
+      "bedingungen": ["Rentenanpassung zum 01.07. erfolgt", "Anpassungsbetrag erscheint zu niedrig", "Aktueller Rentenwert nicht korrekt angewendet"],
+      "suchbegriffe": ["Rentenanpassung", "Rentenwert", "1. Juli", "§ 65", "Anpassungsmitteilung", "Erhöhung", "Rentenerhöhung"]
+    },
+    "musterschreiben_hinweis": "Die jährliche Rentenanpassung nach § 65 SGB VI wurde fehlerhaft berechnet. Der aktuelle Rentenwert ist auf alle Entgeltpunkte korrekt anzuwenden.",
+    "severity_beschreibung": "Rentner erhalten bei fehlerhafter Anpassung dauerhaft zu wenig Rente"
+  },
+  {
+    "id": "DRV_019",
+    "titel": "Übergangsbereich / Gleitzone bei Midijob nicht korrekt berücksichtigt (§ 163 Abs. 10 SGB VI)",
+    "beschreibung": "Die Rentenversicherung hat die beitragspflichtigen Einnahmen im Übergangsbereich (520,01 bis 2.000 Euro) nach § 163 Abs. 10 SGB VI nicht korrekt berücksichtigt. Entgeltpunkte sind auf Basis der tatsächlichen Einnahmen zu ermitteln, nicht der reduzierten beitragspflichtigen Einnahmen.",
+    "rechtsbasis": ["§ 163 Abs. 10 SGB VI", "§ 20 Abs. 2 SGB IV"],
+    "severity": "wichtig",
+    "prueflogik": {
+      "bedingungen": ["Beschäftigung im Übergangsbereich (520–2.000 Euro)", "Entgeltpunkte erscheinen zu niedrig", "Beitragsbemessung fehlerhaft"],
+      "suchbegriffe": ["Übergangsbereich", "Gleitzone", "Midijob", "§ 163", "520 Euro", "2000 Euro", "beitragspflichtig", "Entgeltpunkte"]
+    },
+    "musterschreiben_hinweis": "Die Rentenversicherung hat die Entgeltpunkte für Beschäftigungszeiten im Übergangsbereich nach § 163 Abs. 10 SGB VI fehlerhaft berechnet.",
+    "severity_beschreibung": "Midijobber erhalten weniger Rentenpunkte als ihnen zustehen"
   }
 ]
