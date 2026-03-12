@@ -9,7 +9,6 @@ import { SiteNavFull } from "@/components/SiteNav";
 import { SiteFooter } from "@/components/SiteFooter";
 import DemoAnimation from "@/components/DemoAnimation";
 import ScrollReveal from "@/components/ScrollReveal";
-import TestimonialsBlock from "@/components/TestimonialsBlock";
 import { pdf } from "@react-pdf/renderer";
 import LetterPDF, { type LetterPDFData } from "@/components/LetterPDF";
 import {
@@ -812,11 +811,6 @@ export default function Page() {
             ))}
           </div>
         </section>
-      </ScrollReveal>
-
-      {/* Was Fachkräfte sagen */}
-      <ScrollReveal>
-        <TestimonialsBlock />
       </ScrollReveal>
 
       {/* B2B Bridge */}
