@@ -94,7 +94,7 @@ export default function DatenschutzPage() {
           <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-8">
             <h2 className="text-white font-bold uppercase tracking-widest text-xs mb-4">6. Erstellung von Schreiben (Musterschreiben)</h2>
             <p className="text-white/90">
-              Für die Erstellung von Schreiben-Entwürfen (z. B. Widerspruch, Anträge) nutzen wir Dienste von Anthropic (Anthropic PBC). Die von Ihnen eingegebenen Daten (Aktenzeichen, Bescheiddatum, Stichpunkte, ggf. Adresse) sowie die zuvor analysierten Bescheidsinhalte werden dabei zur Generierung des Textes verarbeitet. Die Verarbeitung erfolgt auf Grundlage von Art. 6 Abs. 1 lit. b DSGVO (Vertragserfüllung) bzw. Ihrer Nutzung des Angebots. Eine dauerhafte Speicherung der eingegebenen Inhalte bei Dritten erfolgt nicht über den Verarbeitungszeitraum hinaus.
+              Für die Erstellung von Schreiben-Entwürfen (z. B. Widerspruch, Anträge) nutzen wir Dienste von Anthropic (Anthropic PBC). Die von Ihnen eingegebenen Daten (Aktenzeichen, Bescheiddatum, Stichpunkte, ggf. Adresse) sowie die zuvor analysierten Bescheidinhalte werden dabei zur Generierung des Textes verarbeitet. Die Verarbeitung erfolgt auf Grundlage von Art. 6 Abs. 1 lit. b DSGVO (Vertragserfüllung) bzw. Ihrer Nutzung des Angebots. Eine dauerhafte Speicherung der eingegebenen Inhalte bei Dritten erfolgt nicht über den Verarbeitungszeitraum hinaus.
             </p>
           </div>
 

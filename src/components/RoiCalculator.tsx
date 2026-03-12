@@ -5,9 +5,9 @@ import type { LucideIcon } from "lucide-react";
 import { Clock, TrendingUp, Sparkles } from "lucide-react";
 
 const TARIFE = [
-  { name: "Starter", analysen: 300, preis: 149 },
-  { name: "Professional", analysen: 1000, preis: 399 },
-  { name: "Enterprise", analysen: 2500, preis: 799 },
+  { name: "Starter", analysen: 300, preis: 199 },
+  { name: "Team", analysen: 1000, preis: 399 },
+  { name: "Einrichtung", analysen: 2500, preis: 699 },
 ];
 
 function getEmpfohlenTarif(bescheide: number) {

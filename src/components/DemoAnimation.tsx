@@ -153,7 +153,7 @@ export default function DemoAnimation() {
                 </span>
               </div>
               {!fileLanded && (
-                <p className="text-white/40 text-sm mt-4 animate-pulse">Drag & Drop – Datei wird eingefügt...</p>
+                <p className="text-white/40 text-sm mt-4 animate-pulse">Drag & Drop – Datei hier ablegen...</p>
               )}
             </div>
           </div>

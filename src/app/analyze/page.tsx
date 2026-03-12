@@ -205,7 +205,7 @@ function RefineSection({
             <textarea
               value={kontext}
               onChange={(e) => setKontext(e.target.value)}
-              placeholder="Was soll noch beruecksichtigt werden? z. B. die Miete oder ein vorheriger Widerspruch."
+              placeholder="Was soll noch berücksichtigt werden? z. B. die Miete oder ein vorheriger Widerspruch."
               rows={3}
               maxLength={500}
               className="w-full bg-white/[0.04] border border-white/10 rounded-xl px-4 py-3 text-sm text-white/80 placeholder:text-white/25 resize-none focus:outline-none focus:border-white/20 leading-relaxed"
@@ -361,12 +361,22 @@ export default function AnalyzePage() {
 
       const handleResult = (data: Record<string, unknown>) => {
         const musterschreiben = (data.musterschreiben as string) ?? "";
+        const allAgentsFailed = data.agenten_details
+          ? Object.values(data.agenten_details as Record<string, { success: boolean }>).every((d) => !d.success)
+          : false;
         const isEngineError =
-          typeof musterschreiben === "string" &&
+          allAgentsFailed ||
+          (typeof musterschreiben === "string" &&
           (musterschreiben.startsWith("OpenAI-Key fehlt") ||
             musterschreiben.startsWith("Engine-Fehler:") ||
-            musterschreiben.includes("KI-Antwort konnte nicht als JSON"));
-        if (isEngineError) { setError(musterschreiben); return; }
+            musterschreiben.includes("KI-Antwort konnte nicht als JSON")));
+        if (isEngineError) {
+          const fehler = Array.isArray(data.fehler) && data.fehler.length > 0
+            ? (data.fehler as string[])[0]
+            : musterschreiben;
+          setError(fehler || "Die Analyse ist vorübergehend nicht verfügbar. Bitte versuchen Sie es später erneut.");
+          return;
+        }
         setResult({
           zuordnung: data.zuordnung as AnalysisResult["zuordnung"],
           fehler: (data.fehler as string[]) ?? [],
@@ -400,13 +410,13 @@ export default function AnalyzePage() {
           done: "Analyse abgeschlossen",
         };
 
+        let eventType = "";
         while (true) {
           const { done, value } = await reader.read();
           if (done) break;
           buffer += decoder.decode(value, { stream: true });
           const lines = buffer.split("\n");
           buffer = lines.pop() ?? "";
-          let eventType = "";
           for (const line of lines) {
             if (line.startsWith("event: ")) { eventType = line.slice(7).trim(); continue; }
             if (line.startsWith("data: ")) {
@@ -421,7 +431,7 @@ export default function AnalyzePage() {
                 } else if (eventType === "error") {
                   setError(parsed.error ?? "Analyse fehlgeschlagen.");
                 }
-              } catch { /* ignore malformed */ }
+              } catch { /* ignore malformed — JSON evtl. noch nicht komplett */ }
               eventType = "";
             }
           }
@@ -492,7 +502,7 @@ export default function AnalyzePage() {
 
       <div className="max-w-3xl mx-auto px-6 py-12 flex-1 w-full">
         <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-[var(--accent)] mb-2">Analyse</p>
-        <h1 className="text-3xl font-black tracking-tight mb-2">Bescheid analysieren</h1>
+        <h1 className="text-2xl font-black tracking-tight mb-2">Bescheid analysieren</h1>
         <p className="text-white/60 text-sm mb-10">
           PDF oder Foto des Bescheids hochladen – z. B. Schreiben abfotografieren und hier einreichen. Sie erhalten eine strukturierte Auswertung und ein Musterschreiben.
         </p>
@@ -564,55 +574,28 @@ export default function AnalyzePage() {
 
         {/* Keine Analysen mehr */}
         {analysesRemaining === 0 && (
-          <div className="mb-10 p-4 bg-amber-500/10 border border-amber-500/30 rounded-2xl flex items-start gap-3">
-            <AlertCircle className="h-5 w-5 text-amber-500 flex-shrink-0 mt-0.5" />
+          <div className="mb-10 p-4 bg-red-500/15 border border-red-500/30 rounded-2xl flex items-start gap-3">
+            <AlertCircle className="h-5 w-5 text-red-400 flex-shrink-0 mt-0.5" />
             <div className="flex-1">
-              <p className="text-amber-200 text-sm mb-3">
+              <p className="text-red-500 text-sm font-bold mb-2">
                 Keine Analysen mehr verfügbar.
               </p>
+              <p className="text-white/60 text-sm mb-3">
+                Kontaktieren Sie uns für ein Einrichtungs-Abo — passend für Ihre Organisation.
+              </p>
               <div className="flex flex-wrap gap-2">
-                {(["single", "basic", "standard", "pro"] as const).map((key) => {
-                  const labels: Record<string, string> = {
-                    single: "1 Analyse — 19,90 €",
-                    basic: "5 Analysen — 49,90 €",
-                    standard: "15 Analysen — 89,90 €",
-                    pro: "50 Analysen — 149,90 €",
-                  };
-                  return (
-                    <button
-                      key={key}
-                      onClick={async () => {
-                        try {
-                          const supabase = createBrowserClient(
-                            process.env.NEXT_PUBLIC_SUPABASE_URL!,
-                            process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-                          );
-                          const { data: { session } } = await supabase.auth.getSession();
-                          if (!session) { window.location.href = "/login"; return; }
-                          const res = await fetch("/api/mollie/create-payment", {
-                            method: "POST",
-                            headers: {
-                              "Content-Type": "application/json",
-                              Authorization: `Bearer ${session.access_token}`,
-                            },
-                            body: JSON.stringify({ product_key: key }),
-                          });
-                          const data = await res.json();
-                          if (data.checkout_url) {
-                            window.location.href = data.checkout_url;
-                          } else {
-                            setError(data.error ?? "Zahlung konnte nicht gestartet werden.");
-                          }
-                        } catch {
-                          setError("Verbindungsfehler beim Zahlungsstart.");
-                        }
-                      }}
-                      className="px-3 py-2 text-xs font-medium rounded-xl bg-[var(--accent)] text-white hover:bg-[var(--accent-hover)] transition-colors"
-                    >
-                      {labels[key]}
-                    </button>
-                  );
-                })}
+                <a
+                  href="/b2b"
+                  className="px-3 py-2 text-xs font-medium rounded-xl bg-[var(--accent)] text-white hover:bg-[var(--accent-hover)] transition-colors"
+                >
+                  Einrichtungs-Abos ansehen
+                </a>
+                <a
+                  href="mailto:info@bescheidrecht.de"
+                  className="px-3 py-2 text-xs font-medium rounded-xl border border-white/20 text-white/70 hover:text-white hover:border-white/40 transition-colors"
+                >
+                  info@bescheidrecht.de
+                </a>
               </div>
             </div>
           </div>
@@ -661,7 +644,7 @@ export default function AnalyzePage() {
                     </span>
                   )}
                 </div>
-                <p className="text-sm text-white/80">
+                <p className="text-base text-white/85">
                   {result.zuordnung.behoerde} · {result.zuordnung.rechtsgebiet}
                   {result.zuordnung.untergebiet && ` · ${result.zuordnung.untergebiet}`}
                 </p>
@@ -674,7 +657,7 @@ export default function AnalyzePage() {
                 <h2 className="text-[10px] font-bold uppercase tracking-widest text-white/50 mb-3">
                   Mögliche Auffälligkeiten (Hinweise)
                 </h2>
-                <ul className="list-disc list-inside text-sm text-white/80 space-y-2">
+                <ul className="list-disc list-inside text-base text-white/85 space-y-2">
                   {result.fehler.map((f, i) => (
                     <li key={i}>{f}</li>
                   ))}
@@ -688,7 +671,7 @@ export default function AnalyzePage() {
                 <h2 className="text-[10px] font-bold uppercase tracking-widest text-white/50 mb-3">
                   Kurz erklaert
                 </h2>
-                <p className="text-sm text-white/80 leading-relaxed">{result.erklaerung}</p>
+                <p className="text-base text-white/85 leading-relaxed">{result.erklaerung}</p>
               </div>
             )}
 
@@ -710,7 +693,7 @@ export default function AnalyzePage() {
                             {u.gericht} · {u.aktenzeichen}
                             {u.datum && <span className="font-normal text-white/40 ml-2">{u.datum}</span>}
                           </p>
-                          <p className="text-sm text-white/60 mt-1">{u.leitsatz}</p>
+                          <p className="text-[13px] text-white/60 mt-1">{u.leitsatz}</p>
                         </div>
                         {u.relevanz && (
                           <span className="text-[10px] font-bold uppercase tracking-widest text-[var(--accent)] whitespace-nowrap">
@@ -760,7 +743,7 @@ export default function AnalyzePage() {
                     <p className="text-[10px] font-bold uppercase tracking-widest text-white/30 mb-1.5">
                       Schwachstellen im Bescheid
                     </p>
-                    <ul className="list-disc list-inside text-sm text-white/70 space-y-1">
+                    <ul className="list-disc list-inside text-base text-white/75 space-y-1">
                       {result.kritik.schwachstellen.map((s, i) => (
                         <li key={i}>{s}</li>
                       ))}
@@ -773,7 +756,7 @@ export default function AnalyzePage() {
                     <p className="text-[10px] font-bold uppercase tracking-widest text-white/30 mb-1.5">
                       Moegliche Gegenargumente der Behoerde
                     </p>
-                    <ul className="list-disc list-inside text-sm text-white/50 space-y-1">
+                    <ul className="list-disc list-inside text-base text-white/55 space-y-1">
                       {result.kritik.gegenargumente.map((g, i) => (
                         <li key={i}>{g}</li>
                       ))}
@@ -787,14 +770,14 @@ export default function AnalyzePage() {
             {result.musterschreiben && (
               <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
                 <h2 className="text-[10px] font-bold uppercase tracking-widest text-white/50 mb-3">Musterschreiben</h2>
-                <pre className="text-sm text-white/80 whitespace-pre-wrap font-sans leading-relaxed mb-4">
+                <pre className="text-base text-white/85 whitespace-pre-wrap font-sans leading-relaxed mb-4">
                   {result.musterschreiben}
                 </pre>
                 {/* RDG-Disclaimer — nur sichtbar, NICHT im PDF */}
-                <p className="text-[11px] text-amber-400/70 border border-amber-400/20 rounded-xl px-4 py-2.5 mb-5 leading-relaxed">
+                <p className="text-[11px] text-[var(--text)] border border-amber-400/30 bg-amber-100 dark:bg-amber-500/10 rounded-xl px-4 py-2.5 mb-5 leading-relaxed">
                   ⚠ Dieser Entwurf wurde von einer KI erstellt und stellt keine Rechtsberatung im Sinne des § 2 RDG dar. Er ersetzt nicht die Beratung durch einen Rechtsanwalt oder eine Beratungsstelle (z. B. VdK, Sozialverband). Vor dem Absenden alle Platzhalter in [eckigen Klammern] ersetzen.
                 </p>
-                <DownloadButton content={result.musterschreiben} />
+                <DownloadButton content={result.musterschreiben} findings={result.fehler} />
 
                 {/* Inline Verfeinern */}
                 {token && (

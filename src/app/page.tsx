@@ -23,7 +23,7 @@ import { PrivacyModal } from "@/components/PrivacyModal";
 import { PseudonymizationPreviewModal } from "@/components/PseudonymizationPreviewModal";
 
 const supportedAuthorities = [
-  "Jobcenter (Grundsicherungsgeld/ALG II)",
+  "Jobcenter (Bürgergeld/SGB II)",
   "Agentur für Arbeit (Arbeitslosengeld)",
   "Krankenkassen (GKV)",
   "Pflegekassen (Pflegeversicherung)",
@@ -242,7 +242,7 @@ export default function Page() {
 
   return (
     <main className="min-h-screen bg-mesh text-white" dir={t.dir}>
-      <SiteNavFull lang={lang} onLangChange={setLang} dir={t.dir} navBlog={t.navBlog} navLogin={t.navLogin} navRegister={t.navRegister} />
+      <SiteNavFull lang={lang} onLangChange={setLang} dir={t.dir} navLogin={t.navLogin} navRegister={t.navRegister} />
 
       {/* Hero */}
       <section className="relative max-w-5xl mx-auto pt-12 sm:pt-16 md:pt-20 pb-16 sm:pb-24 md:pb-28 px-4 sm:px-6 text-center overflow-hidden" aria-label="Hero">
@@ -277,21 +277,6 @@ export default function Page() {
         <p className={`relative mt-10 mb-10 text-gray-400 text-lg md:text-xl leading-relaxed max-w-3xl mx-auto transition-all duration-700 delay-150 ${loaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}>
           {t.text}
         </p>
-
-        {/* Disclaimer — prominent, rot */}
-        <div className={`relative max-w-3xl mx-auto mb-10 bg-red-950/40 border-2 border-red-500/40 rounded-2xl p-5 sm:p-6 transition-all duration-700 delay-200 ${loaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}>
-          <div className="flex items-start gap-3">
-            <span className="text-2xl flex-shrink-0" aria-hidden="true">⚠️</span>
-            <div>
-              <h3 className="font-black text-red-300 uppercase tracking-wide text-sm mb-1">
-                Keine Rechtsberatung
-              </h3>
-              <p className="text-xs sm:text-sm text-red-200/80 leading-relaxed">
-                Diese technische Analyse ersetzt keine anwaltliche Beratung. Wir sind keine Rechtsanwälte. Bei rechtlichen Fragen konsultieren Sie bitte einen Fachanwalt oder eine anerkannte Beratungsstelle.
-              </p>
-            </div>
-          </div>
-        </div>
 
         {/* Unterstützte Behörden */}
         <div className={`relative max-w-4xl mx-auto mb-12 text-center transition-all duration-700 delay-250 ${loaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}>
@@ -401,9 +386,6 @@ export default function Page() {
           {/* Tab 2: Schreiben erstellen */}
           {activeTab === 2 && !generatedLetter && (
             <div className="text-left space-y-6">
-              <p className="text-[10px] text-white/30 text-center leading-relaxed">
-                {t.footerDisclaimer}
-              </p>
               {/* Schritt A – Träger */}
               <div>
                 <label className="block text-[10px] font-bold uppercase tracking-widest text-white/50 mb-2">
@@ -436,6 +418,14 @@ export default function Page() {
                       <option key={o.value} value={o.value}>{o.label}</option>
                     ))}
                   </select>
+                  <Link
+                    href={`/antraege`}
+                    className="inline-flex items-center gap-1.5 mt-2 text-[11px] text-green-400 hover:text-green-300 transition-colors"
+                  >
+                    <ClipboardList className="h-3 w-3" />
+                    Oder: Fertigen Antrag aus unserem Katalog erstellen lassen
+                    <ArrowRight className="h-3 w-3" />
+                  </Link>
                 </div>
               )}
               {/* Schritt C – Stichpunkte */}
@@ -729,18 +719,6 @@ export default function Page() {
         </section>
       </ScrollReveal>
 
-      {/* Hinweis: Software dient der Vorbereitung */}
-      <ScrollReveal>
-        <section className="max-w-3xl mx-auto px-6 mb-20">
-          <div className="bg-amber-500/10 border-2 border-amber-500/30 rounded-2xl p-6 text-center">
-            <p className="text-sm text-amber-200/90 leading-relaxed">
-              <strong className="text-amber-200">Wichtig:</strong> Unsere Software dient der Vorbereitung für Gespräche
-              mit Rechtsanwälten, Sozialverbänden (z.B. VdK, SoVD) oder Verbraucherzentralen.
-              Sie ersetzt keine individuelle rechtliche Beratung.
-            </p>
-          </div>
-        </section>
-      </ScrollReveal>
 
       {/* Workflow */}
       <ScrollReveal>
@@ -775,6 +753,27 @@ export default function Page() {
       {/* Was Fachkräfte sagen */}
       <ScrollReveal>
         <TestimonialsBlock />
+      </ScrollReveal>
+
+      {/* B2B Bridge */}
+      <ScrollReveal>
+        <section className="max-w-3xl mx-auto px-6 mb-20">
+          <Link
+            href="/b2b"
+            className="block rounded-2xl border border-[var(--accent)]/30 bg-[var(--accent)]/[0.05] p-6 sm:p-8 text-center hover:border-[var(--accent)]/50 hover:bg-[var(--accent)]/[0.08] transition-all duration-300 group"
+          >
+            <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-[var(--accent)] mb-2">
+              Für Einrichtungen
+            </p>
+            <p className="text-white/70 text-sm leading-relaxed">
+              Sie vertreten eine Beratungsstelle, einen Sozialverband oder eine Einrichtung?
+              Entdecken Sie unsere B2B-Tarife mit Mengenrabatten und zentralem Fristen-Dashboard.
+            </p>
+            <span className="inline-flex items-center gap-1 mt-4 text-[var(--accent)] text-[12px] font-bold uppercase tracking-wider group-hover:gap-2 transition-all">
+              Mehr erfahren <ArrowRight className="h-3.5 w-3.5" />
+            </span>
+          </Link>
+        </section>
       </ScrollReveal>
 
       {/* Pricing (PRO mit Glow + EMPFOHLEN Badge) */}
@@ -858,19 +857,13 @@ export default function Page() {
             <p className="relative text-white text-base md:text-lg mb-10 max-w-xl mx-auto leading-relaxed opacity-90">
               {t.demoCTAText}
             </p>
-            <div className="relative flex flex-col sm:flex-row justify-center gap-4">
+            <div className="relative flex justify-center">
               <Link
-                href="/register"
-                className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-2xl bg-[var(--accent)] text-white font-bold text-sm tracking-wide hover:bg-[var(--accent-hover)] hover:shadow-[0_0_30px_var(--accent-glow)] transition-all duration-300"
+                href="/analyze"
+                className="inline-flex items-center justify-center gap-2 px-10 py-4 rounded-2xl bg-[var(--accent)] text-white font-bold text-sm tracking-wide hover:bg-[var(--accent-hover)] hover:shadow-[0_0_30px_var(--accent-glow)] transition-all duration-300"
               >
                 {t.demoCTAPrimary}
                 <ArrowRight className="h-4 w-4" />
-              </Link>
-              <Link
-                href="/feedback"
-                className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-2xl border border-white/20 text-white font-bold text-sm tracking-wide hover:bg-white/10 transition-all duration-300"
-              >
-                {t.demoCTASecondary}
               </Link>
             </div>
           </div>
@@ -889,7 +882,6 @@ export default function Page() {
       </ScrollReveal>
 
       <SiteFooter
-        blog={t.footerBlog}
         feedback={t.footerFeedback}
         impressum={t.footerImpressum}
         datenschutz={t.footerDatenschutz}

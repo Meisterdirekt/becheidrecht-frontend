@@ -13,7 +13,9 @@ import {
   ArrowRight,
   Building2,
   CalendarDays,
-  Star,
+  Users,
+  Clock,
+  Shield,
   Zap,
 } from "lucide-react";
 import { SiteFooter } from "@/components/SiteFooter";
@@ -25,11 +27,11 @@ import { B2BThemeInit } from "@/components/B2BThemeInit";
 export const metadata: Metadata = {
   title: "BescheidRecht für Einrichtungen — KI-Bescheidanalyse für Sozialberatung",
   description:
-    "Behördenbescheide in unter 1 Minute prüfen statt 30 Minuten. KI-gestützte Analyse für Sozialarbeiter, Schuldnerberatungen und Wohlfahrtsverbände. 16 Rechtsgebiete, DSGVO-konform.",
+    "Behördenbescheide schnell prüfen statt manuell recherchieren. KI-gestützte Analyse für Sozialarbeiter, Schuldnerberatungen und Wohlfahrtsverbände. 16 Rechtsgebiete, DSGVO-konform.",
 };
 
 const DEMO_MAILTO =
-  "mailto:BescheidRecht@web.de?subject=Demo-Anfrage%20B2B&body=Guten%20Tag%2C%0A%0Aich%20interessiere%20mich%20f%C3%BCr%20eine%20Demo%20von%20BescheidRecht%20f%C3%BCr%20unsere%20Einrichtung.%0A%0AOrganisation%3A%20%0AAnzahl%20Berater%3A%20%0A%0AMit%20freundlichen%20Gr%C3%BC%C3%9Fen";
+  "mailto:info@bescheidrecht.de?subject=Demo-Anfrage%20B2B&body=Guten%20Tag%2C%0A%0Aich%20interessiere%20mich%20f%C3%BCr%20eine%20Demo%20von%20BescheidRecht%20f%C3%BCr%20unsere%20Einrichtung.%0A%0AOrganisation%3A%20%0AAnzahl%20Berater%3A%20%0A%0AMit%20freundlichen%20Gr%C3%BC%C3%9Fen";
 
 const TRAEGER = [
   "Jobcenter / SGB II",
@@ -54,7 +56,7 @@ const TARIFE = [
   {
     name: "Starter",
     analysen: "300",
-    preis: "149",
+    preis: "199",
     zeitraum: "/ Monat",
     ideal: "Einzelne Beratungsstelle",
     features: [
@@ -65,7 +67,7 @@ const TARIFE = [
     ],
   },
   {
-    name: "Professional",
+    name: "Team",
     analysen: "1.000",
     preis: "399",
     zeitraum: "/ Monat",
@@ -79,14 +81,14 @@ const TARIFE = [
     ],
   },
   {
-    name: "Enterprise",
+    name: "Einrichtung",
     analysen: "2.500+",
-    preis: "ab 799",
+    preis: "ab 699",
     zeitraum: "/ Monat",
     ideal: "Landes-/Bundesverband",
     features: [
       "Ab 2.500 Analysen",
-      "Alle Professional-Features",
+      "Alle Team-Features",
       "Persönlicher Ansprechpartner",
       "Individuelles Angebot & SLA",
     ],
@@ -133,31 +135,25 @@ const DATENSCHUTZ_ITEMS = [
   {
     Icon: Lock,
     title: "DSGVO-konform",
-    desc: "Europäische Server. Verschlüsselte Übertragung. Supabase Auth mit Row Level Security.",
+    desc: "Verschlüsselte Übertragung. Supabase Auth mit Row Level Security. Pseudonymisierung vor jeder KI-Verarbeitung.",
   },
 ];
 
-const TESTIMONIALS = [
+const ANWENDUNGSFAELLE = [
   {
-    name: "Schuldnerberatung",
-    role: "Typisches Szenario",
-    org: "Sozialberatungsstelle",
-    text: "Täglich 10–15 Bescheide zu prüfen kostet Stunden. Mit KI-Unterstützung lässt sich die Bearbeitungszeit deutlich reduzieren — und Klienten bekommen schneller Klarheit.",
-    stars: 0,
+    Icon: Users,
+    title: "Schuldnerberatung",
+    desc: "10–15 Bescheide täglich prüfen, Fristen tracken und Widersprüche vorbereiten — alles in einem Tool.",
   },
   {
-    name: "Teamleitung Sozialberatung",
-    role: "Typisches Szenario",
-    org: "Kreisverband",
-    text: "Widerspruchsfristen manuell zu tracken ist fehleranfällig. Ein zentrales Fristen-Dashboard verhindert, dass wichtige 30-Tage-Fristen ungenutzt ablaufen.",
-    stars: 0,
+    Icon: Clock,
+    title: "Teamleitung",
+    desc: "Zentrales Fristen-Dashboard für alle Berater. Keine 30-Tage-Frist läuft mehr unbemerkt ab.",
   },
   {
-    name: "Koordination",
-    role: "Typisches Szenario",
-    org: "Wohlfahrtsverband",
-    text: "Grundsicherungsgeld, Pflegegrad, BAföG — ein Tool für alle Bescheide vereinfacht die Einarbeitung neuer Mitarbeitender erheblich und schafft einheitliche Qualitätsstandards.",
-    stars: 0,
+    Icon: Shield,
+    title: "Qualitätssicherung",
+    desc: "Einheitliche Prüfstandards über alle Rechtsgebiete — von Grundsicherungsgeld bis Pflegegrad.",
   },
 ];
 
@@ -171,7 +167,7 @@ const FAQ_ITEMS = [
     a: "Ja. Jeder Berater erhält einen eigenen Zugang. Die Analyse-Credits werden gemeinschaftlich genutzt und im Dashboard getrackt.",
   },
   {
-    q: "Was passiert mit den hochgeladenen Bescheidsdaten?",
+    q: "Was passiert mit den hochgeladenen Bescheiddaten?",
     a: "Alle personenbezogenen Daten (Namen, IBAN, Geburtsdaten etc.) werden automatisch pseudonymisiert, bevor sie die KI sieht. Der KI-Anbieter speichert keine Daten. Nach der Analyse werden Dokumente auf unseren Servern gelöscht.",
   },
   {
@@ -193,15 +189,15 @@ const FAQ_ITEMS = [
 ];
 
 const PROBLEM_ITEMS = [
-  "40–50 % aller Behördenbescheide sind fehlerhaft",
-  "Manuelle Prüfung dauert 15–30 Minuten pro Bescheid",
+  "Viele Behördenbescheide enthalten formelle oder inhaltliche Fehler",
+  "Manuelle Prüfung kostet wertvolle Beratungszeit",
   "Sozialarbeiter haben zu wenig Zeit für zu viele Fälle",
-  "Klienten verlieren Ansprüche weil Fristen verstreichen",
+  "Klienten verlieren Ansprüche, weil Fristen verstreichen",
   "Kein spezialisiertes Tool am Markt verfügbar",
 ];
 
 const LOESUNG_ITEMS = [
-  "Bescheid hochladen — Analyse in unter 1 Minute",
+  "Bescheid hochladen — Analyse in wenigen Minuten",
   "Fehler werden mit Rechtsgrundlage identifiziert",
   "Widerspruchsschreiben wird automatisch generiert",
   "Fristen werden erkannt und im Dashboard getrackt",
@@ -265,7 +261,7 @@ export default function B2BPage() {
           <h1 className="text-[2.2rem] sm:text-5xl lg:text-[4rem] font-black tracking-tight leading-[1.06] mb-6">
             <span className="block text-white">Behördenbescheide prüfen.</span>
             <span className="block mt-2 bg-gradient-to-r from-[var(--accent)] via-sky-300 to-[var(--accent)] bg-clip-text text-transparent">
-              In unter 1 Minute statt 30.
+              In Minuten statt Stunden.
             </span>
           </h1>
 
@@ -296,7 +292,7 @@ export default function B2BPage() {
             {[
               { value: "16", label: "Rechtsgebiete" },
               { value: "130+", label: "Fehlertypen" },
-              { value: "< 1 Min.", label: "Analysezeit" },
+              { value: "Minuten", label: "Analysezeit" },
               { value: "DSGVO", label: "Konform" },
             ].map((s) => (
               <div
@@ -435,43 +431,24 @@ export default function B2BPage() {
       </section>
       </ScrollReveal>
 
-      {/* ── Testimonials ─────────────────────────────── */}
+      {/* ── Anwendungsfaelle ─────────────────────────────── */}
       <ScrollReveal>
       <section className="max-w-5xl mx-auto px-4 sm:px-6 py-14 sm:py-24">
         <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-[var(--accent)] mb-3 text-center">
-          Stimmen aus der Praxis
+          Einsatzbereiche
         </p>
-        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight text-center mb-4">
-          Typische Anwendungsszenarien
+        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight text-center mb-14 sm:mb-16">
+          Wo BescheidRecht den Unterschied macht
         </h2>
-        <p className="text-center text-white/30 text-[13px] mb-14 sm:mb-16">
-          Illustrative Beispiele — keine echten Kundenzitate
-        </p>
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
-          {TESTIMONIALS.map((t) => (
+          {ANWENDUNGSFAELLE.map((item) => (
             <div
-              key={t.name}
-              className="bg-white/[0.03] border border-white/10 rounded-2xl p-6 sm:p-8 flex flex-col gap-5 hover:border-white/20 transition-colors"
+              key={item.title}
+              className="bg-white/[0.03] border border-white/10 rounded-2xl p-6 sm:p-8 flex flex-col gap-4 hover:border-white/20 transition-colors"
             >
-              <div className="flex gap-0.5 h-3.5">
-                {t.stars > 0 && Array.from({ length: t.stars }).map((_, i) => (
-                  <Star key={i} className="h-3.5 w-3.5 fill-[var(--accent)] text-[var(--accent)]" />
-                ))}
-              </div>
-              <p className="text-white/65 text-[14px] sm:text-[15px] leading-relaxed flex-grow">
-                &ldquo;{t.text}&rdquo;
-              </p>
-              <div className="flex items-center gap-3 pt-3 border-t border-white/5">
-                <div className="w-9 h-9 rounded-full bg-[var(--accent)]/15 flex items-center justify-center text-[11px] font-black text-[var(--accent)] flex-shrink-0">
-                  {t.name[0]}
-                </div>
-                <div>
-                  <p className="font-bold text-[13px] text-white">{t.name}</p>
-                  <p className="text-[11px] text-white/35">
-                    {t.role} · {t.org}
-                  </p>
-                </div>
-              </div>
+              <item.Icon className="h-6 w-6 text-[var(--accent)]" aria-hidden />
+              <h3 className="font-bold text-base uppercase tracking-wider text-white/90">{item.title}</h3>
+              <p className="text-white/55 text-sm leading-relaxed">{item.desc}</p>
             </div>
           ))}
         </div>
@@ -525,7 +502,7 @@ export default function B2BPage() {
             </thead>
             <tbody className="text-white/50">
               {[
-                ["Zeitaufwand", "15–30 Min.", "10–20 Min.", "Unter 1 Minute"],
+                ["Zeitaufwand", "15–30 Min.", "10–20 Min.", "Wenige Minuten"],
                 ["Rechtsgebiete", "Je nach Expertise", "1–3 Gebiete", "16 Rechtsgebiete"],
                 ["Widerspruchsschreiben", "Manuell erstellen", "Nicht enthalten", "Automatisch generiert"],
                 ["Fristüberwachung", "Kalender / Excel", "Nicht enthalten", "Automatisches Dashboard"],
@@ -624,7 +601,7 @@ export default function B2BPage() {
                 ))}
               </ul>
               <a
-                href={`mailto:BescheidRecht@web.de?subject=Anfrage%20B2B%20Tarif%20${tarif.name}`}
+                href={`mailto:info@bescheidrecht.de?subject=Anfrage%20B2B%20Tarif%20${tarif.name}`}
                 className={`flex items-center justify-center gap-2 py-3.5 rounded-xl font-bold text-[13px] sm:text-[14px] transition-all ${
                   tarif.highlight
                     ? "bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white shadow-md shadow-blue-600/20 hover:-translate-y-0.5"
@@ -632,7 +609,7 @@ export default function B2BPage() {
                 }`}
               >
                 <CalendarDays className="h-4 w-4" />
-                {tarif.name === "Enterprise" ? "Angebot anfragen" : "Demo anfragen"}
+                {tarif.name === "Einrichtung" ? "Angebot anfragen" : "Demo anfragen"}
               </a>
             </div>
           ))}

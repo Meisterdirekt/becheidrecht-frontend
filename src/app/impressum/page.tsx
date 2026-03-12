@@ -38,7 +38,7 @@ export default function ImpressumPage() {
             <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-8">
               <h2 className="text-white font-bold uppercase tracking-widest text-xs mb-4">Verantwortlich für den Inhalt</h2>
               <p className="text-white/90 text-xs">
-                Verantwortlich für den Inhalt nach § 55 Abs. 2 RStV:<br />
+                Verantwortlich für den Inhalt nach § 18 Abs. 2 MStV:<br />
                 Hendrik Berkensträter<br />
                 Antoniusstraße 47, 49377 Vechta
               </p>

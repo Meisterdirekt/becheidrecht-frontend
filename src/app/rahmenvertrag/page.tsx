@@ -435,7 +435,7 @@ export default function RahmenvertragPage() {
           <p className="text-xs text-amber-600 leading-relaxed">
             Diese Vorlage ist ein Ausgangsdokument und ersetzt keine anwaltliche Beratung.
             Für Verträge mit großen Organisationen (Caritas, AWO etc.) empfiehlt sich eine einmalige
-            Prüfung durch einen auf IT-Recht spezialisierten Anwalt (~200–500 €). Das schützt dich
+            Prüfung durch einen auf IT-Recht spezialisierten Anwalt (~200–500 €). Das schützt Sie
             bei Streitfällen und erhöht die Seriosität gegenüber dem Kunden deutlich.
           </p>
         </div>
