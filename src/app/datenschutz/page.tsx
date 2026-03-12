@@ -51,7 +51,7 @@ export default function DatenschutzPage() {
           <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-8">
             <h2 className="text-white font-bold uppercase tracking-widest text-xs mb-4">4. Nutzerkonto, Anmeldung und Cookies</h2>
             <p className="text-white/90 mb-4">
-              Für die Registrierung, Anmeldung und Nutzung Ihres Kontos setzen wir den Dienst Supabase (Supabase Inc. / EU-Region möglich) ein. Dabei werden E-Mail-Adresse, Passwort (verschlüsselt), ggf. Name und Adresse sowie Ihr Nutzungs- und Abo-Status verarbeitet. Zur Aufrechterhaltung Ihrer Sitzung werden technisch notwendige Cookies bzw. vergleichbare Techniken verwendet (Session-Cookies). Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO (Vertragserfüllung) sowie Art. 6 Abs. 1 lit. f DSGVO (technisch notwendige Sitzung).
+              Für die Registrierung, Anmeldung und Nutzung Ihres Kontos setzen wir den Dienst Supabase (Supabase Inc., USA; Datenverarbeitung erfolgt auf Servern in Frankfurt, EU) ein. Dabei werden E-Mail-Adresse, Passwort (verschlüsselt), ggf. Name und Adresse sowie Ihr Nutzungs- und Abo-Status verarbeitet. Zur Aufrechterhaltung Ihrer Sitzung werden technisch notwendige Cookies bzw. vergleichbare Techniken verwendet (Session-Cookies). Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO (Vertragserfüllung) sowie Art. 6 Abs. 1 lit. f DSGVO (technisch notwendige Sitzung).
             </p>
             <p className="text-white/80 text-xs">
               Wir setzen keine Analyse- oder Marketing-Cookies ohne Ihre Einwilligung. Sie können Ihren Browser so einstellen, dass Sie über das Setzen von Cookies informiert werden oder diese ablehnen; die Nutzung des eingeloggten Bereichs erfordert dann ggf. eine erneute Anmeldung.
@@ -64,7 +64,7 @@ export default function DatenschutzPage() {
               Die von Ihnen hochgeladenen Dokumente (PDF oder Bild) werden ausschließlich zur automatisierten Strukturierung und Analyse verarbeitet. Dafür nutzen wir u. a. Dienste von OpenAI (OpenAI, LLC). Die Inhalte werden zur Verarbeitung an den Anbieter übermittelt; eine dauerhafte Speicherung der Dokumenteninhalte bei Dritten erfolgt nicht über den für die Verarbeitung erforderlichen Zeitraum hinaus. Rechtsgrundlage ist Ihre Einwilligung (Art. 6 Abs. 1 lit. a DSGVO) vor dem Upload sowie, soweit Sie bereits Kunde sind, Art. 6 Abs. 1 lit. b DSGVO (Vertragserfüllung).
             </p>
             <p className="text-white/80 text-xs">
-              Hochgeladene Dateien und Analyseergebnisse werden auf unseren Systemen nicht dauerhaft gespeichert; sie werden nach Erledigung des Vorgangs gelöscht, sofern keine gesetzlichen Aufbewahrungspflichten entgegenstehen.
+              Hochgeladene Dateien werden auf unseren Systemen nicht dauerhaft gespeichert und nach Erledigung des Vorgangs gelöscht. Analyseergebnisse (Behörde, Rechtsgebiet, erkannte Fehler, Dringlichkeit) werden in pseudonymisierter Form für maximal 90 Tage gespeichert, um Ihnen den Zugriff auf Ihre Ergebnisse zu ermöglichen, und danach automatisch gelöscht. Es gelten ggf. gesetzliche Aufbewahrungspflichten.
             </p>
           </div>
 
@@ -81,9 +81,9 @@ export default function DatenschutzPage() {
             <p className="text-white/90 mb-4">
               Die Analyse erfolgt primär über <strong>Anthropic, PBC (USA)</strong> – Claude-KI-Modelle – sowie als technischen Fallback über <strong>OpenAI LLC (USA)</strong>. Der pseudonymisierte Text wird zur Verarbeitung an den jeweils eingesetzten Dienstleister übertragen. Rechtsgrundlage: Art. 6 Abs. 1 lit. a DSGVO (Ihre Einwilligung vor dem Upload) sowie Art. 49 Abs. 1 lit. a DSGVO (Drittlandübermittlung in die USA mit Ihrer Einwilligung). Mit Anthropic und OpenAI bestehen Auftragsverarbeitungsverträge gemäß Art. 28 DSGVO.
             </p>
-            <h3 className="text-white font-semibold text-sm mt-6 mb-2">Keine dauerhafte Speicherung</h3>
+            <h3 className="text-white font-semibold text-sm mt-6 mb-2">Speicherung bei KI-Dienstleistern und auf unseren Systemen</h3>
             <p className="text-white/90 mb-4">
-              Unser KI-Dienstleister speichert Ihre Daten nicht dauerhaft. Nach der Analyse werden sie gelöscht.
+              Unsere KI-Dienstleister (Anthropic, OpenAI) speichern Ihre Daten nicht dauerhaft; nach der Analyse werden sie dort gelöscht. Auf unseren eigenen Systemen werden pseudonymisierte Analyseergebnisse (Behörde, Rechtsgebiet, erkannte Fehler, Dringlichkeit — keine Klartextdaten aus Ihrem Bescheid) für maximal 90 Tage gespeichert und danach automatisch gelöscht.
             </p>
             <h3 className="text-white font-semibold text-sm mt-6 mb-2">Widerruf</h3>
             <p className="text-white/90">
@@ -122,7 +122,7 @@ export default function DatenschutzPage() {
           <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-8">
             <h2 className="text-white font-bold uppercase tracking-widest text-xs mb-4">10. Speicherdauer</h2>
             <p className="text-white/90">
-              Wir speichern personenbezogene Daten nur so lange, wie es für die Erbringung der Leistung, die Abwicklung des Vertrags oder die Erfüllung gesetzlicher Aufbewahrungspflichten (z. B. steuer- oder handelsrechtlich) erforderlich ist. Hochgeladene Dokumente und Analyseergebnisse werden nicht dauerhaft auf unseren Servern gespeichert und nach Erledigung des Vorgangs gelöscht. Nach Ende der Speicherfrist werden die Daten gelöscht oder anonymisiert.
+              Wir speichern personenbezogene Daten nur so lange, wie es für die Erbringung der Leistung, die Abwicklung des Vertrags oder die Erfüllung gesetzlicher Aufbewahrungspflichten (z. B. steuer- oder handelsrechtlich) erforderlich ist. Hochgeladene Dokumente werden nicht dauerhaft auf unseren Servern gespeichert und nach Erledigung des Vorgangs gelöscht. Pseudonymisierte Analyseergebnisse werden nach maximal 90 Tagen automatisch gelöscht. Nach Ende der Speicherfrist werden die Daten gelöscht oder anonymisiert.
             </p>
           </div>
 
