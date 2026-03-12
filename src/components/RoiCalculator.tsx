@@ -37,12 +37,12 @@ function SliderInput({
   return (
     <div>
       <div className="flex justify-between items-baseline mb-3">
-        <label className="text-[11px] font-bold uppercase tracking-widest text-white/40">
+        <label className="text-xs font-bold uppercase tracking-widest text-white/40">
           {label}
         </label>
         <span className="text-[var(--accent)] font-black text-xl leading-none">
           {value.toLocaleString("de")}{" "}
-          <span className="text-white/35 text-[13px] font-normal">{unit}</span>
+          <span className="text-white/35 text-sm font-normal">{unit}</span>
         </span>
       </div>
       <div className="relative h-1.5 bg-white/10 rounded-full">
@@ -61,7 +61,7 @@ function SliderInput({
           style={{ accentColor: "var(--accent)" }}
         />
       </div>
-      <div className="flex justify-between text-[10px] text-white/20 mt-1.5">
+      <div className="flex justify-between text-xs text-white/20 mt-1.5">
         <span>{min.toLocaleString("de")}</span>
         <span>{max.toLocaleString("de")}</span>
       </div>
@@ -104,9 +104,9 @@ function ResultCard({
     <div className={`flex items-center gap-4 rounded-2xl p-5 border ${borderClass}`}>
       <Icon className={`h-5 w-5 flex-shrink-0 ${iconClass}`} />
       <div className="flex-1 min-w-0">
-        <p className="text-[11px] uppercase tracking-widest text-white/35 mb-0.5">{label}</p>
+        <p className="text-xs uppercase tracking-widest text-white/35 mb-0.5">{label}</p>
         <p className={`text-2xl font-black leading-none ${valueClass}`}>{value}</p>
-        {sub && <p className="text-[11px] text-white/30 mt-1">{sub}</p>}
+        {sub && <p className="text-xs text-white/30 mt-1">{sub}</p>}
       </div>
     </div>
   );
@@ -154,7 +154,7 @@ export function RoiCalculator() {
           onChange={setStundenlohn}
           unit="€/h"
         />
-        <p className="text-[11px] text-white/25 leading-relaxed">
+        <p className="text-xs text-white/25 leading-relaxed">
           Berechnung: 25 Min. manuelle Prüfung – 1 Min. mit KI = 24 Min. Ersparnis pro Bescheid.
         </p>
       </div>
@@ -175,13 +175,13 @@ export function RoiCalculator() {
           accent
         />
         <div className="bg-white/[0.03] border border-white/10 rounded-2xl p-5">
-          <p className="text-[11px] uppercase tracking-widest text-white/35 mb-3">
+          <p className="text-xs uppercase tracking-widest text-white/35 mb-3">
             Empfohlener Tarif
           </p>
           <div className="flex justify-between items-center">
             <div>
               <p className="font-bold text-white">{tarif.name}</p>
-              <p className="text-white/35 text-[12px] mt-0.5">
+              <p className="text-white/35 text-sm mt-0.5">
                 bis {tarif.analysen.toLocaleString("de")} Analysen / Monat
               </p>
             </div>

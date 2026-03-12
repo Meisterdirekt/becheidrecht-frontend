@@ -50,11 +50,11 @@ export function EmptyState({
       )}
       {ctaLabel &&
         (ctaHref ? (
-          <a href={ctaHref} className="btn-primary mt-2 text-[11px]">
+          <a href={ctaHref} className="btn-primary mt-2 text-xs">
             {ctaLabel}
           </a>
         ) : (
-          <button type="button" onClick={onCtaClick} className="btn-primary mt-2 text-[11px]">
+          <button type="button" onClick={onCtaClick} className="btn-primary mt-2 text-xs">
             {ctaLabel}
           </button>
         ))}

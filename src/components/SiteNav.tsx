@@ -12,12 +12,11 @@ interface SiteNavFullProps {
   lang: Lang;
   onLangChange: (l: Lang) => void;
   dir: "ltr" | "rtl";
-  navBlog: string;
   navLogin: string;
   navRegister: string;
 }
 
-export function SiteNavFull({ lang, onLangChange, dir: _dir, navBlog, navLogin, navRegister }: SiteNavFullProps) {
+export function SiteNavFull({ lang, onLangChange, dir: _dir, navLogin, navRegister }: SiteNavFullProps) {
   const langs: Lang[] = ["DE", "EN", "RU", "AR", "TR"];
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -35,7 +34,7 @@ export function SiteNavFull({ lang, onLangChange, dir: _dir, navBlog, navLogin, 
                 key={l}
                 type="button"
                 onClick={() => onLangChange(l)}
-                className={`text-[11px] font-bold tracking-widest transition-colors rounded-lg px-2 py-1 ${
+                className={`text-xs font-bold tracking-widest transition-colors rounded-lg px-2 py-1 ${
                   lang === l ? "text-[var(--accent)] bg-[var(--accent)]/10" : "text-white/40 hover:text-white"
                 }`}
               >
@@ -48,8 +47,8 @@ export function SiteNavFull({ lang, onLangChange, dir: _dir, navBlog, navLogin, 
 
         {/* Desktop links */}
         <div className="hidden md:flex gap-6 items-center">
-          <Link href="/blog" className="btn-ghost">
-            {navBlog}
+          <Link href="/b2b" className="btn-ghost">
+            Für Einrichtungen
           </Link>
           <Link href="/login" className="btn-ghost">
             {navLogin}
@@ -77,7 +76,6 @@ export function SiteNavFull({ lang, onLangChange, dir: _dir, navBlog, navLogin, 
         onClose={() => setMobileOpen(false)}
         lang={lang}
         onLangChange={onLangChange}
-        navBlog={navBlog}
         navLogin={navLogin}
         navRegister={navRegister}
       />
@@ -96,7 +94,7 @@ export function SiteNavSimple({ backHref, backLabel, right }: SiteNavSimpleProps
     <nav className="sticky top-0 z-50 flex justify-between items-center px-6 py-5 max-w-7xl mx-auto w-full bg-[var(--bg)]/80 backdrop-blur-xl border-b border-white/5">
       <Link
         href={backHref}
-        className="text-[11px] font-bold uppercase tracking-widest text-[var(--accent)] hover:text-[var(--accent-hover)] transition-colors"
+        className="text-xs font-bold uppercase tracking-widest text-[var(--accent)] hover:text-[var(--accent-hover)] transition-colors"
       >
         ← {backLabel}
       </Link>

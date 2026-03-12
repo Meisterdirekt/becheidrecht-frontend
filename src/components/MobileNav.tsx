@@ -12,7 +12,6 @@ interface MobileNavProps {
   onClose: () => void;
   lang: Lang;
   onLangChange: (l: Lang) => void;
-  navBlog: string;
   navLogin: string;
   navRegister: string;
 }
@@ -22,7 +21,6 @@ export function MobileNav({
   onClose,
   lang,
   onLangChange,
-  navBlog,
   navLogin,
   navRegister,
 }: MobileNavProps) {
@@ -77,16 +75,16 @@ export function MobileNav({
         {/* Links */}
         <div className="flex flex-col gap-5">
           <Link
-            href="/blog"
+            href="/b2b"
             onClick={onClose}
-            className="text-[13px] font-bold uppercase tracking-[0.2em] text-white/50 hover:text-white transition-colors"
+            className="text-sm font-bold uppercase tracking-[0.2em] text-[var(--accent)] hover:text-[var(--accent-hover)] transition-colors"
           >
-            {navBlog}
+            Für Einrichtungen
           </Link>
           <Link
             href="/login"
             onClick={onClose}
-            className="text-[13px] font-bold uppercase tracking-[0.2em] text-white/50 hover:text-white transition-colors"
+            className="text-sm font-bold uppercase tracking-[0.2em] text-white/50 hover:text-white transition-colors"
           >
             {navLogin}
           </Link>
@@ -109,7 +107,7 @@ export function MobileNav({
                 onLangChange(l);
                 onClose();
               }}
-              className={`text-[11px] font-bold tracking-widest rounded-lg px-3 py-1.5 transition-colors ${
+              className={`text-xs font-bold tracking-widest rounded-lg px-3 py-1.5 transition-colors ${
                 lang === l
                   ? "text-[var(--accent)] bg-[var(--accent)]/10"
                   : "text-white/40 hover:text-white"

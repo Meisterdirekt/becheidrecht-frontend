@@ -79,7 +79,7 @@ export default function FeedbackPage() {
     <main className="min-h-screen bg-mesh text-white flex flex-col">
       <SiteNavSimple backHref="/" backLabel="Zurück zur Startseite" />
       <div className="max-w-xl mx-auto px-6 py-20 flex-grow w-full">
-        <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-[var(--accent)] mb-2">
+        <p className="text-xs font-bold uppercase tracking-[0.25em] text-[var(--accent)] mb-2">
           Ihre Meinung
         </p>
         <h1 className="text-4xl md:text-5xl font-black tracking-tight mb-4">Feedback</h1>
@@ -108,7 +108,7 @@ export default function FeedbackPage() {
         ) : (
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label className="block text-[10px] font-bold uppercase tracking-widest text-white/50 mb-2">
+              <label className="block text-xs font-bold uppercase tracking-widest text-white/50 mb-2">
                 Ihre Nachricht <span className="text-[var(--accent)]">*</span>
               </label>
               <textarea
@@ -120,11 +120,11 @@ export default function FeedbackPage() {
                 required
                 className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3.5 text-sm text-white placeholder:text-white/30 outline-none focus:border-[var(--accent)] transition-colors resize-y"
               />
-              <p className="text-[11px] text-white/40 mt-1">Mind. 10 Zeichen, max. 2000. {message.length}/2000</p>
+              <p className="text-xs text-white/40 mt-1">Mind. 10 Zeichen, max. 2000. {message.length}/2000</p>
             </div>
 
             <div>
-              <label className="block text-[10px] font-bold uppercase tracking-widest text-white/50 mb-2">
+              <label className="block text-xs font-bold uppercase tracking-widest text-white/50 mb-2">
                 Bewertung <span className="font-normal text-white/40">(optional)</span>
               </label>
               <div className="flex gap-2">
@@ -150,7 +150,7 @@ export default function FeedbackPage() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-[10px] font-bold uppercase tracking-widest text-white/50 mb-2">
+                <label className="block text-xs font-bold uppercase tracking-widest text-white/50 mb-2">
                   Name <span className="font-normal text-white/40">(optional)</span>
                 </label>
                 <input
@@ -163,7 +163,7 @@ export default function FeedbackPage() {
                 />
               </div>
               <div>
-                <label className="block text-[10px] font-bold uppercase tracking-widest text-white/50 mb-2">
+                <label className="block text-xs font-bold uppercase tracking-widest text-white/50 mb-2">
                   E-Mail <span className="font-normal text-white/40">(optional)</span>
                 </label>
                 <input
@@ -198,7 +198,7 @@ export default function FeedbackPage() {
           </form>
         )}
 
-        <p className="mt-8 text-white/40 text-xs">
+        <p className="mt-8 text-white/40 text-sm">
           Details zur Verarbeitung siehe{" "}
           <Link href="/datenschutz" className="text-[var(--accent)] hover:underline">
             Datenschutz
@@ -209,7 +209,7 @@ export default function FeedbackPage() {
         <section ref={commentsSectionRef} className="mt-16 pt-16 border-t border-white/10">
           <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
             <div>
-              <h2 className="text-[11px] font-bold uppercase tracking-[0.25em] text-[var(--accent)] mb-2">
+              <h2 className="text-xs font-bold uppercase tracking-[0.25em] text-[var(--accent)] mb-2">
                 Was andere sagen
               </h2>
               <p className="text-white/60 text-sm">
@@ -220,7 +220,7 @@ export default function FeedbackPage() {
               type="button"
               onClick={() => loadComments()}
               disabled={commentsLoading}
-              className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-white/50 hover:text-[var(--accent)] transition-colors disabled:opacity-50"
+              className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-white/50 hover:text-[var(--accent)] transition-colors disabled:opacity-50"
             >
               <RefreshCw className={`h-4 w-4 ${commentsLoading ? "animate-spin" : ""}`} />
               Liste aktualisieren
@@ -252,7 +252,7 @@ export default function FeedbackPage() {
                         ))}
                       </div>
                     )}
-                    <span className="text-[11px] text-white/50">
+                    <span className="text-xs text-white/50">
                       {item.name} · {new Date(item.created_at).toLocaleDateString("de-DE", { day: "2-digit", month: "short", year: "numeric" })}
                     </span>
                   </div>

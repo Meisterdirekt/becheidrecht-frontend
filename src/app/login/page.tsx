@@ -93,7 +93,7 @@ function LoginForm() {
             <div>
               <div className="flex justify-between items-center mb-2">
                 <label className="label-upper">Passwort</label>
-                <Link href="/forgot" className="text-[11px] text-[var(--accent)] hover:text-[var(--accent-hover)] font-bold uppercase tracking-wider transition-colors">
+                <Link href="/forgot" className="text-xs text-[var(--accent)] hover:text-[var(--accent-hover)] font-bold uppercase tracking-wider transition-colors">
                   Vergessen?
                 </Link>
               </div>
@@ -120,7 +120,7 @@ function LoginForm() {
             </button>
           </form>
           <div className="mt-8 pt-8 border-t border-white/10 flex flex-col gap-3 items-center">
-            <p className="text-[12px] text-white/50">
+            <p className="text-sm text-white/50">
               Noch kein Konto?{" "}
               <Link href="/register" className="text-[var(--accent)] hover:underline font-medium">
                 Registrieren

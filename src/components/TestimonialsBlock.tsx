@@ -26,7 +26,7 @@ export default function TestimonialsBlock() {
 
   return (
     <section className="max-w-5xl mx-auto px-6 mb-32">
-      <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-[var(--accent)] mb-3 text-center">
+      <p className="text-xs font-bold uppercase tracking-[0.25em] text-[var(--accent)] mb-3 text-center">
         Stimmen
       </p>
       <h2 className="text-3xl md:text-4xl font-black tracking-tight text-center mb-4">
@@ -54,7 +54,7 @@ export default function TestimonialsBlock() {
                   ))}
                 </div>
               )}
-              <span className="text-[11px] text-white/50">{item.name}</span>
+              <span className="text-xs text-white/50">{item.name}</span>
             </div>
             <p className="text-white/90 text-sm leading-relaxed line-clamp-4">{item.message}</p>
           </li>

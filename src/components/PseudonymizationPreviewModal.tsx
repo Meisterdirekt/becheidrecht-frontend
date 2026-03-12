@@ -78,7 +78,7 @@ export function PseudonymizationPreviewModal({
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
           <div>
-            <p className="text-[10px] font-bold uppercase tracking-widest text-white/50 mb-2">
+            <p className="text-xs font-bold uppercase tracking-widest text-white/50 mb-2">
               {labelBefore}
             </p>
             <div className="rounded-xl border border-white/10 bg-white/5 p-4 text-sm text-white/90 font-mono leading-relaxed whitespace-pre-wrap break-words max-h-[280px] overflow-y-auto">
@@ -86,7 +86,7 @@ export function PseudonymizationPreviewModal({
             </div>
           </div>
           <div>
-            <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--accent)] mb-2">
+            <p className="text-xs font-bold uppercase tracking-widest text-[var(--accent)] mb-2">
               {labelAfter}
             </p>
             <div className="rounded-xl border border-[var(--accent)]/30 bg-[var(--accent)]/5 p-4 text-sm text-white/90 font-mono leading-relaxed whitespace-pre-wrap break-words max-h-[280px] overflow-y-auto">
@@ -94,7 +94,7 @@ export function PseudonymizationPreviewModal({
             </div>
           </div>
         </div>
-        <p className="text-xs text-white/60 mb-6 leading-relaxed">{note}</p>
+        <p className="text-sm text-white/60 mb-6 leading-relaxed">{note}</p>
         <button
           type="button"
           onClick={onClose}

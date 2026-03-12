@@ -15,7 +15,7 @@ export function CustomerCount() {
   if (count === null || count === 0) return null;
 
   return (
-    <span className="text-[11px] font-bold tracking-[0.2em] text-white/40 uppercase">
+    <span className="text-xs font-bold tracking-[0.2em] text-white/40 uppercase">
       {count === 1 ? "1 zahlender Nutzer" : `${count} zahlende Nutzer`}
     </span>
   );

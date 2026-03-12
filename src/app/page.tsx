@@ -18,6 +18,9 @@ import {
   getTraegerLabel,
   getSchreibentypLabel,
 } from "@/lib/letter-generator";
+import {
+  getAntraegeByTraeger,
+} from "@/lib/antraege-katalog";
 import { getPageT, type Lang } from "@/lib/page-translations";
 import { PrivacyModal } from "@/components/PrivacyModal";
 import { PseudonymizationPreviewModal } from "@/components/PseudonymizationPreviewModal";
@@ -280,14 +283,14 @@ export default function Page() {
 
         {/* Unterstützte Behörden */}
         <div className={`relative max-w-4xl mx-auto mb-12 text-center transition-all duration-700 delay-250 ${loaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}>
-          <p className="text-[10px] font-bold text-white/40 uppercase tracking-[0.2em] mb-4">
+          <p className="text-xs font-bold text-white/40 uppercase tracking-[0.2em] mb-4">
             Technische Analyse von Bescheiden dieser Stellen:
           </p>
           <div className="flex flex-wrap justify-center gap-2 sm:gap-3">
             {supportedAuthorities.map((authority) => (
               <span
                 key={authority}
-                className="inline-block px-3 py-1.5 bg-white/[0.06] text-white/70 rounded-full text-[11px] font-medium border border-white/10"
+                className="inline-block px-3 py-1.5 bg-white/[0.06] text-white/70 rounded-full text-xs font-medium border border-white/10"
               >
                 {authority}
               </span>
@@ -301,7 +304,7 @@ export default function Page() {
             <button
               type="button"
               onClick={() => switchTab(1)}
-              className={`flex-1 py-3 text-[11px] sm:text-[13px] font-bold uppercase tracking-wider transition-all duration-300 min-w-0 flex items-center justify-center gap-1.5 ${
+              className={`flex-1 py-3 text-xs sm:text-sm font-bold uppercase tracking-wider transition-all duration-300 min-w-0 flex items-center justify-center gap-1.5 ${
                 activeTab === 1 ? "text-[var(--accent)] border-b-2 border-[var(--accent)]" : "text-white/40 hover:text-white/70"
               }`}
             >
@@ -310,7 +313,7 @@ export default function Page() {
             <button
               type="button"
               onClick={() => switchTab(2)}
-              className={`flex-1 py-3 text-[11px] sm:text-[13px] font-bold uppercase tracking-wider transition-all duration-300 min-w-0 flex items-center justify-center gap-1.5 ${
+              className={`flex-1 py-3 text-xs sm:text-sm font-bold uppercase tracking-wider transition-all duration-300 min-w-0 flex items-center justify-center gap-1.5 ${
                 activeTab === 2 ? "text-[var(--accent)] border-b-2 border-[var(--accent)]" : "text-white/40 hover:text-white/70"
               }`}
             >
@@ -331,7 +334,7 @@ export default function Page() {
                   onChange={(e) => setConsent(e.target.checked)}
                   className="mt-1.5 h-5 w-5 rounded border-white/20 bg-white/5 text-[var(--accent)] focus:ring-[var(--accent)] cursor-pointer flex-shrink-0"
                 />
-                <label htmlFor="consent-checkbox" className="text-[13px] leading-snug font-medium text-white/90 select-none cursor-pointer">
+                <label htmlFor="consent-checkbox" className="text-sm leading-snug font-medium text-white/90 select-none cursor-pointer">
                   {t.consent.split(t.consentPrivacyLink)[0]}
                   <button
                     type="button"
@@ -366,7 +369,7 @@ export default function Page() {
                 <button
                   type="button"
                   onClick={() => setShowPseudonymPreview(true)}
-                  className="text-[13px] text-[var(--accent)] hover:underline"
+                  className="text-sm text-[var(--accent)] hover:underline"
                 >
                   {t.pseudonymPreviewLink}
                 </button>
@@ -388,7 +391,7 @@ export default function Page() {
             <div className="text-left space-y-6">
               {/* Schritt A – Träger */}
               <div>
-                <label className="block text-[10px] font-bold uppercase tracking-widest text-white/50 mb-2">
+                <label className="block text-xs font-bold uppercase tracking-widest text-white/50 mb-2">
                   {t.formBehoerdeLabel}
                 </label>
                 <select
@@ -402,37 +405,98 @@ export default function Page() {
                   ))}
                 </select>
               </div>
-              {/* Schritt B – Schreibentyp (nach Träger) */}
-              {behoerde && (
-                <div>
-                  <label className="block text-[10px] font-bold uppercase tracking-widest text-white/50 mb-2">
-                    {t.formSchreibentypLabel}
-                  </label>
-                  <select
-                    value={schreibentyp}
-                    onChange={(e) => setSchreibentyp(e.target.value)}
-                    className="w-full bg-black/40 border border-white/20 rounded-lg text-white text-sm py-3 px-4 outline-none focus:border-[var(--accent)] transition-all duration-300"
-                  >
-                    <option value="">📝 {t.formSchreibentypPlaceholder}</option>
-                    {SCHREIBENTYP_OPTIONS.map((o) => (
-                      <option key={o.value} value={o.value}>{o.label}</option>
-                    ))}
-                  </select>
-                  <Link
-                    href={`/antraege`}
-                    className="inline-flex items-center gap-1.5 mt-2 text-[11px] text-green-400 hover:text-green-300 transition-colors"
-                  >
-                    <ClipboardList className="h-3 w-3" />
-                    Oder: Fertigen Antrag aus unserem Katalog erstellen lassen
-                    <ArrowRight className="h-3 w-3" />
-                  </Link>
-                </div>
-              )}
+              {/* Antrags-Katalog (nach Träger) */}
+              {behoerde && (() => {
+                const katalog = getAntraegeByTraeger(behoerde);
+                return (
+                  <>
+                    {/* Formfreie Anträge aus dem Katalog */}
+                    {katalog && katalog.formfreieAntraege.length > 0 && (
+                      <div>
+                        <div className="flex items-center gap-2 mb-3">
+                          <PenLine className="h-3.5 w-3.5 text-green-400" />
+                          <p className="text-xs font-bold uppercase tracking-widest text-green-400">
+                            Formfreie Anträge — KI erstellt Ihr Schreiben
+                          </p>
+                        </div>
+                        <div className="flex flex-col gap-2 max-h-[240px] overflow-y-auto pr-1">
+                          {katalog.formfreieAntraege.map((antrag) => (
+                            <Link
+                              key={antrag.id}
+                              href={`/assistant?traeger=${katalog.traeger}&antrag=${encodeURIComponent(antrag.assistantPrompt)}`}
+                              className="group flex items-center gap-3 p-3 rounded-xl border border-white/10 bg-white/[0.03] transition-all hover:border-green-400/30 hover:bg-green-400/5"
+                            >
+                              <div className="flex-1 min-w-0">
+                                <p className="text-sm font-bold text-white truncate">{antrag.titel}</p>
+                                <p className="text-xs text-white/40 truncate">{antrag.rechtsgrundlage}</p>
+                              </div>
+                              <ArrowRight size={14} className="text-white/20 group-hover:text-green-400 transition-colors flex-shrink-0" />
+                            </Link>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Pflichtformulare */}
+                    {katalog && katalog.pflichtformulare.length > 0 && (
+                      <div>
+                        <div className="flex items-center gap-2 mb-3">
+                          <FileText className="h-3.5 w-3.5 text-amber-400" />
+                          <p className="text-xs font-bold uppercase tracking-widest text-amber-400">
+                            Offizielle Vordrucke
+                          </p>
+                        </div>
+                        <div className="flex flex-col gap-2">
+                          {katalog.pflichtformulare.map((form, i) => (
+                            <a
+                              key={i}
+                              href={form.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="group flex items-center gap-3 p-3 rounded-xl border border-white/10 bg-white/[0.03] transition-all hover:border-amber-400/30 hover:bg-amber-400/5"
+                            >
+                              <div className="flex-1 min-w-0">
+                                <p className="text-sm font-bold text-white truncate">{form.titel}</p>
+                                <p className="text-xs text-white/30 truncate">{form.quelle}</p>
+                              </div>
+                              <ArrowRight size={14} className="text-white/20 group-hover:text-amber-400 transition-colors flex-shrink-0" />
+                            </a>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Trennlinie + manuelles Schreiben */}
+                    <div className="flex items-center gap-3 pt-2">
+                      <div className="flex-1 h-px bg-white/10" />
+                      <span className="text-xs font-bold uppercase tracking-widest text-white/30">oder eigenes Schreiben</span>
+                      <div className="flex-1 h-px bg-white/10" />
+                    </div>
+
+                    {/* Schritt B – Schreibentyp */}
+                    <div>
+                      <label className="block text-xs font-bold uppercase tracking-widest text-white/50 mb-2">
+                        {t.formSchreibentypLabel}
+                      </label>
+                      <select
+                        value={schreibentyp}
+                        onChange={(e) => setSchreibentyp(e.target.value)}
+                        className="w-full bg-black/40 border border-white/20 rounded-lg text-white text-sm py-3 px-4 outline-none focus:border-[var(--accent)] transition-all duration-300"
+                      >
+                        <option value="">&#x1f4dd; {t.formSchreibentypPlaceholder}</option>
+                        {SCHREIBENTYP_OPTIONS.map((o) => (
+                          <option key={o.value} value={o.value}>{o.label}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </>
+                );
+              })()}
               {/* Schritt C – Stichpunkte */}
               {schreibentyp && (
                 <>
                   <div>
-                    <label className="block text-[10px] font-bold uppercase tracking-widest text-white/50 mb-2">
+                    <label className="block text-xs font-bold uppercase tracking-widest text-white/50 mb-2">
                       {t.formStichpunkteLabel}
                     </label>
                     <textarea
@@ -443,13 +507,13 @@ export default function Page() {
                       maxLength={500}
                       className="w-full bg-black/40 border border-white/20 rounded-lg text-white text-sm py-3 px-4 outline-none focus:border-[var(--accent)] transition-all duration-300 placeholder:text-white/30 resize-y min-h-[100px]"
                     />
-                    <p className="text-[11px] text-white/40 mt-1">
+                    <p className="text-xs text-white/40 mt-1">
                       {t.formStichpunkteHint} {stichpunkte.length}/500
                     </p>
                   </div>
                   {/* Aktenzeichen / Bescheiddatum / Adresse */}
                   <div>
-                    <label className="block text-[10px] font-bold uppercase tracking-widest text-white/50 mb-2">
+                    <label className="block text-xs font-bold uppercase tracking-widest text-white/50 mb-2">
                       {t.formAktenzeichenLabel} <span className="font-normal text-white/40">{t.formAktenzeichenOptional}</span>
                     </label>
                     <input
@@ -459,10 +523,10 @@ export default function Page() {
                       placeholder="z.B. BG-123456-2026"
                       className="w-full bg-black/40 border border-white/20 rounded-lg text-white text-sm py-3 px-4 outline-none focus:border-[var(--accent)] transition-all duration-300 placeholder:text-white/30"
                     />
-                    <p className="text-[11px] text-white/40 mt-1">{t.formAktenzeichenHint}</p>
+                    <p className="text-xs text-white/40 mt-1">{t.formAktenzeichenHint}</p>
                   </div>
                   <div>
-                    <label className="block text-[10px] font-bold uppercase tracking-widest text-white/50 mb-2">
+                    <label className="block text-xs font-bold uppercase tracking-widest text-white/50 mb-2">
                       {t.formBescheiddatumLabel} <span className="font-normal text-white/40">{t.formBescheiddatumOptional}</span>
                     </label>
                     <input
@@ -474,7 +538,7 @@ export default function Page() {
                     />
                   </div>
                   <div>
-                    <label className="block text-[10px] font-bold uppercase tracking-widest text-white/50 mb-2">
+                    <label className="block text-xs font-bold uppercase tracking-widest text-white/50 mb-2">
                       {t.formAdresseLabel} <span className="font-normal text-white/40">{t.formAdresseOptional}</span>
                     </label>
                     <input
@@ -509,7 +573,7 @@ export default function Page() {
                       onChange={(e) => setConsentLetter(e.target.checked)}
                       className="mt-1.5 h-5 w-5 rounded border-white/20 bg-white/5 text-[var(--accent)] focus:ring-[var(--accent)] cursor-pointer flex-shrink-0"
                     />
-                    <label htmlFor="consent-letter" className="text-[12px] leading-snug text-white/80 select-none cursor-pointer">
+                    <label htmlFor="consent-letter" className="text-sm leading-snug text-white/80 select-none cursor-pointer">
                       {t.consentLetter}
                     </label>
                   </div>
@@ -547,14 +611,14 @@ export default function Page() {
             return (
               <div className="text-left space-y-4 sm:space-y-6 w-full min-w-0">
                 <div className="no-print rounded-xl border border-red-500/30 bg-red-500/10 p-3 sm:p-4 text-left mb-2">
-                  <p className="text-xs text-red-300 font-bold leading-relaxed">
+                  <p className="text-sm text-red-300 font-bold leading-relaxed">
                     ⚠️ VORLAGE – KEINE RECHTSSCHRIFT! Lassen Sie dieses Musterschreiben vor Verwendung von einem Anwalt oder Sozialverband prüfen!
                   </p>
                 </div>
                 <div className="no-print rounded-xl border border-white/10 bg-white/5 p-3 sm:p-4 text-white">
                   <h3 className="font-bold text-sm sm:text-base mb-1">📄 {t.resultTitle}</h3>
-                  <p className="text-xs sm:text-sm text-white/80 break-words">{t.resultAktenzeichen} {aktenzeichen.trim() || "[bitte ergänzen]"}</p>
-                  <p className="text-xs sm:text-sm text-white/80 break-words">{t.resultBehoerde} {getTraegerLabel(behoerde)}</p>
+                  <p className="text-sm text-white/80 break-words">{t.resultAktenzeichen} {aktenzeichen.trim() || "[bitte ergänzen]"}</p>
+                  <p className="text-sm text-white/80 break-words">{t.resultBehoerde} {getTraegerLabel(behoerde)}</p>
                 </div>
                 <div className="letter-content bg-white text-black p-4 sm:p-6 md:p-8 rounded-xl font-sans text-[10pt] sm:text-[11pt] leading-[1.5] w-full min-w-0 overflow-x-auto break-words">
                   <div className="text-[9pt] sm:text-[10pt] mb-5 leading-snug">
@@ -584,7 +648,7 @@ export default function Page() {
                   <p className="mt-4 sm:mt-6 text-[9pt] sm:text-[10pt] break-words">{t.resultAnlage} {bescheiddatum.trim() || "[bitte ergänzen]"}</p>
                 </div>
                 <div className="no-print rounded-xl border border-yellow-500/30 bg-yellow-500/10 p-3 sm:p-4 text-left">
-                  <p className="text-[11px] sm:text-[12px] text-yellow-300 leading-relaxed">
+                  <p className="text-xs sm:text-sm text-yellow-300 leading-relaxed">
                     ⚠️ {t.resultWarning}
                   </p>
                 </div>
@@ -592,7 +656,7 @@ export default function Page() {
                   <button
                     type="button"
                     onClick={copyToClipboard}
-                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3.5 sm:py-3 rounded-xl font-bold text-[12px] uppercase tracking-wider bg-white/10 text-white border border-white/20 hover:bg-white/20 active:bg-white/25 transition-all duration-300 min-h-[44px]"
+                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3.5 sm:py-3 rounded-xl font-bold text-sm uppercase tracking-wider bg-white/10 text-white border border-white/20 hover:bg-white/20 active:bg-white/25 transition-all duration-300 min-h-[44px]"
                   >
                     <Copy className="h-4 w-4 flex-shrink-0" />
                     {t.btnCopy}
@@ -600,7 +664,7 @@ export default function Page() {
                   <button
                     type="button"
                     onClick={handleDownloadPDF}
-                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3.5 sm:py-3 rounded-xl font-bold text-[12px] uppercase tracking-wider bg-white/10 text-white border border-white/20 hover:bg-white/20 active:bg-white/25 transition-all duration-300 min-h-[44px]"
+                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3.5 sm:py-3 rounded-xl font-bold text-sm uppercase tracking-wider bg-white/10 text-white border border-white/20 hover:bg-white/20 active:bg-white/25 transition-all duration-300 min-h-[44px]"
                   >
                     <Download className="h-4 w-4 flex-shrink-0" />
                     {t.btnDownloadPdf}
@@ -608,7 +672,7 @@ export default function Page() {
                   <button
                     type="button"
                     onClick={handlePrint}
-                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3.5 sm:py-3 rounded-xl font-bold text-[12px] uppercase tracking-wider bg-white/10 text-white border border-white/20 hover:bg-white/20 active:bg-white/25 transition-all duration-300 min-h-[44px]"
+                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3.5 sm:py-3 rounded-xl font-bold text-sm uppercase tracking-wider bg-white/10 text-white border border-white/20 hover:bg-white/20 active:bg-white/25 transition-all duration-300 min-h-[44px]"
                   >
                     <Printer className="h-4 w-4 flex-shrink-0" />
                     {t.btnPrint}
@@ -617,7 +681,7 @@ export default function Page() {
                 <button
                   type="button"
                   onClick={() => { setGeneratedLetter(null); setLetterError(null); setLetterUser(null); }}
-                  className="no-print text-[var(--accent)] text-[12px] font-bold uppercase tracking-wider hover:underline"
+                  className="no-print text-[var(--accent)] text-sm font-bold uppercase tracking-wider hover:underline"
                 >
                   {t.btnNewLetter}
                 </button>
@@ -639,7 +703,7 @@ export default function Page() {
         </div>
 
         {/* Trust-Badges */}
-        <div className={`relative flex flex-wrap justify-center gap-6 md:gap-10 mt-8 text-white/60 text-[13px] font-medium transition-all duration-700 delay-500 ${loaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}>
+        <div className={`relative flex flex-wrap justify-center gap-6 md:gap-10 mt-8 text-white/60 text-sm font-medium transition-all duration-700 delay-500 ${loaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}>
           <span className="flex items-center gap-2"><Lock className="h-3.5 w-3.5" /> {t.trustDsgvo}</span>
           <span className="flex items-center gap-2"><Zap className="h-3.5 w-3.5" /> {t.trustSofort}</span>
           <span className="flex items-center gap-2"><ClipboardList className="h-3.5 w-3.5" /> {t.trustPrice}</span>
@@ -649,7 +713,7 @@ export default function Page() {
       {/* Partner Logos */}
       <ScrollReveal>
         <section className="max-w-5xl mx-auto px-6 mb-20">
-          <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-white/50 mb-8 text-center">
+          <p className="text-xs font-bold uppercase tracking-[0.25em] text-white/50 mb-8 text-center">
             {t.partnerSectionLabel}
           </p>
           <div className="flex flex-wrap justify-center items-center gap-8 md:gap-14">
@@ -684,7 +748,7 @@ export default function Page() {
                 className="text-center p-6 md:p-8 rounded-2xl border border-white/10 bg-white/[0.03] animate-slideUp opacity-0 hover:-translate-y-1 transition-transform duration-300"
               >
                 <p className="text-3xl md:text-4xl font-black text-white mb-2">{val}</p>
-                <p className="text-[11px] text-white/65 font-bold uppercase tracking-wider leading-snug">{lbl}</p>
+                <p className="text-xs text-white/65 font-bold uppercase tracking-wider leading-snug">{lbl}</p>
               </div>
             ))}
           </div>
@@ -694,7 +758,7 @@ export default function Page() {
       {/* Features - Bento (Glassmorphism, Icons, Hover) */}
       <ScrollReveal>
         <section className="max-w-6xl mx-auto px-6 mb-32">
-          <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-[var(--accent)] mb-3 text-center">
+          <p className="text-xs font-bold uppercase tracking-[0.25em] text-[var(--accent)] mb-3 text-center">
             {t.sectionWhatWeOffer}
           </p>
           <h2 className="text-3xl md:text-4xl font-black tracking-tight text-center mb-16">
@@ -723,7 +787,7 @@ export default function Page() {
       {/* Workflow */}
       <ScrollReveal>
         <section className="max-w-5xl mx-auto px-6 mb-32">
-          <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-[var(--accent)] mb-3 text-center">
+          <p className="text-xs font-bold uppercase tracking-[0.25em] text-[var(--accent)] mb-3 text-center">
             {t.workflowSectionLabel}
           </p>
           <h2 className="text-3xl md:text-4xl font-black tracking-tight text-center mb-16">
@@ -762,14 +826,14 @@ export default function Page() {
             href="/b2b"
             className="block rounded-2xl border border-[var(--accent)]/30 bg-[var(--accent)]/[0.05] p-6 sm:p-8 text-center hover:border-[var(--accent)]/50 hover:bg-[var(--accent)]/[0.08] transition-all duration-300 group"
           >
-            <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-[var(--accent)] mb-2">
+            <p className="text-xs font-bold uppercase tracking-[0.25em] text-[var(--accent)] mb-2">
               Für Einrichtungen
             </p>
             <p className="text-white/70 text-sm leading-relaxed">
               Sie vertreten eine Beratungsstelle, einen Sozialverband oder eine Einrichtung?
               Entdecken Sie unsere B2B-Tarife mit Mengenrabatten und zentralem Fristen-Dashboard.
             </p>
-            <span className="inline-flex items-center gap-1 mt-4 text-[var(--accent)] text-[12px] font-bold uppercase tracking-wider group-hover:gap-2 transition-all">
+            <span className="inline-flex items-center gap-1 mt-4 text-[var(--accent)] text-sm font-bold uppercase tracking-wider group-hover:gap-2 transition-all">
               Mehr erfahren <ArrowRight className="h-3.5 w-3.5" />
             </span>
           </Link>
@@ -779,7 +843,7 @@ export default function Page() {
       {/* Pricing (PRO mit Glow + EMPFOHLEN Badge) */}
       <ScrollReveal>
         <section id="pricing" className="max-w-7xl mx-auto px-6 mb-32">
-          <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-[var(--accent)] mb-3 text-center">
+          <p className="text-xs font-bold uppercase tracking-[0.25em] text-[var(--accent)] mb-3 text-center">
             {t.sectionPrices}
           </p>
           <h2 className="text-3xl md:text-4xl font-black tracking-tight text-center mb-16">
@@ -794,7 +858,7 @@ export default function Page() {
             ].map((p) => (
               <div key={p.name} className="relative pt-8 animate-slideUp opacity-0">
                 {p.highlight && (
-                  <div className="absolute -top-1 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-[var(--accent)] text-white text-[10px] font-bold uppercase tracking-widest whitespace-nowrap">
+                  <div className="absolute -top-1 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-[var(--accent)] text-white text-xs font-bold uppercase tracking-widest whitespace-nowrap">
                     {t.recommended}
                   </div>
                 )}
@@ -805,14 +869,14 @@ export default function Page() {
                       : "card card-hover border-white/10 bg-white/[0.03]"
                   }`}
                 >
-                  <span className="text-[10px] font-bold uppercase tracking-widest text-white/70">{p.name}</span>
+                  <span className="text-xs font-bold uppercase tracking-widest text-white/70">{p.name}</span>
                   <div className="mt-2 mb-6">
                     <p className={`font-black ${p.highlight ? "text-4xl" : "text-3xl"} text-white`}>{p.price}</p>
                     {p.price.includes("€") && (
-                      <p className="text-[12px] text-white/55 font-medium mt-1">{t.pricingPerMonth}</p>
+                      <p className="text-sm text-white/55 font-medium mt-1">{t.pricingPerMonth}</p>
                     )}
                   </div>
-                  <ul className="text-[13px] text-white/65 space-y-3 flex-grow mb-8">
+                  <ul className="text-sm text-white/65 space-y-3 flex-grow mb-8">
                     {p.features.map((f) => (
                       <li key={f} className="flex items-start gap-2">
                         <Check className="h-3.5 w-3.5 text-[var(--accent)] mt-0.5 flex-shrink-0" />
@@ -822,7 +886,7 @@ export default function Page() {
                   </ul>
                   <Link
                     href={p.href}
-                    className={`w-full py-3.5 rounded-xl font-bold text-[11px] uppercase tracking-widest transition-all duration-300 flex items-center justify-center gap-2 ${
+                    className={`w-full py-3.5 rounded-xl font-bold text-xs uppercase tracking-widest transition-all duration-300 flex items-center justify-center gap-2 ${
                       p.highlight
                         ? "bg-white text-[var(--accent)] hover:bg-white/90"
                         : "bg-[var(--accent)] text-white hover:bg-[var(--accent-hover)]"
@@ -848,7 +912,7 @@ export default function Page() {
                 style={{ background: "radial-gradient(ellipse, rgba(14,165,233,0.22) 0%, transparent 70%)" }}
               />
             </div>
-            <p className="relative text-[11px] font-bold uppercase tracking-[0.25em] text-[var(--accent)] mb-4">
+            <p className="relative text-xs font-bold uppercase tracking-[0.25em] text-[var(--accent)] mb-4">
               {t.demoCTALabel}
             </p>
             <h2 className="relative text-3xl md:text-4xl lg:text-5xl font-black tracking-tight mb-6 text-white">
@@ -873,7 +937,7 @@ export default function Page() {
       {/* Vertrauens-Sektion über Footer */}
       <ScrollReveal>
         <div className="border-t border-white/5 py-6">
-          <div className="max-w-4xl mx-auto px-6 flex flex-wrap justify-center gap-8 md:gap-12 text-[11px] font-bold uppercase tracking-[0.2em] text-white/55">
+          <div className="max-w-4xl mx-auto px-6 flex flex-wrap justify-center gap-8 md:gap-12 text-xs font-bold uppercase tracking-[0.2em] text-white/55">
             <span>{t.trustSgb}</span>
             <span>{t.trustWeisungen}</span>
             <span>{t.trustRechtsgrundlagen}</span>

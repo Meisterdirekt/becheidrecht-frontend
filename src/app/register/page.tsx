@@ -134,7 +134,7 @@ function RegisterForm() {
       <SiteNavSimple backHref="/" backLabel="Zurück zur Startseite" />
       <div className="flex-1 flex items-center justify-center p-6 py-16">
         <div className="w-full max-w-xl rounded-3xl border border-white/10 bg-white/[0.04] p-8 md:p-10 shadow-xl animate-slideUp">
-          <Link href="/" className="text-[11px] text-white/40 hover:text-white uppercase tracking-wider transition-colors mb-6 inline-block">
+          <Link href="/" className="text-xs text-white/40 hover:text-white uppercase tracking-wider transition-colors mb-6 inline-block">
             ← Startseite
           </Link>
           <h1 className="text-3xl font-black tracking-tight mb-8">Registrierung</h1>
@@ -145,7 +145,7 @@ function RegisterForm() {
                 Wir haben Ihnen eine E-Mail an <strong className="text-white">{formData.email}</strong> gesendet.
                 Bitte klicken Sie den Link in der E-Mail, um Ihr Konto zu bestätigen.
               </p>
-              <p className="text-white/60 text-xs">Posteingang und Spam-Ordner prüfen.</p>
+              <p className="text-white/60 text-sm">Posteingang und Spam-Ordner prüfen.</p>
               <Link href="/login" className="inline-block text-[var(--accent)] font-bold text-sm hover:underline">
                 Zum Login
               </Link>
@@ -167,7 +167,7 @@ function RegisterForm() {
                       className={`input-field ${errors[name] ? "border-red-500/50" : ""}`}
                       placeholder={name === "firstName" ? "Max" : "Mustermann"}
                     />
-                    {errors[name] && <p className="text-red-400 text-xs mt-1">{errors[name]}</p>}
+                    {errors[name] && <p className="text-red-400 text-sm mt-1">{errors[name]}</p>}
                   </div>
                 ))}
                 <div className="md:col-span-2">
@@ -181,7 +181,7 @@ function RegisterForm() {
                     className={`input-field ${errors.email ? "border-red-500/50" : ""}`}
                     placeholder="name@beispiel.de"
                   />
-                  {errors.email && <p className="text-red-400 text-xs mt-1">{errors.email}</p>}
+                  {errors.email && <p className="text-red-400 text-sm mt-1">{errors.email}</p>}
                 </div>
                 <div className="md:col-span-2">
                   <label className="label-upper">Straße & Hausnummer <span className="text-white/30">(optional)</span></label>
@@ -202,7 +202,7 @@ function RegisterForm() {
                     className={`input-field ${errors.password ? "border-red-500/50" : ""}`}
                     placeholder="Min. 8 Zeichen"
                   />
-                  {errors.password && <p className="text-red-400 text-xs mt-1">{errors.password}</p>}
+                  {errors.password && <p className="text-red-400 text-sm mt-1">{errors.password}</p>}
                 </div>
                 <div className="md:col-span-2">
                   <label className="label-upper">Passwort wiederholen <span className="text-[var(--accent)]">*</span></label>
@@ -215,7 +215,7 @@ function RegisterForm() {
                     className={`input-field ${errors.passwordConfirm ? "border-red-500/50" : ""}`}
                     placeholder="Passwort wiederholen"
                   />
-                  {errors.passwordConfirm && <p className="text-red-400 text-xs mt-1">{errors.passwordConfirm}</p>}
+                  {errors.passwordConfirm && <p className="text-red-400 text-sm mt-1">{errors.passwordConfirm}</p>}
                 </div>
                 <div className="md:col-span-2 pt-2">
                   <button
@@ -228,7 +228,7 @@ function RegisterForm() {
                 </div>
               </form>
               <div className="mt-8 pt-8 border-t border-white/10 text-center">
-                <p className="text-[12px] text-white/50">
+                <p className="text-sm text-white/50">
                   Bereits ein Konto?{" "}
                   <Link href="/login" className="text-[var(--accent)] hover:underline font-medium">
                     Hier anmelden

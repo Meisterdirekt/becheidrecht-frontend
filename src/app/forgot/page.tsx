@@ -131,7 +131,7 @@ export default function ForgotPage() {
               </button>
             </form>
           )}
-          <p className="text-center mt-8 text-[12px] text-white/50">
+          <p className="text-center mt-8 text-sm text-white/50">
             <Link href="/login" className="text-[var(--accent)] hover:underline">
               Zurück zum Login
             </Link>

@@ -63,7 +63,7 @@ export function PrivacyModal({
         >
           🔒 {title}
         </h2>
-        <p className="text-[11px] font-bold uppercase tracking-widest text-white/50 mb-4">
+        <p className="text-xs font-bold uppercase tracking-widest text-white/50 mb-4">
           Wie wir Ihre Daten schützen:
         </p>
         <ul className="space-y-4 text-sm text-white/85 leading-relaxed mb-6">
@@ -84,7 +84,7 @@ export function PrivacyModal({
             <span>{bullet4}</span>
           </li>
         </ul>
-        <p className="text-xs text-white/70 mb-6 leading-relaxed">{rights}</p>
+        <p className="text-sm text-white/70 mb-6 leading-relaxed">{rights}</p>
         <button
           type="button"
           onClick={onClose}

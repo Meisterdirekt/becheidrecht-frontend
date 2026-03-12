@@ -503,7 +503,7 @@ export default function AnalyzePage() {
       <div className="max-w-3xl mx-auto px-6 py-12 flex-1 w-full">
         <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-[var(--accent)] mb-2">Analyse</p>
         <h1 className="text-2xl font-black tracking-tight mb-2">Bescheid analysieren</h1>
-        <p className="text-white/60 text-sm mb-10">
+        <p className="text-white/60 text-base mb-10">
           PDF oder Foto des Bescheids hochladen – z. B. Schreiben abfotografieren und hier einreichen. Sie erhalten eine strukturierte Auswertung und ein Musterschreiben.
         </p>
 
@@ -513,10 +513,10 @@ export default function AnalyzePage() {
             <div className="w-16 h-16 bg-[var(--accent)]/10 rounded-2xl flex items-center justify-center text-[var(--accent)]">
               <Upload size={32} />
             </div>
-            <p className="text-sm text-gray-500 text-center">PDF oder Bild (JPEG, PNG, WebP – max. 10 MB)</p>
-            <p className="text-xs text-white/40 text-center">Auch Foto vom Handy: Bescheid abfotografieren und hochladen.</p>
+            <p className="text-base text-gray-500 text-center">PDF oder Bild (JPEG, PNG, WebP – max. 10 MB)</p>
+            <p className="text-sm text-white/40 text-center">Auch Foto vom Handy: Bescheid abfotografieren und hochladen.</p>
             {process.env.NODE_ENV === "development" && (
-              <p className="text-xs text-amber-400/90 text-center">
+              <p className="text-sm text-violet-500 text-center">
                 [Nur Entwicklung] Zum Testen:{" "}
                 <a href="/test-bescheid.pdf" download className="text-[var(--accent)] hover:underline">
                   Test-Bescheid herunterladen
@@ -630,14 +630,14 @@ export default function AnalyzePage() {
             {result.zuordnung && (
               <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6 animate-slideUp opacity-0">
                 <div className="flex items-center justify-between mb-3">
-                  <h2 className="text-[10px] font-bold uppercase tracking-widest text-white/50">Zuordnung</h2>
+                  <h2 className="text-sm font-extrabold uppercase tracking-widest text-white/60">Zuordnung</h2>
                   {result.routing_stufe && (
                     <span className={`text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full ${
                       result.routing_stufe === "NOTFALL"
                         ? "bg-red-500/20 text-red-400"
                         : result.routing_stufe === "HOCH"
                         ? "bg-amber-500/20 text-amber-400"
-                        : "bg-emerald-500/20 text-emerald-400"
+                        : "bg-emerald-700/30 text-emerald-700"
                     }`}>
                       {result.routing_stufe === "NOTFALL" ? "⚡ Notfall" : result.routing_stufe === "HOCH" ? "⚠ Dringend" : "✓ Standard"}
                       {result.token_kosten_eur !== undefined && ` · €${result.token_kosten_eur.toFixed(3)}`}
@@ -654,7 +654,7 @@ export default function AnalyzePage() {
             {/* Auffälligkeiten */}
             {result.fehler.length > 0 && (
               <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6 animate-slideUp opacity-0">
-                <h2 className="text-[10px] font-bold uppercase tracking-widest text-white/50 mb-3">
+                <h2 className="text-sm font-extrabold uppercase tracking-widest text-white/60 mb-3">
                   Mögliche Auffälligkeiten (Hinweise)
                 </h2>
                 <ul className="list-disc list-inside text-base text-white/85 space-y-2">
@@ -668,7 +668,7 @@ export default function AnalyzePage() {
             {/* Klartext-Erklaerung (AG13) */}
             {result.erklaerung && (
               <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
-                <h2 className="text-[10px] font-bold uppercase tracking-widest text-white/50 mb-3">
+                <h2 className="text-sm font-extrabold uppercase tracking-widest text-white/60 mb-3">
                   Kurz erklaert
                 </h2>
                 <p className="text-base text-white/85 leading-relaxed">{result.erklaerung}</p>
@@ -680,7 +680,7 @@ export default function AnalyzePage() {
               <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
                 <div className="flex items-center gap-2 mb-3">
                   <Search size={12} className="text-white/50" />
-                  <h2 className="text-[10px] font-bold uppercase tracking-widest text-white/50">
+                  <h2 className="text-sm font-extrabold uppercase tracking-widest text-white/60">
                     Relevante Urteile ({result.recherche.urteile.length})
                   </h2>
                 </div>
@@ -723,7 +723,7 @@ export default function AnalyzePage() {
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2">
                     <Scale size={12} className="text-white/50" />
-                    <h2 className="text-[10px] font-bold uppercase tracking-widest text-white/50">
+                    <h2 className="text-sm font-extrabold uppercase tracking-widest text-white/60">
                       Einschaetzung
                     </h2>
                   </div>
@@ -740,7 +740,7 @@ export default function AnalyzePage() {
 
                 {result.kritik.schwachstellen.length > 0 && (
                   <div className="mb-3">
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-white/30 mb-1.5">
+                    <p className="text-xs font-extrabold uppercase tracking-widest text-white/40 mb-1.5">
                       Schwachstellen im Bescheid
                     </p>
                     <ul className="list-disc list-inside text-base text-white/75 space-y-1">
@@ -753,7 +753,7 @@ export default function AnalyzePage() {
 
                 {result.kritik.gegenargumente.length > 0 && (
                   <div>
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-white/30 mb-1.5">
+                    <p className="text-xs font-extrabold uppercase tracking-widest text-white/40 mb-1.5">
                       Moegliche Gegenargumente der Behoerde
                     </p>
                     <ul className="list-disc list-inside text-base text-white/55 space-y-1">
@@ -769,7 +769,7 @@ export default function AnalyzePage() {
             {/* Musterschreiben + inline Verfeinern */}
             {result.musterschreiben && (
               <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
-                <h2 className="text-[10px] font-bold uppercase tracking-widest text-white/50 mb-3">Musterschreiben</h2>
+                <h2 className="text-sm font-extrabold uppercase tracking-widest text-white/60 mb-3">Musterschreiben</h2>
                 <pre className="text-base text-white/85 whitespace-pre-wrap font-sans leading-relaxed mb-4">
                   {result.musterschreiben}
                 </pre>

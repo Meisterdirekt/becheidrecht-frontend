@@ -218,7 +218,7 @@ export default function B2BPage() {
           >
             BESCHEID<span className="text-[var(--accent)]">RECHT</span>
           </Link>
-          <div className="hidden md:flex items-center gap-8 text-[13px] font-medium text-white/45">
+          <div className="hidden md:flex items-center gap-8 text-sm font-medium text-white/45">
             <a href="#so-funktioniert-es" className="hover:text-white transition-colors">
               So funktioniert es
             </a>
@@ -231,12 +231,12 @@ export default function B2BPage() {
           </div>
           <div className="flex gap-3 sm:gap-4 items-center">
             <ThemeToggle />
-            <Link href="/" className="hidden sm:inline-flex text-[13px] font-medium text-white/45 hover:text-white transition-colors">
+            <Link href="/" className="hidden sm:inline-flex text-sm font-medium text-white/45 hover:text-white transition-colors">
               Startseite
             </Link>
             <a
               href={DEMO_MAILTO}
-              className="inline-flex items-center gap-2 px-4 sm:px-5 py-2.5 bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white font-bold rounded-xl text-[13px] transition-all hover:-translate-y-0.5 shadow-lg shadow-blue-600/20"
+              className="inline-flex items-center gap-2 px-4 sm:px-5 py-2.5 bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white font-bold rounded-xl text-sm transition-all hover:-translate-y-0.5 shadow-lg shadow-blue-600/20"
             >
               <CalendarDays className="h-4 w-4" />
               Demo anfragen
@@ -253,7 +253,7 @@ export default function B2BPage() {
         <div className="relative max-w-5xl mx-auto px-4 sm:px-6 pt-16 sm:pt-28 pb-14 sm:pb-24 text-center">
           <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full border border-[var(--accent)]/30 bg-[var(--accent)]/[0.06] mb-8">
             <Building2 className="h-3.5 w-3.5 text-[var(--accent)]" />
-            <span className="text-[11px] sm:text-[12px] font-bold uppercase tracking-[0.25em] text-[var(--accent)]">
+            <span className="text-xs sm:text-sm font-bold uppercase tracking-[0.25em] text-[var(--accent)]">
               Für Sozialeinrichtungen & Beratungsstellen
             </span>
           </div>
@@ -300,7 +300,7 @@ export default function B2BPage() {
                 className="bg-white/[0.03] border border-white/10 rounded-2xl px-4 py-4"
               >
                 <p className="text-xl sm:text-2xl font-black text-[var(--accent)]">{s.value}</p>
-                <p className="text-[10px] sm:text-[11px] text-white/30 mt-0.5 uppercase tracking-widest">
+                <p className="text-xs text-white/30 mt-0.5 uppercase tracking-widest">
                   {s.label}
                 </p>
               </div>
@@ -313,7 +313,7 @@ export default function B2BPage() {
       <ScrollReveal>
       <section className="border-y border-white/5 py-7 sm:py-9">
         <div className="max-w-5xl mx-auto px-4 sm:px-6">
-          <p className="text-center text-[10px] uppercase tracking-[0.3em] text-white/20 mb-6">
+          <p className="text-center text-xs uppercase tracking-[0.3em] text-white/20 mb-6">
             Für Einrichtungen wie
           </p>
           <div className="flex flex-wrap justify-center gap-2.5 sm:gap-3">
@@ -328,7 +328,7 @@ export default function B2BPage() {
             ].map((t) => (
               <span
                 key={t}
-                className="px-4 py-2 bg-white/[0.03] border border-white/[0.08] rounded-full text-[12px] sm:text-[13px] text-white/38"
+                className="px-4 py-2 bg-white/[0.03] border border-white/[0.08] rounded-full text-sm text-white/38"
               >
                 {t}
               </span>
@@ -343,7 +343,7 @@ export default function B2BPage() {
       <section className="max-w-5xl mx-auto px-4 sm:px-6 py-14 sm:py-24">
         <div className="grid md:grid-cols-2 gap-6 sm:gap-8">
           <div className="bg-red-500/[0.04] border border-red-500/15 rounded-2xl p-6 sm:p-8 lg:p-10">
-            <h2 className="text-[11px] font-bold uppercase tracking-widest text-red-400/80 mb-6">
+            <h2 className="text-xs font-bold uppercase tracking-widest text-red-400/80 mb-6">
               Das Problem heute
             </h2>
             <ul className="space-y-4">
@@ -356,7 +356,7 @@ export default function B2BPage() {
             </ul>
           </div>
           <div className="bg-[var(--accent)]/[0.04] border border-[var(--accent)]/15 rounded-2xl p-6 sm:p-8 lg:p-10">
-            <h2 className="text-[11px] font-bold uppercase tracking-widest text-[var(--accent)]/80 mb-6">
+            <h2 className="text-xs font-bold uppercase tracking-widest text-[var(--accent)]/80 mb-6">
               Die Lösung: BescheidRecht
             </h2>
             <ul className="space-y-4">
@@ -375,7 +375,7 @@ export default function B2BPage() {
       {/* ── So funktioniert es ───────────────────────── */}
       <ScrollReveal>
       <section id="so-funktioniert-es" className="max-w-5xl mx-auto px-4 sm:px-6 py-14 sm:py-24">
-        <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-[var(--accent)] mb-3 text-center">
+        <p className="text-xs font-bold uppercase tracking-[0.25em] text-[var(--accent)] mb-3 text-center">
           Workflow
         </p>
         <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight text-center mb-4">
@@ -393,13 +393,13 @@ export default function B2BPage() {
               className="bg-white/[0.03] border border-white/10 rounded-2xl p-6 sm:p-8 hover:border-[var(--accent)]/25 hover:bg-white/[0.05] transition-all"
             >
               <div className="flex items-center gap-3 mb-5">
-                <span className="w-8 h-8 rounded-full bg-[var(--accent)]/10 border border-[var(--accent)]/20 flex items-center justify-center text-[11px] font-black text-[var(--accent)] flex-shrink-0">
+                <span className="w-8 h-8 rounded-full bg-[var(--accent)]/10 border border-[var(--accent)]/20 flex items-center justify-center text-xs font-black text-[var(--accent)] flex-shrink-0">
                   {item.step}
                 </span>
                 <item.Icon className="h-4 w-4 text-[var(--accent)]/50" />
               </div>
               <h3 className="text-base sm:text-lg font-bold mb-3">{item.title}</h3>
-              <p className="text-white/40 text-[13px] sm:text-[14px] leading-relaxed">{item.desc}</p>
+              <p className="text-white/40 text-sm sm:text-[14px] leading-relaxed">{item.desc}</p>
             </div>
           ))}
         </div>
@@ -409,7 +409,7 @@ export default function B2BPage() {
       {/* ── Rechtsgebiete ────────────────────────────── */}
       <ScrollReveal>
       <section className="max-w-5xl mx-auto px-4 sm:px-6 py-14 sm:py-24">
-        <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-[var(--accent)] mb-3 text-center">
+        <p className="text-xs font-bold uppercase tracking-[0.25em] text-[var(--accent)] mb-3 text-center">
           Abdeckung
         </p>
         <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight text-center mb-4">
@@ -422,7 +422,7 @@ export default function B2BPage() {
           {TRAEGER.map((t) => (
             <span
               key={t}
-              className="px-3 sm:px-4 py-1.5 sm:py-2 bg-white/[0.04] border border-white/10 rounded-full text-[12px] sm:text-[13px] text-white/50 hover:border-[var(--accent)]/30 hover:text-white/70 transition-colors"
+              className="px-3 sm:px-4 py-1.5 sm:py-2 bg-white/[0.04] border border-white/10 rounded-full text-sm text-white/50 hover:border-[var(--accent)]/30 hover:text-white/70 transition-colors"
             >
               {t}
             </span>
@@ -434,7 +434,7 @@ export default function B2BPage() {
       {/* ── Anwendungsfaelle ─────────────────────────────── */}
       <ScrollReveal>
       <section className="max-w-5xl mx-auto px-4 sm:px-6 py-14 sm:py-24">
-        <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-[var(--accent)] mb-3 text-center">
+        <p className="text-xs font-bold uppercase tracking-[0.25em] text-[var(--accent)] mb-3 text-center">
           Einsatzbereiche
         </p>
         <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight text-center mb-14 sm:mb-16">
@@ -459,7 +459,7 @@ export default function B2BPage() {
       <ScrollReveal>
       <section className="max-w-5xl mx-auto px-4 sm:px-6 py-14 sm:py-24">
         <div className="bg-white/[0.02] border border-white/10 rounded-2xl p-6 sm:p-10 lg:p-12">
-          <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-[var(--accent)] mb-3 text-center">
+          <p className="text-xs font-bold uppercase tracking-[0.25em] text-[var(--accent)] mb-3 text-center">
             ROI-Rechner
           </p>
           <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-center mb-3">
@@ -476,26 +476,26 @@ export default function B2BPage() {
       {/* ── Vergleich ────────────────────────────────── */}
       <ScrollReveal>
       <section className="max-w-5xl mx-auto px-4 sm:px-6 py-14 sm:py-24">
-        <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-[var(--accent)] mb-3 text-center">
+        <p className="text-xs font-bold uppercase tracking-[0.25em] text-[var(--accent)] mb-3 text-center">
           Wettbewerbsvergleich
         </p>
         <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight text-center mb-14 sm:mb-16">
           Warum BescheidRecht?
         </h2>
         <div className="-mx-4 sm:mx-0 overflow-x-auto">
-          <table className="w-full min-w-[560px] text-left text-[13px] sm:text-[14px]">
+          <table className="w-full min-w-[560px] text-left text-sm sm:text-[14px]">
             <thead>
               <tr className="border-b border-white/10">
-                <th className="py-4 pr-4 pl-4 sm:pl-0 text-white/40 font-bold text-[10px] sm:text-[11px] uppercase tracking-widest">
+                <th className="py-4 pr-4 pl-4 sm:pl-0 text-white/40 font-bold text-xs uppercase tracking-widest">
                   Kriterium
                 </th>
-                <th className="py-4 px-4 text-white/40 font-bold text-[10px] sm:text-[11px] uppercase tracking-widest">
+                <th className="py-4 px-4 text-white/40 font-bold text-xs uppercase tracking-widest">
                   Manuell
                 </th>
-                <th className="py-4 px-4 text-white/40 font-bold text-[10px] sm:text-[11px] uppercase tracking-widest">
+                <th className="py-4 px-4 text-white/40 font-bold text-xs uppercase tracking-widest">
                   Andere Tools
                 </th>
-                <th className="py-4 px-4 text-[var(--accent)] font-bold text-[10px] sm:text-[11px] uppercase tracking-widest">
+                <th className="py-4 px-4 text-[var(--accent)] font-bold text-xs uppercase tracking-widest">
                   BescheidRecht
                 </th>
               </tr>
@@ -526,7 +526,7 @@ export default function B2BPage() {
       <ScrollReveal>
       <section className="max-w-5xl mx-auto px-4 sm:px-6 py-14 sm:py-24">
         <div className="bg-white/[0.02] border border-white/10 rounded-2xl p-6 sm:p-10 lg:p-12">
-          <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-[var(--accent)] mb-3 text-center">
+          <p className="text-xs font-bold uppercase tracking-[0.25em] text-[var(--accent)] mb-3 text-center">
             Datenschutz
           </p>
           <h2 className="text-2xl sm:text-3xl font-black tracking-tight mb-3 text-center">
@@ -543,7 +543,7 @@ export default function B2BPage() {
                 </div>
                 <div>
                   <h3 className="font-bold text-[14px] sm:text-[15px] mb-1">{item.title}</h3>
-                  <p className="text-white/35 text-[12px] sm:text-[13px] leading-relaxed">
+                  <p className="text-white/35 text-sm leading-relaxed">
                     {item.desc}
                   </p>
                 </div>
@@ -557,7 +557,7 @@ export default function B2BPage() {
       {/* ── Tarife ───────────────────────────────────── */}
       <ScrollReveal>
       <section id="tarife" className="max-w-5xl mx-auto px-4 sm:px-6 py-14 sm:py-24">
-        <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-[var(--accent)] mb-3 text-center">
+        <p className="text-xs font-bold uppercase tracking-[0.25em] text-[var(--accent)] mb-3 text-center">
           Preise
         </p>
         <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight text-center mb-3 sm:mb-4">
@@ -566,7 +566,7 @@ export default function B2BPage() {
         <p className="text-center text-white/35 mb-2 text-[14px] sm:text-[15px]">
           Keine Einrichtungsgebühr. Monatlich kündbar.
         </p>
-        <p className="text-center text-white/20 mb-12 sm:mb-16 text-[12px]">
+        <p className="text-center text-white/20 mb-12 sm:mb-16 text-sm">
           Alle Preise netto zzgl. 19 % MwSt.
         </p>
         <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-5 sm:gap-6">
@@ -580,12 +580,12 @@ export default function B2BPage() {
               }`}
             >
               {tarif.highlight && (
-                <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--accent)] mb-2">
+                <span className="text-xs font-bold uppercase tracking-[0.2em] text-[var(--accent)] mb-2">
                   Empfohlen
                 </span>
               )}
               <h3 className="text-lg sm:text-xl font-bold">{tarif.name}</h3>
-              <p className="text-white/35 text-[12px] sm:text-[13px] mt-1 mb-5">{tarif.ideal}</p>
+              <p className="text-white/35 text-sm mt-1 mb-5">{tarif.ideal}</p>
               <div className="mb-6">
                 <span className="text-3xl sm:text-4xl font-black">{tarif.preis}</span>
                 {tarif.zeitraum && (
@@ -594,7 +594,7 @@ export default function B2BPage() {
               </div>
               <ul className="space-y-3 mb-8 flex-grow">
                 {tarif.features.map((f) => (
-                  <li key={f} className="flex items-start gap-2.5 text-white/55 text-[13px] sm:text-[14px]">
+                  <li key={f} className="flex items-start gap-2.5 text-white/55 text-sm sm:text-[14px]">
                     <CheckCircle2 className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
                     {f}
                   </li>
@@ -602,7 +602,7 @@ export default function B2BPage() {
               </ul>
               <a
                 href={`mailto:info@bescheidrecht.de?subject=Anfrage%20B2B%20Tarif%20${tarif.name}`}
-                className={`flex items-center justify-center gap-2 py-3.5 rounded-xl font-bold text-[13px] sm:text-[14px] transition-all ${
+                className={`flex items-center justify-center gap-2 py-3.5 rounded-xl font-bold text-sm sm:text-[14px] transition-all ${
                   tarif.highlight
                     ? "bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white shadow-md shadow-blue-600/20 hover:-translate-y-0.5"
                     : "border border-white/10 hover:border-white/25 text-white/60 hover:text-white"
@@ -620,7 +620,7 @@ export default function B2BPage() {
       {/* ── FAQ ──────────────────────────────────────── */}
       <ScrollReveal>
       <section id="faq" className="max-w-3xl mx-auto px-4 sm:px-6 py-14 sm:py-24">
-        <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-[var(--accent)] mb-3 text-center">
+        <p className="text-xs font-bold uppercase tracking-[0.25em] text-[var(--accent)] mb-3 text-center">
           FAQ
         </p>
         <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight text-center mb-14 sm:mb-16">
@@ -633,7 +633,7 @@ export default function B2BPage() {
                 <span className="font-bold text-[14px] sm:text-[15px] text-white/85">{item.q}</span>
                 <ChevronDown className="h-5 w-5 text-white/30 flex-shrink-0 transition-transform duration-300 group-open:rotate-180" />
               </summary>
-              <p className="pb-6 text-white/45 text-[13px] sm:text-[14px] leading-relaxed">
+              <p className="pb-6 text-white/45 text-sm sm:text-[14px] leading-relaxed">
                 {item.a}
               </p>
             </details>
@@ -646,7 +646,7 @@ export default function B2BPage() {
       <ScrollReveal>
       <section className="max-w-5xl mx-auto px-4 sm:px-6 py-14 sm:py-24">
         <div className="bg-white/[0.02] border border-white/10 rounded-2xl p-6 sm:p-10 lg:p-12">
-          <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-[var(--accent)] mb-10 text-center">
+          <p className="text-xs font-bold uppercase tracking-[0.25em] text-[var(--accent)] mb-10 text-center">
             Wer steckt dahinter
           </p>
           <div className="flex flex-col sm:flex-row gap-6 sm:gap-10 items-start max-w-2xl mx-auto">
@@ -655,7 +655,7 @@ export default function B2BPage() {
             </div>
             <div>
               <p className="font-black text-lg sm:text-xl mb-1">Hendrik Berkensträter</p>
-              <p className="text-[var(--accent)] text-[13px] font-medium mb-5">
+              <p className="text-[var(--accent)] text-sm font-medium mb-5">
                 Gründer · BescheidRecht
               </p>
               <div className="space-y-3 text-white/55 text-[14px] sm:text-[15px] leading-relaxed">
@@ -705,7 +705,7 @@ export default function B2BPage() {
               Tarife ansehen
             </a>
           </div>
-          <p className="text-white/20 text-[12px] mt-6 tracking-wide">
+          <p className="text-white/20 text-sm mt-6 tracking-wide">
             Keine Einrichtungsgebühr &nbsp;&middot;&nbsp; Monatlich kündbar &nbsp;&middot;&nbsp;{" "}
             <a href="/avv" className="underline hover:text-white/40 transition-colors">AVV (Art. 28 DSGVO)</a>
           </p>

@@ -127,7 +127,7 @@ export default function DemoAnimation() {
 
   return (
     <section className="max-w-2xl mx-auto px-6 py-16">
-      <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-[var(--accent)] mb-2 text-center">
+      <p className="text-xs font-bold uppercase tracking-[0.25em] text-[var(--accent)] mb-2 text-center">
         So funktioniert es
       </p>
       <h2 className="text-2xl md:text-3xl font-black tracking-tight text-center mb-10">
@@ -194,7 +194,7 @@ export default function DemoAnimation() {
                 }`}
               >
                 <span
-                  className={`text-[10px] font-bold uppercase tracking-widest ${
+                  className={`text-xs font-bold uppercase tracking-widest ${
                     card.color === "red"
                       ? "text-red-400"
                       : card.color === "yellow"
@@ -216,7 +216,7 @@ export default function DemoAnimation() {
         {/* Step 4 – Musterschreiben */}
         {step === STEPS.MUSTERSCHREIBEN && (
           <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-white/40 mb-3">
+            <p className="text-xs font-bold uppercase tracking-widest text-white/40 mb-3">
               Musterschreiben (Auszug)
             </p>
             <pre className="text-sm text-white/90 whitespace-pre-wrap font-sans leading-relaxed">

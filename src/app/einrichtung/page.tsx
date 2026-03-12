@@ -203,11 +203,11 @@ export default function EinrichtungDashboard() {
             </div>
             <div className="min-w-0">
               <p className="font-black text-white text-sm sm:text-base truncate">{org.name}</p>
-              <p className="text-[10px] text-white/30 uppercase tracking-widest">{ORG_TYPE_LABELS[org.org_type] ?? org.org_type}</p>
+              <p className="text-xs text-white/30 uppercase tracking-widest">{ORG_TYPE_LABELS[org.org_type] ?? org.org_type}</p>
             </div>
           </div>
           <div className="flex items-center gap-2 flex-shrink-0">
-            <span className={`hidden sm:inline-flex px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border ${isAdmin ? "border-[var(--accent)]/30 bg-[var(--accent)]/10 text-[var(--accent)]" : "border-white/10 bg-white/5 text-white/40"}`}>
+            <span className={`hidden sm:inline-flex px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest border ${isAdmin ? "border-[var(--accent)]/30 bg-[var(--accent)]/10 text-[var(--accent)]" : "border-white/10 bg-white/5 text-white/40"}`}>
               {isAdmin ? "Admin" : "Berater"}
             </span>
             <Link href="/" className="p-2 text-white/25 hover:text-white/60 transition-colors">
@@ -221,7 +221,7 @@ export default function EinrichtungDashboard() {
             <button
               key={t.id}
               onClick={() => setActiveTab(t.id)}
-              className={`px-4 py-3 text-[13px] font-bold whitespace-nowrap border-b-2 transition-colors ${activeTab === t.id ? "border-[var(--accent)] text-white" : "border-transparent text-white/35 hover:text-white/60"}`}
+              className={`px-4 py-3 text-sm font-bold whitespace-nowrap border-b-2 transition-colors ${activeTab === t.id ? "border-[var(--accent)] text-white" : "border-transparent text-white/35 hover:text-white/60"}`}
             >
               {t.label}
             </button>
@@ -264,12 +264,12 @@ function OverviewTab({ org, members, analysesRemaining, pct, planLabel }: {
     <div className="space-y-6">
       {/* Pool-Status */}
       <div className="bg-white/[0.03] border border-white/10 rounded-2xl p-6 sm:p-8">
-        <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-[var(--accent)] mb-5">Analyse-Pool</p>
+        <p className="text-xs font-bold uppercase tracking-[0.25em] text-[var(--accent)] mb-5">Analyse-Pool</p>
         <div className="flex flex-col sm:flex-row gap-6 items-start sm:items-center mb-6">
           <div>
             <span className="text-4xl sm:text-5xl font-black text-white">{analysesRemaining.toLocaleString("de-DE")}</span>
             <span className="text-white/30 ml-2 text-lg">/ {org.analyses_total.toLocaleString("de-DE")}</span>
-            <p className="text-white/30 text-xs mt-1">Analysen verbleibend</p>
+            <p className="text-white/30 text-sm mt-1">Analysen verbleibend</p>
           </div>
           <div className="flex-grow w-full sm:w-auto">
             <div className="h-3 bg-white/[0.06] rounded-full overflow-hidden">
@@ -278,7 +278,7 @@ function OverviewTab({ org, members, analysesRemaining, pct, planLabel }: {
                 style={{ width: `${pct}%` }}
               />
             </div>
-            <p className="text-[11px] text-white/25 mt-1.5">{pct}% verbraucht</p>
+            <p className="text-xs text-white/25 mt-1.5">{pct}% verbraucht</p>
           </div>
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -289,7 +289,7 @@ function OverviewTab({ org, members, analysesRemaining, pct, planLabel }: {
             { label: "Gültig bis", value: org.expires_at ? dateStr(org.expires_at) : "unbegrenzt" },
           ].map((s) => (
             <div key={s.label} className="bg-white/[0.03] border border-white/[0.08] rounded-xl px-4 py-3">
-              <p className="text-[10px] uppercase tracking-widest text-white/25 mb-1">{s.label}</p>
+              <p className="text-xs uppercase tracking-widest text-white/25 mb-1">{s.label}</p>
               <p className="text-sm font-bold text-white truncate">{s.value}</p>
             </div>
           ))}
@@ -299,19 +299,19 @@ function OverviewTab({ org, members, analysesRemaining, pct, planLabel }: {
       {/* Top-Nutzer */}
       {members.length > 0 && (
         <div className="bg-white/[0.03] border border-white/10 rounded-2xl p-6 sm:p-8">
-          <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-[var(--accent)] mb-5">Nutzung nach Mitglied</p>
+          <p className="text-xs font-bold uppercase tracking-[0.25em] text-[var(--accent)] mb-5">Nutzung nach Mitglied</p>
           <div className="space-y-3">
             {[...members].sort((a, b) => b.analyses_used - a.analyses_used).map((m) => (
               <div key={m.id} className="flex items-center gap-3">
-                <div className="w-7 h-7 rounded-full bg-[var(--accent)]/10 flex items-center justify-center text-[10px] font-black text-[var(--accent)] flex-shrink-0">
+                <div className="w-7 h-7 rounded-full bg-[var(--accent)]/10 flex items-center justify-center text-xs font-black text-[var(--accent)] flex-shrink-0">
                   {m.user_email[0].toUpperCase()}
                 </div>
                 <div className="flex-grow min-w-0">
-                  <p className="text-[13px] text-white/70 truncate">{m.user_email}</p>
+                  <p className="text-sm text-white/70 truncate">{m.user_email}</p>
                 </div>
                 <div className="flex items-center gap-2 flex-shrink-0">
-                  <span className="text-[11px] text-white/30">{m.analyses_used} Analysen</span>
-                  <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${m.role === "admin" ? "bg-[var(--accent)]/10 text-[var(--accent)]" : "bg-white/5 text-white/30"}`}>
+                  <span className="text-xs text-white/30">{m.analyses_used} Analysen</span>
+                  <span className={`text-xs px-2 py-0.5 rounded-full font-bold ${m.role === "admin" ? "bg-[var(--accent)]/10 text-[var(--accent)]" : "bg-white/5 text-white/30"}`}>
                     {m.role === "admin" ? "Admin" : "Berater"}
                   </span>
                 </div>
@@ -391,12 +391,12 @@ function MembersTab({ members, isAdmin, token, onRefresh }: {
         <div className="divide-y divide-white/5">
           {members.map((m) => (
             <div key={m.id} className="px-5 sm:px-6 py-4 flex items-center gap-3 sm:gap-4">
-              <div className="w-9 h-9 rounded-full bg-[var(--accent)]/10 border border-[var(--accent)]/15 flex items-center justify-center text-[11px] font-black text-[var(--accent)] flex-shrink-0">
+              <div className="w-9 h-9 rounded-full bg-[var(--accent)]/10 border border-[var(--accent)]/15 flex items-center justify-center text-xs font-black text-[var(--accent)] flex-shrink-0">
                 {m.user_email[0].toUpperCase()}
               </div>
               <div className="flex-grow min-w-0">
                 <p className="text-sm text-white/80 truncate font-medium">{m.user_email}</p>
-                <p className="text-[11px] text-white/25">Dabei seit {dateStr(m.joined_at)} · {m.analyses_used} Analysen</p>
+                <p className="text-xs text-white/25">Dabei seit {dateStr(m.joined_at)} · {m.analyses_used} Analysen</p>
               </div>
               <div className="flex items-center gap-2 flex-shrink-0">
                 {isAdmin ? (
@@ -411,11 +411,11 @@ function MembersTab({ members, isAdmin, token, onRefresh }: {
                         <button
                           onClick={() => removeMember(m.user_id)}
                           disabled={loading === m.user_id}
-                          className="px-3 py-1.5 bg-red-500/15 border border-red-500/30 text-red-400 text-[11px] font-bold rounded-lg hover:bg-red-500/25 transition-colors"
+                          className="px-3 py-1.5 bg-red-500/15 border border-red-500/30 text-red-400 text-xs font-bold rounded-lg hover:bg-red-500/25 transition-colors"
                         >
                           Bestätigen
                         </button>
-                        <button onClick={() => setConfirm(null)} className="px-3 py-1.5 text-white/30 text-[11px] hover:text-white/60 transition-colors">
+                        <button onClick={() => setConfirm(null)} className="px-3 py-1.5 text-white/30 text-xs hover:text-white/60 transition-colors">
                           Abbrechen
                         </button>
                       </div>
@@ -430,7 +430,7 @@ function MembersTab({ members, isAdmin, token, onRefresh }: {
                     )}
                   </>
                 ) : (
-                  <span className={`text-[10px] px-2.5 py-1 rounded-full font-bold ${m.role === "admin" ? "bg-[var(--accent)]/10 text-[var(--accent)]" : "bg-white/5 text-white/30"}`}>
+                  <span className={`text-xs px-2.5 py-1 rounded-full font-bold ${m.role === "admin" ? "bg-[var(--accent)]/10 text-[var(--accent)]" : "bg-white/5 text-white/30"}`}>
                     {m.role === "admin" ? "Admin" : "Berater"}
                   </span>
                 )}
@@ -452,7 +452,7 @@ function RoleToggle({ role, disabled, onChange }: {
       <button
         onClick={() => setOpen(!open)}
         disabled={disabled}
-        className={`flex items-center gap-1.5 px-3 py-1.5 border rounded-lg text-[11px] font-bold transition-colors ${role === "admin" ? "border-[var(--accent)]/30 bg-[var(--accent)]/10 text-[var(--accent)]" : "border-white/10 bg-white/5 text-white/40 hover:border-white/20"}`}
+        className={`flex items-center gap-1.5 px-3 py-1.5 border rounded-lg text-xs font-bold transition-colors ${role === "admin" ? "border-[var(--accent)]/30 bg-[var(--accent)]/10 text-[var(--accent)]" : "border-white/10 bg-white/5 text-white/40 hover:border-white/20"}`}
       >
         {role === "admin" ? "Admin" : "Berater"}
         <ChevronDown className="h-3 w-3" />
@@ -463,7 +463,7 @@ function RoleToggle({ role, disabled, onChange }: {
             <button
               key={r}
               onClick={() => { onChange(r); setOpen(false); }}
-              className={`block w-full text-left px-4 py-2.5 text-[12px] font-medium hover:bg-white/5 transition-colors ${r === role ? "text-[var(--accent)]" : "text-white/60"}`}
+              className={`block w-full text-left px-4 py-2.5 text-sm font-medium hover:bg-white/5 transition-colors ${r === role ? "text-[var(--accent)]" : "text-white/60"}`}
             >
               {r === "admin" ? "Admin" : "Berater"}
             </button>
@@ -518,7 +518,7 @@ function InviteTab({ token }: { token: string }) {
 
         <div className="space-y-4">
           <div>
-            <label className="block text-[11px] font-bold uppercase tracking-widest text-white/30 mb-2">E-Mail-Adresse</label>
+            <label className="block text-xs font-bold uppercase tracking-widest text-white/30 mb-2">E-Mail-Adresse</label>
             <input
               type="email"
               value={email}
@@ -528,7 +528,7 @@ function InviteTab({ token }: { token: string }) {
             />
           </div>
           <div>
-            <label className="block text-[11px] font-bold uppercase tracking-widest text-white/30 mb-2">Rolle</label>
+            <label className="block text-xs font-bold uppercase tracking-widest text-white/30 mb-2">Rolle</label>
             <select
               value={role}
               onChange={(e) => setRole(e.target.value as "berater" | "admin")}
@@ -555,14 +555,14 @@ function InviteTab({ token }: { token: string }) {
       {inviteLink && (
         <div className="bg-green-500/[0.06] border border-green-500/20 rounded-2xl p-6">
           <p className="text-green-400 font-bold text-sm mb-3">Einladungslink erstellt</p>
-          <p className="text-white/40 text-xs mb-4">Senden Sie diesen Link per E-Mail oder Messenger. Gültig 14 Tage.</p>
+          <p className="text-white/40 text-sm mb-4">Senden Sie diesen Link per E-Mail oder Messenger. Gültig 14 Tage.</p>
           <div className="flex items-center gap-2 bg-white/[0.04] border border-white/10 rounded-xl px-4 py-3">
-            <code className="flex-grow text-[11px] text-white/60 break-all">{inviteLink}</code>
+            <code className="flex-grow text-xs text-white/60 break-all">{inviteLink}</code>
             <button onClick={copyLink} className="flex-shrink-0 p-1.5 text-white/30 hover:text-[var(--accent)] transition-colors">
               {copied ? <Check className="h-4 w-4 text-green-400" /> : <Copy className="h-4 w-4" />}
             </button>
           </div>
-          {copied && <p className="text-green-400 text-xs mt-2">Link kopiert!</p>}
+          {copied && <p className="text-green-400 text-sm mt-2">Link kopiert!</p>}
         </div>
       )}
     </div>
@@ -608,7 +608,7 @@ function InvitesTab({ invites, token, onRefresh }: {
     <div className="bg-white/[0.03] border border-white/10 rounded-2xl overflow-hidden">
       <div className="px-6 py-4 border-b border-white/5">
         <p className="font-bold text-sm text-white">Offene Einladungen</p>
-        <p className="text-[11px] text-white/25 mt-0.5">Einladungen die noch nicht angenommen wurden</p>
+        <p className="text-xs text-white/25 mt-0.5">Einladungen die noch nicht angenommen wurden</p>
       </div>
       <div className="divide-y divide-white/5">
         {invites.map((inv) => (
@@ -616,7 +616,7 @@ function InvitesTab({ invites, token, onRefresh }: {
             <Shield className="h-4 w-4 text-white/15 flex-shrink-0" />
             <div className="flex-grow min-w-0">
               <p className="text-sm text-white/70 font-medium truncate">{inv.email}</p>
-              <p className="text-[11px] text-white/25">
+              <p className="text-xs text-white/25">
                 {inv.role === "admin" ? "Admin" : "Berater"} · Läuft ab {dateStr(inv.expires_at)}
               </p>
             </div>
