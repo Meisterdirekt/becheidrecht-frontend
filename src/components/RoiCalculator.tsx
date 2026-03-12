@@ -5,14 +5,14 @@ import type { LucideIcon } from "lucide-react";
 import { Clock, TrendingUp, Sparkles } from "lucide-react";
 
 const TARIFE = [
-  { name: "Starter", analysen: 300, preis: 199 },
-  { name: "Team", analysen: 1000, preis: 399 },
-  { name: "Einrichtung", analysen: 2500, preis: 699 },
+  { name: "Starter", analysen: 100, preis: 299 },
+  { name: "Team", analysen: 400, preis: 599 },
+  { name: "Einrichtung", analysen: 1000, preis: 999 },
 ];
 
 function getEmpfohlenTarif(bescheide: number) {
-  if (bescheide <= 300) return TARIFE[0];
-  if (bescheide <= 1000) return TARIFE[1];
+  if (bescheide <= 100) return TARIFE[0];
+  if (bescheide <= 400) return TARIFE[1];
   return TARIFE[2];
 }
 
