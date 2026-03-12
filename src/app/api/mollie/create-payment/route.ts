@@ -4,7 +4,7 @@
  * Erstellt eine Mollie-Zahlung und gibt die Checkout-URL zurück.
  * Erfordert authentifizierten User (Bearer Token).
  *
- * Body: { product_key: "single" | "basic" | "standard" | "pro" }
+ * Body: { product_key: "starter" | "team" | "einrichtung" }
  * Response: { checkout_url: string }
  */
 
@@ -20,10 +20,9 @@ interface ProductDef {
 }
 
 const PRODUCTS: Record<string, ProductDef> = {
-  single:   { price: "19.90",  description: "BescheidRecht — Einzelanalyse" },
-  basic:    { price: "49.90",  description: "BescheidRecht — Basic (5 Analysen)" },
-  standard: { price: "89.90",  description: "BescheidRecht — Standard (15 Analysen)" },
-  pro:      { price: "149.90", description: "BescheidRecht — Pro (50 Analysen)" },
+  starter:     { price: "299.00", description: "BescheidRecht — Starter (1 Nutzer, 100 Analysen/Monat)" },
+  team:        { price: "599.00", description: "BescheidRecht — Team (5 Nutzer, 400 Analysen/Monat)" },
+  einrichtung: { price: "999.00", description: "BescheidRecht — Einrichtung (10 Nutzer, 1.000 Analysen/Monat)" },
 };
 
 export async function POST(req: NextRequest) {

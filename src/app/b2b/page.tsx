@@ -55,12 +55,12 @@ const TRAEGER = [
 const TARIFE = [
   {
     name: "Starter",
-    analysen: "300",
-    preis: "199",
+    analysen: "100",
+    preis: "299",
     zeitraum: "/ Monat",
     ideal: "Einzelne Beratungsstelle",
     features: [
-      "300 Bescheid-Analysen",
+      "100 Bescheid-Analysen",
       "Widerspruchsschreiben-Generator",
       "Fristen-Dashboard",
       "E-Mail-Support",
@@ -68,13 +68,13 @@ const TARIFE = [
   },
   {
     name: "Team",
-    analysen: "1.000",
-    preis: "399",
+    analysen: "400",
+    preis: "599",
     zeitraum: "/ Monat",
     ideal: "Kreisverband / Regionalstelle",
     highlight: true,
     features: [
-      "1.000 Bescheid-Analysen",
+      "400 Bescheid-Analysen",
       "Alle Starter-Features",
       "Prioritäts-Support",
       "Nutzungsstatistiken",
@@ -82,12 +82,12 @@ const TARIFE = [
   },
   {
     name: "Einrichtung",
-    analysen: "2.500+",
-    preis: "ab 699",
+    analysen: "1.000",
+    preis: "999",
     zeitraum: "/ Monat",
     ideal: "Landes-/Bundesverband",
     features: [
-      "Ab 2.500 Analysen",
+      "1.000 Bescheid-Analysen",
       "Alle Team-Features",
       "Persönlicher Ansprechpartner",
       "Individuelles Angebot & SLA",

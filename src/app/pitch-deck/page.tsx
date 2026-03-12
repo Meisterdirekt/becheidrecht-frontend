@@ -345,37 +345,37 @@ export default function PitchDeckPage() {
             Team-Lizenzen.<br />Transparente Preise.
           </h2>
           <p className="text-slate-500 text-lg mb-12 max-w-2xl leading-relaxed">
-            Monatliche Flatrate — keine versteckten Kosten, unbegrenzte Analysen,
+            Monatliche Flatrate — keine versteckten Kosten, transparente Kontingente,
             monatlich kündbar.
           </p>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
             {[
               {
                 name: "Starter",
-                price: "199 €",
+                price: "299 €",
                 users: "1 Nutzer-Zugang",
-                features: ["50 Analysen / Monat", "Schreiben-Generator", "Automatische Pseudonymisierung"],
+                features: ["100 Analysen / Monat", "Schreiben-Generator", "Automatische Pseudonymisierung"],
                 highlight: false,
               },
               {
                 name: "Team",
-                price: "399 €",
-                users: "Bis 3 Nutzer-Zugänge",
-                features: ["Alles aus Starter", "Fristen-Dashboard", "Prioritäts-Support & Onboarding"],
+                price: "599 €",
+                users: "Bis 5 Nutzer-Zugänge",
+                features: ["400 Analysen / Monat", "Fristen-Dashboard", "Prioritäts-Support & Onboarding"],
                 highlight: true,
               },
               {
                 name: "Einrichtung",
-                price: "699 €",
+                price: "999 €",
                 users: "Bis 10 Nutzer-Zugänge",
-                features: ["Unbegrenzte Analysen", "Prioritäts-Support & Onboarding", "Persönlicher Ansprechpartner"],
+                features: ["1.000 Analysen / Monat", "Prioritäts-Support & Onboarding", "Persönlicher Ansprechpartner"],
                 highlight: false,
               },
               {
                 name: "Rahmen­vertrag",
-                price: "Anfrage",
+                price: "ab 2.499 €",
                 users: "Mehrere Standorte",
-                features: ["Mehrere Verbände & SLA", "Compliance-Paket", "Dedizierter Betreuer"],
+                features: ["Ab 3.000 Analysen & SLA", "Compliance-Paket", "Dedizierter Betreuer"],
                 highlight: false,
               },
             ].map(({ name, price, users, features, highlight }) => (

@@ -58,7 +58,7 @@ const PAKETE = [
     beschreibung: "Für Landes- und Diözesanverbände mit mehreren Standorten",
     preis: 7490,
     nutzer: "Bis 200 Nutzer-Zugänge",
-    analysen: "Unbegrenzte Analysen",
+    analysen: "10.000 Analysen / Monat",
     features: [
       "Alle Features aus Paket M",
       "Dedizierter Kundenbetreuer (Named Contact)",

@@ -19,7 +19,7 @@ const ANBIETER = {
 const PAKETE: Record<string, { nutzer: string; analysen: string; preis: string; sla: string }> = {
   S: { nutzer: "15", analysen: "1.000", preis: "1.490", sla: "99,5 %" },
   M: { nutzer: "50", analysen: "5.000", preis: "3.490", sla: "99,5 %" },
-  L: { nutzer: "200", analysen: "unbegrenzt", preis: "7.490", sla: "99,9 %" },
+  L: { nutzer: "200", analysen: "10.000", preis: "7.490", sla: "99,9 %" },
 };
 
 // ─── Seite ─────────────────────────────────────────────────────────────────
