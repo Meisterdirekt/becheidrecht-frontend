@@ -153,6 +153,10 @@ export interface FehlerItem {
   rechtsbasis?: string[];
   severity?: string;
   musterschreiben_hinweis?: string;
+  prueflogik?: {
+    bedingungen?: string[];
+    suchbegriffe?: string[];
+  };
 }
 
 export interface KritikResult {

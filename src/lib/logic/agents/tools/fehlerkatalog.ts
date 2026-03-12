@@ -61,7 +61,7 @@ export async function executeSucheFehlerkatalogMitDb(
     const lowerStichworte = stichworten.map(s => s.toLowerCase());
     const filteredDbFehler = stichworten.length > 0
       ? dbFehler.filter(f => {
-          const haystack = [f.titel, f.beschreibung, ...(f.rechtsbasis ?? [])].join(" ").toLowerCase();
+          const haystack = [f.titel, f.beschreibung, ...(f.rechtsbasis ?? []), ...(f.prueflogik?.suchbegriffe ?? [])].join(" ").toLowerCase();
           return lowerStichworte.some(s => haystack.includes(s));
         })
       : dbFehler.slice(0, 5);
@@ -104,20 +104,25 @@ export function executeSucheFehlerkatalog(
       hinweis: 0,
     };
 
-    return byPrefix
+    const scored = byPrefix
       .map((item) => {
         const haystack = [
           item.titel,
           item.beschreibung,
           ...(item.musterschreiben_hinweis ? [item.musterschreiben_hinweis] : []),
           ...(item.rechtsbasis ?? []),
+          ...(item.prueflogik?.suchbegriffe ?? []),
         ]
           .join(" ")
           .toLowerCase();
         const score = stichworten.filter((s) =>
           haystack.includes(s.toLowerCase())
         ).length;
-        return { item, score };
+        // Bonus: Prüfe ob Suchbegriffe des Fehlers im Input vorkommen (bidirektional)
+        const reverseScore = (item.prueflogik?.suchbegriffe ?? []).filter((sb) =>
+          stichworten.some((s) => s.toLowerCase().includes(sb.toLowerCase()) || sb.toLowerCase().includes(s.toLowerCase()))
+        ).length;
+        return { item, score: score + reverseScore };
       })
       .filter(({ score }) => score > 0)
       .sort(
@@ -128,7 +133,19 @@ export function executeSucheFehlerkatalog(
       )
       .slice(0, 8)
       .map(({ item }) => item);
-  } catch {
+
+    // Fallback: Bei 0 Stichwort-Treffern → Top-Fehler nach Severity liefern
+    if (scored.length === 0 && byPrefix.length > 0) {
+      console.warn("[Fehlerkatalog] 0 Stichwort-Treffer, Fallback auf Top-Severity");
+      const order: Record<string, number> = { kritisch: 0, wichtig: 1, hinweis: 2 };
+      return byPrefix
+        .sort((a, b) => (order[a.severity ?? "hinweis"] ?? 2) - (order[b.severity ?? "hinweis"] ?? 2))
+        .slice(0, 5);
+    }
+
+    return scored;
+  } catch (err) {
+    console.error("[Fehlerkatalog] JSON-Laden fehlgeschlagen:", err instanceof Error ? err.message : err);
     return [];
   }
 }
