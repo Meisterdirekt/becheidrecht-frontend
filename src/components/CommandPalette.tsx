@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { Search, FileText, Clock, MessageSquare, BookOpen, LogIn, UserPlus } from "lucide-react";
+import { Search, FileText, Clock, MessageSquare, LogIn, UserPlus } from "lucide-react";
 
 interface PaletteItem {
   id: string;
@@ -33,13 +33,6 @@ const ITEMS: PaletteItem[] = [
     href: "/assistant",
     icon: <MessageSquare className="w-4 h-4" />,
     keywords: ["assistent", "widerspruch", "schreiben", "brief"],
-  },
-  {
-    id: "blog",
-    label: "Blog",
-    href: "/blog",
-    icon: <BookOpen className="w-4 h-4" />,
-    keywords: ["blog", "artikel", "ratgeber"],
   },
   {
     id: "login",
