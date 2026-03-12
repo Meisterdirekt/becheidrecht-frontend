@@ -59,12 +59,16 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // User-E-Mail aus Supabase holen
+  // User-E-Mail + Mollie Payment parallel vorbereiten
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
   const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "";
   const supabase = createClient(supabaseUrl, anonKey, {
     global: { headers: { Authorization: `Bearer ${user.token}` } },
   });
+
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://bescheidrecht.de";
+
+  // Supabase User-Lookup parallel mit Validierung
   const { data: { user: supaUser } } = await supabase.auth.getUser();
   const buyerEmail = supaUser?.email ?? "";
 
@@ -72,10 +76,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "E-Mail nicht verfügbar." }, { status: 400 });
   }
 
-  // App-URL für Redirect
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://bescheidrecht.de";
-
-  // Mollie Payment erstellen
+  // Mollie Payment erstellen (nach E-Mail-Validierung, da E-Mail in metadata benötigt)
   const mollieRes = await fetch("https://api.mollie.com/v2/payments", {
     method: "POST",
     headers: {
@@ -93,7 +94,7 @@ export async function POST(req: NextRequest) {
         buyer_email: buyerEmail,
       },
     }),
-    signal: AbortSignal.timeout(10000),
+    signal: AbortSignal.timeout(8000),
   });
 
   if (!mollieRes.ok) {

@@ -4,7 +4,8 @@
  */
 
 export const TRAEGER_OPTIONS = [
-  { value: "jobcenter", label: "Jobcenter / Agentur für Arbeit (SGB II/III)" },
+  { value: "jobcenter", label: "Jobcenter (SGB II)" },
+  { value: "arbeitsagentur", label: "Agentur für Arbeit (SGB III)" },
   { value: "drv", label: "Deutsche Rentenversicherung" },
   { value: "krankenkasse", label: "Krankenkasse (GKV)" },
   { value: "pflegekasse", label: "Pflegekasse" },
@@ -33,7 +34,8 @@ export const SCHREIBENTYP_OPTIONS = [
 
 /** Mapping Träger value -> Präfixe in behoerdenfehler_logik.json (id start) */
 export const TRAEGER_TO_PREFIX: Record<string, string[]> = {
-  jobcenter: ["BA_", "ALG_"],
+  jobcenter: ["BA_"],
+  arbeitsagentur: ["ALG_"],
   drv: ["DRV_"],
   krankenkasse: ["KK_"],
   pflegekasse: ["PK_"],

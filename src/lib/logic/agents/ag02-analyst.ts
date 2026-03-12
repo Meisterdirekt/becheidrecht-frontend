@@ -26,6 +26,7 @@ import {
 import { TOOL_SUCHE_FEHLERKATALOG, executeSucheFehlerkatalogMitDb } from "./tools/fehlerkatalog";
 import { TOOL_GET_WEISUNGEN, executeGetWeisungen } from "./tools/weisungen";
 import { TOOL_DB_READ, executeDbRead } from "./tools/db-read";
+import { processToolBlocks } from "./tools/process-tool-results";
 
 const TOOLS: Anthropic.Tool[] = [
   TOOL_SUCHE_FEHLERKATALOG,
@@ -114,31 +115,34 @@ async function execute(ctx: AgentContext): Promise<AgentResult<AnalyseResult>> {
           auffaelligkeiten = parsed.auffaelligkeiten;
         }
       }
+
+      // Retry: Wenn kein Tool-Call kam und noch Iterationen übrig → erzwingen
+      if (gefundeneFehler.length === 0 && i < 4) {
+        messages.push({
+          role: "user",
+          content:
+            "Du hast suche_fehlerkatalog noch nicht aufgerufen. Das ist Pflicht. " +
+            "Rufe JETZT suche_fehlerkatalog auf mit 4-6 Stichwörtern aus dem Bescheid " +
+            "(Paragraphen, Leistungsarten, Behördenentscheidungen).",
+        });
+        continue;
+      }
       break;
     }
     if (response.stop_reason !== "tool_use") break;
 
-    const toolResults: Anthropic.ToolResultBlockParam[] = [];
-
-    for (const block of response.content) {
-      if (block.type !== "tool_use") continue;
-
-      let resultContent = "";
-
-      switch (block.name) {
-        case "suche_fehlerkatalog": {
-          const input = block.input as { stichworten: string[] };
+    const toolResults = await processToolBlocks(response.content, {
+      suche_fehlerkatalog: {
+        execute: async (input) => {
           const prefixes = TRAEGER_TO_PREFIX[traegerKey] ?? [];
-          // Statische JSON + dynamische DB-Einträge von AG15
-          const fehler = await executeSucheFehlerkatalogMitDb(prefixes, input.stichworten);
-          // Bug-Fix: Akkumulieren statt überschreiben — Dedup via id
+          const fehler = await executeSucheFehlerkatalogMitDb(prefixes, input.stichworten as string[]);
           for (const f of fehler) {
             if (!gefundeneIds.has(f.id)) {
               gefundeneIds.add(f.id);
               gefundeneFehler.push(f);
             }
           }
-          resultContent = JSON.stringify(
+          return JSON.stringify(
             fehler.map((f) => ({
               id: f.id,
               titel: f.titel,
@@ -147,36 +151,22 @@ async function execute(ctx: AgentContext): Promise<AgentResult<AnalyseResult>> {
               rechtsbasis: f.rechtsbasis,
             }))
           );
-          break;
-        }
-
-        case "get_weisungen": {
-          const input = block.input as { traeger: string };
-          resultContent = executeGetWeisungen(input.traeger);
-          break;
-        }
-
-        case "db_read": {
-          const input = block.input as {
-            tabelle: string;
-            filter?: Record<string, string>;
-            limit?: number;
-          };
-          const dbResult = await executeDbRead(input.tabelle, input.filter, input.limit);
-          resultContent = JSON.stringify(dbResult);
-          break;
-        }
-
-        default:
-          resultContent = JSON.stringify({ error: "Unbekanntes Tool" });
-      }
-
-      toolResults.push({
-        type: "tool_result",
-        tool_use_id: block.id,
-        content: resultContent,
-      });
-    }
+        },
+      },
+      get_weisungen: {
+        execute: (input) => executeGetWeisungen(input.traeger as string),
+      },
+      db_read: {
+        execute: async (input) => {
+          const dbResult = await executeDbRead(
+            input.tabelle as string,
+            input.filter as Record<string, string> | undefined,
+            input.limit as number | undefined,
+          );
+          return JSON.stringify(dbResult);
+        },
+      },
+    });
 
     messages.push({ role: "user", content: toolResults });
   }

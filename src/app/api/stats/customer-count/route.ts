@@ -19,7 +19,10 @@ export async function GET() {
       console.error("Customer count error:", error);
       return NextResponse.json({ count: 0 });
     }
-    return NextResponse.json({ count: count ?? 0 });
+    return NextResponse.json(
+      { count: count ?? 0 },
+      { headers: { "Cache-Control": "public, s-maxage=60, stale-while-revalidate=120" } }
+    );
   } catch (e) {
     console.error("Customer count error:", e);
     return NextResponse.json({ count: 0 });

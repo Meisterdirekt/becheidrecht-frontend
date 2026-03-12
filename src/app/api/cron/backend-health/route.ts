@@ -43,31 +43,31 @@ async function checkTables(): Promise<TableCheck[]> {
     "user_subscriptions",
   ];
 
-  const results: TableCheck[] = [];
+  const results = await Promise.all(
+    tables.map(async (table): Promise<TableCheck> => {
+      const t0 = Date.now();
+      try {
+        const { count, error } = await supabase
+          .from(table)
+          .select("*", { count: "exact", head: true });
 
-  for (const table of tables) {
-    const t0 = Date.now();
-    try {
-      const { count, error } = await supabase
-        .from(table)
-        .select("*", { count: "exact", head: true });
-
-      results.push({
-        name: table,
-        ok: !error,
-        count: count ?? undefined,
-        latencyMs: Date.now() - t0,
-        error: error?.message,
-      });
-    } catch (err) {
-      results.push({
-        name: table,
-        ok: false,
-        latencyMs: Date.now() - t0,
-        error: err instanceof Error ? err.message : String(err),
-      });
-    }
-  }
+        return {
+          name: table,
+          ok: !error,
+          count: count ?? undefined,
+          latencyMs: Date.now() - t0,
+          error: error?.message,
+        };
+      } catch (err) {
+        return {
+          name: table,
+          ok: false,
+          latencyMs: Date.now() - t0,
+          error: err instanceof Error ? err.message : String(err),
+        };
+      }
+    })
+  );
 
   return results;
 }

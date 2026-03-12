@@ -110,25 +110,29 @@ Situation: ${beschreibung}`;
 
   send({ type: "status", message: "KI denkt nach..." });
 
-  const stream = anthropic.messages.stream({
-    model: "claude-haiku-4-5-20251001",
-    max_tokens: 800,
-    system: systemPrompt,
-    messages: [{ role: "user", content: userMessage }],
-  });
+  try {
+    const stream = anthropic.messages.stream({
+      model: "claude-haiku-4-5-20251001",
+      max_tokens: 800,
+      system: systemPrompt,
+      messages: [{ role: "user", content: userMessage }],
+    });
 
-  send({ type: "start" });
+    send({ type: "start" });
 
-  for await (const chunk of stream) {
-    if (
-      chunk.type === "content_block_delta" &&
-      chunk.delta.type === "text_delta"
-    ) {
-      send({ type: "delta", text: chunk.delta.text });
+    for await (const chunk of stream) {
+      if (
+        chunk.type === "content_block_delta" &&
+        chunk.delta.type === "text_delta"
+      ) {
+        send({ type: "delta", text: chunk.delta.text });
+      }
     }
-  }
 
-  send({ type: "done", schritt: "analyse" });
+    send({ type: "done", schritt: "analyse" });
+  } catch (err) {
+    send({ type: "error", message: err instanceof Error ? err.message : "KI-Analyse fehlgeschlagen" });
+  }
   close();
 }
 

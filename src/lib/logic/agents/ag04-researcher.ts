@@ -18,6 +18,7 @@ import { SONNET_MODEL, extractTokenUsage, getAnthropicKey, createAnthropicClient
 import { TOOL_WEB_SEARCH, executeWebSearch } from "./tools/web-search";
 import { TOOL_FETCH_URL, executeFetchUrl } from "./tools/fetch-url";
 import { TOOL_DB_READ, executeDbRead } from "./tools/db-read";
+import { processToolBlocks } from "./tools/process-tool-results";
 
 const TOOLS: Anthropic.Tool[] = [
   TOOL_WEB_SEARCH,
@@ -141,52 +142,33 @@ async function execute(ctx: AgentContext): Promise<AgentResult<RechercheResult>>
     }
     if (response.stop_reason !== "tool_use") break;
 
-    const toolResults: Anthropic.ToolResultBlockParam[] = [];
-
-    for (const block of response.content) {
-      if (block.type !== "tool_use") continue;
-
-      let resultContent = "";
-
-      switch (block.name) {
-        case "web_search": {
-          const input = block.input as { query: string; max_results?: number };
-          const searchResult = await executeWebSearch(input.query, input.max_results);
+    const toolResults = await processToolBlocks(response.content, {
+      web_search: {
+        execute: async (input) => {
+          const searchResult = await executeWebSearch(input.query as string, input.max_results as number | undefined);
           for (const r of searchResult.results) {
             quellen.push(r.url);
           }
-          resultContent = JSON.stringify(searchResult);
-          break;
-        }
-
-        case "fetch_url": {
-          const input = block.input as { url: string };
-          const fetchResult = await executeFetchUrl(input.url);
-          resultContent = JSON.stringify(fetchResult);
-          break;
-        }
-
-        case "db_read": {
-          const input = block.input as {
-            tabelle: string;
-            filter?: Record<string, string>;
-            limit?: number;
-          };
-          const dbResult = await executeDbRead(input.tabelle, input.filter, input.limit);
-          resultContent = JSON.stringify(dbResult);
-          break;
-        }
-
-        default:
-          resultContent = JSON.stringify({ error: "Unbekanntes Tool" });
-      }
-
-      toolResults.push({
-        type: "tool_result",
-        tool_use_id: block.id,
-        content: resultContent,
-      });
-    }
+          return JSON.stringify(searchResult);
+        },
+      },
+      fetch_url: {
+        execute: async (input) => {
+          const fetchResult = await executeFetchUrl(input.url as string);
+          return JSON.stringify(fetchResult);
+        },
+      },
+      db_read: {
+        execute: async (input) => {
+          const dbResult = await executeDbRead(
+            input.tabelle as string,
+            input.filter as Record<string, string> | undefined,
+            input.limit as number | undefined,
+          );
+          return JSON.stringify(dbResult);
+        },
+      },
+    });
 
     messages.push({ role: "user", content: toolResults });
   }

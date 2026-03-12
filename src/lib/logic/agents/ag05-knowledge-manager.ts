@@ -16,6 +16,7 @@ import { HAIKU_MODEL, extractTokenUsage, getAnthropicKey, createAnthropicClient,
 import { TOOL_DB_READ, executeDbRead } from "./tools/db-read";
 import { TOOL_DB_WRITE, executeDbWrite } from "./tools/db-write";
 import { reportInfo } from "@/lib/error-reporter";
+import { processToolBlocks } from "./tools/process-tool-results";
 
 interface KnowledgeResult {
   saved: number;
@@ -86,47 +87,29 @@ async function execute(ctx: AgentContext): Promise<AgentResult<KnowledgeResult>>
     if (response.stop_reason === "end_turn") break;
     if (response.stop_reason !== "tool_use") break;
 
-    const toolResults: Anthropic.ToolResultBlockParam[] = [];
-
-    for (const block of response.content) {
-      if (block.type !== "tool_use") continue;
-
-      let resultContent = "";
-
-      switch (block.name) {
-        case "db_read": {
-          const input = block.input as {
-            tabelle: string;
-            filter?: Record<string, string>;
-            limit?: number;
-          };
-          const result = await executeDbRead(input.tabelle, input.filter, input.limit);
-          resultContent = JSON.stringify(result);
-          break;
-        }
-
-        case "db_write": {
-          const input = block.input as {
-            tabelle: string;
-            daten: Record<string, unknown>;
-            aktion: "insert" | "upsert";
-          };
-          const result = await executeDbWrite(input.tabelle, input.daten, input.aktion);
+    const toolResults = await processToolBlocks(response.content, {
+      db_read: {
+        execute: async (input) => {
+          const result = await executeDbRead(
+            input.tabelle as string,
+            input.filter as Record<string, string> | undefined,
+            input.limit as number | undefined,
+          );
+          return JSON.stringify(result);
+        },
+      },
+      db_write: {
+        execute: async (input) => {
+          const result = await executeDbWrite(
+            input.tabelle as string,
+            input.daten as Record<string, unknown>,
+            input.aktion as "insert" | "upsert",
+          );
           if (result.success) savedCount++;
-          resultContent = JSON.stringify(result);
-          break;
-        }
-
-        default:
-          resultContent = JSON.stringify({ error: "Unbekanntes Tool" });
-      }
-
-      toolResults.push({
-        type: "tool_result",
-        tool_use_id: block.id,
-        content: resultContent,
-      });
-    }
+          return JSON.stringify(result);
+        },
+      },
+    });
 
     messages.push({ role: "user", content: toolResults });
   }

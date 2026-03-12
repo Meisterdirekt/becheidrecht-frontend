@@ -99,105 +99,34 @@ export function detectUrgency(text: string): { stufe: RoutingStufe; tage: number
 // Träger-Erkennung
 // ---------------------------------------------------------------------------
 
+/**
+ * Träger-Keywords: traegerKey → Suchbegriffe (lowercase).
+ * Single Source of Truth für detectTraegerKey().
+ */
+const TRAEGER_KEYWORDS: [string, string[]][] = [
+  ["jobcenter", ["jobcenter", "bürgergeld", "bürgergeldbescheid", "grundsicherungsgeld", "sgb ii", "grundsicherung für arbeitsuchende"]],
+  ["arbeitsagentur", ["arbeitsagentur", "agentur für arbeit", "bundesagentur für arbeit", "alg i", "arbeitslosengeld i", "sgb iii"]],
+  ["drv", ["rentenversicherung", "drv", "deutsche renten", "sgb vi", "rentenbescheid"]],
+  ["pflegekasse", ["pflegekasse", "pflegegrad", "sgb xi", "pflegeversicherung"]],
+  ["krankenkasse", ["krankenkasse", "krankenversicherung", "sgb v", "krankengeld", "aok", "barmer", " tk ", "techniker krankenkasse", "dak", "bkk", "ikk", "knappschaft", "gkv"]],
+  ["sozialhilfe", ["sozialhilfe", "sozialamt", "grundsicherung im alter", "sgb xii", "hilfe zum lebensunterhalt"]],
+  ["familienkasse", ["familienkasse", "kindergeld", "kinderzuschlag"]],
+  ["jugendamt", ["jugendamt", "jugendhilfe", "sgb viii", "hilfe zur erziehung"]],
+  ["eingliederungshilfe", ["eingliederungshilfe", "sgb ix", "teilhabe", "persönliches budget"]],
+  ["unfallversicherung", ["unfallversicherung", "berufsgenossenschaft", "unfallkasse", "sgb vii", "verletztengeld", "arbeitsunfall"]],
+  ["versorgungsamt", ["versorgungsamt", "schwerbehinderung", "grad der behinderung", "gdb", "merkzeichen", "sgb ix feststellung"]],
+  ["bamf", ["bamf", "bundesamt für migration", "ausländerbehörde", "auslaenderbehörde", "aufenthaltserlaubnis", "asyl", "aufenthaltsstatus"]],
+  ["bafoeg", ["bafög", "ausbildungsförderung", "studierendenwerk", "studentenwerk"]],
+  ["elterngeld", ["elterngeld", "elterngeldstelle", "elterngeld plus", "beeg"]],
+  ["wohngeld", ["wohngeld", "wohngeldstelle", "wohngeldbescheid"]],
+  ["unterhaltsvorschuss", ["unterhaltsvorschuss", "uvg", "unterhaltsvorschussgesetz"]],
+];
+
 export function detectTraegerKey(behoerde: string): string {
   const lower = behoerde.toLowerCase();
-
-  if (
-    lower.includes("jobcenter") || lower.includes("bürgergeld") ||
-    lower.includes("bürgergeldbescheid") || lower.includes("grundsicherungsgeld") ||
-    lower.includes("sgb ii") ||
-    lower.includes("grundsicherung für arbeitsuchende")
-  ) return "jobcenter";
-
-  if (
-    lower.includes("arbeitsagentur") || lower.includes("agentur für arbeit") ||
-    lower.includes("bundesagentur für arbeit") ||
-    lower.includes("alg i") || lower.includes("arbeitslosengeld i") ||
-    lower.includes("sgb iii")
-  ) return "jobcenter";
-
-  if (
-    lower.includes("rentenversicherung") || lower.includes("drv") ||
-    lower.includes("deutsche renten") || lower.includes("sgb vi") ||
-    lower.includes("rentenbescheid")
-  ) return "drv";
-
-  if (
-    lower.includes("pflegekasse") || lower.includes("pflegegrad") ||
-    lower.includes("sgb xi") || lower.includes("pflegeversicherung")
-  ) return "pflegekasse";
-
-  if (
-    lower.includes("krankenkasse") || lower.includes("krankenversicherung") ||
-    lower.includes("sgb v") || lower.includes("krankengeld") ||
-    lower.includes("aok") || lower.includes("barmer") ||
-    lower.includes(" tk ") || lower.includes("techniker krankenkasse") ||
-    lower.includes("dak") || lower.includes("bkk") ||
-    lower.includes("ikk") || lower.includes("knappschaft") ||
-    lower.includes("gkv")
-  ) return "krankenkasse";
-
-  if (
-    lower.includes("sozialhilfe") || lower.includes("sozialamt") ||
-    lower.includes("grundsicherung im alter") || lower.includes("sgb xii") ||
-    lower.includes("hilfe zum lebensunterhalt")
-  ) return "sozialhilfe";
-
-  if (
-    lower.includes("familienkasse") || lower.includes("kindergeld") ||
-    lower.includes("kinderzuschlag") || lower.includes("elterngeld")
-  ) return "familienkasse";
-
-  if (
-    lower.includes("jugendamt") || lower.includes("jugendhilfe") ||
-    lower.includes("sgb viii") || lower.includes("hilfe zur erziehung") ||
-    lower.includes("unterhaltsvorschuss")
-  ) return "jugendamt";
-
-  if (
-    lower.includes("eingliederungshilfe") || lower.includes("sgb ix") ||
-    lower.includes("teilhabe") || lower.includes("persönliches budget")
-  ) return "eingliederungshilfe";
-
-  if (
-    lower.includes("unfallversicherung") || lower.includes("berufsgenossenschaft") ||
-    lower.includes("unfallkasse") || lower.includes("sgb vii") ||
-    lower.includes("verletztengeld") || lower.includes("arbeitsunfall")
-  ) return "unfallversicherung";
-
-  if (
-    lower.includes("versorgungsamt") || lower.includes("schwerbehinderung") ||
-    lower.includes("grad der behinderung") || lower.includes("gdb") ||
-    lower.includes("merkzeichen") || lower.includes("sgb ix feststellung")
-  ) return "versorgungsamt";
-
-  if (
-    lower.includes("bamf") || lower.includes("bundesamt für migration") ||
-    lower.includes("ausländerbehörde") || lower.includes("auslaenderbehörde") ||
-    lower.includes("aufenthaltserlaubnis") || lower.includes("asyl") ||
-    lower.includes("aufenthaltsstatus")
-  ) return "bamf";
-
-  if (
-    lower.includes("bafög") || lower.includes("ausbildungsförderung") ||
-    lower.includes("studierendenwerk") || lower.includes("studentenwerk")
-  ) return "bafoeg";
-
-  if (
-    lower.includes("elterngeld") || lower.includes("elterngeldstelle") ||
-    lower.includes("elterngeld plus") || lower.includes("beeg")
-  ) return "elterngeld";
-
-  if (
-    lower.includes("wohngeld") || lower.includes("wohngeldstelle") ||
-    lower.includes("wohngeldbescheid")
-  ) return "wohngeld";
-
-  if (
-    lower.includes("unterhaltsvorschuss") || lower.includes("uvg") ||
-    lower.includes("unterhaltsvorschussgesetz")
-  ) return "unterhaltsvorschuss";
-
+  for (const [key, keywords] of TRAEGER_KEYWORDS) {
+    if (keywords.some((kw) => lower.includes(kw))) return key;
+  }
   return "jobcenter";
 }
 

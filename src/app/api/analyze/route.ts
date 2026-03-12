@@ -175,7 +175,7 @@ async function extractTextFromImage(buffer: Buffer, mimeType: string): Promise<s
   }
 
   // Lokale OCR hat versagt — OpenAI als Fallback (mit Logging für Audit)
-  console.warn('[OCR] Tesseract unzureichend, Fallback auf OpenAI Vision (Datentransfer!)');
+  reportInfo('[OCR] Tesseract unzureichend, Fallback auf OpenAI Vision');
   try {
     const openAiText = await extractTextFromImageOpenAI(buffer, mimeType);
     reportInfo('[OCR] OpenAI Vision', { zeichen: openAiText.length });
@@ -242,7 +242,7 @@ export async function POST(req: Request) {
       try {
         extractedText = await extractTextFromImage(buffer, mimeType);
       } catch (imgErr: unknown) {
-        console.error('Bild-OCR Fehler:', imgErr);
+        reportError(imgErr instanceof Error ? imgErr : new Error(String(imgErr)), { critical: false, context: 'bild_ocr' }).catch(() => {});
         const imgMsg = imgErr instanceof Error ? imgErr.message : '';
         const msg = imgMsg.includes('Key') || imgMsg.includes('key')
           ? 'Bildanalyse ist derzeit nicht verfügbar. Bitte PDF hochladen oder später erneut versuchen.'
@@ -310,29 +310,34 @@ export async function POST(req: Request) {
         ? createClient(supabaseUrl, supabaseAnonKey, { global: { headers: { Authorization: `Bearer ${user.token}` } } })
         : null;
 
-      // Auto-Save Frist
-      if (result.frist_datum && supabaseUser) {
-        try {
-          await supabaseUser.from('user_fristen').insert({
-            user_id: user!.id, behoerde: result.zuordnung?.behoerde ?? null,
-            rechtsgebiet: result.zuordnung?.rechtsgebiet ?? null, untergebiet: result.zuordnung?.untergebiet ?? null,
-            frist_datum: result.frist_datum, status: 'offen', musterschreiben: result.musterschreiben,
-            analyse_meta: { frist_tage: result.frist_tage, auffaelligkeiten: result.fehler?.slice(0, 3), routing_stufe: result.routing_stufe, token_kosten_eur: result.token_kosten_eur, agenten_aktiv: result.agenten_aktiv, erfolgschance: result.kritik?.erfolgschance_prozent },
-          });
-        } catch (fristErr) { console.warn('[Fristen] Auto-Save fehlgeschlagen:', fristErr); }
-      }
+      // Auto-Save Frist + Kosten-Monitoring (parallel)
+      if (supabaseUser) {
+        const dbOps: PromiseLike<unknown>[] = [];
 
-      // Kosten-Monitoring
-      if (result.token_kosten_eur !== undefined && supabaseUser) {
-        try {
-          await supabaseUser.from('analysis_results').insert({
-            user_id: user!.id, session_id: null, behoerde: result.zuordnung?.behoerde ?? null,
-            rechtsgebiet: result.zuordnung?.rechtsgebiet ?? null, fehler: result.fehler ?? [],
-            frist_datum: result.frist_datum ?? null, dringlichkeit: result.routing_stufe ?? null,
-            model_used: result.model_used ?? (result.routing_stufe === 'NOTFALL' ? 'claude-opus-4-6' : 'claude-sonnet-4-6'),
-            token_cost_eur: result.token_kosten_eur,
-          });
-        } catch { /* Silent fail */ }
+        if (result.frist_datum) {
+          dbOps.push(
+            supabaseUser.from('user_fristen').insert({
+              user_id: user!.id, behoerde: result.zuordnung?.behoerde ?? null,
+              rechtsgebiet: result.zuordnung?.rechtsgebiet ?? null, untergebiet: result.zuordnung?.untergebiet ?? null,
+              frist_datum: result.frist_datum, status: 'offen', musterschreiben: result.musterschreiben,
+              analyse_meta: { frist_tage: result.frist_tage, auffaelligkeiten: result.fehler?.slice(0, 3), routing_stufe: result.routing_stufe, token_kosten_eur: result.token_kosten_eur, agenten_aktiv: result.agenten_aktiv, erfolgschance: result.kritik?.erfolgschance_prozent },
+            }).then(null, (err: unknown) => reportError(err instanceof Error ? err : new Error(String(err)), { critical: false, context: "frist_autosave" }).catch(() => {}))
+          );
+        }
+
+        if (result.token_kosten_eur !== undefined) {
+          dbOps.push(
+            supabaseUser.from('analysis_results').insert({
+              user_id: user!.id, session_id: null, behoerde: result.zuordnung?.behoerde ?? null,
+              rechtsgebiet: result.zuordnung?.rechtsgebiet ?? null, fehler: result.fehler ?? [],
+              frist_datum: result.frist_datum ?? null, dringlichkeit: result.routing_stufe ?? null,
+              model_used: result.model_used ?? (result.routing_stufe === 'NOTFALL' ? 'claude-opus-4-6' : 'claude-sonnet-4-6'),
+              token_cost_eur: result.token_kosten_eur,
+            }).then(null, () => {})
+          );
+        }
+
+        if (dbOps.length > 0) await Promise.all(dbOps);
       }
 
       return result;
@@ -382,7 +387,7 @@ export async function POST(req: Request) {
       reportInfo('[Analyze] 13-Agenten-Pipeline (Claude) gestartet');
       result = await runAgentAnalysis(pseudonymized);
     } else {
-      console.warn('[Analyze] ANTHROPIC_API_KEY fehlt — Fallback auf Legacy GPT-4o Engine');
+      reportInfo('[Analyze] ANTHROPIC_API_KEY fehlt — Fallback auf Legacy GPT-4o Engine');
       const legacyResult = await runForensicAnalysis(pseudonymized);
       result = { routing_stufe: 'NORMAL', agenten_aktiv: ['gpt4o-legacy'], ...legacyResult };
     }
@@ -390,7 +395,7 @@ export async function POST(req: Request) {
     result = await postProcess(result);
     return NextResponse.json(result);
   } catch (error: unknown) {
-    console.error('Analyze API Fehler:', error);
+    reportError(error instanceof Error ? error : new Error(String(error)), { critical: true, context: 'analyze_api' }).catch(() => {});
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Interner Serverfehler.' },
       { status: 500 }

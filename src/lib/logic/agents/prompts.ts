@@ -15,6 +15,7 @@
 import type Anthropic from "@anthropic-ai/sdk";
 import type { AgentId } from "./types";
 import { kennzahlenPromptBlock } from "./kennzahlen";
+import { signalwoerterPromptBlock, formelleNormenPromptBlock, FORMELLE_NORMEN } from "../constants/rechtsgebiete";
 
 // ---------------------------------------------------------------------------
 // System-Prompts — Alle 13 Agenten
@@ -34,22 +35,13 @@ SCHRITT 1 — SCAN:
 Suche nach: Briefkopf, Behördenname, Ausstellungsdatum, Aktenzeichen/BG-Nummer, Bescheid-Typ.
 
 SCHRITT 2 — RECHTSGEBIET bestimmen (anhand dieser Signalwörter):
-• "Bürgergeld" / "Grundsicherungsgeld" (ab 07/2026) / "Jobcenter" / "Regelbedarfsstufe" / "KdU" → SGB II
-• "Arbeitslosengeld" / "Arbeitsagentur für Arbeit" / "ALG I" → SGB III
-• "Krankengeld" / "Krankenkasse" / "GKV" / "Krankenversicherung" → SGB V
-• "Pflegegeld" / "Pflegegrad" / "Pflegekasse" → SGB XI
-• "Rente" / "DRV" / "Rentenversicherung" / "Erwerbsminderung" → SGB VI
-• "Grundsicherung" / "Sozialhilfe" / "Sozialamt" → SGB XII
-• "Eingliederungshilfe" / "Schwerbehinderung" / "Behinderung" → SGB IX
-• "Asyl" / "BAMF" / "Aufenthaltsgestattung" / "AsylbLG" → AsylbLG
-• "BAföG" / "Bildungsförderung" → BAföG
-• "Wohngeld" / "Wohngeldbehörde" → WoGG
+${signalwoerterPromptBlock()}
 → Wenn mehrere passen: wähle das spezifischste Gesetz.
 → Wenn keines passt: schreibe "Unbekannt".
 
 SCHRITT 3 — FRIST berechnen:
-• Standard-Widerspruchsfrist: 1 Monat ab Bekanntgabe (§ 84 SGG / § 36 SGB X)
-• Bekanntgabe = Bescheiddatum + 3 Tage Postlaufzeit (Kalendertage, § 37 Abs. 2 SGB X)
+• Standard-Widerspruchsfrist: 1 Monat ab Bekanntgabe (${FORMELLE_NORMEN.widerspruchsfrist.norm} / ${FORMELLE_NORMEN.rechtsbehelfsbelehrung.norm})
+• Bekanntgabe = Bescheiddatum + 3 Tage Postlaufzeit (Kalendertage, ${FORMELLE_NORMEN.bekanntgabe.norm})
 • Sonderfall: Bescheid aus dem Ausland → 3 Monate
 • Fristende immer als TT.MM.JJJJ angeben
 
@@ -118,13 +110,7 @@ Prüfe alle Zahlen im Bescheid gegen aktuelle Richtwerte:
 ${kennzahlenPromptBlock()}
 
 SCHRITT 5 — FORMELLE FEHLER PRÜFEN:
-• Begründung vorhanden? (§ 35 SGB X — Pflicht bei belastenden Bescheiden)
-• Anhörung durchgeführt? (§ 24 SGB X — IMMER Pflicht vor erstmaligem belastendem Bescheid)
-• Rechtsbehelfsbelehrung vorhanden und korrekt? (§ 36 SGB X)
-• Aktenzeichen vorhanden?
-• Bei Aufhebungsbescheiden: Welche Ermächtigungsgrundlage? (§ 45 oder § 48 SGB X?)
-• Überprüfungsantrag möglich? (§ 44 SGB X — bei bestandskräftigen Bescheiden, keine Frist)
-• Klagefrist beachten: 1 Monat nach Zustellung des Widerspruchsbescheids (§ 87 SGG)
+${formelleNormenPromptBlock()}
 
 SCHRITT 6 — ERGEBNIS STRUKTURIEREN:
 Antworte AUSSCHLIESSLICH als letzte Nachricht mit diesem JSON:

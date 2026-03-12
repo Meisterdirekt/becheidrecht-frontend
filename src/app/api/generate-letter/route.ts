@@ -193,7 +193,7 @@ Erstelle nun das fertige Schreiben gemäß der Systemanweisung.`;
         { role: "system", content: SYSTEM_PROMPT },
         { role: "user", content: userMessage },
       ],
-    });
+    }, { timeout: 15000 });
 
     const rawLetter = response.choices[0]?.message?.content?.trim() ?? "";
 

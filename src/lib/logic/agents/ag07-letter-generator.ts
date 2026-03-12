@@ -21,6 +21,7 @@ import {
   mergeTokenUsage,
 } from "./utils";
 import { TOOL_GET_WEISUNGEN, executeGetWeisungen } from "./tools/weisungen";
+import { processToolBlocks } from "./tools/process-tool-results";
 
 const TOOL_ERSTELLE_MUSTERSCHREIBEN: Anthropic.Tool = {
   name: "erstelle_musterschreiben",
@@ -181,64 +182,49 @@ async function execute(ctx: AgentContext): Promise<AgentResult<MusterschreibenRe
 
     messages.push({ role: "assistant", content: response.content });
 
-    if (response.stop_reason === "end_turn") break;
+    if (response.stop_reason === "end_turn") {
+      // Retry: Wenn kein Tool-Call kam und noch Iterationen übrig → erzwingen
+      if (!musterschreiben && i < 4) {
+        messages.push({
+          role: "user",
+          content:
+            "Du hast den Brief als Fließtext geschrieben, aber das Tool 'erstelle_musterschreiben' nicht aufgerufen. " +
+            "Rufe es JETZT auf mit den Abschnitten: rubrum, chronologie, forderung, schluss, auffaelligkeiten.",
+        });
+        continue;
+      }
+      break;
+    }
     if (response.stop_reason !== "tool_use") break;
 
-    const toolResults: Anthropic.ToolResultBlockParam[] = [];
-
-    for (const block of response.content) {
-      if (block.type !== "tool_use") continue;
-
-      let resultContent = "";
-
-      switch (block.name) {
-        case "erstelle_musterschreiben": {
-          const input = block.input as {
-            rubrum: string;
-            chronologie: string;
-            forderung: string;
-            schluss: string;
-            auffaelligkeiten: string[];
-          };
-
+    const toolResults = await processToolBlocks(response.content, {
+      erstelle_musterschreiben: {
+        execute: (input) => {
           const disclaimer =
             "\n\n---\n⚠ WICHTIGER HINWEIS: Dieser Entwurf wurde von einer KI erstellt und stellt keine Rechtsberatung " +
             "im Sinne des Rechtsdienstleistungsgesetzes (RDG § 2) dar. Er ersetzt nicht die Beratung durch einen " +
             "zugelassenen Rechtsanwalt oder eine anerkannte Beratungsstelle (z.B. VdK, Sozialverband). " +
             "Vor dem Absenden bitte vollständig prüfen und eigene Angaben ergänzen.\n---";
 
-          const forderungAbschnitt = input.forderung
-            ? `\n\nFORDERUNG:\n${input.forderung}`
+          const forderungAbschnitt = (input.forderung as string)
+            ? `\n\nFORDERUNG:\n${input.forderung as string}`
             : "";
 
           musterschreiben =
-            `${input.rubrum}\n\n${input.chronologie}${forderungAbschnitt}\n\n${input.schluss}${disclaimer}`.trim();
-          auffaelligkeiten = input.auffaelligkeiten;
-          forderung = input.forderung;
+            `${input.rubrum as string}\n\n${input.chronologie as string}${forderungAbschnitt}\n\n${input.schluss as string}${disclaimer}`.trim();
+          auffaelligkeiten = input.auffaelligkeiten as string[];
+          forderung = input.forderung as string;
 
-          resultContent = JSON.stringify({
+          return JSON.stringify({
             status: "erstellt",
             zeichen: musterschreiben.length,
           });
-          break;
-        }
-
-        case "get_weisungen": {
-          const input = block.input as { traeger: string };
-          resultContent = executeGetWeisungen(input.traeger);
-          break;
-        }
-
-        default:
-          resultContent = JSON.stringify({ error: "Unbekanntes Tool" });
-      }
-
-      toolResults.push({
-        type: "tool_result",
-        tool_use_id: block.id,
-        content: resultContent,
-      });
-    }
+        },
+      },
+      get_weisungen: {
+        execute: (input) => executeGetWeisungen(input.traeger as string),
+      },
+    });
 
     messages.push({ role: "user", content: toolResults });
   }
