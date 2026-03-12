@@ -14,7 +14,7 @@ export default function ImpressumPage() {
         <h1 className="text-4xl md:text-5xl font-black tracking-tight mb-16">Impressum</h1>
         <section className="space-y-12 text-white/70 text-sm leading-relaxed">
           <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-8">
-            <h2 className="text-white font-bold uppercase tracking-widest text-xs mb-4">Angaben gemäß § 5 TMG</h2>
+            <h2 className="text-white font-bold uppercase tracking-widest text-xs mb-4">Angaben gemäß § 5 DDG</h2>
             <p className="text-base text-white/90">
               <strong>BescheidRecht</strong><br />
               Hendrik Berkensträter<br />
@@ -32,6 +32,7 @@ export default function ImpressumPage() {
               <h2 className="text-white font-bold uppercase tracking-widest text-xs mb-4">Kontakt</h2>
               <p className="text-white/90">
                 E-Mail: kontakt@bescheidrecht.de<br />
+                Telefon: auf Anfrage per E-Mail<br />
                 Web: www.bescheidrecht.de
               </p>
             </div>
@@ -59,7 +60,7 @@ export default function ImpressumPage() {
           <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-8">
             <h2 className="text-white font-bold uppercase tracking-widest text-xs mb-4">Haftung für Inhalte</h2>
             <p className="text-white/90">
-              Als Diensteanbieter sind wir gemäß § 7 Abs. 1 TMG für eigene Inhalte auf diesen Seiten nach den allgemeinen Gesetzen verantwortlich. Nach §§ 8 bis 10 TMG sind wir als Diensteanbieter jedoch nicht verpflichtet, übermittelte oder gespeicherte fremde Informationen zu überwachen oder nach Umständen zu forschen, die auf eine rechtswidrige Tätigkeit hinweisen. Verpflichtungen zur Entfernung oder Sperrung der Nutzung von Informationen nach den allgemeinen Gesetzen bleiben unberührt. Eine diesbezügliche Haftung ist jedoch erst ab dem Zeitpunkt der Kenntnis einer konkreten Rechtsverletzung möglich. Bei Bekanntwerden von entsprechenden Rechtsverletzungen werden wir diese Inhalte umgehend entfernen.
+              Als Diensteanbieter sind wir gemäß § 7 Abs. 1 DDG für eigene Inhalte auf diesen Seiten nach den allgemeinen Gesetzen verantwortlich. Nach §§ 8 bis 10 DDG sind wir als Diensteanbieter jedoch nicht verpflichtet, übermittelte oder gespeicherte fremde Informationen zu überwachen oder nach Umständen zu forschen, die auf eine rechtswidrige Tätigkeit hinweisen. Verpflichtungen zur Entfernung oder Sperrung der Nutzung von Informationen nach den allgemeinen Gesetzen bleiben unberührt. Eine diesbezügliche Haftung ist jedoch erst ab dem Zeitpunkt der Kenntnis einer konkreten Rechtsverletzung möglich. Bei Bekanntwerden von entsprechenden Rechtsverletzungen werden wir diese Inhalte umgehend entfernen.
             </p>
           </div>
 

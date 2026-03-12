@@ -13,11 +13,11 @@ export default function AvvPage() {
             BESCHEID<span className="text-[var(--accent)]">RECHT</span>
           </Link>
           <div className="flex items-center gap-4">
-            <Link href="/b2b" className="text-[13px] text-white/35 hover:text-white/60 transition-colors">B2B-Übersicht</Link>
+            <Link href="/b2b" className="text-sm text-white/35 hover:text-white/60 transition-colors">B2B-Übersicht</Link>
             <button
               type="button"
               onClick={() => window.print()}
-              className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2 border border-white/10 rounded-xl text-[12px] text-white/50 hover:text-white/70 hover:border-white/20 transition-all"
+              className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2 border border-white/10 rounded-xl text-sm text-white/50 hover:text-white/70 hover:border-white/20 transition-all"
             >
               <Download className="h-3.5 w-3.5" />
               Drucken / PDF
@@ -33,7 +33,7 @@ export default function AvvPage() {
             <div className="w-10 h-10 rounded-xl bg-[var(--accent)]/10 border border-[var(--accent)]/20 flex items-center justify-center">
               <FileText className="h-5 w-5 text-[var(--accent)]" />
             </div>
-            <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-[var(--accent)]">Rechtliches · Art. 28 DSGVO</p>
+            <p className="text-xs font-bold uppercase tracking-[0.25em] text-[var(--accent)]">Rechtliches · Art. 28 DSGVO</p>
           </div>
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-white mb-4">
             Auftragsverarbeitungsvertrag
@@ -42,7 +42,7 @@ export default function AvvPage() {
             Vertrag zur Auftragsverarbeitung personenbezogener Daten gemäß Art. 28 DSGVO
             zwischen BescheidRecht und beauftragenden Einrichtungen.
           </p>
-          <div className="mt-6 inline-flex items-center gap-2 px-4 py-2 bg-white/[0.03] border border-white/10 rounded-xl text-[12px] text-white/35">
+          <div className="mt-6 inline-flex items-center gap-2 px-4 py-2 bg-white/[0.03] border border-white/10 rounded-xl text-sm text-white/35">
             Stand: März 2026 · Version 1.0
           </div>
         </div>
@@ -189,12 +189,12 @@ export default function AvvPage() {
               erteilt hiermit ihre allgemeine Genehmigung zur Beauftragung dieser Unterauftragnehmer:
             </p>
             <div className="overflow-x-auto">
-              <table className="w-full text-[13px] border-collapse">
+              <table className="w-full text-sm border-collapse">
                 <thead>
                   <tr className="border-b border-white/10">
-                    <th className="text-left py-3 pr-4 text-white/40 font-bold text-[10px] uppercase tracking-widest">Anbieter</th>
-                    <th className="text-left py-3 pr-4 text-white/40 font-bold text-[10px] uppercase tracking-widest">Zweck</th>
-                    <th className="text-left py-3 text-white/40 font-bold text-[10px] uppercase tracking-widest">Sitz / Rechtsgrundlage</th>
+                    <th className="text-left py-3 pr-4 text-white/40 font-bold text-xs uppercase tracking-widest">Anbieter</th>
+                    <th className="text-left py-3 pr-4 text-white/40 font-bold text-xs uppercase tracking-widest">Zweck</th>
+                    <th className="text-left py-3 text-white/40 font-bold text-xs uppercase tracking-widest">Sitz / Rechtsgrundlage</th>
                   </tr>
                 </thead>
                 <tbody className="text-white/55">
@@ -221,7 +221,7 @@ export default function AvvPage() {
                 </tbody>
               </table>
             </div>
-            <p className="text-white/35 text-xs mt-4">
+            <p className="text-white/35 text-sm mt-4">
               BescheidRecht informiert die Einrichtung rechtzeitig über geplante Änderungen bei
               Unterauftragnehmern. Die Einrichtung hat das Recht, gegen beabsichtigte Änderungen
               Einspruch zu erheben.
@@ -319,7 +319,7 @@ export default function AvvPage() {
               <strong>13.2</strong> Gerichtsstand ist Vechta (Niedersachsen), soweit gesetzlich zulässig.
             </p>
             <p>
-              <strong>13.3</strong> Änderungen dieser AVV bedürfen der Schriftform (E-Mail genügt).
+              <strong>13.3</strong> Änderungen dieser AVV bedürfen der Textform (E-Mail genügt).
               BescheidRecht informiert Einrichtungen über wesentliche Änderungen mit einer
               Vorlaufzeit von 30 Tagen.
             </p>
@@ -331,10 +331,10 @@ export default function AvvPage() {
 
           {/* Kontakt / Unterschrift */}
           <div className="bg-[var(--accent)]/[0.04] border border-[var(--accent)]/20 rounded-2xl p-6 sm:p-8">
-            <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-[var(--accent)] mb-4">Verantwortlicher / Auftragsverarbeiter</p>
+            <p className="text-xs font-bold uppercase tracking-[0.25em] text-[var(--accent)] mb-4">Verantwortlicher / Auftragsverarbeiter</p>
             <div className="grid sm:grid-cols-2 gap-6 text-sm">
               <div>
-                <p className="text-white/30 text-xs mb-2 uppercase tracking-widest">Auftragsverarbeiter</p>
+                <p className="text-white/30 text-sm mb-2 uppercase tracking-widest">Auftragsverarbeiter</p>
                 <p className="text-white/70 leading-relaxed">
                   <strong className="text-white">Hendrik Berkensträter</strong><br />
                   BescheidRecht<br />
@@ -344,7 +344,7 @@ export default function AvvPage() {
                 </p>
               </div>
               <div>
-                <p className="text-white/30 text-xs mb-2 uppercase tracking-widest">Verantwortlicher</p>
+                <p className="text-white/30 text-sm mb-2 uppercase tracking-widest">Verantwortlicher</p>
                 <p className="text-white/50 leading-relaxed text-sm">
                   Die jeweilige Einrichtung (Verantwortlicher im Sinne Art. 4 Nr. 7 DSGVO),
                   wie im B2B-Nutzungsvertrag angegeben.
@@ -370,7 +370,7 @@ export default function AvvPage() {
           </div>
 
           {/* Footer-Links */}
-          <div className="flex flex-wrap gap-4 text-xs text-white/25 pt-4">
+          <div className="flex flex-wrap gap-4 text-sm text-white/25 pt-4">
             <Link href="/datenschutz" className="hover:text-white/50 transition-colors">Datenschutzerklärung</Link>
             <Link href="/impressum" className="hover:text-white/50 transition-colors">Impressum</Link>
             <Link href="/agb" className="hover:text-white/50 transition-colors">AGB</Link>
@@ -385,7 +385,7 @@ export default function AvvPage() {
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div className="rounded-2xl border border-white/[0.08] bg-white/[0.02] p-6 sm:p-8">
-      <h2 className="text-white font-bold uppercase tracking-widest text-xs mb-5">{title}</h2>
+      <h2 className="text-white font-bold uppercase tracking-widest text-sm mb-5">{title}</h2>
       <div className="space-y-4 text-white/60 text-[14px] leading-relaxed [&_ul]:pl-5 [&_ul]:space-y-2 [&_ul]:list-disc [&_ul]:text-white/50 [&_strong]:text-white/80">
         {children}
       </div>
@@ -398,8 +398,8 @@ function TomItem({ title, children }: { title: string; children: React.ReactNode
     <div className="flex gap-3">
       <div className="w-1.5 h-1.5 rounded-full bg-[var(--accent)]/60 mt-2 flex-shrink-0" />
       <div>
-        <p className="font-bold text-white/70 text-[13px] mb-0.5">{title}</p>
-        <p className="text-white/45 text-[13px]">{children}</p>
+        <p className="font-bold text-white/70 text-sm mb-0.5">{title}</p>
+        <p className="text-white/45 text-sm">{children}</p>
       </div>
     </div>
   );

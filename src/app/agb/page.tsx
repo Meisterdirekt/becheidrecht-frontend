@@ -67,7 +67,7 @@ export default function AGBPage() {
           <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-8">
             <h2 className="text-white font-bold uppercase tracking-widest text-xs mb-4">5. Preise und Zahlung</h2>
             <p className="text-white/90 mb-4">
-              Die jeweils gültigen Preise ergeben sich aus der Darstellung auf der Website bzw. beim Abschluss des gewählten Pakets. Alle Preise verstehen sich in Euro und inklusive der gesetzlichen Mehrwertsteuer, sofern nicht ausdrücklich anders angegeben (z. B. bei Anwendung der Kleinunternehmerregelung nach § 19 UStG). Die Zahlung erfolgt über die beim Kauf angegebene Zahlungsart (über den Zahlungsdienstleister Mollie B.V.). Bei Zahlungsverzug sind wir berechtigt, Verzugszinsen in gesetzlicher Höhe zu berechnen; der Nachweis eines höheren Schadens bleibt vorbehalten.
+              Die jeweils gültigen Preise ergeben sich aus der Darstellung auf der Website bzw. beim Abschluss des gewählten Pakets. Alle Preise verstehen sich in Euro. Es wird keine Umsatzsteuer ausgewiesen (Kleinunternehmerregelung gemäß § 19 UStG). Die Zahlung erfolgt über die beim Kauf angegebene Zahlungsart (über den Zahlungsdienstleister Mollie B.V.). Bei Zahlungsverzug sind wir berechtigt, Verzugszinsen in gesetzlicher Höhe zu berechnen; der Nachweis eines höheren Schadens bleibt vorbehalten.
             </p>
             <p className="text-white/90">
               Ein Anspruch auf Rückerstattung wegen nicht genutzter Analysen oder Schreiben innerhalb des gekauften Pakets besteht nur, soweit gesetzlich oder in diesen AGB vorgesehen (z. B. Widerruf).

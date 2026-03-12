@@ -11,7 +11,8 @@ export default function DatenschutzPage() {
       <SiteNavSimple backHref="/" backLabel="Zurück zur Startseite" />
       <div className="max-w-4xl mx-auto px-6 py-20 flex-grow">
         <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-[var(--accent)] mb-2">Rechtliches</p>
-        <h1 className="text-4xl md:text-5xl font-black tracking-tight mb-16">Datenschutzerklärung</h1>
+        <h1 className="text-4xl md:text-5xl font-black tracking-tight mb-4">Datenschutzerklärung</h1>
+        <p className="text-white/40 text-sm mb-16">Stand: März 2026</p>
         <section className="space-y-12 text-white/70 text-sm leading-relaxed">
           <div className="rounded-2xl border border-[var(--accent)]/30 bg-[var(--accent)]/10 p-8">
             <h2 className="text-[var(--accent)] font-bold uppercase tracking-widest text-xs mb-4">Geltungsbereich</h2>
@@ -146,7 +147,14 @@ export default function DatenschutzPage() {
           </div>
 
           <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-8">
-            <h2 className="text-white font-bold uppercase tracking-widest text-xs mb-4">12. Änderungen dieser Erklärung</h2>
+            <h2 className="text-white font-bold uppercase tracking-widest text-xs mb-4">12. Fehlerüberwachung (Sentry)</h2>
+            <p className="text-white/90">
+              Zur Erkennung und Behebung technischer Fehler setzen wir den Dienst Sentry (Functional Software Inc., USA) ein. Bei einem Fehler werden technische Informationen (Fehlermeldung, betroffene Seite, Browsertyp, ggf. gekürzte IP-Adresse) automatisch an Sentry übermittelt. Die Verarbeitung erfolgt auf Grundlage unseres berechtigten Interesses an der Stabilität und Sicherheit der Website (Art. 6 Abs. 1 lit. f DSGVO). Es besteht ein Auftragsverarbeitungsvertrag mit Sentry gemäß Art. 28 DSGVO. Personenbezogene Daten werden dabei nicht gezielt erfasst; Fehlerberichte werden nach 90 Tagen gelöscht.
+            </p>
+          </div>
+
+          <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-8">
+            <h2 className="text-white font-bold uppercase tracking-widest text-xs mb-4">13. Änderungen dieser Erklärung</h2>
             <p className="text-white/90">
               Wir behalten uns vor, diese Datenschutzerklärung bei Bedarf anzupassen, um sie an geänderte Rechtslage oder an Änderungen unseres Angebots anzupassen. Die jeweils aktuelle Version finden Sie auf dieser Seite. Bei wesentlichen Änderungen werden wir Sie, soweit erforderlich, gesondert informieren.
             </p>
