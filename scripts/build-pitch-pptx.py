@@ -190,9 +190,9 @@ add_text(sl, Inches(0.8), Inches(2.6), Inches(7), Inches(0.6),
 
 # Problem cards
 problems = [
-    ("42 %", "Erfolgreiche Widersprüche*", "Der Widersprüche gegen Jobcenter-Bescheide\nsind erfolgreich — die Fehler sind da,\nsie werden nur nicht systematisch gefunden.", RED, RED_LIGHT),
-    ("3–8 h", "Pro komplexem Fall", "Verbringt eine Fachkraft mit manueller\nRecherche, Paragraph-Suche und Brief-\nentwurf — Zeit, die für Klienten fehlt.", AMBER, AMBER_LIGHT),
-    ("30 Tage", "Widerspruchsfrist", "Laufen ohne KI-Fristüberwachung ungenutzt\nab. Verpasste Frist = kein Widerspruch\nmehr möglich.", RED, RED_LIGHT),
+    ("~40 %", "Erfolgreiche Widersprüche*", "Der Widersprüche gegen Jobcenter-Bescheide\nsind ganz oder teilweise erfolgreich — die\nFehler sind da, nur nicht systematisch gefunden.", RED, RED_LIGHT),
+    ("3–8 h", "Pro komplexem Fall", "Verbringt eine Fachkraft erfahrungsgemäß\nmit manueller Recherche, Paragraph-Suche\nund Briefentwurf — Zeit, die fehlt.", AMBER, AMBER_LIGHT),
+    ("1 Monat", "Widerspruchsfrist (§ 84 SGG)", "Läuft ohne systematische Fristüberwachung\nungenutzt ab. Verpasste Frist = kein\nWiderspruch mehr möglich.", RED, RED_LIGHT),
 ]
 
 for i, (stat, label, desc, accent, bg) in enumerate(problems):
@@ -215,7 +215,7 @@ add_text(sl, Inches(1.1), Inches(6.88), Inches(9), Inches(0.2),
 
 # Source
 add_text(sl, Inches(0.8), Inches(7.15), Inches(11), Inches(0.2),
-         "* Quelle: Statistik der Bundesagentur für Arbeit, Widersprüche und Klagen SGB II (2024)",
+         "* Quelle: Statistik der Bundesagentur für Arbeit, Widersprüche und Klagen SGB II (2025). Inkl. Teilabhilfe.",
          size=7, color=SLATE_400)
 
 slide_number(sl, 2)
