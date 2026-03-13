@@ -7,17 +7,17 @@ export default function AvvPage() {
   return (
     <main className="min-h-screen bg-[var(--bg)] text-[var(--text)] pb-24">
       {/* Nav */}
-      <nav className="sticky top-0 z-40 bg-[var(--bg)]/90 backdrop-blur-xl border-b border-white/5">
+      <nav className="sticky top-0 z-40 bg-[var(--bg)]/90 backdrop-blur-xl border-b border-[var(--border)]">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
-          <Link href="/b2b" className="text-white font-black text-lg tracking-tight hover:opacity-80 transition-opacity">
+          <Link href="/b2b" className="text-[var(--text)] font-black text-lg tracking-tight hover:opacity-80 transition-opacity">
             BESCHEID<span className="text-[var(--accent)]">RECHT</span>
           </Link>
           <div className="flex items-center gap-4">
-            <Link href="/b2b" className="text-sm text-white/35 hover:text-white/60 transition-colors">B2B-Übersicht</Link>
+            <Link href="/b2b" className="text-sm text-[var(--text-muted)] opacity-60 hover:opacity-100 transition-opacity">B2B-Übersicht</Link>
             <button
               type="button"
               onClick={() => window.print()}
-              className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2 border border-white/10 rounded-xl text-sm text-white/50 hover:text-white/70 hover:border-white/20 transition-all"
+              className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2 border border-[var(--border)] rounded-xl text-sm text-[var(--text-muted)] hover:text-[var(--text)] hover:border-[var(--border-strong)] transition-all"
             >
               <Download className="h-3.5 w-3.5" />
               Drucken / PDF
@@ -35,14 +35,14 @@ export default function AvvPage() {
             </div>
             <p className="text-xs font-bold uppercase tracking-[0.25em] text-[var(--accent)]">Rechtliches · Art. 28 DSGVO</p>
           </div>
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-white mb-4">
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-[var(--text)] mb-4">
             Auftragsverarbeitungsvertrag
           </h1>
-          <p className="text-white/40 text-base sm:text-lg max-w-2xl leading-relaxed">
+          <p className="text-[var(--text-muted)] text-base sm:text-lg max-w-2xl leading-relaxed">
             Vertrag zur Auftragsverarbeitung personenbezogener Daten gemäß Art. 28 DSGVO
             zwischen BescheidRecht und beauftragenden Einrichtungen.
           </p>
-          <div className="mt-6 inline-flex items-center gap-2 px-4 py-2 bg-white/[0.03] border border-white/10 rounded-xl text-sm text-white/35">
+          <div className="mt-6 inline-flex items-center gap-2 px-4 py-2 bg-[var(--surface)] border border-[var(--border)] rounded-xl text-sm text-[var(--text-muted)] opacity-70">
             Stand: März 2026 · Version 1.0
           </div>
         </div>
@@ -191,37 +191,37 @@ export default function AvvPage() {
             <div className="overflow-x-auto">
               <table className="w-full text-sm border-collapse">
                 <thead>
-                  <tr className="border-b border-white/10">
-                    <th className="text-left py-3 pr-4 text-white/40 font-bold text-xs uppercase tracking-widest">Anbieter</th>
-                    <th className="text-left py-3 pr-4 text-white/40 font-bold text-xs uppercase tracking-widest">Zweck</th>
-                    <th className="text-left py-3 text-white/40 font-bold text-xs uppercase tracking-widest">Sitz / Rechtsgrundlage</th>
+                  <tr className="border-b border-[var(--border-strong)]">
+                    <th className="text-left py-3 pr-4 text-[var(--text-muted)] font-bold text-xs uppercase tracking-widest">Anbieter</th>
+                    <th className="text-left py-3 pr-4 text-[var(--text-muted)] font-bold text-xs uppercase tracking-widest">Zweck</th>
+                    <th className="text-left py-3 text-[var(--text-muted)] font-bold text-xs uppercase tracking-widest">Sitz / Rechtsgrundlage</th>
                   </tr>
                 </thead>
-                <tbody className="text-white/55">
-                  <tr className="border-b border-white/5">
-                    <td className="py-3 pr-4 font-medium text-white/70">Vercel Inc.</td>
+                <tbody className="text-[var(--text-muted)]">
+                  <tr className="border-b border-[var(--border)]">
+                    <td className="py-3 pr-4 font-medium text-[var(--text)]">Vercel Inc.</td>
                     <td className="py-3 pr-4">Hosting, CDN, Serverless Functions</td>
-                    <td className="py-3">USA — DPA + SCCs</td>
+                    <td className="py-3">USA (Serverstandort: EU/Frankfurt) — DPA + SCCs</td>
                   </tr>
-                  <tr className="border-b border-white/5">
-                    <td className="py-3 pr-4 font-medium text-white/70">Supabase Inc.</td>
+                  <tr className="border-b border-[var(--border)]">
+                    <td className="py-3 pr-4 font-medium text-[var(--text)]">Supabase Inc.</td>
                     <td className="py-3 pr-4">Datenbank, Authentifizierung</td>
                     <td className="py-3">EU-Region — DPA + SCCs</td>
                   </tr>
-                  <tr className="border-b border-white/5">
-                    <td className="py-3 pr-4 font-medium text-white/70">Anthropic, PBC</td>
+                  <tr className="border-b border-[var(--border)]">
+                    <td className="py-3 pr-4 font-medium text-[var(--text)]">Anthropic, PBC</td>
                     <td className="py-3 pr-4">KI-Verarbeitung (pseudonymisiert)</td>
                     <td className="py-3">USA — DPA + SCCs, Zero-Retention</td>
                   </tr>
                   <tr>
-                    <td className="py-3 pr-4 font-medium text-white/70">Mollie B.V.</td>
+                    <td className="py-3 pr-4 font-medium text-[var(--text)]">Mollie B.V.</td>
                     <td className="py-3 pr-4">Zahlungsabwicklung</td>
                     <td className="py-3">NL (EU) — PCI-DSS, DSGVO</td>
                   </tr>
                 </tbody>
               </table>
             </div>
-            <p className="text-white/35 text-sm mt-4">
+            <p className="text-[var(--text-muted)] opacity-70 text-sm mt-4">
               BescheidRecht informiert die Einrichtung rechtzeitig über geplante Änderungen bei
               Unterauftragnehmern. Die Einrichtung hat das Recht, gegen beabsichtigte Änderungen
               Einspruch zu erheben.
@@ -334,9 +334,9 @@ export default function AvvPage() {
             <p className="text-xs font-bold uppercase tracking-[0.25em] text-[var(--accent)] mb-4">Verantwortlicher / Auftragsverarbeiter</p>
             <div className="grid sm:grid-cols-2 gap-6 text-sm">
               <div>
-                <p className="text-white/30 text-sm mb-2 uppercase tracking-widest">Auftragsverarbeiter</p>
-                <p className="text-white/70 leading-relaxed">
-                  <strong className="text-white">Hendrik Berkensträter</strong><br />
+                <p className="text-[var(--text-muted)] text-sm mb-2 uppercase tracking-widest">Auftragsverarbeiter</p>
+                <p className="text-[var(--text-muted)] leading-relaxed">
+                  <strong className="text-[var(--text)]">Hendrik Berkensträter</strong><br />
                   BescheidRecht<br />
                   Antoniusstraße 47<br />
                   49377 Vechta<br />
@@ -344,14 +344,14 @@ export default function AvvPage() {
                 </p>
               </div>
               <div>
-                <p className="text-white/30 text-sm mb-2 uppercase tracking-widest">Verantwortlicher</p>
-                <p className="text-white/50 leading-relaxed text-sm">
+                <p className="text-[var(--text-muted)] text-sm mb-2 uppercase tracking-widest">Verantwortlicher</p>
+                <p className="text-[var(--text-muted)] leading-relaxed text-sm">
                   Die jeweilige Einrichtung (Verantwortlicher im Sinne Art. 4 Nr. 7 DSGVO),
                   wie im B2B-Nutzungsvertrag angegeben.
                 </p>
               </div>
             </div>
-            <div className="mt-6 pt-6 border-t border-white/5 flex flex-col sm:flex-row gap-4">
+            <div className="mt-6 pt-6 border-t border-[var(--border)] flex flex-col sm:flex-row gap-4">
               <Link
                 href="mailto:kontakt@bescheidrecht.de?subject=AVV%20BescheidRecht%20B2B"
                 className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-[var(--accent)] text-white font-bold rounded-xl text-sm hover:bg-[var(--accent-hover)] transition-colors"
@@ -361,7 +361,7 @@ export default function AvvPage() {
               <a
                 href="#"
                 onClick={(e) => { e.preventDefault(); window.print(); }}
-                className="inline-flex items-center justify-center gap-2 px-6 py-3 border border-white/10 text-white/50 font-bold rounded-xl text-sm hover:border-white/20 hover:text-white/70 transition-colors"
+                className="inline-flex items-center justify-center gap-2 px-6 py-3 border border-[var(--border)] text-[var(--text-muted)] font-bold rounded-xl text-sm hover:border-[var(--border-strong)] hover:text-[var(--text)] transition-colors"
               >
                 <Download className="h-4 w-4" />
                 Als PDF drucken
@@ -370,11 +370,11 @@ export default function AvvPage() {
           </div>
 
           {/* Footer-Links */}
-          <div className="flex flex-wrap gap-4 text-sm text-white/25 pt-4">
-            <Link href="/datenschutz" className="hover:text-white/50 transition-colors">Datenschutzerklärung</Link>
-            <Link href="/impressum" className="hover:text-white/50 transition-colors">Impressum</Link>
-            <Link href="/agb" className="hover:text-white/50 transition-colors">AGB</Link>
-            <Link href="/b2b" className="hover:text-white/50 transition-colors">B2B-Übersicht</Link>
+          <div className="flex flex-wrap gap-4 text-sm text-[var(--text-muted)] opacity-50 pt-4">
+            <Link href="/datenschutz" className="hover:opacity-100 transition-opacity">Datenschutzerklärung</Link>
+            <Link href="/impressum" className="hover:opacity-100 transition-opacity">Impressum</Link>
+            <Link href="/agb" className="hover:opacity-100 transition-opacity">AGB</Link>
+            <Link href="/b2b" className="hover:opacity-100 transition-opacity">B2B-Übersicht</Link>
           </div>
         </div>
       </div>
@@ -384,9 +384,9 @@ export default function AvvPage() {
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="rounded-2xl border border-white/[0.08] bg-white/[0.02] p-6 sm:p-8">
-      <h2 className="text-white font-bold uppercase tracking-widest text-sm mb-5">{title}</h2>
-      <div className="space-y-4 text-white/60 text-[14px] leading-relaxed [&_ul]:pl-5 [&_ul]:space-y-2 [&_ul]:list-disc [&_ul]:text-white/50 [&_strong]:text-white/80">
+    <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 sm:p-8">
+      <h2 className="text-[var(--text)] font-bold uppercase tracking-widest text-sm mb-5">{title}</h2>
+      <div className="space-y-4 text-[var(--text-muted)] text-[14px] leading-relaxed [&_ul]:pl-5 [&_ul]:space-y-2 [&_ul]:list-disc [&_ul]:text-[var(--text-muted)] [&_strong]:text-[var(--text)]">
         {children}
       </div>
     </div>
@@ -398,8 +398,8 @@ function TomItem({ title, children }: { title: string; children: React.ReactNode
     <div className="flex gap-3">
       <div className="w-1.5 h-1.5 rounded-full bg-[var(--accent)]/60 mt-2 flex-shrink-0" />
       <div>
-        <p className="font-bold text-white/70 text-sm mb-0.5">{title}</p>
-        <p className="text-white/45 text-sm">{children}</p>
+        <p className="font-bold text-[var(--text)] text-sm mb-0.5">{title}</p>
+        <p className="text-[var(--text-muted)] text-sm">{children}</p>
       </div>
     </div>
   );
