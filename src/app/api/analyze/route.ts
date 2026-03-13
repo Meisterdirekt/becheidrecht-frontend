@@ -4,28 +4,14 @@ import { runAgentAnalysis, type AgentAnalysisResult, type ProgressCallback } fro
 import { runForensicAnalysis } from '@/lib/logic/engine';
 import { pseudonymizeText, depseudonymizeText } from '@/lib/privacy/pseudonymizer';
 import { getAuthenticatedUser } from '@/lib/supabase/auth';
-import { getAnthropicKey } from '@/lib/logic/agents/utils';
+import { getAnthropicKey, getOpenAIKey } from '@/lib/logic/agents/utils';
 import { analyzeLimiter, analyzeAnonLimiter } from '@/lib/rate-limit';
 import { reportError, reportInfo } from '@/lib/error-reporter';
 import PDFParser from 'pdf2json';
 import OpenAI from 'openai';
-import fs from 'fs';
-import path from 'path';
 
 export const runtime = 'nodejs';
 export const maxDuration = 300;
-
-function getOpenAIKey(): string | null {
-  try {
-    const vaultPath = (file: string) => path.join(process.cwd(), 'vault', file);
-    const envContent = fs.readFileSync(vaultPath('keys.env'), 'utf8');
-    const key = envContent.match(/OPENAI_API_KEY\s*=\s*([^\s\n]+)/)?.[1];
-    if (key) return key;
-  } catch {
-    // Vault nicht vorhanden (z. B. auf Vercel)
-  }
-  return process.env.OPENAI_API_KEY || null;
-}
 
 async function extractTextFromPdf(buffer: Buffer): Promise<string> {
   return new Promise<string>((resolve, reject) => {
@@ -207,7 +193,7 @@ export async function POST(req: Request) {
       const { success } = await analyzeAnonLimiter.limit(ip);
       if (!success) {
         return NextResponse.json(
-          { error: 'Sie haben heute bereits eine kostenlose Demo-Analyse genutzt. Registrieren Sie sich kostenlos für unbegrenzte Analysen.' },
+          { error: 'Sie haben heute bereits eine kostenlose Demo-Analyse genutzt. Registrieren Sie sich für weitere Analysen.' },
           { status: 429 }
         );
       }

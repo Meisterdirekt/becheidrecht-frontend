@@ -352,28 +352,28 @@ export default function PitchDeckPage() {
             {[
               {
                 name: "Starter",
-                price: "299 €",
+                price: "249 €",
                 users: "1 Nutzer-Zugang",
                 features: ["100 Analysen / Monat", "Schreiben-Generator", "Automatische Pseudonymisierung"],
                 highlight: false,
               },
               {
                 name: "Team",
-                price: "599 €",
-                users: "Bis 5 Nutzer-Zugänge",
+                price: "499 €",
+                users: "Bis 3 Nutzer-Zugänge",
                 features: ["400 Analysen / Monat", "Fristen-Dashboard", "Prioritäts-Support & Onboarding"],
                 highlight: true,
               },
               {
                 name: "Einrichtung",
-                price: "999 €",
+                price: "899 €",
                 users: "Bis 10 Nutzer-Zugänge",
                 features: ["1.000 Analysen / Monat", "Prioritäts-Support & Onboarding", "Persönlicher Ansprechpartner"],
                 highlight: false,
               },
               {
                 name: "Rahmen­vertrag",
-                price: "ab 2.499 €",
+                price: "Auf Anfrage",
                 users: "Mehrere Standorte",
                 features: ["Ab 3.000 Analysen & SLA", "Compliance-Paket", "Dedizierter Betreuer"],
                 highlight: false,

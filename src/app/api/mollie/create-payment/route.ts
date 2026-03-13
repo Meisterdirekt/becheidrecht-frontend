@@ -20,9 +20,9 @@ interface ProductDef {
 }
 
 const PRODUCTS: Record<string, ProductDef> = {
-  starter:     { price: "299.00", description: "BescheidRecht — Starter (1 Nutzer, 100 Analysen/Monat)" },
-  team:        { price: "599.00", description: "BescheidRecht — Team (5 Nutzer, 400 Analysen/Monat)" },
-  einrichtung: { price: "999.00", description: "BescheidRecht — Einrichtung (10 Nutzer, 1.000 Analysen/Monat)" },
+  starter:     { price: "249.00", description: "BescheidRecht — Starter (1 Nutzer, 100 Analysen/Monat)" },
+  team:        { price: "499.00", description: "BescheidRecht — Team (3 Nutzer, 400 Analysen/Monat)" },
+  einrichtung: { price: "899.00", description: "BescheidRecht — Einrichtung (10 Nutzer, 1.000 Analysen/Monat)" },
 };
 
 export async function POST(req: NextRequest) {

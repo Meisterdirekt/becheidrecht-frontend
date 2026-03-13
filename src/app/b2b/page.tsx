@@ -56,7 +56,7 @@ const TARIFE = [
   {
     name: "Starter",
     analysen: "100",
-    preis: "299",
+    preis: "249",
     zeitraum: "/ Monat",
     ideal: "Einzelne Beratungsstelle",
     features: [
@@ -69,7 +69,7 @@ const TARIFE = [
   {
     name: "Team",
     analysen: "400",
-    preis: "599",
+    preis: "499",
     zeitraum: "/ Monat",
     ideal: "Kreisverband / Regionalstelle",
     highlight: true,
@@ -83,7 +83,7 @@ const TARIFE = [
   {
     name: "Einrichtung",
     analysen: "1.000",
-    preis: "999",
+    preis: "899",
     zeitraum: "/ Monat",
     ideal: "Landes-/Bundesverband",
     features: [

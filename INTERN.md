@@ -29,11 +29,12 @@ Danach: [http://localhost:3000/intern](http://localhost:3000/intern)
 
 ## Preise (Stand März 2026)
 
-| Paket | Nutzer | Analysen | Preis/Monat | Onboarding |
-|---|---|---|---|---|
-| S — Beratungsstelle | bis 15 | 1.000 | 1.490 € netto | 1.500 € |
-| M — Kreisverband | bis 50 | 5.000 | 3.490 € netto | 2.500 € |
-| L — Landes-/Diözesanverband | bis 200 | unbegrenzt | 7.490 € netto | 4.500 € |
+| Paket | Nutzer | Analysen/Monat | Preis/Monat (netto) |
+|---|---|---|---|
+| Starter | 1 | 100 | 249 € |
+| Team | bis 3 | 400 | 499 € |
+| Einrichtung | bis 10 | 1.000 | 899 € |
+| Rahmenvertrag | individuell | individuell | Auf Anfrage |
 
 **Jahresrabatt:** −10 % bei Vorauszahlung · **Preisanpassung:** max. 5 % p. a.
 

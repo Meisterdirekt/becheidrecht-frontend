@@ -11,7 +11,7 @@
  *
  * BEIM ERSTELLEN EINER ZAHLUNG (via Mollie API) folgende metadata mitsenden:
  *   metadata: {
- *     product_key: "single" | "basic" | "standard" | "pro",
+ *     product_key: "starter" | "team" | "einrichtung",
  *     buyer_email: "nutzer@beispiel.de"
  *   }
  * ─────────────────────────────────────────────────────────────────
@@ -40,10 +40,9 @@ interface ProductConfig {
 }
 
 const PRODUCT_CONFIGS: Record<string, ProductConfig> = {
-  single:   { type: 'single',   analyses: 1,  months: 0 },
-  basic:    { type: 'basic',    analyses: 5,  months: 1 },
-  standard: { type: 'standard', analyses: 15, months: 1 },
-  pro:      { type: 'pro',      analyses: 50, months: 1 },
+  starter:     { type: 'b2b_starter',      analyses: 100,  months: 1 },
+  team:        { type: 'b2b_professional',  analyses: 400,  months: 1 },
+  einrichtung: { type: 'b2b_enterprise',    analyses: 1000, months: 1 },
 };
 
 // ---------------------------------------------------------------------------
