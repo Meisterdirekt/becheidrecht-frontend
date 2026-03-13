@@ -319,7 +319,13 @@ export async function POST(req: Request) {
               frist_datum: result.frist_datum ?? null, dringlichkeit: result.routing_stufe ?? null,
               model_used: result.model_used ?? (result.routing_stufe === 'NOTFALL' ? 'claude-opus-4-6' : 'claude-sonnet-4-6'),
               token_cost_eur: result.token_kosten_eur,
-            }).then(null, () => {})
+              analyse_meta: {
+                erfolgschance: result.kritik?.erfolgschance_prozent ?? null,
+                agenten_aktiv: result.agenten_aktiv ?? [],
+                fehler_count: result.fehler?.length ?? 0,
+                schwachstellen: result.kritik?.schwachstellen ?? [],
+              },
+            }).then(null, (err: unknown) => reportError(err instanceof Error ? err : new Error(String(err)), { critical: false, context: 'analysis_results_save' }).catch(() => {}))
           );
         }
 

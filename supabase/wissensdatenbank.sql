@@ -263,7 +263,8 @@ CREATE TABLE IF NOT EXISTS analysis_results (
   frist_datum     text,
   dringlichkeit   text CHECK (dringlichkeit IN ('NORMAL', 'HOCH', 'NOTFALL')),
   model_used      text,
-  token_cost_eur  numeric(8,4) DEFAULT 0
+  token_cost_eur  numeric(8,4) DEFAULT 0,
+  analyse_meta    jsonb DEFAULT '{}'::jsonb
 );
 
 ALTER TABLE analysis_results ENABLE ROW LEVEL SECURITY;
@@ -291,6 +292,7 @@ END $$;
 CREATE INDEX IF NOT EXISTS analysis_results_user_idx ON analysis_results(user_id);
 CREATE INDEX IF NOT EXISTS analysis_results_session_idx ON analysis_results(session_id);
 CREATE INDEX IF NOT EXISTS analysis_results_created_idx ON analysis_results(created_at DESC);
+CREATE INDEX IF NOT EXISTS analysis_results_rechtsgebiet_idx ON analysis_results(rechtsgebiet);
 
 -- ---------------------------------------------------------------------------
 -- Deployment-Anleitung
