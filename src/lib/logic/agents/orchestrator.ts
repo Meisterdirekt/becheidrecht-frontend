@@ -2,7 +2,7 @@
  * Pipeline-Orchestrator
  *
  * Steuert die Reihenfolge aller Agenten:
- * AG08 → AG12 → AG01 → [AG02 ║ AG04] → AG03 → [AG07 ║ AG14] → AG13
+ * AG08 → AG12 → AG01 → [AG02 ║ AG04] → AG03 → [AG07 ║ AG14 ║ AG13]
  * + async: AG05, AG06
  *
  * Parallelismus via Promise.allSettled(), Graceful Degradation via safeExecute().
@@ -26,6 +26,7 @@ import {
   estimateCost,
   isBudgetExceeded,
   safeExecute,
+  classifyApiError,
   SONNET_MODEL,
   HAIKU_MODEL,
   OPUS_MODEL,
@@ -190,7 +191,7 @@ export async function runPipeline(
   agentenAktiv.push("AG01");
   agentenDetails["AG01"] = { success: triageResult.success, durationMs: triageResult.durationMs, error: triageResult.error };
   totalTokens = mergeTokenUsage(totalTokens, triageResult.tokens);
-  agentCosts.push({ tokens: triageResult.tokens, model: SONNET_MODEL });
+  agentCosts.push({ tokens: triageResult.tokens, model: HAIKU_MODEL });
   pipeline.triage = triageResult.data;
 
   onProgress?.("triage", `${triageResult.data.rechtsgebiet} — ${triageResult.data.behoerde}`);
@@ -246,28 +247,27 @@ export async function runPipeline(
 
   onProgress?.("analyse", `${analyseResult?.data.fehler.length ?? 0} Fehler, ${rechercheResult?.data.urteile.length ?? 0} Urteile`);
 
-  // Budget-Check vor AG03 (läuft jetzt für HOCH + NOTFALL)
-  if (routingStufe === "HOCH" || routingStufe === "NOTFALL") {
-    if (!isBudgetExceeded(totalTokens)) {
-      const kritikResult = await safeExecute<KritikResult>(
-        "AG03",
-        () => ag03Critic.execute({ ...baseCtx, pipeline }),
-        { gegenargumente: [], erfolgschance_prozent: 50, schwachstellen: [] }
-      );
-      agentenAktiv.push("AG03");
-      agentenDetails["AG03"] = { success: kritikResult.success, durationMs: kritikResult.durationMs, error: kritikResult.error };
-      totalTokens = mergeTokenUsage(totalTokens, kritikResult.tokens);
-      agentCosts.push({ tokens: kritikResult.tokens, model: adaptiveModel });
-      pipeline.kritik = kritikResult.data;
-    } else {
-      console.warn("[Orchestrator] Budget überschritten — AG03 übersprungen");
-    }
+  // AG03 Kritiker — läuft für alle Dringlichkeitsstufen (Budget-Guard bleibt)
+  if (!isBudgetExceeded(totalTokens)) {
+    const kritikResult = await safeExecute<KritikResult>(
+      "AG03",
+      () => ag03Critic.execute({ ...baseCtx, pipeline }),
+      { gegenargumente: [], erfolgschance_prozent: 50, schwachstellen: [] }
+    );
+    agentenAktiv.push("AG03");
+    agentenDetails["AG03"] = { success: kritikResult.success, durationMs: kritikResult.durationMs, error: kritikResult.error };
+    totalTokens = mergeTokenUsage(totalTokens, kritikResult.tokens);
+    agentCosts.push({ tokens: kritikResult.tokens, model: adaptiveModel });
+    pipeline.kritik = kritikResult.data;
+  } else {
+    console.warn("[Orchestrator] Budget überschritten — AG03 übersprungen");
   }
 
-  // --- Phase 5: AG07 Musterschreiben + AG14 Präzedenzfall-Analyse PARALLEL ---
+  // --- Phase 5: AG07 + AG14 + AG13 PARALLEL ---
+  // AG13 nutzt AG07-Forderung nur optional (?.forderung) — kann parallel starten
   // AG14 braucht AG01 (triage) aber nicht AG07 — läuft parallel zum Brief
-  reportInfo("[Orchestrator] Phase 5: AG07 + AG14 parallel");
-  const [letterSettled, praezedenzSettled] = await Promise.allSettled([
+  reportInfo("[Orchestrator] Phase 5: AG07 + AG14 + AG13 parallel");
+  const [letterSettled, praezedenzSettled, explainerSettled] = await Promise.allSettled([
     safeExecute(
       "AG07",
       () => ag07LetterGenerator.execute({ ...baseCtx, pipeline }),
@@ -278,6 +278,11 @@ export async function runPipeline(
       () => ag14PraezedenzAnalyzer.execute({ ...baseCtx, pipeline }),
       { aehnliche_faelle: 0, erfolgsquote_prozent: null, haeufigste_fehler: [], hinweis: "" }
     ),
+    safeExecute(
+      "AG13",
+      () => ag13UserExplainer.execute({ ...baseCtx, pipeline }),
+      { klartext: "" }
+    ),
   ]);
 
   const letterResult = letterSettled.status === "fulfilled"
@@ -287,6 +292,10 @@ export async function runPipeline(
   const praezedenzResult = praezedenzSettled.status === "fulfilled"
     ? praezedenzSettled.value
     : null;
+
+  const explainerResult = explainerSettled.status === "fulfilled"
+    ? explainerSettled.value
+    : { agentId: "AG13" as const, success: false, data: { klartext: "" }, tokens: emptyTokenUsage(), durationMs: 0, error: "AG13 rejected" };
 
   agentenAktiv.push("AG07");
   agentenDetails["AG07"] = { success: letterResult.success, durationMs: letterResult.durationMs, error: letterResult.error };
@@ -303,12 +312,6 @@ export async function runPipeline(
 
   onProgress?.("brief", "Musterschreiben erstellt");
 
-  // --- Phase 6: AG13 Nutzer-Erklärer ---
-  const explainerResult = await safeExecute(
-    "AG13",
-    () => ag13UserExplainer.execute({ ...baseCtx, pipeline }),
-    { klartext: "" }
-  );
   agentenAktiv.push("AG13");
   agentenDetails["AG13"] = { success: explainerResult.success, durationMs: explainerResult.durationMs, error: explainerResult.error };
   totalTokens = mergeTokenUsage(totalTokens, explainerResult.tokens);
@@ -328,16 +331,53 @@ export async function runPipeline(
     modell: adaptiveModel,
   });
 
-  // --- Ergebnis aufbauen (rückwärtskompatibel) ---
+  // --- Systemfehler-Erkennung: Alle kritischen Agenten gescheitert? ---
+  const criticalAgents = ["AG01", "AG02", "AG07"] as const;
+  const criticalErrors = criticalAgents
+    .map((id) => agentenDetails[id])
+    .filter((d) => d && !d.success);
+  const allCriticalFailed = criticalErrors.length === criticalAgents.length;
+
+  // Typischen API-Fehler extrahieren (z.B. credit balance, rate limit)
+  let systemError: string | undefined;
+  if (allCriticalFailed) {
+    const firstError = criticalErrors[0]?.error ?? "";
+    systemError = classifyApiError(firstError);
+    reportInfo("[Orchestrator] Alle kritischen Agenten gescheitert", {
+      error: firstError.slice(0, 200),
+      agenten: criticalAgents.join(","),
+    });
+  }
+
+  // --- Ergebnis aufbauen: Alle Fehlerquellen zusammenführen ---
   const analyseData = pipeline.analyse;
-  const fehlerListe =
-    letterResult.data.auffaelligkeiten.length > 0
-      ? letterResult.data.auffaelligkeiten
-      : analyseData && analyseData.auffaelligkeiten.length > 0
-      ? analyseData.auffaelligkeiten
-      : analyseData && analyseData.fehler.length > 0
-      ? analyseData.fehler.map((f) => f.musterschreiben_hinweis ?? f.titel)
-      : ["Analyse abgeschlossen. Keine spezifischen Auffälligkeiten identifiziert."];
+
+  // Alle Quellen sammeln statt exklusiver Kaskade
+  const fehlerListe: string[] = systemError ? [systemError] : [];
+
+  if (!systemError) {
+    // AG07-Auffälligkeiten (höchste Priorität — vom Brief-Generator selbst erkannt)
+    if (letterResult.data.auffaelligkeiten.length > 0) {
+      fehlerListe.push(...letterResult.data.auffaelligkeiten);
+    }
+    // AG02-Auffälligkeiten ergänzen (falls AG07 weniger gefunden hat)
+    if (analyseData && analyseData.auffaelligkeiten.length > 0) {
+      for (const a of analyseData.auffaelligkeiten) {
+        if (!fehlerListe.includes(a)) fehlerListe.push(a);
+      }
+    }
+    // AG02-Fehlerkatalog-Treffer ergänzen
+    if (analyseData && analyseData.fehler.length > 0) {
+      for (const f of analyseData.fehler) {
+        const text = f.musterschreiben_hinweis ?? f.titel;
+        if (!fehlerListe.includes(text)) fehlerListe.push(text);
+      }
+    }
+    // Fallback nur wenn wirklich gar nichts gefunden
+    if (fehlerListe.length === 0) {
+      fehlerListe.push("Analyse abgeschlossen. Keine spezifischen Auffälligkeiten identifiziert.");
+    }
+  }
 
   // Fristdatum ISO-Format
   let fristDatumIso: string | undefined;
@@ -371,7 +411,7 @@ export async function runPipeline(
     fehler: fehlerListe,
     musterschreiben:
       letterResult.data.volltext ||
-      "Das Musterschreiben konnte nicht erstellt werden. Bitte erneut versuchen.",
+      (systemError ?? "Das Musterschreiben konnte nicht erstellt werden. Bitte erneut versuchen."),
     frist_datum: fristDatumIso,
     frist_tage: pipeline.triage?.frist_tage,
     routing_stufe: routingStufe,
