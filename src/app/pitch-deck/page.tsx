@@ -538,7 +538,7 @@ export default function PitchDeckPage() {
                   accent: "#ef4444",
                 },
                 {
-                  stat: "3–8",
+                  stat: "1–2",
                   suffix: "h",
                   label: "Pro komplexem Fall",
                   desc: "Verbringt eine Fachkraft erfahrungsgemäß mit manueller Recherche, Paragraph-Suche und Briefentwurf — Zeit, die für weitere Klient:innen fehlt.",
