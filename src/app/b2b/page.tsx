@@ -350,7 +350,7 @@ export default function B2BPage() {
               {PROBLEM_ITEMS.map((item) => (
                 <li key={item} className="flex items-start gap-3">
                   <XCircle className="h-4 w-4 text-red-500/60 mt-0.5 flex-shrink-0" />
-                  <span className="text-white/55 text-[14px] sm:text-[15px] leading-snug">{item}</span>
+                  <span className="text-white/60 text-[15px] leading-snug">{item}</span>
                 </li>
               ))}
             </ul>
@@ -363,7 +363,7 @@ export default function B2BPage() {
               {LOESUNG_ITEMS.map((item) => (
                 <li key={item} className="flex items-start gap-3">
                   <CheckCircle2 className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
-                  <span className="text-white/55 text-[14px] sm:text-[15px] leading-snug">{item}</span>
+                  <span className="text-white/60 text-[15px] leading-snug">{item}</span>
                 </li>
               ))}
             </ul>
@@ -381,7 +381,7 @@ export default function B2BPage() {
         <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight text-center mb-4">
           3 Schritte zur Bescheidprüfung
         </h2>
-        <p className="text-center text-white/35 mb-14 sm:mb-20 text-[14px] sm:text-[15px]">
+        <p className="text-center text-white/45 mb-14 sm:mb-20 text-[15px]">
           Vom Upload bis zum fertigen Widerspruchsschreiben.
         </p>
         <div className="grid md:grid-cols-3 gap-6 sm:gap-8 relative">
@@ -399,7 +399,7 @@ export default function B2BPage() {
                 <item.Icon className="h-4 w-4 text-[var(--accent)]/50" />
               </div>
               <h3 className="text-base sm:text-lg font-bold mb-3">{item.title}</h3>
-              <p className="text-white/40 text-sm sm:text-[14px] leading-relaxed">{item.desc}</p>
+              <p className="text-white/50 text-[15px] leading-relaxed">{item.desc}</p>
             </div>
           ))}
         </div>
@@ -415,7 +415,7 @@ export default function B2BPage() {
         <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight text-center mb-4">
           16 Rechtsgebiete abgedeckt
         </h2>
-        <p className="text-center text-white/35 mb-10 sm:mb-12 text-[14px] sm:text-[15px]">
+        <p className="text-center text-white/45 mb-10 sm:mb-12 text-[15px]">
           Von Grundsicherungsgeld über Pflegegrad bis BAföG — ein Tool für alle Bescheide.
         </p>
         <div className="flex flex-wrap justify-center gap-2 sm:gap-3 max-w-3xl mx-auto">
@@ -448,7 +448,7 @@ export default function B2BPage() {
             >
               <item.Icon className="h-6 w-6 text-[var(--accent)]" aria-hidden />
               <h3 className="font-bold text-base uppercase tracking-wider text-white/90">{item.title}</h3>
-              <p className="text-white/55 text-sm leading-relaxed">{item.desc}</p>
+              <p className="text-white/60 text-[15px] leading-relaxed">{item.desc}</p>
             </div>
           ))}
         </div>
@@ -465,7 +465,7 @@ export default function B2BPage() {
           <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-center mb-3">
             Was bringt BescheidRecht Ihrer Einrichtung?
           </h2>
-          <p className="text-center text-white/35 mb-10 sm:mb-12 text-[14px]">
+          <p className="text-center text-white/45 mb-10 sm:mb-12 text-[15px]">
             Stellen Sie Ihren Anwendungsfall ein und berechnen Sie Ihren konkreten Nutzen.
           </p>
           <RoiCalculator />
@@ -532,7 +532,7 @@ export default function B2BPage() {
           <h2 className="text-2xl sm:text-3xl font-black tracking-tight mb-3 text-center">
             Sicherheit für sensible Sozialdaten
           </h2>
-          <p className="text-center text-white/35 mb-10 text-[14px]">
+          <p className="text-center text-white/45 mb-10 text-[15px]">
             Behördliche Bescheide enthalten hochsensible Daten. Wir nehmen das ernst.
           </p>
           <div className="grid sm:grid-cols-2 gap-5 sm:gap-6 max-w-3xl mx-auto">
@@ -543,7 +543,7 @@ export default function B2BPage() {
                 </div>
                 <div>
                   <h3 className="font-bold text-[14px] sm:text-[15px] mb-1">{item.title}</h3>
-                  <p className="text-white/35 text-sm leading-relaxed">
+                  <p className="text-white/45 text-[15px] leading-relaxed">
                     {item.desc}
                   </p>
                 </div>
@@ -563,7 +563,7 @@ export default function B2BPage() {
         <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight text-center mb-3 sm:mb-4">
           Tarife für Einrichtungen
         </h2>
-        <p className="text-center text-white/35 mb-2 text-[14px] sm:text-[15px]">
+        <p className="text-center text-white/45 mb-2 text-[15px]">
           Keine Einrichtungsgebühr. Monatlich kündbar.
         </p>
         <p className="text-center text-white/20 mb-12 sm:mb-16 text-sm">
@@ -633,7 +633,7 @@ export default function B2BPage() {
                 <span className="font-bold text-[14px] sm:text-[15px] text-white/85">{item.q}</span>
                 <ChevronDown className="h-5 w-5 text-white/30 flex-shrink-0 transition-transform duration-300 group-open:rotate-180" />
               </summary>
-              <p className="pb-6 text-white/45 text-sm sm:text-[14px] leading-relaxed">
+              <p className="pb-6 text-white/50 text-[15px] leading-relaxed">
                 {item.a}
               </p>
             </details>

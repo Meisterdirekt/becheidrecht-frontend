@@ -280,20 +280,23 @@ export default function Page() {
           {t.text}
         </p>
 
-        {/* Unterstützte Behörden */}
-        <div className={`relative max-w-4xl mx-auto mb-12 text-center transition-all duration-700 delay-250 ${loaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}>
+        {/* Unterstützte Behörden — kompakt */}
+        <div className={`relative max-w-3xl mx-auto mb-10 text-center transition-all duration-700 delay-250 ${loaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}>
           <p className="text-xs font-bold text-white/40 uppercase tracking-[0.2em] mb-4">
-            Technische Analyse von Bescheiden dieser Stellen:
+            16 Rechtsgebiete — u.a. Bescheide von:
           </p>
-          <div className="flex flex-wrap justify-center gap-2 sm:gap-3">
-            {supportedAuthorities.map((authority) => (
+          <div className="flex flex-wrap justify-center gap-2">
+            {["Jobcenter", "Rentenversicherung", "Krankenkassen", "Pflegekassen", "Sozialamt", "BAMF"].map((authority) => (
               <span
                 key={authority}
-                className="inline-block px-3 py-1.5 bg-white/[0.06] text-white/70 rounded-full text-xs font-medium border border-white/10"
+                className="inline-block px-3 py-1.5 bg-white/[0.04] text-white/50 rounded-full text-xs font-medium border border-white/[0.08]"
               >
                 {authority}
               </span>
             ))}
+            <span className="inline-block px-3 py-1.5 text-white/30 text-xs font-medium">
+              + 10 weitere
+            </span>
           </div>
         </div>
 
@@ -712,14 +715,14 @@ export default function Page() {
       {/* Partner Logos */}
       <ScrollReveal>
         <section className="max-w-5xl mx-auto px-6 mb-20">
-          <p className="text-xs font-bold uppercase tracking-[0.25em] text-white/50 mb-8 text-center">
-            {t.partnerSectionLabel}
+          <p className="text-xs font-bold uppercase tracking-[0.25em] text-white/50 mb-6 text-center">
+            Gebaut für Einrichtungen wie
           </p>
-          <div className="flex flex-wrap justify-center items-center gap-8 md:gap-14">
-            {["Caritas", "AWO", "Diakonie", "DRK", "Paritätischer"].map((org) => (
+          <div className="flex flex-wrap justify-center items-center gap-3">
+            {["Schuldnerberatungen", "Wohlfahrtsverbände", "Sozialberatungsstellen", "Migrationsdienste", "Pflegeberatung"].map((org) => (
               <span
                 key={org}
-                className="text-white/45 font-black text-xl md:text-2xl tracking-tight hover:text-white/80 transition-colors duration-500 select-none cursor-default"
+                className="px-4 py-2 bg-white/[0.03] border border-white/[0.08] rounded-full text-sm text-white/38 select-none"
               >
                 {org}
               </span>
@@ -775,7 +778,7 @@ export default function Page() {
               >
                 <f.icon className="h-6 w-6 text-[var(--accent)] mb-4" aria-hidden />
                 <h3 className="font-bold text-base uppercase tracking-wider text-white/90 mb-4">{f.title}</h3>
-                <p className="text-white/60 text-sm leading-relaxed">{f.desc}</p>
+                <p className="text-white/60 text-[15px] leading-relaxed">{f.desc}</p>
               </div>
             ))}
           </div>
@@ -806,7 +809,7 @@ export default function Page() {
                   <span className="text-[var(--accent)] font-black text-sm tracking-wider">{n}</span>
                 </div>
                 <h3 className="font-bold text-sm text-white/90 mb-3 uppercase tracking-wider">{title}</h3>
-                <p className="text-white/60 text-sm leading-relaxed">{desc}</p>
+                <p className="text-white/60 text-[15px] leading-relaxed">{desc}</p>
               </div>
             ))}
           </div>
@@ -843,12 +846,13 @@ export default function Page() {
           <h2 className="text-3xl md:text-4xl font-black tracking-tight text-center mb-16">
             {t.sectionTransparentPrices}
           </h2>
+          <p className="text-center text-white/30 mb-12 text-sm">Alle Preise netto zzgl. 19 % MwSt. · Monatlich kündbar.</p>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6 items-start stagger-group">
             {[
-              { name: t.pricingBasicName, price: t.pricingBasicPrice, features: [t.pricingBasicF1, t.pricingBasicF2, t.pricingBasicF3], cta: t.pricingBasicCta, highlight: false, href: "/register" },
-              { name: t.pricingStandardName, price: t.pricingStandardPrice, features: [t.pricingStandardF1, t.pricingStandardF2, t.pricingStandardF3], cta: t.pricingStandardCta, highlight: false, href: "/register" },
-              { name: t.pricingProName, price: t.pricingProPrice, features: [t.pricingProF1, t.pricingProF2, t.pricingProF3], cta: t.pricingProCta, highlight: true, href: "/register" },
-              { name: t.pricingBusinessName, price: t.pricingBusinessPrice, features: [t.pricingBusinessF1, t.pricingBusinessF2, t.pricingBusinessF3], cta: t.pricingBusinessCta, highlight: false, href: "/feedback" },
+              { name: t.pricingBasicName, price: t.pricingBasicPrice, features: [t.pricingBasicF1, t.pricingBasicF2, t.pricingBasicF3], cta: t.pricingBasicCta, highlight: false, href: "mailto:info@bescheidrecht.de?subject=Anfrage%20Starter-Tarif" },
+              { name: t.pricingStandardName, price: t.pricingStandardPrice, features: [t.pricingStandardF1, t.pricingStandardF2, t.pricingStandardF3], cta: t.pricingStandardCta, highlight: false, href: "mailto:info@bescheidrecht.de?subject=Anfrage%20Team-Tarif" },
+              { name: t.pricingProName, price: t.pricingProPrice, features: [t.pricingProF1, t.pricingProF2, t.pricingProF3], cta: t.pricingProCta, highlight: true, href: "mailto:info@bescheidrecht.de?subject=Anfrage%20Einrichtung-Tarif" },
+              { name: t.pricingBusinessName, price: t.pricingBusinessPrice, features: [t.pricingBusinessF1, t.pricingBusinessF2, t.pricingBusinessF3], cta: t.pricingBusinessCta, highlight: false, href: "mailto:info@bescheidrecht.de?subject=Anfrage%20Rahmenvertrag" },
             ].map((p) => (
               <div key={p.name} className="relative pt-8 animate-slideUp opacity-0">
                 {p.highlight && (
@@ -878,7 +882,7 @@ export default function Page() {
                       </li>
                     ))}
                   </ul>
-                  <Link
+                  <a
                     href={p.href}
                     className={`w-full py-3.5 rounded-xl font-bold text-xs uppercase tracking-widest transition-all duration-300 flex items-center justify-center gap-2 ${
                       p.highlight
@@ -888,7 +892,7 @@ export default function Page() {
                   >
                     {p.cta}
                     <ArrowRight className="h-3 w-3" />
-                  </Link>
+                  </a>
                 </div>
               </div>
             ))}

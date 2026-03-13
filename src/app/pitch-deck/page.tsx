@@ -405,16 +405,16 @@ export default function PitchDeckPage() {
                     </li>
                   ))}
                 </ul>
-                <Link
-                  href="/register"
+                <a
+                  href="mailto:info@bescheidrecht.de?subject=Demo-Anfrage%20B2B"
                   className={`text-xs font-bold py-2.5 px-4 rounded-xl text-center transition-all flex items-center justify-center gap-1.5 ${
                     highlight
                       ? "bg-white text-sky-500 hover:bg-sky-50"
                       : "bg-sky-500 text-white hover:bg-sky-400"
                   }`}
                 >
-                  Demo starten <ArrowRight className="h-3 w-3" />
-                </Link>
+                  Demo anfragen <ArrowRight className="h-3 w-3" />
+                </a>
               </div>
             ))}
           </div>
@@ -501,18 +501,18 @@ export default function PitchDeckPage() {
             Arbeitsabläufe passt. Kostenlos, unverbindlich, auf Ihre Einrichtung zugeschnitten.
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4 mb-16">
-            <Link
-              href="/register"
+            <a
+              href="mailto:info@bescheidrecht.de?subject=Demo-Anfrage%20B2B&body=Guten%20Tag%2C%0A%0Aich%20interessiere%20mich%20f%C3%BCr%20eine%20Demo%20von%20BescheidRecht%20f%C3%BCr%20unsere%20Einrichtung.%0A%0AOrganisation%3A%20%0AAnzahl%20Berater%3A%20%0A%0AMit%20freundlichen%20Gr%C3%BC%C3%9Fen"
               className="inline-flex items-center justify-center gap-2 px-10 py-4 rounded-2xl bg-sky-500 text-white font-bold text-sm tracking-wide hover:bg-sky-400 shadow-lg shadow-sky-200 transition-all"
             >
               Demo vereinbaren <ArrowRight className="h-4 w-4" />
-            </Link>
-            <Link
-              href="/feedback"
+            </a>
+            <a
+              href="mailto:info@bescheidrecht.de?subject=Pilotprojekt-Anfrage%20B2B"
               className="inline-flex items-center justify-center gap-2 px-10 py-4 rounded-2xl border-2 border-slate-200 text-slate-700 font-bold text-sm tracking-wide hover:border-sky-300 hover:text-sky-500 transition-all"
             >
               Pilotprojekt anfragen
-            </Link>
+            </a>
           </div>
           <div className="grid grid-cols-3 gap-6 border-t border-slate-200 pt-10 mb-16">
             {[
