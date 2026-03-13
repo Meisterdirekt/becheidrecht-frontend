@@ -87,7 +87,7 @@ export default function PitchDeckPage() {
             {[
               { val: "130+", lbl: "Fehlertypen" },
               { val: "16", lbl: "Rechtsgebiete" },
-              { val: "< 60s", lbl: "Analysezeit" },
+              { val: "< 90s", lbl: "Analysezeit" },
               { val: "DSGVO", lbl: "Art. 25" },
             ].map(({ val, lbl }) => (
               <div key={lbl} className="text-center">
@@ -182,7 +182,7 @@ export default function PitchDeckPage() {
           </h2>
           <p className="text-slate-500 text-lg mb-12 max-w-2xl leading-relaxed">
             Fachkraft lädt den Bescheid hoch — BescheidRecht analysiert auf Unstimmigkeiten
-            und erstellt eine Musterschreiben-Vorlage. In unter 60 Sekunden.
+            und erstellt eine Musterschreiben-Vorlage. In unter 90 Sekunden.
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             {[
@@ -203,7 +203,7 @@ export default function PitchDeckPage() {
               },
               {
                 icon: Clock,
-                title: "< 60 Sekunden",
+                title: "< 90 Sekunden",
                 desc: "Von Hochladen bis Analyse-Ergebnis mit Musterschreiben-Vorlage als DIN A4 PDF.",
               },
             ].map(({ icon: Icon, title, desc }) => (
@@ -245,7 +245,7 @@ export default function PitchDeckPage() {
               {
                 n: "02",
                 title: "KI analysiert",
-                desc: "13 spezialisierte Agenten prüfen auf 130+ Fehlertypen, berechnen Fristen und identifizieren Unstimmigkeiten — in unter 60 Sekunden.",
+                desc: "13 spezialisierte Agenten prüfen auf 130+ Fehlertypen, berechnen Fristen und identifizieren Unstimmigkeiten — in unter 90 Sekunden.",
               },
               {
                 n: "03",
@@ -266,7 +266,7 @@ export default function PitchDeckPage() {
             {[
               { val: "130+", lbl: "Fehlertypen" },
               { val: "16", lbl: "Rechtsgebiete" },
-              { val: "< 60s", lbl: "Analysezeit" },
+              { val: "< 90s", lbl: "Analysezeit" },
               { val: "100%", lbl: "DSGVO-konform" },
             ].map(({ val, lbl }) => (
               <div key={lbl} className="text-center p-5 rounded-2xl bg-white/10 border border-white/20">
