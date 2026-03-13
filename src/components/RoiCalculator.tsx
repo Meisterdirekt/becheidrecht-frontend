@@ -165,7 +165,7 @@ export function RoiCalculator() {
           icon={Clock}
           label="Zeitersparnis / Monat"
           value={`${stundenGespart} h`}
-          sub={`${gesamtBescheide} Bescheide × 24 Min.`}
+          sub={`${gesamtBescheide} Bescheide in ca. ${Math.round(gesamtBescheide * 0.9)} Min. mit KI`}
         />
         <ResultCard
           icon={TrendingUp}
