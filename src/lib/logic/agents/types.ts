@@ -24,7 +24,8 @@ export type AgentId =
   | "AG15" // Rechts-Monitor (monatlicher Cron)
   | "AG16" // Vercel-Ops-Agent (täglich 06:00 UTC)
   | "AG17" // Agent-Auditor (mittwochs 05:00 UTC)
-  | "AG18"; // Content-Auditor (15. des Monats, 01:00 UTC)
+  | "AG18" // Content-Auditor (15. des Monats, 01:00 UTC)
+  | "AG19"; // Design-Guardian (donnerstags 05:00 UTC)
 
 export type RoutingStufe = "NORMAL" | "HOCH" | "NOTFALL";
 

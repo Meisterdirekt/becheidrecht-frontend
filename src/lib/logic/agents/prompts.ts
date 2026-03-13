@@ -815,6 +815,8 @@ QUALITÄTSREGELN:
   // =========================================================================
   AG18: `AG18 Content-Auditor: Automatisierter Konsistenz-Check für juristische Inhalte. Kein LLM-Einsatz — reine Datenvalidierung.`,
 
+  AG19: `AG19 Design-Guardian: Statische Code-Analyse gegen Design-System-Regeln. Kein LLM-Einsatz — reine Pattern-Erkennung.`,
+
 };
 
 // ---------------------------------------------------------------------------

@@ -1,543 +1,1073 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
-import { Check, ArrowRight, Shield, Zap, FileText, Clock, Users, TrendingUp } from "lucide-react";
+import { Check, ArrowRight, Shield, Zap, FileText, Clock, Users, TrendingUp, ChevronDown } from "lucide-react";
 
-// Pitch Deck — alle Slides auf hellem Hintergrund (print- & präsentationssicher)
-export default function PitchDeckPage() {
-  return (
-    <div className="font-sans bg-white" data-theme="light">
-      <style>{`
-        @media print {
-          .slide { page-break-after: always; min-height: 100vh; }
-          .slide:last-child { page-break-after: avoid; }
-          body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-          .no-print { display: none !important; }
+/* ──────────────────────────────────────────────────────────
+   HOOK — Scroll-triggered reveal via IntersectionObserver
+   ────────────────────────────────────────────────────────── */
+function useReveal() {
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          el.classList.add("revealed");
+          observer.unobserve(el);
         }
-        .slide {
+      },
+      { threshold: 0.15 }
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  return ref;
+}
+
+function Reveal({ children, delay = 0, className = "" }: { children: React.ReactNode; delay?: number; className?: string }) {
+  const ref = useReveal();
+  return (
+    <div
+      ref={ref}
+      className={`reveal-element ${className}`}
+      style={{ animationDelay: `${delay}ms` }}
+    >
+      {children}
+    </div>
+  );
+}
+
+/* ──────────────────────────────────────────────────────────
+   COUNTER — Animated number on scroll
+   ────────────────────────────────────────────────────────── */
+function Counter({ end, suffix = "", prefix = "", duration = 1800 }: { end: number; suffix?: string; prefix?: string; duration?: number }) {
+  const ref = useRef<HTMLSpanElement>(null);
+  const counted = useRef(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !counted.current) {
+          counted.current = true;
+          const start = 0;
+          const startTime = performance.now();
+
+          function animate(now: number) {
+            const elapsed = now - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+            const eased = 1 - Math.pow(1 - progress, 3);
+            const current = Math.round(start + (end - start) * eased);
+            if (el) el.textContent = `${prefix}${current}${suffix}`;
+            if (progress < 1) requestAnimationFrame(animate);
+          }
+
+          requestAnimationFrame(animate);
+          observer.unobserve(el);
+        }
+      },
+      { threshold: 0.5 }
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [end, suffix, prefix, duration]);
+
+  return <span ref={ref}>{prefix}0{suffix}</span>;
+}
+
+/* ──────────────────────────────────────────────────────────
+   PAGE
+   ────────────────────────────────────────────────────────── */
+export default function PitchDeckPage() {
+  const scrollToContent = useCallback(() => {
+    const el = document.getElementById("slide-problem");
+    if (el) el.scrollIntoView({ behavior: "smooth" });
+  }, []);
+
+  return (
+    <div className="pitch-deck-root">
+      {/* Google Fonts — Instrument Serif for headlines */}
+      {/* eslint-disable-next-line @next/next/no-page-custom-font */}
+      <link
+        href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap"
+        rel="stylesheet"
+      />
+
+      <style>{`
+        /* ── BASE ── */
+        .pitch-deck-root {
+          --pd-bg: #0a0c10;
+          --pd-bg-alt: #0f1117;
+          --pd-surface: #161922;
+          --pd-border: rgba(255,255,255,0.06);
+          --pd-accent: #0ea5e9;
+          --pd-accent-glow: rgba(14,165,233,0.15);
+          --pd-gold: #d4a853;
+          --pd-gold-soft: rgba(212,168,83,0.1);
+          --pd-text: #e8eaed;
+          --pd-text-muted: rgba(255,255,255,0.45);
+          --pd-text-dim: rgba(255,255,255,0.25);
+          --pd-serif: 'Instrument Serif', Georgia, 'Times New Roman', serif;
+          --pd-sans: var(--font-outfit), system-ui, -apple-system, sans-serif;
+          background: var(--pd-bg);
+          color: var(--pd-text);
+          font-family: var(--pd-sans);
+          overflow-x: hidden;
+        }
+
+        /* ── NOISE TEXTURE ── */
+        .pitch-deck-root::before {
+          content: '';
+          position: fixed;
+          inset: 0;
+          pointer-events: none;
+          z-index: 9999;
+          opacity: 0.025;
+          background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+          background-repeat: repeat;
+          background-size: 256px 256px;
+        }
+
+        /* ── SLIDES ── */
+        .pd-slide {
           min-height: 100vh;
           display: flex;
           flex-direction: column;
           justify-content: center;
-          padding: 5rem 2rem;
+          padding: 6rem 2rem;
+          position: relative;
+          overflow: hidden;
+        }
+
+        /* ── REVEAL ANIMATION ── */
+        .reveal-element {
+          opacity: 0;
+          transform: translateY(32px);
+          transition: none;
+        }
+        .reveal-element.revealed {
+          animation: revealUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes revealUp {
+          from { opacity: 0; transform: translateY(32px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+
+        @keyframes slideDown {
+          from { opacity: 0; transform: translateY(-20px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes pulse-glow {
+          0%, 100% { opacity: 0.4; }
+          50% { opacity: 0.8; }
+        }
+
+        @keyframes float {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-8px); }
+        }
+
+        @keyframes scroll-hint {
+          0%, 100% { transform: translateY(0); opacity: 0.5; }
+          50% { transform: translateY(6px); opacity: 1; }
+        }
+
+        /* ── GRADIENT ORB ── */
+        .gradient-orb {
+          position: absolute;
+          border-radius: 50%;
+          filter: blur(80px);
+          pointer-events: none;
+        }
+
+        /* ── GLASS CARD ── */
+        .glass-card {
+          background: rgba(255,255,255,0.03);
+          border: 1px solid var(--pd-border);
+          border-radius: 20px;
+          backdrop-filter: blur(12px);
+          -webkit-backdrop-filter: blur(12px);
+          transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .glass-card:hover {
+          border-color: rgba(255,255,255,0.12);
+          background: rgba(255,255,255,0.05);
+          transform: translateY(-2px);
+        }
+
+        /* ── SERIF HEADING ── */
+        .pd-serif {
+          font-family: var(--pd-serif);
+          font-weight: 400;
+          font-style: normal;
+        }
+        .pd-serif em, .pd-serif i {
+          font-style: italic;
+        }
+
+        /* ── STAT CARD ── */
+        .stat-ring {
+          width: 100px;
+          height: 100px;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          position: relative;
+        }
+        .stat-ring::before {
+          content: '';
+          position: absolute;
+          inset: 0;
+          border-radius: 50%;
+          border: 2px solid var(--pd-border);
+          transition: border-color 0.3s;
+        }
+        .stat-ring:hover::before {
+          border-color: var(--pd-accent);
+        }
+
+        /* ── PRICING CARD ── */
+        .pricing-card {
+          background: var(--pd-surface);
+          border: 1px solid var(--pd-border);
+          border-radius: 24px;
+          padding: 2.5rem 2rem;
+          display: flex;
+          flex-direction: column;
+          transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+          position: relative;
+          overflow: hidden;
+        }
+        .pricing-card:hover {
+          transform: translateY(-4px);
+          border-color: rgba(255,255,255,0.1);
+        }
+        .pricing-card.featured {
+          border-color: var(--pd-accent);
+          background: linear-gradient(180deg, rgba(14,165,233,0.08) 0%, var(--pd-surface) 100%);
+        }
+        .pricing-card.featured::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          height: 2px;
+          background: linear-gradient(90deg, transparent, var(--pd-accent), transparent);
+        }
+
+        /* ── STEP CONNECTOR ── */
+        .step-line {
+          position: absolute;
+          top: 36px;
+          left: calc(33.33% + 16px);
+          width: calc(33.33% - 32px);
+          height: 1px;
+          background: linear-gradient(90deg, var(--pd-accent), var(--pd-border));
+        }
+        .step-line-2 {
+          left: calc(66.66% + 16px);
+        }
+
+        /* ── QUOTE ── */
+        .pd-quote {
+          position: relative;
+          padding-left: 2rem;
+        }
+        .pd-quote::before {
+          content: '';
+          position: absolute;
+          left: 0;
+          top: 0;
+          bottom: 0;
+          width: 3px;
+          background: linear-gradient(180deg, var(--pd-accent), transparent);
+          border-radius: 2px;
+        }
+
+        /* ── ORG PILL ── */
+        .org-pill {
+          padding: 0.5rem 1.25rem;
+          border-radius: 100px;
+          border: 1px solid var(--pd-border);
+          background: rgba(255,255,255,0.02);
+          font-size: 0.8125rem;
+          font-weight: 600;
+          color: var(--pd-text-muted);
+          letter-spacing: 0.05em;
+          transition: all 0.3s;
+        }
+        .org-pill:hover {
+          border-color: var(--pd-accent);
+          color: var(--pd-accent);
+          background: var(--pd-accent-glow);
+        }
+
+        /* ── CTA BUTTON ── */
+        .pd-cta {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          gap: 0.5rem;
+          padding: 1rem 2.5rem;
+          border-radius: 100px;
+          font-weight: 700;
+          font-size: 0.875rem;
+          letter-spacing: 0.02em;
+          transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+          text-decoration: none;
+        }
+        .pd-cta-primary {
+          background: var(--pd-accent);
+          color: white;
+          box-shadow: 0 0 40px var(--pd-accent-glow);
+        }
+        .pd-cta-primary:hover {
+          background: #38bdf8;
+          transform: translateY(-2px);
+          box-shadow: 0 0 60px rgba(14,165,233,0.3);
+        }
+        .pd-cta-secondary {
+          background: transparent;
+          color: var(--pd-text);
+          border: 1px solid var(--pd-border);
+        }
+        .pd-cta-secondary:hover {
+          border-color: rgba(255,255,255,0.2);
+          background: rgba(255,255,255,0.03);
+        }
+
+        /* ── SLIDE NUMBER ── */
+        .slide-number {
+          position: absolute;
+          bottom: 2rem;
+          right: 2.5rem;
+          font-size: 0.65rem;
+          font-weight: 700;
+          letter-spacing: 0.3em;
+          text-transform: uppercase;
+          color: var(--pd-text-dim);
+        }
+
+        /* ── PRINT ── */
+        @media print {
+          .pd-slide { page-break-after: always; }
+          .pd-slide:last-child { page-break-after: avoid; }
+          body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+          .no-print { display: none !important; }
+          .pitch-deck-root::before { display: none; }
+          .reveal-element { opacity: 1 !important; transform: none !important; }
+        }
+
+        /* ── MOBILE ── */
+        @media (max-width: 768px) {
+          .pd-slide { padding: 4rem 1.25rem; }
+          .step-line, .step-line-2 { display: none; }
         }
       `}</style>
 
-      {/* NAV — nur im Browser */}
-      <nav className="no-print fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur border-b border-slate-100 px-6 py-3 flex items-center justify-between">
-        <span className="font-black text-slate-900 text-lg">
-          Bescheid<span className="text-sky-500">Recht</span>
-          <span className="ml-3 text-xs font-bold text-slate-400 uppercase tracking-widest">Pitch Deck</span>
+      {/* ═══════════ NAV ═══════════ */}
+      <nav
+        className="no-print fixed top-0 left-0 right-0 z-50 px-6 py-4 flex items-center justify-between"
+        style={{
+          background: "rgba(10,12,16,0.8)",
+          backdropFilter: "blur(16px)",
+          WebkitBackdropFilter: "blur(16px)",
+          borderBottom: "1px solid var(--pd-border)",
+          animation: "slideDown 0.6s ease-out both",
+        }}
+      >
+        <span style={{ fontFamily: "var(--pd-serif)", fontSize: "1.25rem", color: "var(--pd-text)" }}>
+          Bescheid<span style={{ color: "var(--pd-accent)" }}>Recht</span>
+          <span style={{ marginLeft: "1rem", fontSize: "0.6rem", fontFamily: "var(--pd-sans)", fontWeight: 700, letterSpacing: "0.25em", textTransform: "uppercase" as const, color: "var(--pd-text-dim)" }}>
+            Partner-Präsentation
+          </span>
         </span>
-        <div className="flex items-center gap-4">
-          <Link href="/" className="text-sm text-slate-500 hover:text-slate-900 font-medium transition-colors">
-            Zur Hauptseite
+        <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+          <Link href="/" style={{ fontSize: "0.8125rem", color: "var(--pd-text-muted)", textDecoration: "none", fontWeight: 500, transition: "color 0.2s" }}>
+            Hauptseite
           </Link>
-          <Link
-            href="/register"
-            className="text-sm font-bold px-4 py-2 rounded-xl bg-sky-500 text-white hover:bg-sky-400 transition-colors"
+          <a
+            href="mailto:info@bescheidrecht.de?subject=Demo-Anfrage%20B2B"
+            className="pd-cta pd-cta-primary"
+            style={{ padding: "0.5rem 1.25rem", fontSize: "0.75rem" }}
           >
             Demo buchen
-          </Link>
+          </a>
         </div>
       </nav>
 
-      {/* ─────────────────────────────────────────
+      {/* ═══════════════════════════════════════════════════
           SLIDE 01 · COVER
-      ───────────────────────────────────────── */}
-      <section className="slide pt-24 relative overflow-hidden bg-white">
-        {/* Dezenter Sky-Gradient oben */}
-        <div
-          className="absolute top-0 left-0 right-0 h-2 bg-sky-500"
-          style={{ background: "linear-gradient(90deg, #0ea5e9 0%, #38bdf8 50%, #0ea5e9 100%)" }}
-        />
-        <div
-          className="absolute top-0 left-0 right-0 h-64 pointer-events-none"
-          style={{ background: "radial-gradient(ellipse 80% 100% at 50% 0%, rgba(14,165,233,0.06) 0%, transparent 100%)" }}
-        />
-        <div className="max-w-5xl mx-auto w-full relative">
-          <p className="text-sky-500 text-xs font-bold uppercase tracking-[0.4em] mb-8">
-            Partner-Präsentation · Vertraulich · 2026
-          </p>
-          <h1 className="text-7xl md:text-8xl font-black text-slate-900 tracking-tight leading-none mb-4">
-            Bescheid<span className="text-sky-500">Recht</span>
-          </h1>
-          <p className="text-2xl md:text-3xl font-bold text-slate-700 mb-6 leading-snug max-w-2xl">
-            Technische Bescheid-Analyse<br />
-            für soziale Einrichtungen.
-          </p>
-          <p className="text-slate-500 text-lg max-w-xl leading-relaxed mb-14">
-            Wie Einrichtungen wie Caritas, AWO und Diakonie täglich Stunden sparen —
-            und mehr Klientinnen und Klienten strukturiert unterstützen.
-          </p>
-          <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Gebaut für Einrichtungen wie:</p>
-          <div className="flex flex-wrap items-center gap-3 mb-14">
-            {["Caritas", "AWO", "Diakonie", "DRK", "Paritätischer"].map((o) => (
-              <span
-                key={o}
-                className="px-4 py-2 rounded-full border border-slate-200 bg-slate-50 text-slate-600 text-sm font-bold"
-              >
-                {o}
-              </span>
-            ))}
-          </div>
-          {/* Kennzahlen-Leiste */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 border-t border-slate-100 pt-10">
-            {[
-              { val: "130+", lbl: "Fehlertypen" },
-              { val: "16", lbl: "Rechtsgebiete" },
-              { val: "< 90s", lbl: "Analysezeit" },
-              { val: "DSGVO", lbl: "Art. 25" },
-            ].map(({ val, lbl }) => (
-              <div key={lbl} className="text-center">
-                <p className="text-4xl font-black text-sky-500 leading-none mb-1">{val}</p>
-                <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">{lbl}</p>
-              </div>
-            ))}
-          </div>
+      ═══════════════════════════════════════════════════ */}
+      <section className="pd-slide" style={{ paddingTop: "8rem" }}>
+        {/* Background orbs */}
+        <div className="gradient-orb" style={{ width: 600, height: 600, top: "-10%", right: "-10%", background: "var(--pd-accent-glow)", opacity: 0.3 }} />
+        <div className="gradient-orb" style={{ width: 400, height: 400, bottom: "10%", left: "-5%", background: "var(--pd-gold-soft)", opacity: 0.2 }} />
+
+        <div style={{ maxWidth: 1100, margin: "0 auto", width: "100%", position: "relative" }}>
+          <Reveal>
+            <p style={{ fontSize: "0.65rem", fontWeight: 700, letterSpacing: "0.4em", textTransform: "uppercase" as const, color: "var(--pd-gold)", marginBottom: "2.5rem" }}>
+              Vertraulich · Partner-Präsentation · 2026
+            </p>
+          </Reveal>
+
+          <Reveal delay={100}>
+            <h1 className="pd-serif" style={{ fontSize: "clamp(3.5rem, 8vw, 7rem)", lineHeight: 1, letterSpacing: "-0.02em", color: "var(--pd-text)", marginBottom: "0.5rem" }}>
+              Bescheid<span style={{ color: "var(--pd-accent)" }}>Recht</span>
+            </h1>
+          </Reveal>
+
+          <Reveal delay={200}>
+            <p style={{ fontSize: "clamp(1.25rem, 2.5vw, 1.75rem)", fontWeight: 300, color: "var(--pd-text-muted)", maxWidth: 580, lineHeight: 1.5, marginBottom: "1rem" }}>
+              Technische Bescheid-Analyse{" "}
+              <em className="pd-serif" style={{ color: "var(--pd-text)", fontWeight: 400 }}>
+                für soziale Einrichtungen.
+              </em>
+            </p>
+          </Reveal>
+
+          <Reveal delay={300}>
+            <p style={{ fontSize: "0.95rem", color: "var(--pd-text-dim)", maxWidth: 500, lineHeight: 1.7, marginBottom: "3rem" }}>
+              Wie Caritas, AWO und Diakonie täglich Stunden sparen — und mehr
+              Klient:innen strukturiert unterstützen.
+            </p>
+          </Reveal>
+
+          <Reveal delay={400}>
+            <div style={{ display: "flex", flexWrap: "wrap" as const, gap: "0.625rem", marginBottom: "4rem" }}>
+              {["Caritas", "AWO", "Diakonie", "DRK", "Paritätischer"].map((o) => (
+                <span key={o} className="org-pill">{o}</span>
+              ))}
+            </div>
+          </Reveal>
+
+          {/* KPI Row */}
+          <Reveal delay={500}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "1.5rem", borderTop: "1px solid var(--pd-border)", paddingTop: "2.5rem" }}>
+              {[
+                { val: 163, suffix: "+", label: "Fehlertypen" },
+                { val: 16, suffix: "", label: "Rechtsgebiete" },
+                { val: 90, prefix: "< ", suffix: "s", label: "Analysezeit" },
+                { val: 100, suffix: "%", label: "DSGVO" },
+              ].map(({ val, suffix, prefix: p, label }) => (
+                <div key={label} style={{ textAlign: "center" as const }}>
+                  <p style={{ fontSize: "2.5rem", fontWeight: 900, color: "var(--pd-accent)", lineHeight: 1 }}>
+                    <Counter end={val} suffix={suffix} prefix={p || ""} />
+                  </p>
+                  <p style={{ fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.25em", textTransform: "uppercase" as const, color: "var(--pd-text-dim)", marginTop: "0.375rem" }}>
+                    {label}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </Reveal>
         </div>
-        <p className="absolute bottom-6 left-8 text-slate-400 text-[10px] max-w-md leading-relaxed">
+
+        {/* Scroll hint */}
+        <button
+          onClick={scrollToContent}
+          className="no-print"
+          style={{
+            position: "absolute", bottom: "2.5rem", left: "50%", transform: "translateX(-50%)",
+            background: "none", border: "none", cursor: "pointer", color: "var(--pd-text-dim)",
+            animation: "scroll-hint 2s ease-in-out infinite",
+          }}
+          aria-label="Nach unten scrollen"
+        >
+          <ChevronDown size={24} />
+        </button>
+
+        <p style={{ position: "absolute", bottom: "2rem", left: "2.5rem", fontSize: "0.55rem", color: "var(--pd-text-dim)", maxWidth: 360 }}>
           Technisches Analyse-Werkzeug gem. § 2 Abs. 1 RDG. Kein Ersatz für Rechtsberatung.
         </p>
-        <p className="absolute bottom-6 right-8 text-slate-300 text-xs font-bold uppercase tracking-widest">
-          1 / 8
-        </p>
+        <span className="slide-number">1 / 8</span>
       </section>
 
-      {/* ─────────────────────────────────────────
+      {/* ═══════════════════════════════════════════════════
           SLIDE 02 · DAS PROBLEM
-      ───────────────────────────────────────── */}
-      <section className="slide bg-slate-50">
-        <div className="max-w-5xl mx-auto w-full">
-          <p className="text-sky-500 text-xs font-bold uppercase tracking-[0.35em] mb-3">01 · Das Problem</p>
-          <h2 className="text-4xl md:text-5xl font-black text-slate-900 tracking-tight mb-4 leading-tight">
-            Jeder fehlerhafte Bescheid<br />kostet Ihre Klienten bares Geld.
-          </h2>
-          <p className="text-slate-500 text-lg mb-12 max-w-2xl leading-relaxed">
-            Soziale Einrichtungen kämpfen täglich mit demselben Problem: zu viele Fälle,
-            zu wenig Zeit, keine KI-Werkzeuge.
-          </p>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-            {[
-              {
-                stat: "42%",
-                label: "Erfolgreiche Widersprüche*",
-                desc: "Der Widersprüche gegen Jobcenter-Bescheide sind erfolgreich — die Fehler sind vorhanden, sie werden nur nicht systematisch gefunden.",
-                color: "red",
-              },
-              {
-                stat: "3–8h",
-                label: "Pro komplexem Fall",
-                desc: "Verbringt eine Fachkraft im Durchschnitt mit manueller Recherche, Paragraph-Suche und Briefentwurf — Zeit, die für mehr Klienten fehlt.",
-                color: "amber",
-              },
-              {
-                stat: "30 Tage",
-                label: "Widerspruchsfrist",
-                desc: "Laufen ohne KI-Fristüberwachung ungenutzt ab. Eine verpasste Frist bedeutet: kein Widerspruch mehr möglich.",
-                color: "red",
-              },
-            ].map(({ stat, label, desc, color }) => (
-              <div
-                key={stat}
-                className={`p-8 rounded-2xl border ${
-                  color === "red"
-                    ? "bg-red-50 border-red-100"
-                    : "bg-amber-50 border-amber-100"
-                }`}
-              >
-                <p
-                  className={`text-5xl font-black leading-none mb-2 ${
-                    color === "red" ? "text-red-500" : "text-amber-500"
-                  }`}
-                >
-                  {stat}
-                </p>
-                <p className="font-black text-slate-900 text-sm uppercase tracking-wider mb-3">{label}</p>
-                <p className="text-slate-600 text-sm leading-relaxed">{desc}</p>
-              </div>
-            ))}
-          </div>
-          <div className="p-6 rounded-2xl bg-white border border-slate-200">
-            <p className="text-slate-800 text-lg font-bold leading-snug">
-              &ldquo;Unsere Berater:innen wissen oft, dass etwas nicht stimmt —
-              aber sie haben nicht die Zeit, es systematisch zu prüfen.&rdquo;
+      ═══════════════════════════════════════════════════ */}
+      <section id="slide-problem" className="pd-slide" style={{ background: "var(--pd-bg-alt)" }}>
+        <div style={{ maxWidth: 1100, margin: "0 auto", width: "100%" }}>
+          <Reveal>
+            <p style={{ fontSize: "0.65rem", fontWeight: 700, letterSpacing: "0.35em", textTransform: "uppercase" as const, color: "var(--pd-accent)", marginBottom: "1rem" }}>
+              01 · Das Problem
             </p>
-            <p className="text-slate-400 text-sm mt-2 font-medium">Typisches Feedback aus Sozialberatungen</p>
-          </div>
-          <p className="text-xs text-slate-400 mt-4">* Quelle: Statistik der Bundesagentur für Arbeit, Widersprüche und Klagen SGB II (2024). Bezieht sich auf vollständig stattgegebene und teilweise stattgegebene Widersprüche.</p>
+          </Reveal>
+
+          <Reveal delay={100}>
+            <h2 className="pd-serif" style={{ fontSize: "clamp(2.25rem, 4.5vw, 3.5rem)", lineHeight: 1.1, color: "var(--pd-text)", marginBottom: "1rem" }}>
+              Jeder fehlerhafte Bescheid<br />
+              kostet Ihre Klient:innen{" "}
+              <em style={{ color: "#ef4444" }}>bares Geld.</em>
+            </h2>
+          </Reveal>
+
+          <Reveal delay={150}>
+            <p style={{ fontSize: "1.05rem", color: "var(--pd-text-muted)", maxWidth: 600, lineHeight: 1.7, marginBottom: "3.5rem" }}>
+              Soziale Einrichtungen kämpfen täglich: zu viele Fälle, zu wenig Zeit, keine
+              digitalen Werkzeuge für systematische Bescheid-Prüfung.
+            </p>
+          </Reveal>
+
+          <Reveal delay={250}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "1.25rem", marginBottom: "3rem" }}>
+              {[
+                {
+                  stat: "40",
+                  suffix: "%",
+                  label: "Erfolgreiche Widersprüche*",
+                  desc: "Der Widersprüche gegen Jobcenter-Bescheide sind ganz oder teilweise erfolgreich — die Fehler existieren, sie werden nur nicht systematisch gefunden.",
+                  accent: "#ef4444",
+                },
+                {
+                  stat: "3–8",
+                  suffix: "h",
+                  label: "Pro komplexem Fall",
+                  desc: "Verbringt eine Fachkraft erfahrungsgemäß mit manueller Recherche, Paragraph-Suche und Briefentwurf — Zeit, die für weitere Klient:innen fehlt.",
+                  accent: "#f59e0b",
+                },
+                {
+                  stat: "1",
+                  suffix: " Monat",
+                  label: "Widerspruchsfrist (§ 84 SGG)",
+                  desc: "Läuft ohne systematische Fristüberwachung ungenutzt ab. Eine verpasste Frist bedeutet: kein Widerspruch mehr möglich.",
+                  accent: "#ef4444",
+                },
+              ].map(({ stat, suffix, label, desc, accent }) => (
+                <div key={stat} className="glass-card" style={{ padding: "2.25rem" }}>
+                  <p style={{ fontSize: "3.5rem", fontWeight: 900, lineHeight: 1, color: accent, marginBottom: "0.5rem" }}>
+                    {stat}<span style={{ fontSize: "1.75rem" }}>{suffix}</span>
+                  </p>
+                  <p style={{ fontSize: "0.7rem", fontWeight: 700, letterSpacing: "0.15em", textTransform: "uppercase" as const, color: "var(--pd-text)", marginBottom: "1rem" }}>
+                    {label}
+                  </p>
+                  <p style={{ fontSize: "0.85rem", color: "var(--pd-text-muted)", lineHeight: 1.65 }}>{desc}</p>
+                </div>
+              ))}
+            </div>
+          </Reveal>
+
+          <Reveal delay={350}>
+            <div className="pd-quote" style={{ maxWidth: 700 }}>
+              <p style={{ fontSize: "1.125rem", fontStyle: "italic", color: "var(--pd-text)", lineHeight: 1.6 }}>
+                &ldquo;Unsere Berater:innen wissen oft, dass etwas nicht stimmt — aber sie
+                haben nicht die Zeit, es systematisch zu prüfen.&rdquo;
+              </p>
+              <p style={{ fontSize: "0.75rem", color: "var(--pd-text-dim)", marginTop: "0.75rem" }}>
+                Typisches Feedback aus Sozialberatungen
+              </p>
+            </div>
+          </Reveal>
+
+          <Reveal delay={400}>
+            <p style={{ fontSize: "0.65rem", color: "var(--pd-text-dim)", marginTop: "2rem" }}>
+              * Quelle: Statistik der Bundesagentur für Arbeit, Widersprüche und Klagen SGB II (2025). Inkl. teilweise stattgegebener Widersprüche und Abhilfe.
+            </p>
+          </Reveal>
         </div>
-        <p className="absolute bottom-6 right-8 text-slate-300 text-xs font-bold uppercase tracking-widest">2 / 8</p>
+        <span className="slide-number">2 / 8</span>
       </section>
 
-      {/* ─────────────────────────────────────────
+      {/* ═══════════════════════════════════════════════════
           SLIDE 03 · DIE LÖSUNG
-      ───────────────────────────────────────── */}
-      <section className="slide bg-white relative">
-        <div className="max-w-5xl mx-auto w-full">
-          <p className="text-sky-500 text-xs font-bold uppercase tracking-[0.35em] mb-3">02 · Die Lösung</p>
-          <h2 className="text-4xl md:text-5xl font-black text-slate-900 tracking-tight mb-4 leading-tight">
-            BescheidRecht: Technische Analyse<br />für Ihre Fachkräfte.
-          </h2>
-          <p className="text-slate-500 text-lg mb-12 max-w-2xl leading-relaxed">
-            Fachkraft lädt den Bescheid hoch — BescheidRecht analysiert auf Unstimmigkeiten
-            und erstellt eine Musterschreiben-Vorlage. In unter 90 Sekunden.
-          </p>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+      ═══════════════════════════════════════════════════ */}
+      <section className="pd-slide">
+        <div className="gradient-orb" style={{ width: 500, height: 500, top: "20%", right: "-8%", background: "var(--pd-accent-glow)", opacity: 0.15 }} />
+
+        <div style={{ maxWidth: 1100, margin: "0 auto", width: "100%", position: "relative" }}>
+          <Reveal>
+            <p style={{ fontSize: "0.65rem", fontWeight: 700, letterSpacing: "0.35em", textTransform: "uppercase" as const, color: "var(--pd-accent)", marginBottom: "1rem" }}>
+              02 · Die Lösung
+            </p>
+          </Reveal>
+
+          <Reveal delay={100}>
+            <h2 className="pd-serif" style={{ fontSize: "clamp(2.25rem, 4.5vw, 3.5rem)", lineHeight: 1.1, color: "var(--pd-text)", marginBottom: "1rem" }}>
+              BescheidRecht: <em>Technische Analyse</em><br />
+              für Ihre Fachkräfte.
+            </h2>
+          </Reveal>
+
+          <Reveal delay={150}>
+            <p style={{ fontSize: "1.05rem", color: "var(--pd-text-muted)", maxWidth: 600, lineHeight: 1.7, marginBottom: "3.5rem" }}>
+              Bescheid hochladen — automatische Analyse auf Unstimmigkeiten —
+              Musterschreiben-Vorlage als PDF. In unter 90 Sekunden.
+            </p>
+          </Reveal>
+
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: "1rem" }}>
             {[
               {
                 icon: Zap,
-                title: "13 KI-Agenten in Parallel",
-                desc: "Spezialisierte Agenten prüfen gleichzeitig auf Fristen, Rechtsbasis, Formfehler und Begründungsmängel.",
+                title: "13 KI-Agenten parallel",
+                desc: "Spezialisierte Agenten prüfen gleichzeitig Fristen, Rechtsbasis, Formfehler und Begründungsmängel.",
+                delay: 200,
               },
               {
                 icon: FileText,
-                title: "130+ geprüfte Fehlertypen",
+                title: "163+ geprüfte Fehlertypen",
                 desc: "Technische Prüfung über 16 Rechtsgebiete: SGB II bis XII, BAMF, BAföG, Wohngeld und mehr.",
+                delay: 280,
               },
               {
                 icon: Shield,
                 title: "DSGVO by Design",
-                desc: "Vollautomatische Pseudonymisierung aller Klientendaten vor jeder KI-Analyse. Art. 25 DSGVO erfüllt.",
+                desc: "Vollautomatische Pseudonymisierung aller Klientendaten vor jeder Analyse. Art. 25 DSGVO.",
+                delay: 360,
               },
               {
                 icon: Clock,
                 title: "< 90 Sekunden",
-                desc: "Von Hochladen bis Analyse-Ergebnis mit Musterschreiben-Vorlage als DIN A4 PDF.",
+                desc: "Vom Hochladen bis zum Analyse-Ergebnis mit Musterschreiben-Vorlage als DIN A4 PDF.",
+                delay: 440,
               },
-            ].map(({ icon: Icon, title, desc }) => (
-              <div key={title} className="p-7 rounded-2xl bg-slate-50 border border-slate-200 flex gap-5 items-start">
-                <div className="w-12 h-12 rounded-xl bg-sky-50 border border-sky-100 flex items-center justify-center flex-shrink-0">
-                  <Icon className="h-5 w-5 text-sky-500" />
+            ].map(({ icon: Icon, title, desc, delay }) => (
+              <Reveal key={title} delay={delay}>
+                <div className="glass-card" style={{ padding: "2rem", display: "flex", gap: "1.25rem", alignItems: "flex-start", height: "100%" }}>
+                  <div style={{
+                    width: 44, height: 44, borderRadius: 12,
+                    background: "var(--pd-accent-glow)",
+                    border: "1px solid rgba(14,165,233,0.2)",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    flexShrink: 0,
+                  }}>
+                    <Icon size={18} style={{ color: "var(--pd-accent)" }} />
+                  </div>
+                  <div>
+                    <h3 style={{ fontWeight: 800, fontSize: "0.95rem", color: "var(--pd-text)", marginBottom: "0.5rem" }}>{title}</h3>
+                    <p style={{ fontSize: "0.8125rem", color: "var(--pd-text-muted)", lineHeight: 1.6 }}>{desc}</p>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="font-black text-slate-900 text-base mb-2">{title}</h3>
-                  <p className="text-slate-500 text-sm leading-relaxed">{desc}</p>
-                </div>
-              </div>
+              </Reveal>
             ))}
           </div>
         </div>
-        <p className="absolute bottom-6 right-8 text-slate-300 text-xs font-bold uppercase tracking-widest">3 / 8</p>
+        <span className="slide-number">3 / 8</span>
       </section>
 
-      {/* ─────────────────────────────────────────
+      {/* ═══════════════════════════════════════════════════
           SLIDE 04 · SO FUNKTIONIERT ES
-      ───────────────────────────────────────── */}
-      <section className="slide bg-sky-500 relative overflow-hidden">
-        <div
-          className="absolute inset-0 pointer-events-none"
-          style={{ background: "radial-gradient(ellipse 60% 80% at 80% 50%, rgba(255,255,255,0.07) 0%, transparent 70%)" }}
-        />
-        <div className="max-w-5xl mx-auto w-full relative">
-          <p className="text-sky-100 text-xs font-bold uppercase tracking-[0.35em] mb-3">03 · So funktioniert es</p>
-          <h2 className="text-4xl md:text-5xl font-black text-white tracking-tight mb-14 leading-tight">
-            In 3 Schritten<br />zur strukturierten Analyse.
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+      ═══════════════════════════════════════════════════ */}
+      <section className="pd-slide" style={{ background: "var(--pd-bg-alt)" }}>
+        <div style={{ maxWidth: 1100, margin: "0 auto", width: "100%", position: "relative" }}>
+          <Reveal>
+            <p style={{ fontSize: "0.65rem", fontWeight: 700, letterSpacing: "0.35em", textTransform: "uppercase" as const, color: "var(--pd-accent)", marginBottom: "1rem" }}>
+              03 · So funktioniert es
+            </p>
+          </Reveal>
+
+          <Reveal delay={100}>
+            <h2 className="pd-serif" style={{ fontSize: "clamp(2.25rem, 4.5vw, 3.5rem)", lineHeight: 1.1, color: "var(--pd-text)", marginBottom: "4rem" }}>
+              In 3 Schritten<br />
+              <em>zur strukturierten Analyse.</em>
+            </h2>
+          </Reveal>
+
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: "1.5rem", position: "relative" }}>
+            {/* Connector lines (desktop) */}
+            <div className="step-line" style={{ display: "none" }} />
+            <div className="step-line step-line-2" style={{ display: "none" }} />
+
             {[
               {
                 n: "01",
                 title: "Bescheid hochladen",
-                desc: "Fachkraft lädt PDF oder Scan hoch. Automatische Pseudonymisierung schützt alle Klientendaten sofort — kein manueller Aufwand.",
+                desc: "Fachkraft lädt PDF oder Scan hoch. Automatische Pseudonymisierung schützt alle Klientendaten sofort.",
+                delay: 200,
               },
               {
                 n: "02",
                 title: "KI analysiert",
-                desc: "13 spezialisierte Agenten prüfen auf 130+ Fehlertypen, berechnen Fristen und identifizieren Unstimmigkeiten — in unter 90 Sekunden.",
+                desc: "13 spezialisierte Agenten prüfen auf 163+ Fehlertypen, berechnen Fristen und identifizieren Unstimmigkeiten.",
+                delay: 350,
               },
               {
                 n: "03",
                 title: "Vorlage exportieren",
-                desc: "Musterschreiben-Vorlage als DIN A4 PDF. Fachkraft prüft, ergänzt — als Basis für das Gespräch mit Anwalt oder Sozialverband.",
+                desc: "Musterschreiben als DIN A4 PDF. Fachkraft prüft und ergänzt — als Basis für Anwalt oder Sozialverband.",
+                delay: 500,
               },
-            ].map(({ n, title, desc }) => (
-              <div key={n} className="p-8 rounded-2xl bg-white/15 border border-white/20">
-                <div className="w-12 h-12 rounded-full border-2 border-white/40 flex items-center justify-center mb-6">
-                  <span className="text-white font-black text-sm">{n}</span>
+            ].map(({ n, title, desc, delay }) => (
+              <Reveal key={n} delay={delay}>
+                <div style={{ textAlign: "center" as const, padding: "2rem 1.5rem" }}>
+                  <div style={{
+                    width: 72, height: 72, borderRadius: "50%",
+                    border: "2px solid var(--pd-accent)",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    margin: "0 auto 1.5rem",
+                    background: "rgba(14,165,233,0.06)",
+                  }}>
+                    <span style={{ fontWeight: 900, fontSize: "1.125rem", color: "var(--pd-accent)" }}>{n}</span>
+                  </div>
+                  <h3 style={{ fontWeight: 800, fontSize: "1.125rem", color: "var(--pd-text)", marginBottom: "0.75rem" }}>{title}</h3>
+                  <p style={{ fontSize: "0.85rem", color: "var(--pd-text-muted)", lineHeight: 1.65 }}>{desc}</p>
                 </div>
-                <h3 className="font-black text-white text-lg mb-3">{title}</h3>
-                <p className="text-white/80 text-sm leading-relaxed">{desc}</p>
-              </div>
+              </Reveal>
             ))}
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {[
-              { val: "130+", lbl: "Fehlertypen" },
-              { val: "16", lbl: "Rechtsgebiete" },
-              { val: "< 90s", lbl: "Analysezeit" },
-              { val: "100%", lbl: "DSGVO-konform" },
-            ].map(({ val, lbl }) => (
-              <div key={lbl} className="text-center p-5 rounded-2xl bg-white/10 border border-white/20">
-                <p className="text-3xl font-black text-white mb-1 leading-none">{val}</p>
-                <p className="text-[11px] text-white/70 font-bold uppercase tracking-wider">{lbl}</p>
-              </div>
-            ))}
-          </div>
+
+          {/* Bottom KPI bar */}
+          <Reveal delay={600}>
+            <div style={{
+              display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "1rem",
+              marginTop: "3.5rem", borderTop: "1px solid var(--pd-border)", paddingTop: "2.5rem",
+            }}>
+              {[
+                { val: "163+", lbl: "Fehlertypen" },
+                { val: "16", lbl: "Rechtsgebiete" },
+                { val: "< 90s", lbl: "Analysezeit" },
+                { val: "100%", lbl: "DSGVO-konform" },
+              ].map(({ val, lbl }) => (
+                <div key={lbl} className="glass-card" style={{ textAlign: "center" as const, padding: "1.25rem" }}>
+                  <p style={{ fontSize: "1.5rem", fontWeight: 900, color: "var(--pd-accent)", lineHeight: 1 }}>{val}</p>
+                  <p style={{ fontSize: "0.55rem", fontWeight: 700, letterSpacing: "0.2em", textTransform: "uppercase" as const, color: "var(--pd-text-dim)", marginTop: "0.375rem" }}>{lbl}</p>
+                </div>
+              ))}
+            </div>
+          </Reveal>
         </div>
-        <p className="absolute bottom-6 right-8 text-white/30 text-xs font-bold uppercase tracking-widest">4 / 8</p>
+        <span className="slide-number">4 / 8</span>
       </section>
 
-      {/* ─────────────────────────────────────────
+      {/* ═══════════════════════════════════════════════════
           SLIDE 05 · ZIELGRUPPE
-      ───────────────────────────────────────── */}
-      <section className="slide bg-white relative">
-        <div className="max-w-5xl mx-auto w-full">
-          <p className="text-sky-500 text-xs font-bold uppercase tracking-[0.35em] mb-3">04 · Zielgruppe</p>
-          <h2 className="text-4xl md:text-5xl font-black text-slate-900 tracking-tight mb-4 leading-tight">
-            Gebaut für soziale Einrichtungen.
-          </h2>
-          <p className="text-slate-500 text-lg mb-12 max-w-2xl leading-relaxed">
-            Überall dort, wo Fachkräfte täglich Bescheide prüfen —
-            für Klienten, die strukturierte Unterstützung brauchen.
-          </p>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-10">
+      ═══════════════════════════════════════════════════ */}
+      <section className="pd-slide">
+        <div className="gradient-orb" style={{ width: 500, height: 500, bottom: "0%", left: "-10%", background: "var(--pd-gold-soft)", opacity: 0.15 }} />
+
+        <div style={{ maxWidth: 1100, margin: "0 auto", width: "100%", position: "relative" }}>
+          <Reveal>
+            <p style={{ fontSize: "0.65rem", fontWeight: 700, letterSpacing: "0.35em", textTransform: "uppercase" as const, color: "var(--pd-accent)", marginBottom: "1rem" }}>
+              04 · Zielgruppe
+            </p>
+          </Reveal>
+
+          <Reveal delay={100}>
+            <h2 className="pd-serif" style={{ fontSize: "clamp(2.25rem, 4.5vw, 3.5rem)", lineHeight: 1.1, color: "var(--pd-text)", marginBottom: "1rem" }}>
+              Gebaut für <em>soziale Einrichtungen.</em>
+            </h2>
+          </Reveal>
+
+          <Reveal delay={150}>
+            <p style={{ fontSize: "1.05rem", color: "var(--pd-text-muted)", maxWidth: 580, lineHeight: 1.7, marginBottom: "3.5rem" }}>
+              Überall dort, wo Fachkräfte täglich Bescheide prüfen —
+              für Klient:innen, die strukturierte Unterstützung brauchen.
+            </p>
+          </Reveal>
+
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: "1rem", marginBottom: "2.5rem" }}>
             {[
-              {
-                org: "Caritas",
-                role: "Sozialberatung, Schuldnerberatung, Migrationsberatung",
-                cases: "Jobcenter · Sozialamt · BAMF",
-              },
-              {
-                org: "AWO",
-                role: "Allgemeine Sozialberatung, Jugend- und Familienhilfe",
-                cases: "Jugendamt · Jobcenter · Rentenversicherung",
-              },
-              {
-                org: "Diakonie",
-                role: "Wohnungslosenberatung, Suchtberatung, Flüchtlingshilfe",
-                cases: "Sozialamt · Jobcenter · Ausländerbehörde",
-              },
-              {
-                org: "DRK + Paritätischer",
-                role: "Krankenhaussozialdienst, Pflegeberatung, Seniorenhilfe",
-                cases: "Krankenversicherung · Pflegekasse · MDK",
-              },
-            ].map(({ org, role, cases }) => (
-              <div key={org} className="p-7 rounded-2xl bg-slate-50 border border-slate-200">
-                <h3 className="font-black text-slate-900 text-xl mb-1">{org}</h3>
-                <p className="text-slate-600 text-sm mb-3 leading-relaxed">{role}</p>
-                <p className="text-xs font-bold text-sky-500 uppercase tracking-wider">{cases}</p>
-              </div>
+              { org: "Caritas", role: "Sozialberatung, Schuldnerberatung, Migrationsberatung", cases: "Jobcenter · Sozialamt · BAMF", delay: 200 },
+              { org: "AWO", role: "Allgemeine Sozialberatung, Jugend- und Familienhilfe", cases: "Jugendamt · Jobcenter · Rentenversicherung", delay: 280 },
+              { org: "Diakonie", role: "Wohnungslosenberatung, Suchtberatung, Flüchtlingshilfe", cases: "Sozialamt · Jobcenter · Ausländerbehörde", delay: 360 },
+              { org: "DRK + Paritätischer", role: "Krankenhaussozialdienst, Pflegeberatung, Seniorenhilfe", cases: "Krankenversicherung · Pflegekasse · MDK", delay: 440 },
+            ].map(({ org, role, cases, delay }) => (
+              <Reveal key={org} delay={delay}>
+                <div className="glass-card" style={{ padding: "2rem", height: "100%" }}>
+                  <h3 className="pd-serif" style={{ fontSize: "1.5rem", color: "var(--pd-text)", marginBottom: "0.375rem" }}>{org}</h3>
+                  <p style={{ fontSize: "0.8125rem", color: "var(--pd-text-muted)", lineHeight: 1.6, marginBottom: "1rem" }}>{role}</p>
+                  <p style={{ fontSize: "0.65rem", fontWeight: 700, letterSpacing: "0.15em", textTransform: "uppercase" as const, color: "var(--pd-accent)" }}>{cases}</p>
+                </div>
+              </Reveal>
             ))}
           </div>
-          <div className="p-6 rounded-2xl bg-sky-50 border border-sky-100 text-center">
-            <p className="font-black text-slate-900 text-xl">
-              In Deutschland gibt es über{" "}
-              <span className="text-sky-500">1.400 Caritas- und AWO-Kreisverbände</span> allein.
-            </p>
-            <p className="text-slate-500 text-sm mt-2">
-              Dazu kommen Diakonie, DRK, Paritätischer und hunderte kommunale Beratungsstellen.
-            </p>
-          </div>
+
+          <Reveal delay={500}>
+            <div style={{
+              padding: "2rem", borderRadius: 20,
+              background: "linear-gradient(135deg, rgba(14,165,233,0.06) 0%, rgba(212,168,83,0.04) 100%)",
+              border: "1px solid var(--pd-border)",
+              textAlign: "center" as const,
+            }}>
+              <p style={{ fontWeight: 800, fontSize: "1.25rem", color: "var(--pd-text)" }}>
+                Über <span style={{ color: "var(--pd-accent)" }}>1.400</span> Caritas- und AWO-Kreisverbände allein.
+              </p>
+              <p style={{ fontSize: "0.85rem", color: "var(--pd-text-muted)", marginTop: "0.5rem" }}>
+                Plus Diakonie, DRK, Paritätischer und hunderte kommunale Beratungsstellen.
+              </p>
+            </div>
+          </Reveal>
         </div>
-        <p className="absolute bottom-6 right-8 text-slate-300 text-xs font-bold uppercase tracking-widest">5 / 8</p>
+        <span className="slide-number">5 / 8</span>
       </section>
 
-      {/* ─────────────────────────────────────────
-          SLIDE 06 · PREISE
-      ───────────────────────────────────────── */}
-      <section className="slide bg-slate-50 relative">
-        <div className="max-w-5xl mx-auto w-full">
-          <p className="text-sky-500 text-xs font-bold uppercase tracking-[0.35em] mb-3">05 · Preise & Lizenzen</p>
-          <h2 className="text-4xl md:text-5xl font-black text-slate-900 tracking-tight mb-4 leading-tight">
-            Team-Lizenzen.<br />Transparente Preise.
-          </h2>
-          <p className="text-slate-500 text-lg mb-12 max-w-2xl leading-relaxed">
-            Monatliche Flatrate — keine versteckten Kosten, transparente Kontingente,
-            monatlich kündbar.
-          </p>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+      {/* ═══════════════════════════════════════════════════
+          SLIDE 06 · ROI
+      ═══════════════════════════════════════════════════ */}
+      <section className="pd-slide" style={{ background: "var(--pd-bg-alt)" }}>
+        <div style={{ maxWidth: 1100, margin: "0 auto", width: "100%" }}>
+          <Reveal>
+            <p style={{ fontSize: "0.65rem", fontWeight: 700, letterSpacing: "0.35em", textTransform: "uppercase" as const, color: "var(--pd-accent)", marginBottom: "1rem" }}>
+              05 · Preise & Lizenzen
+            </p>
+          </Reveal>
+
+          <Reveal delay={100}>
+            <h2 className="pd-serif" style={{ fontSize: "clamp(2.25rem, 4.5vw, 3.5rem)", lineHeight: 1.1, color: "var(--pd-text)", marginBottom: "1rem" }}>
+              Team-Lizenzen.<br />
+              <em>Transparente Preise.</em>
+            </h2>
+          </Reveal>
+
+          <Reveal delay={150}>
+            <p style={{ fontSize: "1.05rem", color: "var(--pd-text-muted)", maxWidth: 560, lineHeight: 1.7, marginBottom: "3.5rem" }}>
+              Monatliche Flatrate — keine versteckten Kosten, transparente Kontingente, monatlich kündbar.
+            </p>
+          </Reveal>
+
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(230px, 1fr))", gap: "1rem", marginBottom: "2rem" }}>
             {[
               {
                 name: "Starter",
-                price: "249 €",
-                users: "1 Nutzer-Zugang",
-                features: ["100 Analysen / Monat", "Schreiben-Generator", "Automatische Pseudonymisierung"],
-                highlight: false,
+                price: "249",
+                users: "1 Nutzer",
+                features: ["100 Analysen / Monat", "Schreiben-Generator", "Pseudonymisierung"],
+                featured: false,
+                delay: 200,
               },
               {
                 name: "Team",
-                price: "499 €",
-                users: "Bis 3 Nutzer-Zugänge",
-                features: ["400 Analysen / Monat", "Fristen-Dashboard", "Prioritäts-Support & Onboarding"],
-                highlight: true,
+                price: "499",
+                users: "Bis 3 Nutzer",
+                features: ["400 Analysen / Monat", "Fristen-Dashboard", "Prioritäts-Support"],
+                featured: true,
+                delay: 300,
               },
               {
                 name: "Einrichtung",
-                price: "899 €",
-                users: "Bis 10 Nutzer-Zugänge",
-                features: ["1.000 Analysen / Monat", "Prioritäts-Support & Onboarding", "Persönlicher Ansprechpartner"],
-                highlight: false,
+                price: "899",
+                users: "Bis 10 Nutzer",
+                features: ["1.000 Analysen / Monat", "Onboarding-Paket", "Persönlicher Ansprechpartner"],
+                featured: false,
+                delay: 400,
               },
               {
-                name: "Rahmen­vertrag",
-                price: "Auf Anfrage",
+                name: "Rahmenvertrag",
+                price: "Individuell",
                 users: "Mehrere Standorte",
                 features: ["Ab 3.000 Analysen & SLA", "Compliance-Paket", "Dedizierter Betreuer"],
-                highlight: false,
+                featured: false,
+                delay: 500,
               },
-            ].map(({ name, price, users, features, highlight }) => (
-              <div
-                key={name}
-                className={`p-6 rounded-2xl border flex flex-col ${
-                  highlight
-                    ? "bg-sky-500 border-sky-500 shadow-xl shadow-sky-200"
-                    : "bg-white border-slate-200"
-                }`}
-              >
-                <p className={`text-xs font-bold uppercase tracking-widest mb-2 ${highlight ? "text-sky-100" : "text-slate-400"}`}>
-                  {highlight && <span className="mr-1">★</span>}{name}
-                </p>
-                <p className={`text-4xl font-black mb-1 leading-none ${highlight ? "text-white" : "text-slate-900"}`}>
-                  {price}
-                </p>
-                {price !== "Anfrage" && (
-                  <p className={`text-xs mb-1 ${highlight ? "text-sky-100" : "text-slate-400"}`}>/ Monat</p>
-                )}
-                <p className={`text-xs font-bold mb-5 mt-1 ${highlight ? "text-sky-100" : "text-sky-500"}`}>{users}</p>
-                <ul className="space-y-2 flex-grow mb-6">
-                  {features.map((f) => (
-                    <li key={f} className={`text-xs flex items-start gap-2 leading-snug ${highlight ? "text-white" : "text-slate-600"}`}>
-                      <Check className="h-3.5 w-3.5 flex-shrink-0 mt-0.5" />
-                      {f}
-                    </li>
-                  ))}
-                </ul>
-                <a
-                  href="mailto:info@bescheidrecht.de?subject=Demo-Anfrage%20B2B"
-                  className={`text-xs font-bold py-2.5 px-4 rounded-xl text-center transition-all flex items-center justify-center gap-1.5 ${
-                    highlight
-                      ? "bg-white text-sky-500 hover:bg-sky-50"
-                      : "bg-sky-500 text-white hover:bg-sky-400"
-                  }`}
-                >
-                  Demo anfragen <ArrowRight className="h-3 w-3" />
-                </a>
-              </div>
+            ].map(({ name, price, users, features, featured, delay }) => (
+              <Reveal key={name} delay={delay}>
+                <div className={`pricing-card ${featured ? "featured" : ""}`}>
+                  <p style={{ fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.2em", textTransform: "uppercase" as const, color: featured ? "var(--pd-accent)" : "var(--pd-text-dim)", marginBottom: "1rem" }}>
+                    {featured && "★ "}{name}
+                  </p>
+                  <p style={{ fontSize: "2.75rem", fontWeight: 900, color: "var(--pd-text)", lineHeight: 1 }}>
+                    {price === "Individuell" ? price : `${price} €`}
+                  </p>
+                  {price !== "Individuell" && (
+                    <p style={{ fontSize: "0.7rem", color: "var(--pd-text-dim)", marginTop: "0.25rem" }}>/ Monat netto</p>
+                  )}
+                  <p style={{ fontSize: "0.75rem", fontWeight: 600, color: "var(--pd-accent)", marginTop: "0.75rem", marginBottom: "1.5rem" }}>{users}</p>
+                  <ul style={{ listStyle: "none", padding: 0, margin: 0, flexGrow: 1 }}>
+                    {features.map((f) => (
+                      <li key={f} style={{ display: "flex", alignItems: "flex-start", gap: "0.5rem", marginBottom: "0.625rem", fontSize: "0.8rem", color: "var(--pd-text-muted)" }}>
+                        <Check size={14} style={{ color: featured ? "var(--pd-accent)" : "var(--pd-text-dim)", flexShrink: 0, marginTop: 2 }} />
+                        {f}
+                      </li>
+                    ))}
+                  </ul>
+                  <a
+                    href="mailto:info@bescheidrecht.de?subject=Demo-Anfrage%20B2B"
+                    className={featured ? "pd-cta pd-cta-primary" : "pd-cta pd-cta-secondary"}
+                    style={{ marginTop: "1.5rem", padding: "0.75rem 1.5rem", fontSize: "0.8rem", width: "100%", textDecoration: "none" }}
+                  >
+                    Demo anfragen <ArrowRight size={14} />
+                  </a>
+                </div>
+              </Reveal>
             ))}
           </div>
-          <p className="text-center text-slate-400 text-xs font-medium">
-            Alle Preise zzgl. MwSt. · Jahresvertrag auf Anfrage · Monatlich kündbar · Pilotprojekte mit Sonderkonditionen möglich
-          </p>
+
+          <Reveal delay={600}>
+            <p style={{ textAlign: "center" as const, fontSize: "0.7rem", color: "var(--pd-text-dim)" }}>
+              Alle Preise zzgl. 19% MwSt. · Jahresvertrag auf Anfrage · Pilotprojekte mit Sonderkonditionen
+            </p>
+          </Reveal>
         </div>
-        <p className="absolute bottom-6 right-8 text-slate-300 text-xs font-bold uppercase tracking-widest">6 / 8</p>
+        <span className="slide-number">6 / 8</span>
       </section>
 
-      {/* ─────────────────────────────────────────
-          SLIDE 07 · WARUM JETZT
-      ───────────────────────────────────────── */}
-      <section className="slide bg-white relative">
-        <div className="max-w-5xl mx-auto w-full">
-          <p className="text-sky-500 text-xs font-bold uppercase tracking-[0.35em] mb-3">06 · Warum jetzt</p>
-          <h2 className="text-4xl md:text-5xl font-black text-slate-900 tracking-tight mb-4 leading-tight">
-            Das Zeitfenster ist jetzt.
-          </h2>
-          <p className="text-slate-500 text-lg mb-12 max-w-2xl leading-relaxed">
-            Vier Entwicklungen treffen gerade zusammen — und schaffen ein einmaliges Momentum.
-          </p>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-12">
+      {/* ═══════════════════════════════════════════════════
+          SLIDE 07 · DATENSCHUTZ & WARUM JETZT
+      ═══════════════════════════════════════════════════ */}
+      <section className="pd-slide">
+        <div className="gradient-orb" style={{ width: 400, height: 400, top: "10%", left: "-5%", background: "rgba(34,197,94,0.06)", opacity: 0.3 }} />
+
+        <div style={{ maxWidth: 1100, margin: "0 auto", width: "100%", position: "relative" }}>
+          <Reveal>
+            <p style={{ fontSize: "0.65rem", fontWeight: 700, letterSpacing: "0.35em", textTransform: "uppercase" as const, color: "var(--pd-accent)", marginBottom: "1rem" }}>
+              06 · Warum jetzt
+            </p>
+          </Reveal>
+
+          <Reveal delay={100}>
+            <h2 className="pd-serif" style={{ fontSize: "clamp(2.25rem, 4.5vw, 3.5rem)", lineHeight: 1.1, color: "var(--pd-text)", marginBottom: "1rem" }}>
+              Das Zeitfenster <em>ist jetzt.</em>
+            </h2>
+          </Reveal>
+
+          <Reveal delay={150}>
+            <p style={{ fontSize: "1.05rem", color: "var(--pd-text-muted)", maxWidth: 580, lineHeight: 1.7, marginBottom: "3.5rem" }}>
+              Vier Entwicklungen treffen zusammen — und schaffen ein einmaliges Momentum.
+            </p>
+          </Reveal>
+
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: "1rem", marginBottom: "3rem" }}>
             {[
-              {
-                icon: TrendingUp,
-                title: "SGB-Reformen 2025/2026",
-                desc: "Neue Regelsätze und Leistungsänderungen bedeuten: mehr fehlerhafte Bescheide, mehr Widerspruchsbedarf — mehr Arbeit für Ihre Fachkräfte.",
-              },
-              {
-                icon: Users,
-                title: "Steigende Fallzahlen",
-                desc: "Einrichtungen berichten von 20–40 % mehr Beratungsanfragen seit 2024 — ohne proportionale Personalaufstockung.",
-              },
-              {
-                icon: Zap,
-                title: "KI ist produktionsreif",
-                desc: "2025 ist das erste Jahr, in dem KI-gestützte Rechtsanalyse vollständig DSGVO-konform und praxistauglich umsetzbar ist.",
-              },
-              {
-                icon: Shield,
-                title: "First Mover Vorteil",
-                desc: "Erste Einrichtungen, die einführen, setzen den Standard — und gewinnen Kapazitäten zurück, die Mitbewerber noch nicht haben.",
-              },
-            ].map(({ icon: Icon, title, desc }) => (
-              <div key={title} className="p-7 rounded-2xl bg-slate-50 border border-slate-200 flex gap-5 items-start">
-                <div className="w-12 h-12 rounded-xl bg-sky-50 border border-sky-100 flex items-center justify-center flex-shrink-0">
-                  <Icon className="h-5 w-5 text-sky-500" />
+              { icon: TrendingUp, title: "SGB-Reformen 2025/2026", desc: "Neue Regelsätze und Leistungsänderungen: mehr fehlerhafte Bescheide, mehr Widerspruchsbedarf.", delay: 200 },
+              { icon: Users, title: "Steigende Fallzahlen", desc: "20–40% mehr Beratungsanfragen seit 2024 — ohne proportionale Personalaufstockung.", delay: 280 },
+              { icon: Zap, title: "KI ist produktionsreif", desc: "2025 ist das erste Jahr, in dem KI-Rechtsanalyse vollständig DSGVO-konform umsetzbar ist.", delay: 360 },
+              { icon: Shield, title: "First-Mover-Vorteil", desc: "Erste Einrichtungen setzen den Standard — und gewinnen Kapazitäten, die andere noch nicht haben.", delay: 440 },
+            ].map(({ icon: Icon, title, desc, delay }) => (
+              <Reveal key={title} delay={delay}>
+                <div className="glass-card" style={{ padding: "2rem", display: "flex", gap: "1.25rem", alignItems: "flex-start", height: "100%" }}>
+                  <div style={{
+                    width: 44, height: 44, borderRadius: 12,
+                    background: "var(--pd-accent-glow)",
+                    border: "1px solid rgba(14,165,233,0.2)",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    flexShrink: 0,
+                  }}>
+                    <Icon size={18} style={{ color: "var(--pd-accent)" }} />
+                  </div>
+                  <div>
+                    <h3 style={{ fontWeight: 800, fontSize: "0.95rem", color: "var(--pd-text)", marginBottom: "0.5rem" }}>{title}</h3>
+                    <p style={{ fontSize: "0.8125rem", color: "var(--pd-text-muted)", lineHeight: 1.6 }}>{desc}</p>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="font-black text-slate-900 text-base mb-2">{title}</h3>
-                  <p className="text-slate-500 text-sm leading-relaxed">{desc}</p>
-                </div>
-              </div>
+              </Reveal>
             ))}
           </div>
-          <div className="p-8 rounded-2xl bg-sky-500 text-center">
-            <p className="font-black text-white text-2xl leading-snug">
-              Einrichtungen, die jetzt starten, sparen ab Tag 1 Fachkraft-Kapazitäten.
-            </p>
-            <p className="text-sky-100 text-sm mt-2">
-              Pilotprojekte mit bevorzugten Konditionen für frühe Partner
-            </p>
-          </div>
+
+          {/* DSGVO Trust Bar */}
+          <Reveal delay={550}>
+            <div style={{
+              display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "1rem",
+              padding: "2rem", borderRadius: 20,
+              background: "linear-gradient(135deg, rgba(34,197,94,0.04) 0%, rgba(14,165,233,0.04) 100%)",
+              border: "1px solid var(--pd-border)",
+            }}>
+              {[
+                { label: "DSGVO Art. 25", val: "Privacy by Design" },
+                { label: "Hosting", val: "Frankfurt, EU" },
+                { label: "Daten-Löschung", val: "Automatisch nach 90 Tagen" },
+              ].map(({ label, val }) => (
+                <div key={label} style={{ textAlign: "center" as const }}>
+                  <p style={{ fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.2em", textTransform: "uppercase" as const, color: "var(--pd-text-dim)", marginBottom: "0.375rem" }}>{label}</p>
+                  <p style={{ fontWeight: 700, fontSize: "0.9rem", color: "#22c55e" }}>{val}</p>
+                </div>
+              ))}
+            </div>
+          </Reveal>
         </div>
-        <p className="absolute bottom-6 right-8 text-slate-300 text-xs font-bold uppercase tracking-widest">7 / 8</p>
+        <span className="slide-number">7 / 8</span>
       </section>
 
-      {/* ─────────────────────────────────────────
+      {/* ═══════════════════════════════════════════════════
           SLIDE 08 · CALL TO ACTION
-      ───────────────────────────────────────── */}
-      <section className="slide bg-slate-50 items-center text-center relative">
-        <div
-          className="absolute top-0 left-0 right-0 h-1 bg-sky-500"
-        />
-        <div className="max-w-3xl mx-auto w-full relative">
-          <p className="text-sky-500 text-xs font-bold uppercase tracking-[0.35em] mb-6">07 · Nächste Schritte</p>
-          <h2 className="text-5xl md:text-6xl font-black text-slate-900 tracking-tight mb-6 leading-tight">
-            Bereit für eine<br />
-            <span className="text-sky-500">Demo?</span>
-          </h2>
-          <p className="text-slate-600 text-lg mb-12 max-w-lg mx-auto leading-relaxed">
-            Wir zeigen Ihnen in 30 Minuten, wie BescheidRecht konkret in Ihre
-            Arbeitsabläufe passt. Kostenlos, unverbindlich, auf Ihre Einrichtung zugeschnitten.
-          </p>
-          <div className="flex flex-col sm:flex-row justify-center gap-4 mb-16">
-            <a
-              href="mailto:info@bescheidrecht.de?subject=Demo-Anfrage%20B2B&body=Guten%20Tag%2C%0A%0Aich%20interessiere%20mich%20f%C3%BCr%20eine%20Demo%20von%20BescheidRecht%20f%C3%BCr%20unsere%20Einrichtung.%0A%0AOrganisation%3A%20%0AAnzahl%20Berater%3A%20%0A%0AMit%20freundlichen%20Gr%C3%BC%C3%9Fen"
-              className="inline-flex items-center justify-center gap-2 px-10 py-4 rounded-2xl bg-sky-500 text-white font-bold text-sm tracking-wide hover:bg-sky-400 shadow-lg shadow-sky-200 transition-all"
-            >
-              Demo vereinbaren <ArrowRight className="h-4 w-4" />
-            </a>
-            <a
-              href="mailto:info@bescheidrecht.de?subject=Pilotprojekt-Anfrage%20B2B"
-              className="inline-flex items-center justify-center gap-2 px-10 py-4 rounded-2xl border-2 border-slate-200 text-slate-700 font-bold text-sm tracking-wide hover:border-sky-300 hover:text-sky-500 transition-all"
-            >
-              Pilotprojekt anfragen
-            </a>
-          </div>
-          <div className="grid grid-cols-3 gap-6 border-t border-slate-200 pt-10 mb-16">
-            {[
-              { val: "< 1 Woche", lbl: "Onboarding" },
-              { val: "Pilot", lbl: "Auf Anfrage" },
-              { val: "Monatlich", lbl: "Kündbar" },
-            ].map(({ val, lbl }) => (
-              <div key={lbl}>
-                <p className="font-black text-sky-500 text-2xl leading-none mb-1">{val}</p>
-                <p className="text-slate-400 text-xs uppercase tracking-wider font-bold">{lbl}</p>
-              </div>
-            ))}
-          </div>
-          <div className="text-center">
-            <p className="text-2xl font-black text-slate-900 tracking-tight">
-              Bescheid<span className="text-sky-500">Recht</span>
+      ═══════════════════════════════════════════════════ */}
+      <section className="pd-slide" style={{ textAlign: "center" as const }}>
+        {/* Central glow */}
+        <div className="gradient-orb" style={{ width: 800, height: 800, top: "50%", left: "50%", transform: "translate(-50%, -50%)", background: "var(--pd-accent-glow)", opacity: 0.2 }} />
+
+        <div style={{ maxWidth: 700, margin: "0 auto", width: "100%", position: "relative" }}>
+          <Reveal>
+            <p style={{ fontSize: "0.65rem", fontWeight: 700, letterSpacing: "0.35em", textTransform: "uppercase" as const, color: "var(--pd-accent)", marginBottom: "2rem" }}>
+              07 · Nächste Schritte
             </p>
-            <p className="text-slate-400 text-sm mt-1">bescheidrecht.de · 2026</p>
-            <p className="text-slate-400 text-xs mt-4">kontakt@bescheidrecht.de</p>
-          </div>
+          </Reveal>
+
+          <Reveal delay={100}>
+            <h2 className="pd-serif" style={{ fontSize: "clamp(2.75rem, 6vw, 4.5rem)", lineHeight: 1.05, color: "var(--pd-text)", marginBottom: "1.5rem" }}>
+              Bereit für eine<br />
+              <em style={{ color: "var(--pd-accent)" }}>Demo?</em>
+            </h2>
+          </Reveal>
+
+          <Reveal delay={200}>
+            <p style={{ fontSize: "1.05rem", color: "var(--pd-text-muted)", maxWidth: 480, margin: "0 auto", lineHeight: 1.7, marginBottom: "3rem" }}>
+              Wir zeigen Ihnen in 30 Minuten, wie BescheidRecht konkret in Ihre
+              Arbeitsabläufe passt. Kostenlos und unverbindlich.
+            </p>
+          </Reveal>
+
+          <Reveal delay={300}>
+            <div style={{ display: "flex", flexDirection: "column" as const, alignItems: "center", gap: "1rem", marginBottom: "4rem" }}>
+              <a
+                href="mailto:info@bescheidrecht.de?subject=Demo-Anfrage%20B2B&body=Guten%20Tag%2C%0A%0Aich%20interessiere%20mich%20f%C3%BCr%20eine%20Demo%20von%20BescheidRecht%20f%C3%BCr%20unsere%20Einrichtung.%0A%0AOrganisation%3A%20%0AAnzahl%20Berater%3A%20%0A%0AMit%20freundlichen%20Gr%C3%BC%C3%9Fen"
+                className="pd-cta pd-cta-primary"
+              >
+                Demo vereinbaren <ArrowRight size={16} />
+              </a>
+              <a
+                href="mailto:info@bescheidrecht.de?subject=Pilotprojekt-Anfrage%20B2B"
+                className="pd-cta pd-cta-secondary"
+              >
+                Pilotprojekt anfragen
+              </a>
+            </div>
+          </Reveal>
+
+          <Reveal delay={400}>
+            <div style={{
+              display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "2rem",
+              borderTop: "1px solid var(--pd-border)", paddingTop: "2.5rem", marginBottom: "4rem",
+            }}>
+              {[
+                { val: "< 1 Woche", lbl: "Onboarding" },
+                { val: "Pilot", lbl: "Auf Anfrage" },
+                { val: "Monatlich", lbl: "Kündbar" },
+              ].map(({ val, lbl }) => (
+                <div key={lbl}>
+                  <p style={{ fontWeight: 900, fontSize: "1.375rem", color: "var(--pd-accent)", lineHeight: 1 }}>{val}</p>
+                  <p style={{ fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.2em", textTransform: "uppercase" as const, color: "var(--pd-text-dim)", marginTop: "0.5rem" }}>{lbl}</p>
+                </div>
+              ))}
+            </div>
+          </Reveal>
+
+          <Reveal delay={500}>
+            <div>
+              <p className="pd-serif" style={{ fontSize: "1.75rem", color: "var(--pd-text)" }}>
+                Bescheid<span style={{ color: "var(--pd-accent)" }}>Recht</span>
+              </p>
+              <p style={{ fontSize: "0.75rem", color: "var(--pd-text-dim)", marginTop: "0.5rem" }}>
+                bescheidrecht.de · 2026
+              </p>
+              <p style={{ fontSize: "0.75rem", color: "var(--pd-text-dim)", marginTop: "0.25rem" }}>
+                info@bescheidrecht.de
+              </p>
+            </div>
+          </Reveal>
         </div>
-        <p className="absolute bottom-6 left-8 text-slate-400 text-[10px] max-w-md leading-relaxed">
+
+        <p style={{ position: "absolute", bottom: "2rem", left: "2.5rem", fontSize: "0.55rem", color: "var(--pd-text-dim)", maxWidth: 360, textAlign: "left" as const }}>
           Technisches Analyse-Werkzeug gem. § 2 Abs. 1 RDG. Kein Ersatz für Rechtsberatung.
         </p>
-        <p className="absolute bottom-6 right-8 text-slate-300 text-xs font-bold uppercase tracking-widest">8 / 8</p>
+        <span className="slide-number">8 / 8</span>
       </section>
     </div>
   );

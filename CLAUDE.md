@@ -88,7 +88,8 @@ src/
 │       ├── cron/design-audit/route.ts   # GET — Wöchentlicher Cron Di 04:00 UTC: Lighthouse + Core Web Vitals
 │       ├── cron/vercel-monitor/route.ts # GET — Täglicher Cron 06:00 UTC: AG16 Deployment-Check
 │       ├── cron/agent-audit/route.ts    # GET — Wöchentlicher Cron Mi 05:00 UTC: AG17 Metriken
-│       └── cron/content-audit/route.ts  # GET — Monatlicher Cron 15. 01:00 UTC: AG18 Content-Audit
+│       ├── cron/content-audit/route.ts  # GET — Monatlicher Cron 15. 01:00 UTC: AG18 Content-Audit
+│       └── cron/design-guardian/route.ts # GET — Wöchentlicher Cron Do 05:00 UTC: AG19 Design-Guardian
 ├── components/
 │   ├── LetterPDF.tsx                   # DIN A4 PDF-Vorschau (@react-pdf/renderer)
 │   ├── DownloadButton.tsx              # PDF-Download (jspdf)
@@ -181,7 +182,7 @@ supabase/                               # SQL-Migrations (manuell via SQL-Editor
 
 ## Agent Engine (src/lib/logic/agent_engine.ts)
 
-**Aktueller Stand:** 13-Agenten-Pipeline vollständig implementiert in `src/lib/logic/agents/`.
+**Aktueller Stand:** 13-Agenten-Pipeline + 7 Cron-Agenten vollständig implementiert in `src/lib/logic/agents/`.
 `agent_engine.ts` ist ein dünner Wrapper über `agents/orchestrator.ts`.
 
 **Pipeline:** AG08 → AG12 → AG01 → [AG02 ‖ AG04] → AG03 → [AG07 ‖ AG14] → AG13
@@ -202,6 +203,7 @@ supabase/                               # SQL-Migrations (manuell via SQL-Editor
 | AG16 | ag16-vercel-agent.ts | Vercel-Ops (täglich 06:00 UTC) |
 | AG17 | ag17-agent-auditor.ts | Agent-Auditor (Mi 05:00 UTC) |
 | AG18 | ag18-content-auditor.ts | Content-Auditor (15. des Monats 01:00 UTC) |
+| AG19 | ag19-design-guardian.ts | Design-Guardian (donnerstags 05:00 UTC) |
 
 **Routing nach Dringlichkeit:**
 - NORMAL (>14 Tage Frist) → `claude-sonnet-4-6`
@@ -270,7 +272,7 @@ Mobile first (375px zuerst). Arabisch (AR) → `dir="rtl"`. Fehler freundlich fo
 
 8. **OCR-Fallback (tesseract.js) ist langsam** (~5–15 Sek/Seite). `pdf2json` ist primär. Tesseract nur wenn kein Text gefunden.
 
-9. **Acht Vercel Crons (vercel.json):**
+9. **Zehn Vercel Crons (vercel.json):**
    - `rechts-update` → 1. des Monats 03:00 UTC (AG15 Rechts-Monitor)
    - `agent-batch` → Sonntag 02:00 UTC (AG09/AG10/AG11)
    - `backend-health` → täglich 03:00 UTC (DB-Health + Kosten-Anomalien → GitHub Issue)
@@ -279,7 +281,8 @@ Mobile first (375px zuerst). Arabisch (AR) → `dir="rtl"`. Fehler freundlich fo
    - `vercel-monitor` → täglich 06:00 UTC (AG16 Deployment-Check)
    - `agent-audit` → Mi 05:00 UTC (AG17 Agent-Metriken → GitHub Issue)
    - `content-audit` → 15. des Monats 01:00 UTC (AG18 Kennzahlen/Fehlerkatalog/Weisungen-Audit → GitHub Issue)
-   Alle: Auth via `?secret=CRON_SECRET`. Manuell: `curl "http://localhost:3000/api/cron/content-audit?secret=$CRON_SECRET"`.
+   - `design-guardian` → Do 05:00 UTC (AG19 Statische Design-System-Analyse → GitHub Issue)
+   Alle: Auth via `?secret=CRON_SECRET`. Manuell: `curl "http://localhost:3000/api/cron/design-guardian?secret=$CRON_SECRET"`.
 
 10. **SSE-Streaming** (`/api/assistant/route.ts`) nutzt `ReadableStream` + `TextEncoder`. Client: `reader.read()` in While-Schleife. Kein EventSource API.
 
@@ -287,7 +290,7 @@ Mobile first (375px zuerst). Arabisch (AR) → `dir="rtl"`. Fehler freundlich fo
 
 12. **`mollie/webhook/route.ts` ist der produktive Payment-Webhook** — verarbeitet Mollie-Zahlungen (paid/failed/expired). Beim Erstellen einer Zahlung via Mollie API: `metadata: { product_key: "starter"|"team"|"einrichtung", buyer_email: "..." }`. MOLLIE_API_KEY Pflicht.
 
-13. **18-Agenten-System vollständig implementiert** in `src/lib/logic/agents/` (AG01–AG18 + orchestrator.ts). `agent_engine.ts` ist nur ein dünner Wrapper. Die `wissensdatenbank.sql`-Tabellen (urteile, kennzahlen, analysis_results etc.) müssen noch manuell in Supabase deployed werden — erst dann können AG04/AG05 in die DB schreiben.
+13. **19-Agenten-System vollständig implementiert** in `src/lib/logic/agents/` (AG01–AG18 + orchestrator.ts). `agent_engine.ts` ist nur ein dünner Wrapper. Die `wissensdatenbank.sql`-Tabellen (urteile, kennzahlen, analysis_results etc.) müssen noch manuell in Supabase deployed werden — erst dann können AG04/AG05 in die DB schreiben.
 
 14. **`vault/` enthält echte Credentials** (`keys.env`, `provider_logins.txt`). In `.gitignore`, aber als Entwickler nie darin stöbern oder Inhalte ausgeben. **Dev-Workaround:** 4 Routes (`analyze`, `generate-letter`, `assistant`, `agents/utils.ts`) lesen `vault/keys.env` via `fs.readFileSync` als lokalen Key-Fallback. Auf Vercel scheitert das stumm (`try/catch`) und es werden ENV-Vars verwendet. Das ist Absicht — nicht "fixen".
 
