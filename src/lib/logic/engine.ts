@@ -1,22 +1,10 @@
 import fs from 'fs';
 import path from 'path';
 import OpenAI from 'openai';
+import { getOpenAIKey } from './agents/utils';
 
 const FALLBACK_OMEGA_PROMPT = 'Du bist die KI-Kerninstanz von BescheidRecht. Analysiere den Bescheid sachlich, erkenne Behördenart und Rechtsgebiet, nenne mögliche Unstimmigkeiten nur als Hinweise, erstelle ein Musterschreiben (Widerspruch/Anfrage). Keine Rechtsberatung.';
 const FALLBACK_ERROR_CATALOG = '[]';
-
-function getOpenAIKey(): string | null {
-  try {
-    const vaultPath = (file: string) => path.join(process.cwd(), 'vault', file);
-    const envContent = fs.readFileSync(vaultPath('keys.env'), 'utf8');
-    // Explizit nach OPENAI_API_KEY= suchen (nicht einfach erstes sk-... — das könnte Anthropic-Key sein)
-    const match = envContent.match(/OPENAI_API_KEY\s*=\s*["']?([^\s"'\n]+)/);
-    if (match?.[1]) return match[1];
-  } catch {
-    // Vault nicht vorhanden (z. B. auf Vercel)
-  }
-  return process.env.OPENAI_API_KEY || null;
-}
 
 function loadPromptAndCatalog(): { omegaPrompt: string; errorCatalog: string } {
   try {

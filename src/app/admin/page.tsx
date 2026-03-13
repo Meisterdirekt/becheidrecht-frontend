@@ -203,11 +203,10 @@ export default function AdminPage() {
   }
 
   const subscriptionTypes = [
-    { value: 'single', label: 'Einzelkauf (19,90€) - 1 Analyse', analyses: 1 },
-    { value: 'basic', label: 'Basic (12,90€/Monat) - 5 Analysen', analyses: 5 },
-    { value: 'standard', label: 'Standard (27,90€/Monat) - 15 Analysen', analyses: 15 },
-    { value: 'pro', label: 'Pro (75€/Monat) - 50 Analysen', analyses: 50 },
-    { value: 'business', label: 'Business (159€/Monat) - 120 Analysen', analyses: 120 },
+    { value: 'basic', label: 'Basic - 5 Analysen (Legacy)', analyses: 5 },
+    { value: 'standard', label: 'Standard - 15 Analysen (Legacy)', analyses: 15 },
+    { value: 'pro', label: 'Pro - 50 Analysen (Legacy)', analyses: 50 },
+    { value: 'business', label: 'Business - 120 Analysen (Legacy)', analyses: 120 },
     { value: 'b2b_starter', label: 'B2B Starter (2.490\u20ac/Jahr) - 300 Analysen', analyses: 300 },
     { value: 'b2b_professional', label: 'B2B Professional (6.990\u20ac/Jahr) - 1000 Analysen', analyses: 1000 },
     { value: 'b2b_enterprise', label: 'B2B Enterprise (14.990\u20ac/Jahr) - 2500 Analysen', analyses: 2500 },
@@ -256,7 +255,7 @@ export default function AdminPage() {
 
   if (checkingAuth) {
     return (
-      <main className="min-h-screen bg-slate-50 flex items-center justify-center">
+      <main className="min-h-screen bg-slate-50 flex items-center justify-center" data-theme="light">
         <p className="text-slate-500">Zugang wird geprüft...</p>
       </main>
     );
@@ -264,7 +263,7 @@ export default function AdminPage() {
 
   if (accessDenied) {
     return (
-      <main className="min-h-screen bg-slate-50 flex items-center justify-center">
+      <main className="min-h-screen bg-slate-50 flex items-center justify-center" data-theme="light">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-slate-900 mb-4">Zugriff verweigert</h1>
           <p className="text-slate-500 mb-6">Sie haben keine Berechtigung für den Admin-Bereich.</p>
@@ -275,7 +274,7 @@ export default function AdminPage() {
   }
 
   return (
-    <main className="min-h-screen bg-slate-50 py-12 px-6">
+    <main className="min-h-screen bg-slate-50 py-12 px-6" data-theme="light">
       <div className="max-w-5xl mx-auto">
         {/* Header */}
         <div className="bg-white rounded-2xl shadow-lg p-8 mb-6">

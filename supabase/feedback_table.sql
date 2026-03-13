@@ -19,10 +19,12 @@ CREATE TABLE IF NOT EXISTS site_feedback (
 ALTER TABLE site_feedback ENABLE ROW LEVEL SECURITY;
 
 -- Jeder (anon) darf neue Zeilen einfügen (für das Feedback-Formular)
+DROP POLICY IF EXISTS "site_feedback_anon_insert" ON site_feedback;
 CREATE POLICY "site_feedback_anon_insert"
   ON site_feedback FOR INSERT TO anon WITH CHECK (true);
 
 -- Jeder (anon) darf alle Zeilen lesen (für die öffentliche Anzeige "Was andere sagen")
+DROP POLICY IF EXISTS "site_feedback_anon_select" ON site_feedback;
 CREATE POLICY "site_feedback_anon_select"
   ON site_feedback FOR SELECT TO anon USING (true);
 

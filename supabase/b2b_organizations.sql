@@ -2,30 +2,10 @@
 -- BESCHEIDRECHT B2B — Organisations-System
 -- Art. 28 DSGVO-konformes Multi-User-System für Einrichtungen
 -- ============================================================
--- Reihenfolge: organizations → organization_members → organization_invites
+-- Reihenfolge: organizations → organization_members → Funktionen → RLS auf organizations
 
 -- ============================================================
--- 1. Hilfs-Funktionen (kein RLS-Rekursions-Problem)
--- ============================================================
-
-CREATE OR REPLACE FUNCTION public.is_org_member(org_uuid UUID)
-RETURNS BOOLEAN AS $$
-  SELECT EXISTS (
-    SELECT 1 FROM public.organization_members
-    WHERE org_id = org_uuid AND user_id = auth.uid()
-  );
-$$ LANGUAGE sql SECURITY DEFINER STABLE;
-
-CREATE OR REPLACE FUNCTION public.is_org_admin(org_uuid UUID)
-RETURNS BOOLEAN AS $$
-  SELECT EXISTS (
-    SELECT 1 FROM public.organization_members
-    WHERE org_id = org_uuid AND user_id = auth.uid() AND role = 'admin'
-  );
-$$ LANGUAGE sql SECURITY DEFINER STABLE;
-
--- ============================================================
--- 2. organizations — Einrichtungs-Stammdaten + Analyse-Pool
+-- 1. organizations — Einrichtungs-Stammdaten + Analyse-Pool
 -- ============================================================
 
 CREATE TABLE IF NOT EXISTS public.organizations (
@@ -64,15 +44,8 @@ CREATE TABLE IF NOT EXISTS public.organizations (
 
 ALTER TABLE public.organizations ENABLE ROW LEVEL SECURITY;
 
--- Mitglieder können ihre eigene Einrichtung sehen
-CREATE POLICY "org_members_select" ON public.organizations
-  FOR SELECT TO authenticated
-  USING (public.is_org_member(id));
-
--- Service Role hat vollen Zugriff (alle Admin-Operationen laufen serverseitig)
-CREATE POLICY "service_role_full_orgs" ON public.organizations
-  FOR ALL TO service_role
-  USING (true) WITH CHECK (true);
+-- RLS-Policies werden nach organization_members erstellt (Funktionen brauchen die Tabelle)
+-- → siehe Abschnitt 4 unten
 
 -- Trigger: updated_at
 CREATE OR REPLACE FUNCTION public.update_org_updated_at()
@@ -118,10 +91,12 @@ ALTER TABLE public.organization_members ENABLE ROW LEVEL SECURITY;
 
 -- Jedes Mitglied sieht seine eigene Zugehörigkeit (Client-Side)
 -- Vollständige Mitgliederliste wird über Service Role API bereitgestellt
+DROP POLICY IF EXISTS "own_membership_visible" ON public.organization_members;
 CREATE POLICY "own_membership_visible" ON public.organization_members
   FOR SELECT TO authenticated
   USING (user_id = auth.uid());
 
+DROP POLICY IF EXISTS "service_role_full_members" ON public.organization_members;
 CREATE POLICY "service_role_full_members" ON public.organization_members
   FOR ALL TO service_role
   USING (true) WITH CHECK (true);
@@ -130,7 +105,37 @@ CREATE INDEX IF NOT EXISTS idx_org_members_org_id   ON public.organization_membe
 CREATE INDEX IF NOT EXISTS idx_org_members_user_id  ON public.organization_members(user_id);
 
 -- ============================================================
--- 4. organization_invites — Einladungs-Token
+-- 4. Hilfs-Funktionen + Organizations RLS (brauchen organization_members)
+-- ============================================================
+
+CREATE OR REPLACE FUNCTION public.is_org_member(org_uuid UUID)
+RETURNS BOOLEAN AS $$
+  SELECT EXISTS (
+    SELECT 1 FROM public.organization_members
+    WHERE org_id = org_uuid AND user_id = auth.uid()
+  );
+$$ LANGUAGE sql SECURITY DEFINER STABLE;
+
+CREATE OR REPLACE FUNCTION public.is_org_admin(org_uuid UUID)
+RETURNS BOOLEAN AS $$
+  SELECT EXISTS (
+    SELECT 1 FROM public.organization_members
+    WHERE org_id = org_uuid AND user_id = auth.uid() AND role = 'admin'
+  );
+$$ LANGUAGE sql SECURITY DEFINER STABLE;
+
+DROP POLICY IF EXISTS "org_members_select" ON public.organizations;
+CREATE POLICY "org_members_select" ON public.organizations
+  FOR SELECT TO authenticated
+  USING (public.is_org_member(id));
+
+DROP POLICY IF EXISTS "service_role_full_orgs" ON public.organizations;
+CREATE POLICY "service_role_full_orgs" ON public.organizations
+  FOR ALL TO service_role
+  USING (true) WITH CHECK (true);
+
+-- ============================================================
+-- 5. organization_invites — Einladungs-Token
 -- ============================================================
 
 CREATE TABLE IF NOT EXISTS public.organization_invites (
@@ -160,6 +165,7 @@ CREATE TABLE IF NOT EXISTS public.organization_invites (
 ALTER TABLE public.organization_invites ENABLE ROW LEVEL SECURITY;
 
 -- Nur Service Role (API-Route mit Admin-Check) darf Einladungen verwalten
+DROP POLICY IF EXISTS "service_role_full_invites" ON public.organization_invites;
 CREATE POLICY "service_role_full_invites" ON public.organization_invites
   FOR ALL TO service_role
   USING (true) WITH CHECK (true);

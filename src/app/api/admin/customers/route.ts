@@ -74,7 +74,16 @@ export async function GET(request: NextRequest) {
     dbQuery = dbQuery.ilike("email", `%${query}%`);
   }
 
-  const { data, error } = await dbQuery.limit(500);
+  // Subscriptions + Org-Mitgliedschaften parallel laden
+  const [subsResult, orgResult] = await Promise.all([
+    dbQuery.limit(500),
+    admin
+      .from("organization_members")
+      .select("user_id, org_id, role, organizations(name)")
+      .limit(1000),
+  ]);
+
+  const { data, error } = subsResult;
 
   if (error) {
     return NextResponse.json(
@@ -83,11 +92,7 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  // Org-Mitgliedschaften laden für B2B-Zuordnung
-  const { data: orgMembers } = await admin
-    .from("organization_members")
-    .select("user_id, org_id, role, organizations(name)")
-    .limit(1000);
+  const orgMembers = orgResult.data;
 
   const orgMap = new Map<string, { org_name: string; role: string }>();
   if (orgMembers) {

@@ -248,7 +248,7 @@ Mobile first (375px zuerst). Arabisch (AR) → `dir="rtl"`. Fehler freundlich fo
 
 **Antrags-Generator:** Aktenzeichen + Bescheiddatum Pflicht. PDF DIN A4 (70pt/57pt, Helvetica 11pt). Dateiname: `BescheidRecht_[AZ]_[Datum].pdf`. Nie „rechtssicher" → „professionell". Nie „Antrag" → „Schreiben-Entwurf". Disclaimer § 2 RDG am Ende.
 
-**Blog:** CTA „einmalig 19,90 € ohne Abo" → `/#pricing`. Meta-Tags Pflicht. Disclaimer § 2 RDG.
+**Blog:** CTA → `/#pricing` oder `/b2b`. Meta-Tags Pflicht. Disclaimer § 2 RDG.
 
 ---
 
@@ -260,7 +260,7 @@ Mobile first (375px zuerst). Arabisch (AR) → `dir="rtl"`. Fehler freundlich fo
 
 3. **Fristen-API nutzt User-JWT, nicht Service-Role-Key.** RLS-Policies von `user_fristen` filtern nach `auth.uid()`. Service-Key umgeht RLS → Sicherheitslücke.
 
-4. **Fehlerkatalog hat 128 Einträge (16 Rechtsgebiete)** mit festem Schema: `id` (string, z.B. "BA_001"), `titel`, `beschreibung`, `rechtsbasis[]`, `severity` ("hinweis"|"wichtig"|"kritisch"), `prueflogik` ({bedingungen[], suchbegriffe[]}), `musterschreiben_hinweis`, `severity_beschreibung`. Schema wird per Test validiert (`content/__tests__/fehlerkatalog-schema.test.ts`).
+4. **Fehlerkatalog hat 163 Einträge (16 Rechtsgebiete)** mit festem Schema: `id` (string, z.B. "BA_001"), `titel`, `beschreibung`, `rechtsbasis[]`, `severity` ("hinweis"|"wichtig"|"kritisch"), `prueflogik` ({bedingungen[], suchbegriffe[]}), `musterschreiben_hinweis`, `severity_beschreibung`. Schema wird per Test validiert (`content/__tests__/fehlerkatalog-schema.test.ts`).
 
 5. **Middleware refresht Supabase-Session bei JEDEM Request.** Fehlende Keys → silent `NextResponse.next()` statt Crash. Fehlende Env-Vars verursachen leise Auth-Fehler, keine lauten.
 
@@ -285,7 +285,7 @@ Mobile first (375px zuerst). Arabisch (AR) → `dir="rtl"`. Fehler freundlich fo
 
 11. **Legacy Engine** (`engine.ts`, GPT-4o) springt ein wenn ANTHROPIC_API_KEY fehlt. Nicht löschen, nicht weiterentwickeln.
 
-12. **`mollie/webhook/route.ts` ist der produktive Payment-Webhook** — verarbeitet Mollie-Zahlungen (paid/failed/expired). Beim Erstellen einer Zahlung via Mollie API: `metadata: { product_key: "single"|"basic"|"standard"|"pro", buyer_email: "..." }`. MOLLIE_API_KEY Pflicht.
+12. **`mollie/webhook/route.ts` ist der produktive Payment-Webhook** — verarbeitet Mollie-Zahlungen (paid/failed/expired). Beim Erstellen einer Zahlung via Mollie API: `metadata: { product_key: "starter"|"team"|"einrichtung", buyer_email: "..." }`. MOLLIE_API_KEY Pflicht.
 
 13. **18-Agenten-System vollständig implementiert** in `src/lib/logic/agents/` (AG01–AG18 + orchestrator.ts). `agent_engine.ts` ist nur ein dünner Wrapper. Die `wissensdatenbank.sql`-Tabellen (urteile, kennzahlen, analysis_results etc.) müssen noch manuell in Supabase deployed werden — erst dann können AG04/AG05 in die DB schreiben.
 

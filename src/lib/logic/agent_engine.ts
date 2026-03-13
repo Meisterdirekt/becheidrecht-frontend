@@ -16,7 +16,7 @@ export type { ProgressCallback } from "./agents/orchestrator";
 /**
  * Haupteinstiegspunkt für die Bescheid-Analyse.
  * Führt die Multi-Agent-Pipeline aus:
- * AG08 → AG12 → AG01 → [AG02 ║ AG04] → AG03 → AG07 → AG13
+ * AG08 → AG12 → AG01 → [AG02 ║ AG04] → AG03 → [AG07 ║ AG14] → AG13
  */
 export async function runAgentAnalysis(
   documentText: string,

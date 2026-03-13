@@ -6,17 +6,7 @@ import path from "path";
 import { TRAEGER_TO_PREFIX, getTraegerLabel, getSchreibentypLabel } from "@/lib/letter-generator";
 import { getAuthenticatedUser } from "@/lib/supabase/auth";
 import { letterLimiter } from "@/lib/rate-limit";
-
-function getOpenAIKey(): string | null {
-  try {
-    const envContent = fs.readFileSync(path.join(process.cwd(), "vault", "keys.env"), "utf8");
-    const match = envContent.match(/OPENAI_API_KEY\s*=\s*["']?([^\s"'\n]+)/);
-    if (match?.[1]) return match[1];
-  } catch {
-    // Vault nicht vorhanden (z.B. auf Vercel)
-  }
-  return process.env.OPENAI_API_KEY || null;
-}
+import { getOpenAIKey } from "@/lib/logic/agents/utils";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;

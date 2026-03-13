@@ -26,18 +26,20 @@ async function checkSupabase() {
   try {
     const supabase = createClient(SUPABASE_URL, SERVICE_KEY);
 
-    // Tabellen-Verfügbarkeit prüfen
-    const tables = ["user_fristen", "urteile", "kennzahlen", "update_protokoll"];
+    // Tabellen-Verfügbarkeit prüfen (parallel)
+    const tables = ["user_fristen", "urteile", "kennzahlen", "update_protokoll"] as const;
+    const results = await Promise.all(
+      tables.map((table) => supabase.from(table).select("id").limit(1))
+    );
     const tableStatus: Record<string, string> = {};
-
-    for (const table of tables) {
-      const { error } = await supabase.from(table).select("id").limit(1);
+    tables.forEach((table, i) => {
+      const { error } = results[i];
       tableStatus[table] = error
         ? error.code === "42P01"
           ? "nicht angelegt"
           : `Fehler: ${error.message}`
         : "✓ OK";
-    }
+    });
 
     return {
       status: "online",

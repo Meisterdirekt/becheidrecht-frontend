@@ -1,0 +1,387 @@
+{
+  "$schema": "https://bescheidrecht.de/schemas/logic-lock/v1",
+  "title": "BescheidRecht — Logic Lock",
+  "description": "Unveränderliche Integritätsreferenz für das gesamte Backend-Logiksystem. Jede Abweichung von diesem Dokument ist ein Architektur-Bruch. Stand: 2026-03-11.",
+  "version": "1.0.0",
+  "lastUpdated": "2026-03-12",
+
+  "architecture": {
+    "pattern": "Multi-Agent Pipeline mit Tool-Use Loops",
+    "entry_point": "src/lib/logic/agent_engine.ts → runAgentAnalysis(documentText)",
+    "delegation": "agent_engine.ts ist ein dünner Wrapper → agents/orchestrator.ts → runPipeline()",
+    "pipeline_order": "AG08 → AG12 → AG01 → [AG02 ‖ AG04] → AG03 → [AG07 ‖ AG14] → AG13 + async: AG05, AG06",
+    "parallelism": "Promise.allSettled() für unabhängige Agenten (Phase 1, 4, 5)",
+    "error_handling": "safeExecute() Wrapper — kein Agent crasht die Pipeline, Fallback-Data bei Fehler",
+    "legacy_fallback": "engine.ts (GPT-4o) springt ein wenn ANTHROPIC_API_KEY fehlt — nicht weiterentwickeln"
+  },
+
+  "agents": {
+    "AG01": {
+      "file": "src/lib/logic/agents/ag01-orchestrator.ts",
+      "role": "Triage + Klassifizierung",
+      "model": "claude-sonnet-4-6 (immer Sonnet, unabhängig von Stufe)",
+      "tools": ["klassifiziere_bescheid"],
+      "max_iterations": 3,
+      "input": "documentText + detectUrgency() Pre-Filter",
+      "output": "TriageResult (behoerde, rechtsgebiet, untergebiet, bescheid_datum?, frist_datum?, frist_tage?, bg_nummer?, routing_stufe)",
+      "side_effects": "Kann RoutingStufe nach oben korrigieren (NORMAL→HOCH, NORMAL/HOCH→NOTFALL). Nie nach unten.",
+      "runs": "IMMER"
+    },
+    "AG02": {
+      "file": "src/lib/logic/agents/ag02-analyst.ts",
+      "role": "Forensische Bescheid-Analyse",
+      "model": "modelForStufe() — Sonnet (NORMAL/HOCH), Opus (NOTFALL)",
+      "tools": ["suche_fehlerkatalog", "get_weisungen", "db_read"],
+      "max_iterations": 6,
+      "extended_thinking": "Nur bei NOTFALL — budget_tokens: 8000, max_tokens: 16000",
+      "input": "documentText + AG01-Triage (Behörde, Rechtsgebiet)",
+      "output": "AnalyseResult (fehler: FehlerItem[], auffaelligkeiten: string[])",
+      "dedup_logic": "gefundeneIds-Set verhindert doppelte Fehlerkatalog-Einträge über Iterationen hinweg",
+      "fehlerkatalog_source": "Statisch (content/behoerdenfehler_logik.json, 163 Einträge) + Dynamisch (Supabase behoerdenfehler-Tabelle, von AG15). Max 10 Treffer gesamt.",
+      "confidence": "fehler.length > 0 → 0.9, auffaelligkeiten.length > 0 → 0.7, sonst → 0.5",
+      "runs": "IMMER"
+    },
+    "AG03": {
+      "file": "src/lib/logic/agents/ag03-critic.ts",
+      "role": "Advocatus Diaboli — Kritische Bewertung",
+      "model": "modelForStufe()",
+      "tools": [],
+      "max_iterations": 1,
+      "input": "AG01-Triage + AG02-Analyse + AG04-Recherche + Bescheid (3000 Zeichen)",
+      "output": "KritikResult (gegenargumente, erfolgschance_prozent, schwachstellen)",
+      "runs": "Nur bei HOCH/NOTFALL UND Budget nicht überschritten (0.80€)",
+      "quality_alert": "erfolgschance_prozent < 35 → Sentry-Error in analyze/route.ts"
+    },
+    "AG04": {
+      "file": "src/lib/logic/agents/ag04-researcher.ts",
+      "role": "Rechts-Recherche",
+      "model": "claude-sonnet-4-6 (nur bei HOCH/NOTFALL mit Tavily)",
+      "tools": ["web_search", "fetch_url", "db_read"],
+      "max_iterations": 6,
+      "routing_logic": {
+        "NORMAL": "DB-only: executeDbRead('urteile', {rechtsgebiet}, 5). Kein LLM, kein Tavily, keine Kosten.",
+        "HOCH_NOTFALL": "LLM + Tavily Web-Search + fetch_url. Nur wenn TAVILY_API_KEY vorhanden."
+      },
+      "domain_whitelist": ["bundessozialgericht.de", "bundesverfassungsgericht.de", "gesetze-im-internet.de", "sozialgerichtsbarkeit.de", "bmas.de", "arbeitsagentur.de"],
+      "output": "RechercheResult (urteile: UrteilItem[], quellen: string[])",
+      "runs": "IMMER (NORMAL = kostenlos DB-only)"
+    },
+    "AG05": {
+      "file": "src/lib/logic/agents/ag05-knowledge-manager.ts",
+      "role": "Wissens-Verwalter — EINZIGER Agent mit db_write",
+      "model": "claude-haiku-4-5-20251001",
+      "tools": ["db_read", "db_write"],
+      "max_iterations": 4,
+      "input": "AG04-Recherche-Urteile",
+      "output": "{ saved: number }",
+      "constraints": [
+        "Duplikat-Prüfung PFLICHT vor jedem insert",
+        "Max 5 Urteile pro Batch",
+        "Nur Urteile von Whitelist-Quellen",
+        "Jeder Schreibvorgang wird in update_protokoll geloggt"
+      ],
+      "runs": "Async (fire-and-forget), nur wenn AG04 Urteile fand"
+    },
+    "AG06": {
+      "file": "src/lib/logic/agents/ag06-prompt-optimizer.ts",
+      "role": "Qualitäts-Analyst",
+      "model": "claude-sonnet-4-6",
+      "tools": [],
+      "max_iterations": 1,
+      "trigger": "Brief <500 Zeichen ODER 0 Fehler bei HOCH/NOTFALL ODER Kosten >0.50€ (AG06_COST_TRIGGER_EUR)",
+      "output": "{ vorschlaege: string[] }",
+      "persistence": "Vorschläge werden in update_protokoll gespeichert (agent_id='AG06', operation='QUALITAETS_ANALYSE')",
+      "runs": "Async (fire-and-forget), nur bei Qualitätsproblemen"
+    },
+    "AG07": {
+      "file": "src/lib/logic/agents/ag07-letter-generator.ts",
+      "role": "Musterschreiben-Generator",
+      "model": "modelForStufe()",
+      "tools": ["erstelle_musterschreiben", "get_weisungen"],
+      "max_iterations": 6,
+      "extended_thinking": "Nur bei NOTFALL — budget_tokens: 10000, max_tokens: 20000",
+      "input": "Vollständiger Pipeline-Kontext: AG01-Triage, AG02-Fehler, AG03-Kritik, AG04-Urteile, AG14-Präzedenzfälle",
+      "output": "MusterschreibenResult (volltext, auffaelligkeiten, forderung)",
+      "tool_erstelle_musterschreiben": {
+        "required_fields": ["rubrum", "chronologie", "forderung", "schluss", "auffaelligkeiten"],
+        "auto_disclaimer": "RDG § 2 Disclaimer wird automatisch angehängt",
+        "fallback": "Wenn kein Tool-Call: letzter Text-Block wird als Musterschreiben genommen"
+      },
+      "quality_standards": [
+        "Min 800 Zeichen Volltext",
+        "Min 3 Begründungsabsätze",
+        "Jeder KRITISCH/WICHTIG-Fehler in eigenem Absatz",
+        "Min 1 Rechtsnorm pro Begründungsabsatz",
+        "1 klare, messbare Forderung"
+      ],
+      "runs": "IMMER"
+    },
+    "AG08": {
+      "file": "src/lib/logic/agents/ag08-security-gate.ts",
+      "role": "Eingangs-Sicherheitsfilter",
+      "model": "claude-haiku-4-5-20251001",
+      "tools": [],
+      "max_iterations": 1,
+      "input": "documentText (erste 2000 Zeichen)",
+      "output": "SecurityResult (freigabe, grund?)",
+      "checks": ["Prompt-Injection", "Jailbreak", "PII-Lecks (IBAN, Passwörter)", "Dokumenten-Plausibilität (>30 Zeichen, kein Code)"],
+      "false_positive_policy": "Bei Parse-Fehler → freigabe=true. Bei Zweifel → freigeben.",
+      "pipeline_impact": "freigabe=false → sofortiger Pipeline-Abbruch",
+      "runs": "IMMER, ZUERST (parallel mit AG12)"
+    },
+    "AG12": {
+      "file": "src/lib/logic/agents/ag12-document-processor.ts",
+      "role": "Semantische Bescheid-Strukturerkennung",
+      "model": "claude-haiku-4-5-20251001",
+      "tools": [],
+      "max_iterations": 1,
+      "input": "documentText (erste 6000 Zeichen)",
+      "output": "DokumentstrukturResult (rubrum, begruendung, rechtsbehelfsbelehrung, volltext)",
+      "invariant": "volltext = ctx.documentText (immer Originaltext, nie LLM-Output — AG12 sieht nur 6000 Zeichen)",
+      "runs": "IMMER (parallel mit AG08)"
+    },
+    "AG13": {
+      "file": "src/lib/logic/agents/ag13-user-explainer.ts",
+      "role": "Nutzer-Erklärer — Klartext auf B1-Niveau",
+      "model": "claude-haiku-4-5-20251001",
+      "tools": [],
+      "max_iterations": 1,
+      "input": "Voller Pipeline-Kontext: Triage, Analyse, Kritik, Musterschreiben-Forderung, Präzedenzfälle",
+      "output": "ErklaerungResult (klartext: string — genau 3-4 Sätze)",
+      "sentence_structure": [
+        "Satz 1: Das Problem (konkreter Fehler + Leistungssystem)",
+        "Satz 2: Die Frist (Tage oder Datum oder Standard-Hinweis)",
+        "Satz 3: Die Forderung + Paragraph",
+        "Satz 4 (optional): Präzedenzfall-Statistik (nur bei ≥5 Fälle UND ≥50% Erfolg)"
+      ],
+      "runs": "IMMER, LETZTE STATION"
+    },
+    "AG14": {
+      "file": "src/lib/logic/agents/ag14-praezedenz-analyzer.ts",
+      "role": "Historische Vergleichsdaten aus DB",
+      "model": "KEINS — reine DB-Aggregation",
+      "tools": [],
+      "input": "AG01-Triage (rechtsgebiet, behoerde)",
+      "output": "PraezedenzResult (aehnliche_faelle, erfolgsquote_prozent, haeufigste_fehler, hinweis)",
+      "data_source": "analysis_results-Tabelle (max 50 Rows). Filtert nach Rechtsgebiet, bevorzugt gleiche Behörde (≥3 Matches).",
+      "no_cost": true,
+      "runs": "IMMER (parallel mit AG07)"
+    }
+  },
+
+  "cron_agents": {
+    "AG15": {
+      "file": "src/lib/logic/agents/ag15-rechts-monitor.ts",
+      "cron": "1. des Monats 03:00 UTC",
+      "endpoint": "/api/cron/rechts-update",
+      "role": "Autonomes Rechts-Monitoring — Urteile, Kennzahlen, Fehlerkatalog, Weisungen",
+      "phases": ["1=Urteile", "2=Kennzahlen", "3=Fehlerkatalog", "4=Weisungen", "5=Struktur-Monitor (→GitHub PR)", "6=Audit"]
+    },
+    "AG16": {
+      "file": "src/lib/logic/agents/ag16-vercel-agent.ts",
+      "cron": "Täglich 06:00 UTC",
+      "endpoint": "/api/cron/vercel-monitor",
+      "role": "Vercel Deployment-Überwachung → GitHub Issue bei ERROR"
+    },
+    "AG17": {
+      "file": "src/lib/logic/agents/ag17-agent-auditor.ts",
+      "cron": "Mittwoch 05:00 UTC",
+      "endpoint": "/api/cron/agent-audit",
+      "role": "Wöchentlicher Agent-Qualitäts-Audit → GitHub Issue (immer)"
+    },
+    "AG18": {
+      "file": "src/lib/logic/agents/ag18-content-auditor.ts",
+      "cron": "15. des Monats 01:00 UTC",
+      "endpoint": "/api/cron/content-audit",
+      "role": "Kennzahlen vs. Hardcodes, Fehlerkatalog-Integrität → GitHub Issue"
+    }
+  },
+
+  "tools": {
+    "suche_fehlerkatalog": {
+      "file": "src/lib/logic/agents/tools/fehlerkatalog.ts",
+      "used_by": ["AG02"],
+      "input": "{ stichworten: string[] }",
+      "logic": "1. Statische Suche in content/behoerdenfehler_logik.json (163 Einträge, gefiltert nach TRAEGER_TO_PREFIX). 2. Stichwort-basiertes Scoring (haystack: titel+beschreibung+musterschreiben_hinweis+rechtsbasis). 3. Severity-gewichtet (kritisch=100, wichtig=50, hinweis=0). 4. Dynamische DB-Einträge (behoerdenfehler-Tabelle, von AG15). 5. Merge: statisch zuerst, dann dynamisch, max 10 gesamt."
+    },
+    "get_weisungen": {
+      "file": "src/lib/logic/agents/tools/weisungen.ts",
+      "used_by": ["AG02", "AG07"],
+      "input": "{ traeger: string }",
+      "logic": "Lädt content/weisungen_2025_2026.json. TRAEGER_TO_JSON_KEYS mappt Eingabe → mehrere mögliche JSON-Keys (z.B. 'jobcenter' → ['bundesagentur_fuer_arbeit','jobcenter','sgb_ii','sgb2']). Gibt max 8 Weisungen als Text zurück."
+    },
+    "db_read": {
+      "file": "src/lib/logic/agents/tools/db-read.ts",
+      "used_by": ["AG02", "AG04", "AG05", "AG14"],
+      "input": "{ tabelle: 'urteile'|'kennzahlen'|'behoerdenfehler'|'analysis_results', filter?: object, limit?: number }",
+      "max_limit": 100,
+      "default_limit": 20,
+      "auth": "SUPABASE_SERVICE_ROLE_KEY (Server-only, kein User-JWT)",
+      "graceful_degradation": "Tabelle nicht vorhanden → { available: false, rows: [] }"
+    },
+    "db_write": {
+      "file": "src/lib/logic/agents/tools/db-write.ts",
+      "used_by": ["AG05"],
+      "input": "{ tabelle: 'urteile'|'kennzahlen'|'behoerdenfehler', daten: object, aktion: 'insert'|'upsert' }",
+      "auth": "SUPABASE_SERVICE_ROLE_KEY",
+      "audit_trail": "Jeder Schreibvorgang wird in update_protokoll geloggt (tabelle, aktion, daten, agent, zeitpunkt)"
+    },
+    "web_search": {
+      "file": "src/lib/logic/agents/tools/web-search.ts",
+      "used_by": ["AG04"],
+      "input": "{ query: string, max_results?: number }",
+      "backend": "Tavily API (search_depth='advanced')",
+      "domain_filter": "include_domains: LEGAL_DOMAIN_WHITELIST",
+      "timeout": "15000ms",
+      "max_content_chars": 2000,
+      "graceful_degradation": "TAVILY_API_KEY fehlt → { available: false, results: [] }"
+    },
+    "fetch_url": {
+      "file": "src/lib/logic/agents/tools/fetch-url.ts",
+      "used_by": ["AG04"],
+      "input": "{ url: string }",
+      "domain_check": "isDomainAllowed(url) — nur LEGAL_DOMAIN_WHITELIST",
+      "processing": "HTML → Text (script/style/nav/footer/header entfernt, Entities decoded)",
+      "max_chars": 10000,
+      "timeout": "15000ms"
+    },
+    "klassifiziere_bescheid": {
+      "file": "src/lib/logic/agents/ag01-orchestrator.ts (inline)",
+      "used_by": ["AG01"],
+      "required_fields": ["behoerde", "rechtsgebiet", "untergebiet"],
+      "optional_fields": ["bescheid_datum", "frist_datum", "frist_tage", "bg_nummer"],
+      "side_effect": "frist_tage ≤7 → NOTFALL-Routing, frist_tage ≤14 → HOCH-Routing"
+    },
+    "erstelle_musterschreiben": {
+      "file": "src/lib/logic/agents/ag07-letter-generator.ts (inline)",
+      "used_by": ["AG07"],
+      "required_fields": ["rubrum", "chronologie", "forderung", "schluss", "auffaelligkeiten"],
+      "post_processing": "Disclaimer automatisch angehängt. Zeichenzahl geloggt."
+    }
+  },
+
+  "constants": {
+    "file": "src/lib/logic/agents/tools/constants.ts",
+    "LEGAL_DOMAIN_WHITELIST": ["bundessozialgericht.de", "bundesverfassungsgericht.de", "gesetze-im-internet.de", "sozialgerichtsbarkeit.de", "bmas.de", "arbeitsagentur.de"],
+    "MAX_FETCH_CHARS": 10000,
+    "MAX_SEARCH_CONTENT_CHARS": 2000,
+    "BUDGET_LIMIT_EUR": 0.80,
+    "AG06_COST_TRIGGER_EUR": 0.50
+  },
+
+  "model_routing": {
+    "file": "src/lib/logic/agents/utils.ts",
+    "HAIKU_MODEL": "claude-haiku-4-5-20251001",
+    "SONNET_MODEL": "claude-sonnet-4-6",
+    "OPUS_MODEL": "claude-opus-4-6",
+    "modelForStufe": {
+      "NORMAL": "claude-sonnet-4-6",
+      "HOCH": "claude-sonnet-4-6",
+      "NOTFALL": "claude-opus-4-6"
+    },
+    "fixed_haiku_agents": ["AG08", "AG12", "AG13", "AG05"],
+    "fixed_sonnet_agents": ["AG01", "AG04 (nur HOCH/NOTFALL)", "AG06"],
+    "adaptive_agents": ["AG02", "AG03", "AG07"]
+  },
+
+  "pricing": {
+    "description": "Per-Modell Kostenberechnung in estimateCost(). USD→EUR Faktor: 0.92. Cache-Write: 1.25× Input-Preis.",
+    "claude-opus-4-6": { "input_per_mtok_usd": 15, "output_per_mtok_usd": 75, "cache_read_per_mtok_usd": 1.5 },
+    "claude-sonnet-4-6": { "input_per_mtok_usd": 3, "output_per_mtok_usd": 15, "cache_read_per_mtok_usd": 0.3 },
+    "claude-haiku-4-5-20251001": { "input_per_mtok_usd": 0.25, "output_per_mtok_usd": 1.25, "cache_read_per_mtok_usd": 0.03 }
+  },
+
+  "kennzahlen": {
+    "file": "src/lib/logic/agents/kennzahlen.ts",
+    "year": 2026,
+    "update_frequency": "Jährlich (Januar)",
+    "values": {
+      "REGELBEDARF": { "RS1": 563, "RS2": 506, "RS3": 451, "RS4": 471, "RS5": 390, "RS6": 357 },
+      "EINKOMMENSANRECHNUNG": {
+        "grundfreibetrag": 100,
+        "stufe1": "20% von 100-520€",
+        "stufe2": "30% von 520-1000€",
+        "stufe3_ohne_kinder": "10% von 1000-1200€",
+        "stufe3_mit_kindern": "10% von 1000-1500€"
+      },
+      "KINDERGELD_PRO_MONAT": 259
+    }
+  },
+
+  "fehlerkatalog": {
+    "file": "content/behoerdenfehler_logik.json",
+    "entry_count": 163,
+    "rechtsgebiete": 16,
+    "prefix_distribution": {
+      "BA": 25, "ALG": 15, "DRV": 18, "KK": 20, "PK": 15, "UV": 8,
+      "VA": 8, "SH": 8, "EH": 8, "JA": 7, "BAMF": 7, "BAF": 5,
+      "EG": 5, "FK": 5, "WG": 5, "UVS": 4
+    },
+    "schema_per_entry": {
+      "required": ["id", "titel", "beschreibung", "rechtsbasis", "severity", "prueflogik", "musterschreiben_hinweis", "severity_beschreibung"],
+      "prueflogik_schema": { "required": ["bedingungen", "suchbegriffe"] },
+      "severity_values": ["hinweis", "wichtig", "kritisch"],
+      "id_pattern": "^(BA|ALG|DRV|KK|PK|UV|VA|SH|EH|JA|BAMF|BAF|EG|FK|WG|UVS)_\\d{3}$"
+    },
+    "test": "content/__tests__/fehlerkatalog-schema.test.ts — validiert Pflichtfelder, Severity-Werte, ID-Eindeutigkeit, keine leeren Felder"
+  },
+
+  "privacy": {
+    "pseudonymizer": "src/lib/privacy/pseudonymizer.ts",
+    "pseudonymized_fields": ["name", "address", "birthdate", "bankAccount", "taxId", "socialSecurityNumber", "email", "phone", "bic"],
+    "flow": "extractText → pseudonymizeText(text) → {pseudonymized, map} → Pipeline(pseudonymized) → depseudonymizeText(result, map)",
+    "test": "src/lib/privacy/pseudonymizer.test.ts"
+  },
+
+  "urgency_detection": {
+    "file": "src/lib/logic/agents/utils.ts → detectUrgency()",
+    "cost": "Zero — reine Regex, kein API-Call",
+    "notfall_keywords": ["vollstreckung", "pfändung", "sofortige vollziehung", "haftandrohung", "zwangsvollstreckung", "kontopfändung"],
+    "date_detection": "Regex /\\b(\\d{1,2})\\.(\\d{1,2})\\.(\\d{4})\\b/g — nur 2024-2035, nur 0-60 Tage in Zukunft",
+    "thresholds": { "NOTFALL": "≤7 Tage oder Keyword", "HOCH": "8-14 Tage", "NORMAL": ">14 Tage oder unerkannt" }
+  },
+
+  "traeger_detection": {
+    "file": "src/lib/logic/agents/utils.ts → detectTraegerKey()",
+    "description": "Pattern-Matching auf Behördenname (lowercase). 15 Behörden-Typen. Default-Fallback: 'jobcenter'.",
+    "mapping_count": 15,
+    "krankenkassen_keywords": ["aok", "barmer", "tk", "techniker krankenkasse", "dak", "bkk", "ikk", "knappschaft", "gkv"],
+    "ambiguity_resolution": "familienkasse matcht auch 'elterngeld' — familienkasse gewinnt (steht vor elterngeld in der If-Kette)"
+  },
+
+  "supabase": {
+    "project_id": "xprrzmcickfparpogbpj",
+    "tables_wissensdatenbank": ["urteile", "kennzahlen", "behoerdenfehler", "update_protokoll", "sessions", "analysis_results"],
+    "tables_core": ["analyses", "documents", "plans", "profiles", "single_purchases", "site_feedback", "subscriptions", "usage", "usage_counters", "user_subscriptions", "user_fristen"],
+    "tables_b2b_pending": {
+      "tables": ["organizations", "organization_members", "organization_invites"],
+      "status": "SQL vorhanden (supabase/b2b_organizations.sql), noch NICHT in Produktion deployt",
+      "deploy_action": "SQL-Editor → b2b_organizations.sql ausführen"
+    },
+    "rls_policy": "Alle Tabellen haben RLS. Wissensdatenbank: Authenticated read. User-Tabellen: auth.uid()=user_id.",
+    "service_key_usage": ["db_read (AG-Tools)", "db_write (AG05)", "getSubscriptionRemaining (generate-letter)"],
+    "user_jwt_usage": ["user_fristen (auto-save)", "analysis_results (cost tracking)", "fristen CRUD"]
+  },
+
+  "invariants": [
+    "KI-Logik NUR in src/lib/logic/ — nie in Komponenten oder API-Routes",
+    "API-Calls NUR über src/app/api/ — nie direkt Frontend → KI-Provider",
+    "content/ und vault/ nie ohne explizite Freigabe ändern",
+    "Service-Role-Key NIE im Frontend oder User-Context API-Routes",
+    "frist_datum ist ISO-String — tage_verbleibend immer zur Laufzeit berechnen",
+    "AG12 volltext = immer ungekürzter Originaltext (ctx.documentText)",
+    "AG08 bei Parse-Fehler = freigabe:true (false positive vermeiden)",
+    "AG01 korrigiert RoutingStufe nur nach oben, nie nach unten",
+    "AG05 ist der EINZIGE Agent mit db_write-Zugriff",
+    "AG07 Tool-Call erstelle_musterschreiben ist PFLICHT (nicht optional)",
+    "TRAEGER_TO_PREFIX ist die Single Source of Truth für Fehlerkatalog-Filterung",
+    "Zwei PDF-Libraries: @react-pdf/renderer (Vorschau), jspdf (Download) — nicht verwechseln",
+    "Drei Supabase-Dateien: client.ts (Frontend), middleware.ts (Server), auth.ts (API Guard) — NIE supabase.ts (Legacy)",
+    "estimateCost() berechnet per-Agent mit tatsächlichem Modell — nicht pauschal Sonnet",
+    "RDG § 2 Disclaimer wird von AG07 automatisch angehängt UND von /api/assistant nachinjiziert wenn fehlend",
+    "detectUrgency() ist kostenlos (Regex) und läuft VOR der Pipeline — setzt initiale RoutingStufe",
+    "Budget-Check (BUDGET_LIMIT_EUR=0.80€) blockiert nur AG03, nicht die restliche Pipeline"
+  ],
+
+  "checksum_note": "Dieses Dokument ist die kanonische Referenz. Bei Widersprüchen zwischen Code und logic_lock.json hat der Code Vorrang — logic_lock.json muss dann aktualisiert werden."
+}

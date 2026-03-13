@@ -79,19 +79,8 @@ const INTERNAL_RULES_CHECKS: Record<string, { schluessel: string; feld: string }
   "SCHONVERMOEGEN": { schluessel: "schonvermoegen", feld: "SCHONVERMOEGEN" },
 };
 
-// Alle 16 Rechtsgebiete — Weisungen sollten für ALLE existieren
-const ALLE_RECHTSGEBIETE = [
-  "BA", "ALG", "DRV", "KK", "PK", "UV", "VA", "SH",
-  "EH", "JA", "BAMF", "BAF", "EG", "FK", "WG", "UVS",
-];
-
-const RECHTSGEBIET_TRAEGER: Record<string, string> = {
-  BA: "jobcenter", ALG: "arbeitsagentur", DRV: "drv",
-  KK: "krankenkasse", PK: "pflegekasse", UV: "unfallversicherung",
-  VA: "versorgungsamt", SH: "sozialhilfe", EH: "eingliederungshilfe",
-  JA: "jugendamt", BAMF: "bamf", BAF: "bafoeg",
-  EG: "elterngeld", FK: "familienkasse", WG: "wohngeld", UVS: "unterhaltsvorschuss",
-};
+// Zentrale Rechtsgebiet-Konstanten (Single Source of Truth)
+import { RECHTSGEBIETE as ALLE_RECHTSGEBIETE, RECHTSGEBIET_TRAEGER } from "../constants/rechtsgebiete";
 
 // ---------------------------------------------------------------------------
 // Supabase Client

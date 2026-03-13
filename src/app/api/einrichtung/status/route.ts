@@ -39,35 +39,38 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Kein Mitglied einer Einrichtung' }, { status: 404 });
   }
 
-  // Einrichtungs-Stammdaten + Pool
-  const { data: org, error: orgError } = await admin
-    .from('organizations')
-    .select('id, name, org_type, subscription_type, analyses_total, analyses_used, contact_email, activated_at, expires_at, created_at')
-    .eq('id', membership.org_id)
-    .single();
+  // Einrichtungs-Stammdaten, Mitglieder und Einladungen parallel laden
+  const orgId = membership.org_id;
+  const invitePromise = membership.role === 'admin'
+    ? admin
+        .from('organization_invites')
+        .select('id, email, role, token, expires_at, created_at')
+        .eq('org_id', orgId)
+        .is('accepted_at', null)
+        .order('created_at', { ascending: false })
+    : Promise.resolve({ data: null, error: null });
 
+  const [orgResult, membersResult, inviteResult] = await Promise.all([
+    admin
+      .from('organizations')
+      .select('id, name, org_type, subscription_type, analyses_total, analyses_used, contact_email, activated_at, expires_at, created_at')
+      .eq('id', orgId)
+      .single(),
+    admin
+      .from('organization_members')
+      .select('id, user_id, user_email, role, analyses_used, joined_at')
+      .eq('org_id', orgId)
+      .order('joined_at', { ascending: true }),
+    invitePromise,
+  ]);
+
+  const { data: org, error: orgError } = orgResult;
   if (orgError || !org) {
     return NextResponse.json({ error: 'Einrichtung nicht gefunden' }, { status: 404 });
   }
 
-  // Alle Mitglieder der Einrichtung
-  const { data: members } = await admin
-    .from('organization_members')
-    .select('id, user_id, user_email, role, analyses_used, joined_at')
-    .eq('org_id', membership.org_id)
-    .order('joined_at', { ascending: true });
-
-  // Offene Einladungen (nur für Admins)
-  let invites: unknown[] = [];
-  if (membership.role === 'admin') {
-    const { data: inv } = await admin
-      .from('organization_invites')
-      .select('id, email, role, token, expires_at, created_at')
-      .eq('org_id', membership.org_id)
-      .is('accepted_at', null)
-      .order('created_at', { ascending: false });
-    invites = inv ?? [];
-  }
+  const members = membersResult.data;
+  const invites: unknown[] = inviteResult.data ?? [];
 
   return NextResponse.json({
     org,

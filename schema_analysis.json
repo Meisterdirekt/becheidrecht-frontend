@@ -1,0 +1,385 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://bescheidrecht.de/schemas/analysis/v1",
+  "title": "BescheidRecht — Analyse-Pipeline Schema",
+  "description": "Vollständiges Datenfluss-Schema der 13-Agenten-Analyse-Pipeline (AG08→AG12→AG01→[AG02‖AG04]→AG03→[AG07‖AG14]→AG13). Definiert Input, Pipeline-State und finalen Output.",
+  "version": "1.0.0",
+  "lastUpdated": "2026-03-12",
+
+  "definitions": {
+
+    "RoutingStufe": {
+      "type": "string",
+      "enum": ["NORMAL", "HOCH", "NOTFALL"],
+      "description": "Dringlichkeitsstufe. NORMAL: >14 Tage Frist → Sonnet. HOCH: 8–14 Tage → Sonnet. NOTFALL: ≤7 Tage oder Vollstreckung → Opus."
+    },
+
+    "TokenUsage": {
+      "type": "object",
+      "description": "Token-Verbrauch pro Agent oder aggregiert.",
+      "required": ["input_tokens", "output_tokens", "cache_read_tokens", "cache_creation_tokens"],
+      "properties": {
+        "input_tokens": { "type": "integer", "minimum": 0 },
+        "output_tokens": { "type": "integer", "minimum": 0 },
+        "cache_read_tokens": { "type": "integer", "minimum": 0, "description": "Prompt-Caching: gelesene Tokens (90% günstiger)" },
+        "cache_creation_tokens": { "type": "integer", "minimum": 0, "description": "Prompt-Caching: geschriebene Tokens (1.25× Input-Preis)" }
+      },
+      "additionalProperties": false
+    },
+
+    "AgentResult": {
+      "type": "object",
+      "description": "Generisches Ergebnis-Envelope für jeden Agenten.",
+      "required": ["agentId", "success", "data", "tokens", "durationMs"],
+      "properties": {
+        "agentId": { "type": "string", "pattern": "^AG(0[1-9]|1[0-8])$" },
+        "success": { "type": "boolean" },
+        "data": { "type": "object", "description": "Agent-spezifischer Payload — siehe spezifische Result-Definitionen." },
+        "tokens": { "$ref": "#/definitions/TokenUsage" },
+        "durationMs": { "type": "integer", "minimum": 0 },
+        "error": { "type": "string", "description": "Fehlerbeschreibung bei success=false." },
+        "confidence": { "type": "number", "minimum": 0, "maximum": 1, "description": "Konfidenz des Agenten in sein Ergebnis. 0=unsicher, 1=sicher." }
+      },
+      "additionalProperties": false
+    },
+
+    "SecurityResult": {
+      "type": "object",
+      "description": "AG08 Security Gate — Eingangs-Prüfung. Modell: Haiku. Prüft: Prompt-Injection, Jailbreak, PII-Lecks, Dokumenten-Plausibilität. Nur erste 2000 Zeichen werden analysiert.",
+      "required": ["freigabe"],
+      "properties": {
+        "freigabe": { "type": "boolean", "description": "true = Input darf in die Pipeline. false = Abbruch. Bei Parse-Fehler: immer true (false positive vermeiden)." },
+        "grund": { "type": "string", "description": "Nur bei freigabe=false: Ablehnungsgrund auf Deutsch, max 1 Satz." }
+      },
+      "additionalProperties": false
+    },
+
+    "DokumentstrukturResult": {
+      "type": "object",
+      "description": "AG12 Dokumenten-Prozessor — Semantische Bescheid-Zerlegung. Modell: Haiku. Input: max 6000 Zeichen. Volltext wird immer vom Originaltext genommen (nie vom LLM-Output).",
+      "required": ["rubrum", "begruendung", "rechtsbehelfsbelehrung", "volltext"],
+      "properties": {
+        "rubrum": { "type": "string", "description": "Briefkopf: Absender, Empfänger, Datum, Aktenzeichen, Bescheid-Typ. Kann leer sein bei schlechter OCR." },
+        "begruendung": { "type": "string", "description": "Hauptteil: Berechnungen, Paragraphen, Begründungstext, Tabellen. Kann leer sein." },
+        "rechtsbehelfsbelehrung": { "type": "string", "description": "Rechtsbehelfsbelehrung: Widerspruchsfrist, zuständige Stelle. Kann leer sein." },
+        "volltext": { "type": "string", "minLength": 1, "description": "Vollständiger bereinigter Originaltext — IMMER der unveränderte Input, nie vom LLM gekürzt." }
+      },
+      "additionalProperties": false
+    },
+
+    "TriageResult": {
+      "type": "object",
+      "description": "AG01 Orchestrator/Triage — Klassifizierung. Modell: Sonnet. Tool: klassifiziere_bescheid. Kann Routing-Stufe nach oben korrigieren (nie nach unten). Frist-Berechnung: Bescheiddatum + 3 Tage Postlauf + 1 Monat (§ 37 Abs. 2 SGB X).",
+      "required": ["behoerde", "rechtsgebiet", "untergebiet", "routing_stufe"],
+      "properties": {
+        "behoerde": { "type": "string", "minLength": 1, "description": "Behördenname so konkret wie möglich (z.B. 'Jobcenter München', nicht 'Behörde')." },
+        "rechtsgebiet": { "type": "string", "minLength": 1, "description": "Anwendbares Gesetz: 'SGB II', 'SGB V', 'SGB VI', 'SGB IX', 'SGB XI', 'SGB XII', 'AsylbLG', 'BAföG', 'WoGG', 'Unbekannt'." },
+        "untergebiet": { "type": "string", "minLength": 1, "description": "Spezifischer Leistungsbereich (z.B. 'Grundsicherungsgeld § 22 KdU')." },
+        "bescheid_datum": { "type": "string", "pattern": "^\\d{2}\\.\\d{2}\\.\\d{4}$", "description": "Bescheiddatum im Format TT.MM.JJJJ. Optional." },
+        "frist_datum": { "type": "string", "pattern": "^\\d{2}\\.\\d{2}\\.\\d{4}$", "description": "Berechnetes Fristende TT.MM.JJJJ. Optional." },
+        "frist_tage": { "type": "integer", "minimum": 0, "description": "Verbleibende Kalendertage bis Fristende. Nie negativ." },
+        "bg_nummer": { "type": "string", "description": "Bedarfsgemeinschaftsnummer oder Aktenzeichen aus dem Bescheid." },
+        "routing_stufe": { "$ref": "#/definitions/RoutingStufe" }
+      },
+      "additionalProperties": false
+    },
+
+    "FehlerItem": {
+      "type": "object",
+      "description": "Einzelner Behördenfehler aus dem Fehlerkatalog (content/behoerdenfehler_logik.json, 163 Einträge, 16 Rechtsgebiete) oder dynamisch von AG15 in Supabase behoerdenfehler-Tabelle.",
+      "required": ["id", "titel", "beschreibung"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^(BA|ALG|DRV|KK|PK|UV|VA|SH|EH|JA|BAMF|BAF|EG|FK|WG|UVS|DYN)_\\d{3}$", "description": "Eindeutige Fehler-ID. Präfix bestimmt Rechtsgebiet. DYN_ = dynamisch von AG15." },
+        "titel": { "type": "string", "minLength": 1 },
+        "beschreibung": { "type": "string", "minLength": 1 },
+        "rechtsbasis": { "type": "array", "items": { "type": "string" }, "description": "Rechtsgrundlagen (z.B. ['§ 22 SGB II', '§ 35 SGB X']). Min 1 Eintrag im statischen Katalog." },
+        "severity": { "type": "string", "enum": ["hinweis", "wichtig", "kritisch"], "description": "kritisch: Leistungsanspruch/Frist betroffen. wichtig: Verfahrensfehler. hinweis: Informationspflicht." },
+        "musterschreiben_hinweis": { "type": "string", "description": "Formulierungsvorschlag für AG07." }
+      },
+      "additionalProperties": false
+    },
+
+    "AnalyseResult": {
+      "type": "object",
+      "description": "AG02 Analyst — Forensische Bescheid-Analyse. Modell: Sonnet (NORMAL/HOCH) oder Opus (NOTFALL). Extended Thinking bei NOTFALL (budget_tokens: 8000). Tools: suche_fehlerkatalog, get_weisungen, db_read. Max 6 Tool-Use-Iterationen. Stichwort-basierte Fehlerkatalog-Suche mit Severity-gewichtetem Scoring. Deduplizierung über gefundeneIds-Set.",
+      "required": ["fehler", "auffaelligkeiten"],
+      "properties": {
+        "fehler": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/FehlerItem" },
+          "description": "Fehlerkatalog-Treffer. Akkumuliert über alle Tool-Use-Iterationen, dedupliziert via id. Statische (JSON) + dynamische (DB von AG15) Einträge, max 10 gesamt."
+        },
+        "auffaelligkeiten": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Freitext-Auffälligkeiten aus dem letzten Text-Block des LLM. Format: 'KRITISCH/WICHTIG/HINWEIS: [Problem] — Basis: § [X] [Gesetz]'. Max 5, sortiert nach Schwere."
+        }
+      },
+      "additionalProperties": false
+    },
+
+    "UrteilItem": {
+      "type": "object",
+      "description": "BSG/BVerfG-Urteil aus AG04-Recherche oder Wissensdatenbank.",
+      "required": ["gericht", "aktenzeichen", "datum", "leitsatz", "relevanz"],
+      "properties": {
+        "gericht": { "type": "string", "description": "BSG, BVerfG, LSG, SG." },
+        "aktenzeichen": { "type": "string", "description": "Vollständiges AZ (z.B. 'B 4 AS 77/13 R')." },
+        "datum": { "type": "string", "description": "Entscheidungsdatum ISO oder TT.MM.JJJJ." },
+        "leitsatz": { "type": "string", "maxLength": 300, "description": "Leitsatz in verständlichem Deutsch, max 2 Sätze." },
+        "relevanz": { "type": "string", "description": "Warum dieses Urteil den konkreten Widerspruch stärkt." },
+        "url": { "type": "string", "format": "uri", "description": "Nur Whitelist-Domains: bundessozialgericht.de, bundesverfassungsgericht.de, sozialgerichtsbarkeit.de, gesetze-im-internet.de, bmas.de, arbeitsagentur.de." }
+      },
+      "additionalProperties": false
+    },
+
+    "RechercheResult": {
+      "type": "object",
+      "description": "AG04 Rechts-Rechercheur. NORMAL: DB-only (kostenlos, kein LLM). HOCH/NOTFALL: LLM + Tavily Web-Search + fetch_url. Modell: Sonnet. Tools: web_search, fetch_url, db_read. Max 6 Iterationen, max 3 Suchanfragen, max 2 Volltexte.",
+      "required": ["urteile", "quellen"],
+      "properties": {
+        "urteile": { "type": "array", "items": { "$ref": "#/definitions/UrteilItem" } },
+        "quellen": { "type": "array", "items": { "type": "string", "format": "uri" }, "description": "Alle abgerufenen URLs aus web_search." }
+      },
+      "additionalProperties": false
+    },
+
+    "KritikResult": {
+      "type": "object",
+      "description": "AG03 Advocatus Diaboli — Kritische Bewertung. Nur bei HOCH/NOTFALL UND Budget nicht überschritten (BUDGET_LIMIT_EUR=0.80). Modell: Sonnet/Opus. Kein Tool-Use, Single-Shot. Input: AG01-Triage, AG02-Analyse, AG04-Recherche + Bescheid-Auszug (3000 Zeichen).",
+      "required": ["gegenargumente", "erfolgschance_prozent", "schwachstellen"],
+      "properties": {
+        "gegenargumente": { "type": "array", "items": { "type": "string" }, "description": "Antizipierte Behörden-Gegenargumente im Widerspruchsbescheid." },
+        "erfolgschance_prozent": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100,
+          "description": "Kalibrierte Erfolgschance. 70-90%: klarer Rechenfehler. 50-70%: gute Argumente. 30-50%: nur formelle Fehler. <30%: Frist knapp/Sachverhalt gegen Nutzer. <10%: Frist verpasst. QUALITÄTS-ALERT: <35% → Sentry-Error + GitHub Issue (fire-and-forget in analyze/route.ts)."
+        },
+        "schwachstellen": { "type": "array", "items": { "type": "string" }, "description": "Angreifbare Stellen im geplanten Widerspruch." }
+      },
+      "additionalProperties": false
+    },
+
+    "MusterschreibenResult": {
+      "type": "object",
+      "description": "AG07 Musterschreiben-Generator. Modell: Sonnet/Opus. Extended Thinking bei NOTFALL (budget_tokens: 10000). Tools: erstelle_musterschreiben (PFLICHT), get_weisungen. Max 6 Iterationen. Nutzt vollständigen Pipeline-Kontext: AG01-Triage, AG02-Fehler, AG03-Kritik, AG04-Urteile, AG14-Präzedenzfälle. Min 800 Zeichen, min 3 Begründungsabsätze, min 1 Rechtsnorm/Absatz. RDG § 2 Disclaimer wird automatisch angehängt.",
+      "required": ["volltext", "auffaelligkeiten", "forderung"],
+      "properties": {
+        "volltext": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Vollständiges Widerspruchsschreiben. Struktur: Briefkopf → Betreff → Einleitung → Sachverhalt → Begründung (1 Absatz/Fehler) → Forderung → Abschluss → RDG-Disclaimer. Platzhalter in [eckigen Klammern] für persönliche Daten."
+        },
+        "auffaelligkeiten": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Identifizierte Auffälligkeiten (aus Tool-Call erstelle_musterschreiben). Werden im Frontend als Zusammenfassung angezeigt."
+        },
+        "forderung": {
+          "type": "string",
+          "description": "Konkreter Forderungssatz (Pflichtfeld im Tool-Call). Wird von AG13 in Klartext-Erklärung übernommen."
+        }
+      },
+      "additionalProperties": false
+    },
+
+    "ErklaerungResult": {
+      "type": "object",
+      "description": "AG13 Nutzer-Erklärer — Letzte Station. Modell: Haiku. Single-Shot, kein Tool-Use. Genau 3 Sätze auf B1-Niveau. Satz 1: Problem (konkreter Fehler). Satz 2: Frist (Tage/Datum). Satz 3: Forderung. Optional Satz 4 bei AG14-Daten (≥5 Fälle, ≥50% Erfolg). NOTFALL: '⚠️ DRINGEND: ' Präfix.",
+      "required": ["klartext"],
+      "properties": {
+        "klartext": { "type": "string", "description": "3 (max 4) Sätze Klartext. Kein Fachjargon, kein Markdown, keine Aufzählungen." }
+      },
+      "additionalProperties": false
+    },
+
+    "PraezedenzResult": {
+      "type": "object",
+      "description": "AG14 Präzedenzfall-Analyzer — Kein LLM, kein Kosten. Reine DB-Aggregation über analysis_results-Tabelle. Filtert nach Rechtsgebiet + Behörde. Confidence: ≥10 Fälle → 0.85, ≥3 → 0.6, <3 → 0.3.",
+      "required": ["aehnliche_faelle", "erfolgsquote_prozent", "haeufigste_fehler", "hinweis"],
+      "properties": {
+        "aehnliche_faelle": { "type": "integer", "minimum": 0 },
+        "erfolgsquote_prozent": { "type": ["integer", "null"], "minimum": 0, "maximum": 100, "description": "Durchschnitt aus analyse_meta.erfolgschance aller relevanten Fälle. null wenn keine Daten." },
+        "haeufigste_fehler": { "type": "array", "items": { "type": "string" }, "maxItems": 3, "description": "Top-3 Fehler (erste 60 Zeichen als Key) aus historischen Fällen." },
+        "hinweis": { "type": "string", "description": "Kontextueller Hinweis für AG07/AG13. Leer wenn <1 Fall." }
+      },
+      "additionalProperties": false
+    }
+  },
+
+  "type": "object",
+  "description": "Finaler API-Response von POST /api/analyze. Pseudonymisierter Input → Pipeline → Depseudonymisierter Output. Auto-Save: Frist in user_fristen, Kosten in analysis_results (beides nur für eingeloggte User via User-JWT, kein Service-Key).",
+  "required": ["fehler", "musterschreiben", "routing_stufe", "agenten_aktiv"],
+  "properties": {
+    "zuordnung": {
+      "type": "object",
+      "description": "Behörden-Klassifizierung aus AG01 Triage.",
+      "properties": {
+        "behoerde": { "type": "string" },
+        "rechtsgebiet": { "type": "string" },
+        "untergebiet": { "type": "string" }
+      },
+      "required": ["behoerde", "rechtsgebiet", "untergebiet"]
+    },
+    "fehler": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Priorisierte Fehler-/Auffälligkeitsliste. Quelle: AG07-auffaelligkeiten > AG02-auffaelligkeiten > AG02-fehler.musterschreiben_hinweis > Fallback-Text. Depseudonymisiert."
+    },
+    "musterschreiben": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Vollständiger Widerspruchsbrief (depseudonymisiert). AG07-volltext oder Fehlermeldung."
+    },
+    "frist_datum": {
+      "type": "string",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+      "description": "Fristende als ISO-Date (YYYY-MM-DD). Konvertiert aus AG01 TT.MM.JJJJ."
+    },
+    "frist_tage": { "type": "integer", "minimum": 0 },
+    "routing_stufe": { "$ref": "#/definitions/RoutingStufe" },
+    "agenten_aktiv": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Chronologische Liste der aktivierten Agenten (z.B. ['AG08','AG12','AG01','AG02','AG04','AG03','AG07','AG14','AG13'])."
+    },
+    "token_kosten_eur": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Exakte Token-Kosten in EUR. Berechnet per-Agent mit tatsächlichem Modell. Haiku: $0.25/$1.25/MTok, Sonnet: $3/$15/MTok, Opus: $15/$75/MTok. Cache-Read 90% günstiger, Cache-Write 1.25×. USD→EUR: ×0.92."
+    },
+    "model_used": {
+      "type": "string",
+      "description": "Primäres Modell: 'claude-sonnet-4-6' (NORMAL/HOCH), 'claude-opus-4-6' (NOTFALL). Einzelne Agenten können abweichen (AG08/AG12/AG13 immer Haiku)."
+    },
+    "kritik": { "$ref": "#/definitions/KritikResult" },
+    "recherche": { "$ref": "#/definitions/RechercheResult" },
+    "erklaerung": { "type": "string", "description": "AG13 Klartext (entpackt aus ErklaerungResult.klartext)." },
+    "security_check": { "$ref": "#/definitions/SecurityResult" },
+    "dokumentstruktur": { "$ref": "#/definitions/DokumentstrukturResult" },
+    "agenten_details": {
+      "type": "object",
+      "description": "Performance-Details pro Agent: success, durationMs, error.",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "success": { "type": "boolean" },
+          "durationMs": { "type": "integer" },
+          "error": { "type": "string" }
+        },
+        "required": ["success", "durationMs"]
+      }
+    },
+    "praezedenz": { "$ref": "#/definitions/PraezedenzResult" }
+  },
+  "additionalProperties": false,
+
+  "_pipeline": {
+    "description": "Pipeline-Ablauf mit exakten Abhängigkeiten und Parallelismus.",
+    "phases": [
+      {
+        "phase": 0,
+        "name": "Urgency-Detection",
+        "agents": [],
+        "logic": "detectUrgency(documentText) — Regex auf Daten (TT.MM.JJJJ) + Notfall-Keywords. Kostenlos, kein API-Call. Setzt initiale RoutingStufe + fristTage.",
+        "parallel": false
+      },
+      {
+        "phase": 1,
+        "name": "Security + Dokumentstruktur",
+        "agents": ["AG08", "AG12"],
+        "parallel": true,
+        "logic": "Promise.allSettled. AG08 prüft Input (Haiku, 2000 Zeichen). AG12 erkennt Bescheid-Struktur (Haiku, 6000 Zeichen). Bei AG08 freigabe=false → Pipeline-Abbruch."
+      },
+      {
+        "phase": 2,
+        "name": "Triage",
+        "agents": ["AG01"],
+        "parallel": false,
+        "logic": "Sonnet. Tool: klassifiziere_bescheid. Max 3 Iterationen. Kann RoutingStufe nach oben korrigieren."
+      },
+      {
+        "phase": 3,
+        "name": "Analyse + Recherche",
+        "agents": ["AG02", "AG04"],
+        "parallel": true,
+        "logic": "Promise.allSettled. AG02: Fehlerkatalog + Weisungen + DB (Sonnet/Opus). AG04: NORMAL → DB-only, HOCH/NOTFALL → LLM + Tavily (Sonnet)."
+      },
+      {
+        "phase": "3b",
+        "name": "Kritik",
+        "agents": ["AG03"],
+        "parallel": false,
+        "condition": "Nur bei HOCH/NOTFALL UND !isBudgetExceeded(totalTokens, 0.80€)",
+        "logic": "Sonnet/Opus. Single-Shot. Bewertet AG02-Analyse + AG04-Recherche."
+      },
+      {
+        "phase": 4,
+        "name": "Brief + Präzedenzanalyse",
+        "agents": ["AG07", "AG14"],
+        "parallel": true,
+        "logic": "Promise.allSettled. AG07: Tool-Use (Sonnet/Opus, Extended Thinking bei NOTFALL). AG14: DB-only, keine Kosten."
+      },
+      {
+        "phase": 5,
+        "name": "Nutzer-Erklärung",
+        "agents": ["AG13"],
+        "parallel": false,
+        "logic": "Haiku. Single-Shot. Letzte Station — hat vollen Pipeline-Kontext."
+      },
+      {
+        "phase": "bg",
+        "name": "Hintergrund-Agenten",
+        "agents": ["AG05", "AG06"],
+        "parallel": false,
+        "logic": "Fire-and-forget NACH Response. AG05: Urteile in DB speichern (nur wenn AG04 Urteile fand). AG06: Qualitätsanalyse (nur wenn Brief <500 Zeichen ODER 0 Fehler bei HOCH/NOTFALL ODER Kosten >0.50€)."
+      }
+    ]
+  },
+
+  "_input": {
+    "description": "POST /api/analyze — FormData mit 'file' (PDF oder Bild, max 10MB).",
+    "processing": [
+      "1. Auth: Optional (eingeloggte User + anonyme Demo)",
+      "2. Rate-Limiting: Eingeloggt → 5 Analysen/15min. Anon → 1/Tag per IP",
+      "3. Text-Extraktion: PDF → pdf2json. Bild → Tesseract.js lokal (DSGVO) → Fallback OpenAI Vision",
+      "4. Pseudonymisierung: pseudonymizeText() → Namen, IBAN, Geburtsdaten, Adressen, Steuer-IDs, SV-Nummern, E-Mails, Telefon, BIC",
+      "5. Pipeline: runAgentAnalysis(pseudonymized) → runPipeline()",
+      "6. Depseudonymisierung: depseudonymizeText(result, map)",
+      "7. Auto-Save: Frist → user_fristen (User-JWT), Kosten → analysis_results (User-JWT)",
+      "8. Qualitäts-Alert: AG03 <35% → Sentry + GitHub Issue"
+    ]
+  },
+
+  "_supabase_tables": {
+    "analysis_results": {
+      "columns": ["id:uuid", "session_id:uuid?", "user_id:uuid", "created_at:timestamptz", "behoerde:text?", "rechtsgebiet:text?", "fehler:jsonb", "musterschreiben:text?", "frist_datum:text?", "dringlichkeit:text(NORMAL|HOCH|NOTFALL)", "model_used:text?", "token_cost_eur:numeric(8,4)"],
+      "rls": "Users read/insert own (auth.uid()=user_id)",
+      "indexes": ["user_id", "session_id", "created_at DESC"],
+      "used_by": ["POST /api/analyze (insert)", "AG14 (read)", "AG17 (read)"]
+    },
+    "user_fristen": {
+      "used_by": ["POST /api/analyze (auto-insert)", "GET|POST|PATCH /api/fristen"],
+      "note": "User-JWT, kein Service-Key. frist_datum ist ISO-String, tage_verbleibend immer zur Laufzeit berechnen."
+    },
+    "urteile": {
+      "columns": ["id:uuid", "created_at:timestamptz", "gericht:text", "aktenzeichen:text(UNIQUE)", "entscheidungsdatum:date?", "leitsatz:text", "volltext_url:text?", "rechtsgebiet:text?", "stichwort:text[]?", "relevanz_score:int(3)"],
+      "rls": "Authenticated read",
+      "used_by": ["AG04 (read)", "AG05 (insert via db_write)", "AG15 (insert via db_write)"]
+    },
+    "kennzahlen": {
+      "columns": ["id:uuid", "updated_at:timestamptz", "schluessel:text(UNIQUE)", "wert:numeric?", "wert_text:text?", "gueltig_ab:date?", "einheit:text?", "beschreibung:text?"],
+      "rls": "Authenticated read",
+      "used_by": ["AG05 (upsert)", "AG15 (upsert)", "AG18 (read)"]
+    },
+    "behoerdenfehler": {
+      "used_by": ["AG02 (read via executeSucheFehlerkatalogMitDb)", "AG05 (insert)", "AG15 (insert)", "AG18 (read)"],
+      "note": "Dynamische Ergänzung zum statischen content/behoerdenfehler_logik.json (163 Einträge). Max 10 Treffer gesamt (statisch + dynamisch)."
+    },
+    "update_protokoll": {
+      "used_by": ["AG05 (audit trail)", "AG06 (qualitäts-analyse)", "AG15 (rechts-updates)"],
+      "note": "Audit-Trail für alle DB-Schreibvorgänge."
+    }
+  }
+}

@@ -56,7 +56,8 @@
     --accent-glow: rgba(14, 165, 233, 0.2);
     --muted: #1e293b;
     --text: #0f172a;
-    --text-muted: #334155;
+    --text-muted: #1e293b;
+    --text-faint: #334155;
   }
 
   html {
@@ -105,153 +106,195 @@
     animation: pro-border-glow 2.5s ease-in-out infinite;
   }
 
-  /* Light theme: override Tailwind white-based utilities so existing markup works */
-  [data-theme="light"] .text-white {
-    color: var(--text);
-  }
-  /* text-white mit allen Opacity-Stufen → text-muted im Light-Mode */
-  [data-theme="light"] .text-white\/10,
-  [data-theme="light"] .text-white\/15,
-  [data-theme="light"] .text-white\/20,
-  [data-theme="light"] .text-white\/25,
-  [data-theme="light"] .text-white\/30,
-  [data-theme="light"] .text-white\/35,
-  [data-theme="light"] .text-white\/38,
-  [data-theme="light"] .text-white\/40,
-  [data-theme="light"] .text-white\/45,
-  [data-theme="light"] .text-white\/50,
-  [data-theme="light"] .text-white\/55,
-  [data-theme="light"] .text-white\/60,
-  [data-theme="light"] .text-white\/65,
-  [data-theme="light"] .text-white\/70,
-  [data-theme="light"] .text-white\/75,
-  [data-theme="light"] .text-white\/80 {
-    color: var(--text-muted);
-  }
-  /* Hohe Opazität (85+) → volle Textfarbe (dunkel im Light-Mode) */
-  [data-theme="light"] .text-white\/85,
-  [data-theme="light"] .text-white\/90 {
-    color: var(--text);
-  }
-  [data-theme="light"] .hover\:text-white:hover,
-  [data-theme="light"] .hover\:text-white\/70:hover {
-    color: var(--text);
-  }
-  /* border-white alle Stufen */
-  [data-theme="light"] .border-white\/5,
-  [data-theme="light"] .border-white\/8,
-  [data-theme="light"] .border-white\/10,
-  [data-theme="light"] .border-white\/15,
-  [data-theme="light"] .border-white\/20 {
-    border-color: var(--border);
-  }
-  [data-theme="light"] .border-white\/25 {
-    border-color: var(--border-strong);
-  }
-  [data-theme="light"] .border-t.border-white\/10 {
-    border-color: var(--border);
-  }
-  /* bg-white alle Opacity-Stufen */
-  [data-theme="light"] .bg-white\/\[0\.02\],
-  [data-theme="light"] .bg-white\/\[0\.03\],
-  [data-theme="light"] .bg-white\/\[0\.04\],
-  [data-theme="light"] .bg-white\/\[0\.05\],
-  [data-theme="light"] .bg-white\/\[0\.06\],
-  [data-theme="light"] .bg-white\/\[0\.07\] {
-    background-color: var(--surface);
-  }
-  [data-theme="light"] .bg-white\/5 {
-    background-color: var(--surface);
-  }
-  /* divide (FAQ Trennlinien) */
-  [data-theme="light"] .divide-white\/8 > :not([hidden]) ~ :not([hidden]) {
-    border-color: var(--border);
-  }
-  [data-theme="light"] .hover\:border-white\/20:hover,
-  [data-theme="light"] .hover\:border-white\/25:hover,
-  [data-theme="light"] .hover\:bg-white\/\[0\.05\]:hover {
-    border-color: var(--border-strong);
-    background-color: var(--surface-hover);
-  }
-  [data-theme="light"] .bg-\[\#05070a\] {
-    background-color: var(--bg);
-  }
-  [data-theme="light"] nav.border-white\/5,
-  [data-theme="light"] nav.border-b {
-    border-color: var(--border);
-  }
-  [data-theme="light"] .label-upper {
-    color: var(--text-muted);
-  }
-  [data-theme="light"] .btn-ghost {
-    color: var(--text-muted);
-  }
-  [data-theme="light"] .btn-ghost:hover {
-    color: var(--text);
-  }
-  [data-theme="light"] .input-field {
-    background-color: var(--surface);
-    border-color: var(--border);
-    color: var(--text);
-  }
-  [data-theme="light"] .input-field::placeholder {
-    color: var(--text-muted);
-    opacity: 0.7;
-  }
-  [data-theme="light"] .card {
-    background-color: var(--surface);
-    border-color: var(--border);
-  }
-  [data-theme="light"] .card-hover:hover {
-    background-color: var(--surface-hover);
-    border-color: var(--border-strong);
-  }
+}
 
-  /* Hero headline: im Dark Gradient (weiß→blau), im Light dunkler Gradient für Lesbarkeit */
-  [data-theme="light"] .hero-headline {
-    color: var(--text);
-    background: linear-gradient(to bottom, #0f172a 0%, #334155 100%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-  }
-  [data-theme="light"] .hero-headline-sub {
-    color: var(--text-muted);
-    opacity: 1;
-  }
-  [data-theme="light"] .text-gray-400,
-  [data-theme="light"] .text-gray-500 {
-    color: var(--text-muted);
-  }
-  [data-theme="light"] .text-gray-300 {
-    color: var(--muted);
-  }
+/* ═══════════════════════════════════════════════════════════════════════════
+   Light-Mode Overrides — UNLAYERED (höhere Priorität als @layer utilities)
+   Damit werden Tailwind v4 Utility-Klassen im Light-Mode korrekt überschrieben.
+   ═══════════════════════════════════════════════════════════════════════════ */
 
-  /* Slate-Klassen: AAA-konform im Light-Mode */
-  [data-theme="light"] .text-slate-300 {
-    color: var(--text-muted);
-  }
-  [data-theme="light"] .text-slate-400 {
-    color: var(--text-muted);
-  }
-  [data-theme="light"] .text-slate-500 {
-    color: var(--text-muted);
-  }
-
-  /* Placeholder-Texte: alle white-Opacity-Varianten → lesbar im Light-Mode */
-  [data-theme="light"] .placeholder\:text-white\/20::placeholder,
-  [data-theme="light"] .placeholder\:text-white\/25::placeholder,
-  [data-theme="light"] .placeholder\:text-white\/30::placeholder,
-  [data-theme="light"] .placeholder\:text-white\/40::placeholder {
-    color: var(--muted);
-    opacity: 1;
-  }
-
-  /* Ring/Outline Overrides für Fokus-States */
-  [data-theme="light"] .ring-white\/10,
-  [data-theme="light"] .ring-white\/20 {
-    --tw-ring-color: var(--border);
-  }
+/* text-white → dunkel im Light-Mode */
+[data-theme="light"] .text-white {
+  color: var(--text);
+}
+/* Ausnahme: Elemente mit farbigem Hintergrund → Text bleibt weiß */
+[data-theme="light"] .btn-primary,
+[data-theme="light"] .bg-\[var\(--accent\)\],
+[data-theme="light"] .bg-\[var\(--accent\)\] *,
+[data-theme="light"] .bg-\[var\(--accent-hover\)\] {
+  color: #fff;
+}
+/* text-white Opacity → 3-stufige Hierarchie im Light-Mode (WCAG AAA) */
+/* Niedrig (10–38): --text-faint #334155 → Labels, Hinweistexte */
+[data-theme="light"] .text-white\/10,
+[data-theme="light"] .text-white\/15,
+[data-theme="light"] .text-white\/20,
+[data-theme="light"] .text-white\/25,
+[data-theme="light"] .text-white\/30,
+[data-theme="light"] .text-white\/35,
+[data-theme="light"] .text-white\/38 {
+  color: var(--text-faint);
+}
+/* Mittel (40–60): --text-muted #1e293b → Body-Text, Beschreibungen */
+[data-theme="light"] .text-white\/40,
+[data-theme="light"] .text-white\/45,
+[data-theme="light"] .text-white\/50,
+[data-theme="light"] .text-white\/55,
+[data-theme="light"] .text-white\/60 {
+  color: var(--text-muted);
+}
+/* Hoch (65–90): --text #0f172a → maximaler Kontrast */
+[data-theme="light"] .text-white\/65,
+[data-theme="light"] .text-white\/70,
+[data-theme="light"] .text-white\/75,
+[data-theme="light"] .text-white\/80,
+[data-theme="light"] .text-white\/85,
+[data-theme="light"] .text-white\/90 {
+  color: var(--text);
+}
+/* Hover-States */
+[data-theme="light"] .hover\:text-white:hover,
+[data-theme="light"] .hover\:text-white\/50:hover,
+[data-theme="light"] .hover\:text-white\/60:hover,
+[data-theme="light"] .hover\:text-white\/70:hover {
+  color: var(--text);
+}
+[data-theme="light"] .hover\:text-white\/40:hover {
+  color: var(--text-muted);
+}
+/* Gray/Slate → dunkel im Light-Mode */
+[data-theme="light"] .text-gray-300 {
+  color: var(--text-faint);
+}
+[data-theme="light"] .text-gray-400,
+[data-theme="light"] .text-gray-500 {
+  color: var(--text-muted);
+}
+[data-theme="light"] .text-slate-300 {
+  color: var(--text-faint);
+}
+[data-theme="light"] .text-slate-400,
+[data-theme="light"] .text-slate-500 {
+  color: var(--text-muted);
+}
+/* border-white alle Stufen */
+[data-theme="light"] .border-white\/5,
+[data-theme="light"] .border-white\/8,
+[data-theme="light"] .border-white\/10,
+[data-theme="light"] .border-white\/15,
+[data-theme="light"] .border-white\/20 {
+  border-color: var(--border);
+}
+[data-theme="light"] .border-white\/25 {
+  border-color: var(--border-strong);
+}
+[data-theme="light"] .border-t.border-white\/10 {
+  border-color: var(--border);
+}
+/* bg-white alle Opacity-Stufen */
+[data-theme="light"] .bg-white\/\[0\.02\],
+[data-theme="light"] .bg-white\/\[0\.03\],
+[data-theme="light"] .bg-white\/\[0\.04\],
+[data-theme="light"] .bg-white\/\[0\.05\],
+[data-theme="light"] .bg-white\/\[0\.06\],
+[data-theme="light"] .bg-white\/\[0\.07\] {
+  background-color: var(--surface);
+}
+[data-theme="light"] .bg-white\/5 {
+  background-color: var(--surface);
+}
+/* bg-black Overrides (Inputs auf page.tsx) */
+[data-theme="light"] .bg-black\/40 {
+  background-color: var(--surface);
+}
+/* divide (FAQ Trennlinien) */
+[data-theme="light"] .divide-white\/8 > :not([hidden]) ~ :not([hidden]) {
+  border-color: var(--border);
+}
+[data-theme="light"] .hover\:border-white\/20:hover,
+[data-theme="light"] .hover\:border-white\/25:hover {
+  border-color: var(--border-strong);
+}
+[data-theme="light"] .hover\:bg-white\/\[0\.05\]:hover,
+[data-theme="light"] .hover\:bg-white\/10:hover,
+[data-theme="light"] .hover\:bg-white\/20:hover {
+  background-color: var(--surface-hover);
+}
+/* bg-white/10, bg-white/25 → surface im Light-Mode */
+[data-theme="light"] .bg-white\/10,
+[data-theme="light"] .bg-white\/25 {
+  background-color: var(--surface);
+}
+/* active:bg-white → surface-hover */
+[data-theme="light"] .active\:bg-white\/25:active {
+  background-color: var(--surface-hover);
+}
+/* border-white/40 → border-strong */
+[data-theme="light"] .border-white\/40 {
+  border-color: var(--border-strong);
+}
+[data-theme="light"] .bg-\[\#05070a\] {
+  background-color: var(--bg);
+}
+[data-theme="light"] nav.border-white\/5,
+[data-theme="light"] nav.border-b {
+  border-color: var(--border);
+}
+/* Komponenten-Klassen */
+[data-theme="light"] .label-upper {
+  color: var(--text-muted);
+}
+[data-theme="light"] .btn-ghost {
+  color: var(--text-muted);
+}
+[data-theme="light"] .btn-ghost:hover {
+  color: var(--text);
+}
+/* btn-primary: Text MUSS weiß bleiben auf blauem Hintergrund */
+[data-theme="light"] .btn-primary {
+  color: #fff;
+}
+[data-theme="light"] .input-field {
+  background-color: var(--surface);
+  border-color: var(--border);
+  color: var(--text);
+}
+[data-theme="light"] .input-field::placeholder {
+  color: var(--text-faint);
+  opacity: 1;
+}
+[data-theme="light"] .card {
+  background-color: var(--surface);
+  border-color: var(--border);
+}
+[data-theme="light"] .card-hover:hover {
+  background-color: var(--surface-hover);
+  border-color: var(--border-strong);
+}
+/* Hero headline */
+[data-theme="light"] .hero-headline {
+  color: var(--text);
+  background: linear-gradient(to bottom, #0f172a 0%, #334155 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+[data-theme="light"] .hero-headline-sub {
+  color: var(--text-muted);
+  opacity: 1;
+}
+/* Placeholder-Texte */
+[data-theme="light"] .placeholder\:text-white\/20::placeholder,
+[data-theme="light"] .placeholder\:text-white\/25::placeholder,
+[data-theme="light"] .placeholder\:text-white\/30::placeholder,
+[data-theme="light"] .placeholder\:text-white\/40::placeholder {
+  color: var(--text-faint);
+  opacity: 1;
+}
+/* Ring/Outline Overrides */
+[data-theme="light"] .ring-white\/10,
+[data-theme="light"] .ring-white\/20 {
+  --tw-ring-color: var(--border);
 }
 
 @layer components {

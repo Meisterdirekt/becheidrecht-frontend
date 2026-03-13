@@ -84,18 +84,28 @@ export async function POST(request: NextRequest) {
           );
         }
 
-        // Org-Pool abbuchen
-        await supabaseAdmin
-          .from('organizations')
-          .update({ analyses_used: org.analyses_used + 1 })
-          .eq('id', membership.org_id);
+        // Org-Pool + Per-Member-Counter atomar per RPC inkrementieren
+        // Verhindert Race Condition bei gleichzeitigen Requests
+        const [orgUpdate, memberUpdate] = await Promise.all([
+          supabaseAdmin.rpc('increment_field', {
+            table_name: 'organizations',
+            field_name: 'analyses_used',
+            row_id: membership.org_id,
+          }),
+          supabaseAdmin
+            .from('organization_members')
+            .update({ analyses_used: (membership.analyses_used ?? 0) + 1 })
+            .eq('org_id', membership.org_id)
+            .eq('user_id', user.id),
+        ]);
 
-        // Per-Member-Counter erhöhen
-        await supabaseAdmin
-          .from('organization_members')
-          .update({ analyses_used: (membership.analyses_used ?? 0) + 1 })
-          .eq('org_id', membership.org_id)
-          .eq('user_id', user.id);
+        // Fallback: Wenn RPC nicht existiert, klassisches Update
+        if (orgUpdate.error) {
+          await supabaseAdmin
+            .from('organizations')
+            .update({ analyses_used: org.analyses_used + 1 })
+            .eq('id', membership.org_id);
+        }
 
         return NextResponse.json({
           success: true,

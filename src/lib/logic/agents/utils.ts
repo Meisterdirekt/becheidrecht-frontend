@@ -16,21 +16,30 @@ export { emptyTokenUsage, mergeTokenUsage };
 // API Key
 // ---------------------------------------------------------------------------
 
-export function getAnthropicKey(): string | null {
+/** Liest einen Key aus vault/keys.env (lokal) oder process.env (Vercel) */
+function getVaultKey(keyName: string): string | null {
   try {
     const vaultPath = path.join(process.cwd(), "vault", "keys.env");
     const content = fs.readFileSync(vaultPath, "utf8");
-    const match = content.match(/ANTHROPIC_API_KEY\s*=\s*([^\s\n]+)/);
+    const match = content.match(new RegExp(`${keyName}\\s*=\\s*["']?([^\\s"'\\n]+)`));
     if (match?.[1]) return match[1];
   } catch {
-    // Vault nicht vorhanden
+    // Vault nicht vorhanden (z.B. auf Vercel)
   }
-  return process.env.ANTHROPIC_API_KEY || null;
+  return process.env[keyName] || null;
 }
 
-/** Erstellt einen Anthropic-Client (singleton-artig pro Analyse) */
+export function getAnthropicKey(): string | null {
+  return getVaultKey("ANTHROPIC_API_KEY");
+}
+
+export function getOpenAIKey(): string | null {
+  return getVaultKey("OPENAI_API_KEY");
+}
+
+/** Erstellt einen Anthropic-Client — SDK-Retry für transiente Fehler (529), safeExecute für Agent-Level-Retry */
 export function createAnthropicClient(apiKey: string): Anthropic {
-  return new Anthropic({ apiKey });
+  return new Anthropic({ apiKey, maxRetries: 2 });
 }
 
 // ---------------------------------------------------------------------------
@@ -159,26 +168,87 @@ export function estimateTotalCost(allTokens: TokenUsage[]): number {
 // Safe Execute Wrapper
 // ---------------------------------------------------------------------------
 
+export const RETRYABLE_PATTERNS = ["overloaded", "529", "rate_limit", "529 Overloaded", "credit balance is too low"];
+
+export function isRetryableError(msg: string): boolean {
+  return RETRYABLE_PATTERNS.some((p) => msg.includes(p));
+}
+
+/** Klassifiziert einen API-Fehler in eine nutzerfreundliche Meldung */
+export function classifyApiError(errorMsg: string): string {
+  if (errorMsg.includes("credit balance is too low")) {
+    return "Die KI-Analyse ist vorübergehend nicht verfügbar. Bitte versuchen Sie es später erneut.";
+  }
+  if (errorMsg.includes("rate_limit")) {
+    return "Zu viele Anfragen — bitte warten Sie einen Moment und versuchen es erneut.";
+  }
+  if (errorMsg.includes("overloaded") || errorMsg.includes("529")) {
+    return "Der KI-Dienst ist aktuell überlastet. Bitte versuchen Sie es in wenigen Minuten erneut.";
+  }
+  return "Die Analyse konnte nicht durchgeführt werden. Bitte versuchen Sie es später erneut.";
+}
+
+/** Per-Agent Timeout: AG07/AG02 brauchen mehr Zeit für Tool-Use-Loops */
+const AGENT_TIMEOUT_MS: Partial<Record<AgentId, number>> = {
+  AG07: 120_000,
+  AG02: 60_000,
+  AG13: 30_000,
+};
+const DEFAULT_TIMEOUT_MS = 45_000;
+
+function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    const timer = setTimeout(() => reject(new Error(`${label} Timeout nach ${ms}ms`)), ms);
+    promise.then(
+      (v) => { clearTimeout(timer); resolve(v); },
+      (e) => { clearTimeout(timer); reject(e); },
+    );
+  });
+}
+
 export async function safeExecute<T>(
   agentId: AgentId,
   fn: () => Promise<AgentResult<T>>,
   fallbackData: T,
+  maxRetries = 2,
 ): Promise<AgentResult<T>> {
   const start = Date.now();
-  try {
-    return await fn();
-  } catch (err) {
-    const message = err instanceof Error ? err.message : String(err);
-    console.error(`[${agentId}] Fehler: ${message}`);
-    return {
-      agentId,
-      success: false,
-      data: fallbackData,
-      tokens: emptyTokenUsage(),
-      durationMs: Date.now() - start,
-      error: message,
-    };
+  let lastError = "";
+  const timeoutMs = AGENT_TIMEOUT_MS[agentId] ?? DEFAULT_TIMEOUT_MS;
+
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      const result = await withTimeout(fn(), timeoutMs, agentId);
+      // Agent returned success: false mit retryable error → retry
+      if (!result.success && result.error && isRetryableError(result.error) && attempt < maxRetries) {
+        lastError = result.error;
+        const delay = Math.min(2000 * Math.pow(2, attempt), 6000);
+        console.warn(`[${agentId}] Retry ${attempt + 1}/${maxRetries} nach ${delay}ms (${result.error.slice(0, 80)})`);
+        await new Promise((r) => setTimeout(r, delay));
+        continue;
+      }
+      return result;
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      lastError = message;
+      if (isRetryableError(message) && attempt < maxRetries) {
+        const delay = Math.min(2000 * Math.pow(2, attempt), 6000);
+        console.warn(`[${agentId}] Retry ${attempt + 1}/${maxRetries} nach ${delay}ms (${message.slice(0, 80)})`);
+        await new Promise((r) => setTimeout(r, delay));
+        continue;
+      }
+      console.error(`[${agentId}] Fehler: ${message}`);
+    }
   }
+
+  return {
+    agentId,
+    success: false,
+    data: fallbackData,
+    tokens: emptyTokenUsage(),
+    durationMs: Date.now() - start,
+    error: lastError,
+  };
 }
 
 // ---------------------------------------------------------------------------

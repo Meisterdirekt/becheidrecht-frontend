@@ -29,6 +29,7 @@ CREATE TABLE IF NOT EXISTS user_fristen (
 ALTER TABLE user_fristen ENABLE ROW LEVEL SECURITY;
 
 -- Policy: Nutzer sehen nur ihre eigenen Fristen
+DROP POLICY IF EXISTS "Users can manage their own fristen" ON user_fristen;
 CREATE POLICY "Users can manage their own fristen"
   ON user_fristen
   FOR ALL

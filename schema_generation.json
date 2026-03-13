@@ -1,0 +1,279 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://bescheidrecht.de/schemas/generation/v1",
+  "title": "BescheidRecht — Schreiben-Generierung Schema",
+  "description": "Vollständiges Datenfluss-Schema für die zwei Schreiben-Generierungspfade: (A) Direkt-Generator via POST /api/generate-letter (GPT-4o, OpenAI) und (B) Widerspruchs-Assistent via POST /api/assistant (Claude, SSE-Streaming, 2-Schritt).",
+  "version": "1.0.0",
+  "lastUpdated": "2026-03-12",
+
+  "definitions": {
+
+    "TraegerValue": {
+      "type": "string",
+      "enum": [
+        "jobcenter", "drv", "krankenkasse", "pflegekasse", "sozialhilfe",
+        "familienkasse", "jugendamt", "eingliederungshilfe", "unfallversicherung",
+        "versorgungsamt", "bamf", "bafoeg", "elterngeld", "wohngeld", "unterhaltsvorschuss"
+      ],
+      "description": "15 Behörden-Träger. Mapping zu Fehlerkatalog-Präfixen über TRAEGER_TO_PREFIX in src/lib/letter-generator.ts."
+    },
+
+    "TraegerToPrefixMapping": {
+      "type": "object",
+      "description": "Mapping TraegerValue → Fehlerkatalog-ID-Präfixe für loadBehoerdenLogik().",
+      "properties": {
+        "jobcenter":          { "const": ["BA_", "ALG_"] },
+        "drv":                { "const": ["DRV_"] },
+        "krankenkasse":       { "const": ["KK_"] },
+        "pflegekasse":        { "const": ["PK_"] },
+        "sozialhilfe":        { "const": ["SH_"] },
+        "familienkasse":      { "const": ["FK_"] },
+        "jugendamt":          { "const": ["JA_"] },
+        "eingliederungshilfe":{ "const": ["EH_"] },
+        "unfallversicherung": { "const": ["UV_"] },
+        "versorgungsamt":     { "const": ["VA_"] },
+        "bamf":               { "const": ["BAMF_"] },
+        "bafoeg":             { "const": ["BAF_"] },
+        "elterngeld":         { "const": ["EG_"] },
+        "wohngeld":           { "const": ["WG_"] },
+        "unterhaltsvorschuss":{ "const": ["UVS_"] }
+      }
+    },
+
+    "SchreibentypValue": {
+      "type": "string",
+      "enum": [
+        "widerspruch", "erstantrag", "aenderungsantrag",
+        "untaetigkeit", "akteneinsicht", "fristverlaengerung", "beschwerde"
+      ],
+      "description": "7 Schreibentypen. Labels in SCHREIBENTYP_OPTIONS (src/lib/letter-generator.ts)."
+    },
+
+    "BehoerdenLogikItem": {
+      "type": "object",
+      "description": "Eintrag aus content/behoerdenfehler_logik.json — geladen durch loadBehoerdenLogik(prefixes). Max 15 Items werden als Kontext an GPT-4o übergeben.",
+      "required": ["id", "titel", "beschreibung"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^(BA|ALG|DRV|KK|PK|UV|VA|SH|EH|JA|BAMF|BAF|EG|FK|WG|UVS)_\\d{3}$" },
+        "titel": { "type": "string" },
+        "beschreibung": { "type": "string" },
+        "rechtsbasis": { "type": "array", "items": { "type": "string" } },
+        "musterschreiben_hinweis": { "type": "string" },
+        "severity": { "type": "string", "enum": ["hinweis", "wichtig", "kritisch"] }
+      }
+    },
+
+    "SSEEvent": {
+      "type": "object",
+      "description": "Server-Sent Event Format: 'data: {JSON}\\n\\n'. Client liest via reader.read() in While-Schleife (kein EventSource API).",
+      "oneOf": [
+        {
+          "properties": {
+            "type": { "const": "status" },
+            "message": { "type": "string", "description": "Status-Update für den User (z.B. 'Analysiere Ihre Angaben...')" }
+          },
+          "required": ["type", "message"]
+        },
+        {
+          "properties": {
+            "type": { "const": "start" }
+          },
+          "required": ["type"],
+          "description": "Stream beginnt — UI sollte jetzt Streaming-Anzeige starten."
+        },
+        {
+          "properties": {
+            "type": { "const": "delta" },
+            "text": { "type": "string", "description": "Inkrementeller Text-Chunk. Direkt an den bisherigen Text anhängen." }
+          },
+          "required": ["type", "text"]
+        },
+        {
+          "properties": {
+            "type": { "const": "done" },
+            "schritt": { "type": "string", "enum": ["analyse", "erstelle"], "description": "Welcher Schritt abgeschlossen wurde." }
+          },
+          "required": ["type", "schritt"]
+        },
+        {
+          "properties": {
+            "type": { "const": "error" },
+            "message": { "type": "string" }
+          },
+          "required": ["type", "message"]
+        }
+      ]
+    }
+  },
+
+  "paths": {
+
+    "/api/generate-letter": {
+      "method": "POST",
+      "description": "Direkt-Generator: Erstellt ein Behördenschreiben basierend auf Nutzer-Eingaben. Nutzt GPT-4o (OpenAI), NICHT die Claude-Agenten-Pipeline. Synchrone Antwort (kein Streaming).",
+      "authentication": "Pflicht. getAuthenticatedUser(req) → User-JWT. Rate-Limit: 10 Schreiben/Stunde.",
+      "subscription_check": "getSubscriptionRemaining(userId) → analyses_remaining > 0 (außer DEV_UNLIMITED_ANALYSES=true). Service-Role-Key nur für diesen Admin-Check.",
+      "model": "gpt-4o",
+      "max_tokens": 2048,
+
+      "request": {
+        "type": "object",
+        "contentType": "application/json",
+        "required": ["behoerde", "schreibentyp", "stichpunkte"],
+        "properties": {
+          "behoerde": { "$ref": "#/definitions/TraegerValue" },
+          "schreibentyp": { "$ref": "#/definitions/SchreibentypValue" },
+          "stichpunkte": {
+            "type": "string",
+            "minLength": 10,
+            "maxLength": 500,
+            "description": "Freitext-Beschreibung der Situation des Nutzers."
+          },
+          "aktenzeichen": {
+            "type": "string",
+            "description": "Aktenzeichen/BG-Nr. Wenn leer: Platzhalter im Brief."
+          },
+          "bescheiddatum": {
+            "type": "string",
+            "description": "Datum des Bescheids (ISO oder beliebiges Format, wird validiert). Wenn leer: Platzhalter im Brief."
+          }
+        },
+        "additionalProperties": false
+      },
+
+      "processing": {
+        "steps": [
+          "1. Auth-Check: getAuthenticatedUser(req) → 401 wenn nicht eingeloggt",
+          "2. Rate-Limit: letterLimiter.limit(user.id) → 429 wenn überschritten",
+          "3. Subscription-Check: getSubscriptionRemaining(userId) → 403 wenn 0 (umgehbar mit DEV_UNLIMITED_ANALYSES=true)",
+          "4. Input-Validierung: behoerde + schreibentyp Pflicht, stichpunkte 10-500 Zeichen, bescheiddatum valid Date",
+          "5. Kontext laden: TRAEGER_TO_PREFIX[behoerde] → loadBehoerdenLogik(prefixes) → max 15 Fehlerkatalog-Items",
+          "6. Kontext-String bauen: Items als Markdown-Liste (titel, beschreibung, rechtsbasis, musterschreiben_hinweis)",
+          "7. Fallback-Kontext: Wenn kein Präfix-Match → 'Allgemeine Verfahrensrechte SGB I, SGB X'",
+          "8. GPT-4o Call: SYSTEM_PROMPT (Struktur, Ton, RDG-Verbot) + userMessage (Behörde, Typ, AZ, Datum, Stichpunkte, Kontext)",
+          "9. Response: { letter: rawLetter } — kein RDG-Disclaimer im Text (wird als UI-Element angezeigt, nicht im PDF)"
+        ],
+        "system_prompt_rules": [
+          "Pflicht-Struktur: 1. Betreff+AZ, 2. Bezug auf Bescheid, 3. Sachverhalt, 4. Rechtliche Grundlage (SGB I-XII, VwVfG), 5. Konkrete Forderung, 6. Frist, 7. Grußformel",
+          "Ton: sachlich, bestimmt, professionell — keine Emotionen",
+          "Nie 'rechtssicher' verwenden",
+          "Aktenzeichen immer beim ersten Bezug nennen",
+          "Antwort NUR als fertiges Schreiben (ab Anrede), ohne Einleitung/Erklärung"
+        ]
+      },
+
+      "response_success": {
+        "type": "object",
+        "status": 200,
+        "properties": {
+          "letter": { "type": "string", "minLength": 1, "description": "Vollständiges Behördenschreiben. Kein RDG-Disclaimer im Text." }
+        },
+        "required": ["letter"]
+      },
+
+      "response_errors": [
+        { "status": 400, "condition": "behoerde/schreibentyp fehlt ODER stichpunkte <10/>500 Zeichen ODER ungültiges Datum" },
+        { "status": 401, "condition": "Nicht eingeloggt" },
+        { "status": 403, "condition": "Keine Analysen verfügbar (Subscription erschöpft)" },
+        { "status": 429, "condition": "Rate-Limit: >10 Schreiben/Stunde" },
+        { "status": 500, "condition": "GPT-4o Fehler oder leere Antwort" },
+        { "status": 503, "condition": "OpenAI API-Key fehlt" }
+      ]
+    },
+
+    "/api/assistant": {
+      "method": "POST",
+      "description": "Widerspruchs-Assistent: 2-Schritt-Flow mit SSE-Streaming. Schritt 1 (analyse): Haiku analysiert + stellt Rückfragen. Schritt 2 (erstelle): Sonnet erstellt Musterschreiben basierend auf Antworten.",
+      "authentication": "Pflicht. getAuthenticatedUser(req) → 401. Rate-Limit: assistantLimiter.",
+      "streaming": true,
+      "contentType_response": "text/event-stream",
+      "maxDuration": 90,
+
+      "request": {
+        "type": "object",
+        "contentType": "application/json",
+        "required": ["traeger", "beschreibung", "schritt"],
+        "properties": {
+          "traeger": { "$ref": "#/definitions/TraegerValue" },
+          "beschreibung": { "type": "string", "minLength": 1, "description": "Nutzer-Beschreibung der Situation." },
+          "antworten": { "type": "string", "description": "Nur bei schritt='erstelle': Antworten auf die Rückfragen aus Schritt 1." },
+          "schritt": { "type": "string", "enum": ["analyse", "erstelle"] }
+        },
+        "additionalProperties": false
+      },
+
+      "schritt_analyse": {
+        "model": "claude-haiku-4-5-20251001",
+        "max_tokens": 800,
+        "description": "Analyse + 2-3 gezielte Rückfragen. System-Prompt: max 3 Fragen, kurz, deutsch, keine Rechtsberatung. Format: nummerierte Liste + Einschätzung.",
+        "sse_sequence": ["status('Analysiere Ihre Angaben...')", "status('KI denkt nach...')", "start", "delta*", "done(schritt='analyse')"]
+      },
+
+      "schritt_erstelle": {
+        "model": "claude-sonnet-4-6",
+        "max_tokens": 2500,
+        "description": "Vollständiges Widerspruchsschreiben. System-Prompt: Briefkopf mit Platzhaltern, anwaltlicher Stil, keine Rechtsberatung, kein KI-Hinweis im Brief. RDG-Disclaimer: Automatisch angehängt wenn im Stream nicht vorhanden.",
+        "sse_sequence": ["status('Erstelle Ihr persönliches Musterschreiben...')", "start", "delta*", "delta(RDG-Disclaimer, optional)", "done(schritt='erstelle')"],
+        "rdg_disclaimer_injection": "Wenn Stream kein 'RDG' enthält → automatisch angehängt: '⚠ WICHTIGER HINWEIS: Dieser Entwurf wurde von einer KI erstellt und stellt keine Rechtsberatung im Sinne des Rechtsdienstleistungsgesetzes (RDG § 2) dar...'"
+      },
+
+      "response_errors": [
+        { "status": 400, "condition": "Ungültige JSON-Daten ODER traeger/beschreibung fehlt" },
+        { "status": 401, "condition": "Nicht eingeloggt" },
+        { "status": 429, "condition": "Rate-Limit überschritten" }
+      ]
+    }
+  },
+
+  "_pdf_generation": {
+    "description": "PDF-Erzeugung geschieht REIN im Frontend — kein Server-PDF.",
+    "preview": {
+      "component": "LetterPDF.tsx",
+      "library": "@react-pdf/renderer",
+      "format": "DIN A4, Helvetica 11pt, Margins: 70pt links/rechts, 57pt oben/unten",
+      "filename_pattern": "BescheidRecht_[AZ]_[Datum].pdf"
+    },
+    "download": {
+      "component": "DownloadButton.tsx",
+      "library": "jspdf",
+      "note": "Zwei verschiedene Libraries — @react-pdf/renderer für Vorschau, jspdf für Download. Nicht verwechseln."
+    }
+  },
+
+  "_key_differences_analysis_vs_generation": {
+    "description": "Die zwei Systeme sind FUNDAMENTAL verschieden und dürfen nicht verwechselt werden.",
+    "analysis_pipeline": {
+      "endpoint": "POST /api/analyze",
+      "trigger": "Datei-Upload (PDF/Bild)",
+      "engine": "13-Agenten Claude Pipeline (agent_engine.ts → orchestrator.ts)",
+      "model": "Claude Sonnet/Opus (+ Haiku für Hilfsagenten)",
+      "auth": "Optional (anonyme Demo möglich)",
+      "input": "FormData mit file",
+      "output": "AgentAnalysisResult JSON (synchron)",
+      "privacy": "Pseudonymisierung → Pipeline → Depseudonymisierung",
+      "cost_tracking": "Per-Agent Token-Kosten in analysis_results"
+    },
+    "direct_generator": {
+      "endpoint": "POST /api/generate-letter",
+      "trigger": "Formular-Eingabe (Behörde + Typ + Stichpunkte)",
+      "engine": "Single GPT-4o Call mit Fehlerkatalog-Kontext",
+      "model": "GPT-4o (OpenAI)",
+      "auth": "Pflicht (eingeloggt + Subscription)",
+      "input": "JSON Body",
+      "output": "{ letter: string } (synchron)",
+      "privacy": "Keine Pseudonymisierung (Nutzer gibt selbst ein)",
+      "cost_tracking": "Kein explizites Tracking"
+    },
+    "assistant": {
+      "endpoint": "POST /api/assistant",
+      "trigger": "Interaktiver 2-Schritt-Dialog",
+      "engine": "Claude Haiku (Analyse) + Sonnet (Brief)",
+      "model": "Claude Haiku 4.5 + Sonnet 4.6",
+      "auth": "Pflicht",
+      "input": "JSON Body (traeger, beschreibung, antworten?, schritt)",
+      "output": "SSE Stream (text/event-stream)",
+      "privacy": "Keine Pseudonymisierung (Nutzer gibt selbst ein)",
+      "cost_tracking": "Kein explizites Tracking"
+    }
+  }
+}

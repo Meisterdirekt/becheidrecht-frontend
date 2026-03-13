@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, Suspense } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { createBrowserClient } from "@supabase/ssr";
 import {
   Building2,
@@ -272,7 +272,7 @@ function Schritt4({
           </div>
 
           {/* RDG-Disclaimer — nur sichtbar, NICHT im Download */}
-          <p className="text-[11px] text-amber-400/70 border border-amber-400/20 rounded-xl px-4 py-2.5 mt-4 leading-relaxed">
+          <p className="text-[11px] text-[var(--text)] border border-amber-400/30 bg-amber-100 dark:bg-amber-500/10 rounded-xl px-4 py-2.5 mt-4 leading-relaxed">
             ⚠ Dieser Entwurf wurde von einer KI erstellt und stellt keine Rechtsberatung im Sinne des § 2 RDG dar. Er ersetzt nicht die Beratung durch einen Rechtsanwalt oder eine Beratungsstelle (z. B. VdK, Sozialverband). Vor dem Absenden alle Platzhalter in [eckigen Klammern] ersetzen.
           </p>
 
@@ -292,16 +292,35 @@ function Schritt4({
 // Main Page
 // ---------------------------------------------------------------------------
 
-export default function AssistantPage() {
+export default function AssistantPageWrapper() {
+  return (
+    <Suspense
+      fallback={
+        <main className="min-h-screen bg-mesh text-white flex items-center justify-center">
+          <Loader2 className="h-6 w-6 animate-spin text-white/40" />
+        </main>
+      }
+    >
+      <AssistantPage />
+    </Suspense>
+  );
+}
+
+function AssistantPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [supabase, setSupabase] = useState<ReturnType<typeof createBrowserClient> | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [authReady, setAuthReady] = useState(false);
 
+  // Query-Params von /antraege Katalog
+  const prefillTraeger = searchParams.get("traeger") ?? "";
+  const prefillAntrag = searchParams.get("antrag") ?? "";
+
   // Wizard State
-  const [schritt, setSchritt] = useState<Schritt>(1);
-  const [traeger, setTraeger] = useState("");
-  const [beschreibung, setBeschreibung] = useState("");
+  const [schritt, setSchritt] = useState<Schritt>(prefillTraeger ? (prefillAntrag ? 2 : 1) : 1);
+  const [traeger, setTraeger] = useState(prefillTraeger);
+  const [beschreibung, setBeschreibung] = useState(prefillAntrag);
   const [fragen, setFragen] = useState("");
   const [antworten, setAntworten] = useState("");
   const [musterschreiben, setMusterschreiben] = useState("");

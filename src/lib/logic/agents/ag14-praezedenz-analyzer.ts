@@ -16,6 +16,7 @@ import {
   emptyTokenUsage,
 } from "./types";
 import { executeDbRead } from "./tools/db-read";
+import { isValidRechtsgebiet, normalizeSgb, SGB_TO_RECHTSGEBIET } from "../constants/rechtsgebiete";
 
 async function execute(ctx: AgentContext): Promise<AgentResult<PraezedenzResult>> {
   const start = Date.now();
@@ -27,10 +28,16 @@ async function execute(ctx: AgentContext): Promise<AgentResult<PraezedenzResult>
     hinweis: "",
   };
 
-  const rechtsgebiet = ctx.pipeline.triage?.rechtsgebiet;
+  // AG01 liefert SGB-Notation ("SGB II"), wir brauchen Kürzel ("BA")
+  const rawRechtsgebiet = ctx.pipeline.triage?.rechtsgebiet;
+  const rechtsgebiet = rawRechtsgebiet
+    ? (isValidRechtsgebiet(rawRechtsgebiet)
+        ? rawRechtsgebiet
+        : SGB_TO_RECHTSGEBIET[normalizeSgb(rawRechtsgebiet)] ?? null)
+    : null;
   const behoerde = ctx.pipeline.triage?.behoerde;
 
-  if (!rechtsgebiet || rechtsgebiet === "Unbekannt") {
+  if (!rechtsgebiet) {
     return {
       agentId: "AG14",
       success: true,

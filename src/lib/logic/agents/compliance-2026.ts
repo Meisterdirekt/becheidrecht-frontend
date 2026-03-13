@@ -50,7 +50,7 @@ export const AENDERUNGEN_2026: readonly Gesetzesaenderung[] = [
     kuerzel: "BA",
     was: "Umbenennung Bürgergeld → Grundsicherungsgeld + Sanktionsverschärfung",
     alt: "Bürgergeld, mildere Sanktionen, Karenzzeit 1 Jahr, pauschaler Vermögensfreibetrag 15.000€",
-    neu: "Grundsicherungsgeld, Vermittlungsvorrang, Sanktionen bis 30% direkt (Arbeitsverweigerung bis 100%), Karenzzeit entfällt, altersabhängige Vermögensfreibeträge, Erwerbstätigkeit zumutbar ab 1. Geburtstag des Kindes (bei verfügbarer Betreuung), Vermieter-Auskunftspflicht",
+    neu: "Grundsicherungsgeld, Vermittlungsvorrang, Sanktionen bis 30% direkt (Arbeitsverweigerung bis 100% inkl. Streichung KdU und KV/PV-Beiträge bei hartnäckiger Verweigerung), Karenzzeit entfällt, altersabhängige Vermögensfreibeträge, Erwerbstätigkeit zumutbar ab 1. Geburtstag des Kindes (bei verfügbarer Betreuung), Vermieter-Auskunftspflicht",
     ab_wann: "01.07.2026",
     paragraph: "SGB II (Neufassung, 13. SGB-II-ÄndG)",
     quelle: "https://www.bundestag.de/dokumente/textarchiv/2026/kw10-de-grundsicherung-1150460",
@@ -389,6 +389,18 @@ export const AENDERUNGEN_2026: readonly Gesetzesaenderung[] = [
     ab_wann: "01.01.2026",
     paragraph: "§ 33a SGB V",
     quelle: "https://www.bundesgesundheitsministerium.de/themen/digitalisierung/digitale-gesundheitsanwendungen",
+    status: "in_kraft",
+  },
+  // ── SGB IX (EH) — Ausgleichsabgabe ──────────────────────────────────
+  {
+    rechtsgebiet: "SGB IX",
+    kuerzel: "EH",
+    was: "Ausgleichsabgabe erhöht (erstmals fällig 31.03.2026)",
+    alt: "Staffelbeträge bis max. 720€/Monat pro unbesetztem Pflichtplatz",
+    neu: "Erhöhte Staffelbeträge bis >800€/Monat, erstmalige Fälligkeit der neuen Sätze zum 31.03.2026, digitaler Behindertenpauschbetrag nur noch elektronisch beantragbar",
+    ab_wann: "31.03.2026",
+    paragraph: "§ 160 SGB IX",
+    quelle: "https://www.gegen-hartz.de/urteile/schwerbehinderung-7-wichtige-aenderungen-im-maerz-2026",
     status: "in_kraft",
   },
 ] as const;

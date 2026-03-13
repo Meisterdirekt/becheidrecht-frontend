@@ -12,27 +12,13 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
-import fs from "fs";
-import path from "path";
 import { getTraegerLabel } from "@/lib/letter-generator";
 import { getAuthenticatedUser } from "@/lib/supabase/auth";
 import { assistantLimiter } from "@/lib/rate-limit";
+import { getAnthropicKey } from "@/lib/logic/agents/utils";
 
 export const runtime = "nodejs";
 export const maxDuration = 90;
-
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
-function getAnthropicKey(): string | null {
-  try {
-    const content = fs.readFileSync(path.join(process.cwd(), "vault", "keys.env"), "utf8");
-    const match = content.match(/ANTHROPIC_API_KEY\s*=\s*([^\s\n]+)/);
-    if (match?.[1]) return match[1];
-  } catch { /* vault fehlt */ }
-  return process.env.ANTHROPIC_API_KEY || null;
-}
 
 // ---------------------------------------------------------------------------
 // Streaming SSE Response Helper

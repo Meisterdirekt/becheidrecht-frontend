@@ -77,12 +77,12 @@ async function execute(ctx: AgentContext): Promise<AgentResult<AnalyseResult>> {
   // Extended Thinking für NOTFALL — maximale Analysetiefe bei life-critical Fällen
   const useExtendedThinking = ctx.routingStufe === "NOTFALL";
 
-  // Tool-Use Loop
-  for (let i = 0; i < 6; i++) {
+  // Tool-Use Loop (max 3 Iterationen — jede braucht ~15-25s API-Call)
+  for (let i = 0; i < 3; i++) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const createParams: any = {
       model,
-      max_tokens: useExtendedThinking ? 16000 : 4096,
+      max_tokens: useExtendedThinking ? 16000 : 2048,
       system: getSystemPrompt("AG02"),
       tools: TOOLS,
       messages,
@@ -116,15 +116,21 @@ async function execute(ctx: AgentContext): Promise<AgentResult<AnalyseResult>> {
         }
       }
 
-      // Retry: Wenn kein Tool-Call kam und noch Iterationen übrig → erzwingen
-      if (gefundeneFehler.length === 0 && i < 4) {
-        messages.push({
-          role: "user",
-          content:
-            "Du hast suche_fehlerkatalog noch nicht aufgerufen. Das ist Pflicht. " +
+      // Retry-Logik: Gründliche Suche erzwingen
+      const needsMoreSearch =
+        gefundeneFehler.length === 0 ||
+        (gefundeneFehler.length < 3 && auffaelligkeiten.length === 0);
+
+      if (needsMoreSearch && i < 2) {
+        const retryMsg = gefundeneFehler.length === 0
+          ? "Du hast suche_fehlerkatalog noch nicht aufgerufen. Das ist Pflicht. " +
             "Rufe JETZT suche_fehlerkatalog auf mit 4-6 Stichwörtern aus dem Bescheid " +
-            "(Paragraphen, Leistungsarten, Behördenentscheidungen).",
-        });
+            "(Paragraphen, Leistungsarten, Behördenentscheidungen)."
+          : "Du hast erst " + gefundeneFehler.length + " Fehler gefunden. Das reicht nicht. " +
+            "Rufe suche_fehlerkatalog ERNEUT auf mit ANDEREN Stichwörtern — " +
+            "fokussiere auf: Berechnungsfehler, fehlende Begründung, Verfahrensfehler, Fristverstoß, " +
+            "falsche Rechtsgrundlage. Gib auch auffaelligkeiten als JSON zurück.";
+        messages.push({ role: "user", content: retryMsg });
         continue;
       }
       break;
@@ -172,6 +178,16 @@ async function execute(ctx: AgentContext): Promise<AgentResult<AnalyseResult>> {
   }
 
   const confidence = gefundeneFehler.length > 0 ? 0.9 : auffaelligkeiten.length > 0 ? 0.7 : 0.5;
+
+  if (gefundeneFehler.length === 0 && auffaelligkeiten.length === 0) {
+    console.warn("[AG02] WARNUNG: Keine Fehler und keine Auffälligkeiten gefunden", {
+      iterationen: "loop beendet",
+      traegerKey,
+      rechtsgebiet: ctx.pipeline.triage?.rechtsgebiet ?? "unbekannt",
+    });
+  } else {
+    console.info(`[AG02] Ergebnis: ${gefundeneFehler.length} Fehlerkatalog-Treffer, ${auffaelligkeiten.length} Auffälligkeiten`);
+  }
 
   return {
     agentId: "AG02",

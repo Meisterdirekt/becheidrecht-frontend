@@ -21,7 +21,7 @@
 
 import Anthropic from "@anthropic-ai/sdk";
 import { createClient } from "@supabase/supabase-js";
-import { extractJsonSafe, SONNET_MODEL } from "./utils";
+import { extractJsonSafe, SONNET_MODEL, getAnthropicKey } from "./utils";
 import type { Agent, AgentContext, AgentResult } from "./types";
 import { emptyTokenUsage } from "./types";
 import { reportInfo } from "@/lib/error-reporter";
@@ -143,9 +143,7 @@ function getSupabaseServiceClient() {
   return createClient(url, serviceKey);
 }
 
-function getAnthropicKey(): string | null {
-  return process.env.ANTHROPIC_API_KEY || null;
-}
+
 
 async function fetchPageText(url: string): Promise<string | null> {
   try {

@@ -13,7 +13,7 @@ import {
   emptyTokenUsage,
 } from "./types";
 import { getSystemPrompt } from "./prompts";
-import { SONNET_MODEL, extractTokenUsage, getAnthropicKey, createAnthropicClient, mergeTokenUsage } from "./utils";
+import { HAIKU_MODEL, extractTokenUsage, getAnthropicKey, createAnthropicClient, mergeTokenUsage } from "./utils";
 
 const TOOL_KLASSIFIZIERE: Anthropic.Tool = {
   name: "klassifiziere_bescheid",
@@ -105,7 +105,7 @@ async function execute(ctx: AgentContext): Promise<AgentResult<TriageResult>> {
   // Tool-Use Loop (max 3 Iterationen)
   for (let i = 0; i < 3; i++) {
     const response = await anthropic.messages.create({
-      model: SONNET_MODEL,
+      model: HAIKU_MODEL,
       max_tokens: 1024,
       system: getSystemPrompt("AG01"),
       tools: [TOOL_KLASSIFIZIERE],
@@ -179,6 +179,6 @@ async function execute(ctx: AgentContext): Promise<AgentResult<TriageResult>> {
 export const ag01Orchestrator: Agent<TriageResult> = {
   id: "AG01",
   name: "Orchestrator",
-  model: () => SONNET_MODEL,
+  model: () => HAIKU_MODEL,
   execute,
 };
