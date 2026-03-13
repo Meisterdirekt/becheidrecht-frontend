@@ -17,6 +17,7 @@ import path from "path";
 import type { Agent, AgentContext, AgentResult } from "./types";
 import { emptyTokenUsage, HAIKU_MODEL } from "./utils";
 import { reportInfo } from "@/lib/error-reporter";
+import { createGitHubIssueManaged } from "./tools/github-issues";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -369,37 +370,6 @@ async function checkWeisungenCoverage(): Promise<string[]> {
 // GitHub Issue erstellen
 // ---------------------------------------------------------------------------
 
-async function createGitHubIssue(title: string, body: string): Promise<string | null> {
-  const token = process.env.GITHUB_TOKEN;
-  const repo = process.env.GITHUB_REPO;
-  if (!token || !repo) return null;
-
-  try {
-    const res = await fetch(`https://api.github.com/repos/${repo}/issues`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        Accept: "application/vnd.github+json",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        title,
-        body,
-        labels: ["content-audit", "automated", "legal"],
-      }),
-    });
-
-    if (res.ok) {
-      const data = await res.json();
-      return data.html_url ?? null;
-    }
-    console.error("[AG18] GitHub Issue Fehler:", res.status, await res.text());
-    return null;
-  } catch (err) {
-    console.error("[AG18] GitHub Issue Exception:", err);
-    return null;
-  }
-}
 
 // ---------------------------------------------------------------------------
 // Report formatieren
@@ -551,10 +521,12 @@ export async function runContentAudit(): Promise<ContentAuditResult> {
   // GitHub Issue erstellen (immer — auch bei "ok" als Audit-Trail)
   const report = formatReport(result);
   const severityLabel = gesamtStatus === "kritisch" ? "🔴 KRITISCH" : gesamtStatus === "warnung" ? "⚠️ Warnung" : "✅ OK";
-  const issueUrl = await createGitHubIssue(
-    `📋 AG18 Content-Audit: ${severityLabel} — ${new Date().toLocaleDateString("de-DE")}`,
-    report,
-  );
+  const issueUrl = await createGitHubIssueManaged({
+    title: `📋 AG18 Content-Audit: ${severityLabel} — ${new Date().toLocaleDateString("de-DE")}`,
+    body: report,
+    labels: ["content-audit", "automated", "legal"],
+    agentPrefix: "AG18",
+  });
 
   if (issueUrl) {
     result.issues_created.push(issueUrl);

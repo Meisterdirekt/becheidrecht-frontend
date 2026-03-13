@@ -5,6 +5,7 @@
  */
 
 import type Anthropic from "@anthropic-ai/sdk";
+import { closeStaleIssues } from "./github-issues";
 
 export const TOOL_GITHUB_ACTION: Anthropic.Tool = {
   name: "github_action",
@@ -36,6 +37,7 @@ export async function executeGithubAction(
   title: string,
   body: string,
   labels?: string[],
+  agentPrefix?: string,
 ): Promise<{ available: boolean; issue_url?: string; error?: string }> {
   const token = process.env.GITHUB_TOKEN;
   const repo = process.env.GITHUB_REPO;
@@ -47,6 +49,11 @@ export async function executeGithubAction(
   const [owner, repoName] = repo.split("/");
   if (!owner || !repoName) {
     return { available: false, error: "GITHUB_REPO Format muss 'owner/repo' sein." };
+  }
+
+  // Alte Issues schließen wenn agentPrefix angegeben
+  if (agentPrefix && labels) {
+    await closeStaleIssues(labels, agentPrefix, 1);
   }
 
   try {

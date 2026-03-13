@@ -10,6 +10,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { reportInfo } from "@/lib/error-reporter";
+import { createGitHubIssueManaged } from "@/lib/logic/agents/tools/github-issues";
 
 export const runtime = "nodejs";
 export const maxDuration = 30;
@@ -124,26 +125,6 @@ async function checkHealthEndpoint(baseUrl: string): Promise<{ ok: boolean; late
   }
 }
 
-async function createGitHubIssue(title: string, body: string): Promise<void> {
-  const token = process.env.GITHUB_TOKEN;
-  const repo = process.env.GITHUB_REPO;
-  if (!token || !repo) return;
-
-  await fetch(`https://api.github.com/repos/${repo}/issues`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      Accept: "application/vnd.github+json",
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      title,
-      body,
-      labels: ["backend", "automated", "monitoring"],
-    }),
-  });
-}
-
 export async function GET(req: Request) {
   if (!verifySecret(req)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -206,10 +187,12 @@ export async function GET(req: Request) {
       `*Automatisch erstellt von AG-BACKEND • ${new Date().toISOString()}*`,
     ].join("\n");
 
-    await createGitHubIssue(
-      `🔧 AG-BACKEND: ${problems.length} Problem(e) — ${new Date().toLocaleDateString("de-DE")}`,
-      issueBody
-    );
+    await createGitHubIssueManaged({
+      title: `🔧 AG-BACKEND: ${problems.length} Problem(e) — ${new Date().toLocaleDateString("de-DE")}`,
+      body: issueBody,
+      labels: ["backend", "automated", "monitoring"],
+      agentPrefix: "AG-BACKEND",
+    });
   }
 
   return NextResponse.json({

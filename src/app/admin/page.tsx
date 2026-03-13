@@ -126,6 +126,64 @@ export default function AdminPage() {
     return new Date(expiresAt) < new Date();
   }
 
+  // ── Demo-Anfragen ─────────────────────────────────────────────────────────
+  interface DemoRequest {
+    id: string;
+    created_at: string;
+    org_name: string;
+    contact_name: string;
+    email: string;
+    phone: string | null;
+    berater_count: number | null;
+    message: string | null;
+    selected_tarif: string | null;
+    status: string;
+  }
+  const [demoRequests, setDemoRequests] = useState<DemoRequest[]>([]);
+  const [demoLoading, setDemoLoading] = useState(false);
+  const [demoLoaded, setDemoLoaded] = useState(false);
+  const [demoStatusFilter, setDemoStatusFilter] = useState('');
+
+  async function loadDemoRequests(statusFilter?: string) {
+    if (!session) return;
+    setDemoLoading(true);
+    try {
+      const params = new URLSearchParams();
+      if (statusFilter) params.set('status', statusFilter);
+      const res = await fetch(`/api/admin/demo-requests?${params.toString()}`, {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setDemoRequests(data.items);
+        setDemoLoaded(true);
+      }
+    } catch {
+      // silent
+    } finally {
+      setDemoLoading(false);
+    }
+  }
+
+  async function updateDemoStatus(id: string, status: string) {
+    if (!session) return;
+    try {
+      await fetch('/api/admin/demo-requests', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({ id, status }),
+      });
+      setDemoRequests((prev) =>
+        prev.map((r) => (r.id === id ? { ...r, status } : r))
+      );
+    } catch {
+      // silent
+    }
+  }
+
   // ── B2B Einrichtung ────────────────────────────────────────────────────────
   const [orgName, setOrgName] = useState('');
   const [orgType, setOrgType] = useState('sozialeinrichtung');
@@ -284,6 +342,126 @@ export default function AdminPage() {
           </Link>
           <h1 className="text-3xl font-black text-slate-900 mt-4">Admin Panel</h1>
           <p className="text-slate-500 mt-2">Kunden verwalten und freischalten</p>
+        </div>
+
+        {/* Demo-Anfragen */}
+        <div className="bg-white rounded-2xl shadow-lg p-8 mb-6">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h2 className="text-xl font-bold text-slate-900">Demo-Anfragen</h2>
+              {demoLoaded && (
+                <p className="text-slate-400 text-sm mt-1">
+                  {demoRequests.length} Anfragen
+                  {demoRequests.filter((r) => r.status === 'neu').length > 0 && (
+                    <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-blue-100 text-blue-800">
+                      {demoRequests.filter((r) => r.status === 'neu').length} neu
+                    </span>
+                  )}
+                </p>
+              )}
+            </div>
+            <button
+              onClick={() => loadDemoRequests(demoStatusFilter)}
+              disabled={demoLoading}
+              className="bg-slate-900 text-white px-5 py-2.5 rounded-xl font-bold text-sm hover:bg-slate-800 disabled:opacity-50 transition-all"
+            >
+              {demoLoading ? 'Laden...' : demoLoaded ? 'Aktualisieren' : 'Anfragen laden'}
+            </button>
+          </div>
+
+          {demoLoaded && (
+            <div className="flex gap-2 mb-4">
+              {[
+                { value: '', label: 'Alle' },
+                { value: 'neu', label: 'Neu' },
+                { value: 'kontaktiert', label: 'Kontaktiert' },
+                { value: 'konvertiert', label: 'Konvertiert' },
+                { value: 'abgelehnt', label: 'Abgelehnt' },
+              ].map((f) => (
+                <button
+                  key={f.value}
+                  onClick={() => {
+                    setDemoStatusFilter(f.value);
+                    loadDemoRequests(f.value);
+                  }}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                    demoStatusFilter === f.value
+                      ? 'bg-slate-900 text-white'
+                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                  }`}
+                >
+                  {f.label}
+                </button>
+              ))}
+            </div>
+          )}
+
+          {demoLoaded && demoRequests.length > 0 && (
+            <div className="overflow-x-auto -mx-8 px-8">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b-2 border-slate-200">
+                    <th className="text-left py-3 pr-3 font-bold text-slate-600 whitespace-nowrap">Datum</th>
+                    <th className="text-left py-3 pr-3 font-bold text-slate-600 whitespace-nowrap">Organisation</th>
+                    <th className="text-left py-3 pr-3 font-bold text-slate-600 whitespace-nowrap">Kontakt</th>
+                    <th className="text-left py-3 pr-3 font-bold text-slate-600 whitespace-nowrap">E-Mail</th>
+                    <th className="text-left py-3 pr-3 font-bold text-slate-600 whitespace-nowrap">Telefon</th>
+                    <th className="text-center py-3 pr-3 font-bold text-slate-600 whitespace-nowrap">Berater</th>
+                    <th className="text-left py-3 pr-3 font-bold text-slate-600 whitespace-nowrap">Tarif</th>
+                    <th className="text-left py-3 font-bold text-slate-600 whitespace-nowrap">Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {demoRequests.map((r) => (
+                    <tr key={r.id} className="border-b border-slate-100 hover:bg-slate-50 transition-colors">
+                      <td className="py-3 pr-3 text-slate-500 text-xs whitespace-nowrap">{formatDate(r.created_at)}</td>
+                      <td className="py-3 pr-3 text-slate-900 font-medium max-w-[160px] truncate">{r.org_name}</td>
+                      <td className="py-3 pr-3 text-slate-700 max-w-[120px] truncate">{r.contact_name}</td>
+                      <td className="py-3 pr-3">
+                        <a href={`mailto:${r.email}`} className="text-blue-600 hover:underline text-xs">{r.email}</a>
+                      </td>
+                      <td className="py-3 pr-3 text-slate-500 text-xs">{r.phone || '—'}</td>
+                      <td className="py-3 pr-3 text-center text-slate-500 text-xs">{r.berater_count || '—'}</td>
+                      <td className="py-3 pr-3">
+                        {r.selected_tarif ? (
+                          <span className="inline-block px-2 py-0.5 rounded-md text-xs font-bold bg-blue-100 text-blue-800">
+                            {r.selected_tarif}
+                          </span>
+                        ) : '—'}
+                      </td>
+                      <td className="py-3">
+                        <select
+                          value={r.status}
+                          onChange={(e) => updateDemoStatus(r.id, e.target.value)}
+                          className={`px-2 py-1 rounded-lg text-xs font-bold border-0 cursor-pointer ${
+                            r.status === 'neu' ? 'bg-blue-100 text-blue-800' :
+                            r.status === 'kontaktiert' ? 'bg-amber-100 text-amber-800' :
+                            r.status === 'konvertiert' ? 'bg-green-100 text-green-800' :
+                            'bg-red-100 text-red-800'
+                          }`}
+                        >
+                          <option value="neu">Neu</option>
+                          <option value="kontaktiert">Kontaktiert</option>
+                          <option value="konvertiert">Konvertiert</option>
+                          <option value="abgelehnt">Abgelehnt</option>
+                        </select>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {demoLoaded && demoRequests.length === 0 && (
+            <p className="text-slate-400 text-sm text-center py-6">Keine Demo-Anfragen vorhanden.</p>
+          )}
+
+          {!demoLoaded && !demoLoading && (
+            <p className="text-slate-400 text-sm text-center py-6">
+              Klicke &quot;Anfragen laden&quot; um Demo-Anfragen anzuzeigen.
+            </p>
+          )}
         </div>
 
         {/* Kunden-Übersicht */}

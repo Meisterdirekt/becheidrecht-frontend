@@ -1,26 +1,41 @@
 /**
- * AG-DESIGNER — Wöchentlicher Design & Performance Audit
+ * AG-DESIGNER — Wöchentlicher Design & Performance Audit (Multi-Page)
  * GET /api/cron/design-audit?secret=CRON_SECRET
  *
  * Läuft jeden Dienstag 04:00 UTC via Vercel Cron.
  * Nutzt Google PageSpeed Insights API (kostenlos, kein Key nötig).
- * Prüft: Performance, Accessibility, Best Practices, SEO.
+ * Prüft 4 Seiten: Homepage, B2B, Login, Datenschutz.
  * Erstellt GitHub Issue bei Score-Regression oder kritischen Befunden.
  */
 
 import { NextResponse } from "next/server";
 import { reportInfo } from "@/lib/error-reporter";
+import { createGitHubIssueManaged } from "@/lib/logic/agents/tools/github-issues";
 
 export const runtime = "nodejs";
-export const maxDuration = 45;
+export const maxDuration = 120;
 
-function verifySecret(req: Request): boolean {
-  const url = new URL(req.url);
-  const authHeader = req.headers?.get?.("authorization") || "";
-  const secret = url.searchParams.get("secret") || authHeader.replace("Bearer ", "");
-  const expected = process.env.CRON_SECRET;
-  return !!expected && secret === expected;
-}
+// ---------------------------------------------------------------------------
+// Config
+// ---------------------------------------------------------------------------
+
+const PAGES_TO_TEST = [
+  { path: "", label: "Homepage" },
+  { path: "/b2b", label: "B2B" },
+  { path: "/login", label: "Login" },
+  { path: "/datenschutz", label: "Datenschutz" },
+];
+
+const SCORE_THRESHOLDS = {
+  performance: { warn: 70, critical: 50 },
+  accessibility: { warn: 85, critical: 70 },
+  bestPractices: { warn: 80, critical: 65 },
+  seo: { warn: 85, critical: 70 },
+};
+
+// ---------------------------------------------------------------------------
+// Types
+// ---------------------------------------------------------------------------
 
 type LighthouseScore = {
   performance: number;
@@ -34,23 +49,40 @@ type AuditResult = {
   strategy: "mobile" | "desktop";
   scores: LighthouseScore;
   coreWebVitals: {
-    lcp?: number;  // Largest Contentful Paint (ms)
-    fid?: number;  // First Input Delay (ms)
-    cls?: number;  // Cumulative Layout Shift
-    fcp?: number;  // First Contentful Paint (ms)
-    ttfb?: number; // Time to First Byte (ms)
-    tbt?: number;  // Total Blocking Time (ms)
+    lcp?: number;
+    fid?: number;
+    cls?: number;
+    fcp?: number;
+    ttfb?: number;
+    tbt?: number;
   };
   error?: string;
 };
 
-// Mindest-Scores — bei Unterschreitung → Issue
-const SCORE_THRESHOLDS = {
-  performance: { warn: 70, critical: 50 },
-  accessibility: { warn: 85, critical: 70 },
-  bestPractices: { warn: 80, critical: 65 },
-  seo: { warn: 85, critical: 70 },
+type PageResult = {
+  label: string;
+  url: string;
+  mobile: AuditResult;
+  desktop: AuditResult;
+  mobileIssues: string[];
+  desktopIssues: string[];
 };
+
+// ---------------------------------------------------------------------------
+// Auth
+// ---------------------------------------------------------------------------
+
+function verifySecret(req: Request): boolean {
+  const url = new URL(req.url);
+  const authHeader = req.headers?.get?.("authorization") || "";
+  const secret = url.searchParams.get("secret") || authHeader.replace("Bearer ", "");
+  const expected = process.env.CRON_SECRET;
+  return !!expected && secret === expected;
+}
+
+// ---------------------------------------------------------------------------
+// Lighthouse
+// ---------------------------------------------------------------------------
 
 async function runLighthouse(targetUrl: string, strategy: "mobile" | "desktop"): Promise<AuditResult> {
   const apiUrl = new URL("https://www.googleapis.com/pagespeedonline/v5/runPagespeed");
@@ -84,23 +116,24 @@ async function runLighthouse(targetUrl: string, strategy: "mobile" | "desktop"):
     const cats = data.lighthouseResult?.categories || {};
     const audits = data.lighthouseResult?.audits || {};
 
-    const scores: LighthouseScore = {
-      performance: Math.round((cats.performance?.score || 0) * 100),
-      accessibility: Math.round((cats.accessibility?.score || 0) * 100),
-      bestPractices: Math.round((cats["best-practices"]?.score || 0) * 100),
-      seo: Math.round((cats.seo?.score || 0) * 100),
+    return {
+      url: targetUrl,
+      strategy,
+      scores: {
+        performance: Math.round((cats.performance?.score || 0) * 100),
+        accessibility: Math.round((cats.accessibility?.score || 0) * 100),
+        bestPractices: Math.round((cats["best-practices"]?.score || 0) * 100),
+        seo: Math.round((cats.seo?.score || 0) * 100),
+      },
+      coreWebVitals: {
+        lcp: audits["largest-contentful-paint"]?.numericValue,
+        fid: audits["max-potential-fid"]?.numericValue,
+        cls: audits["cumulative-layout-shift"]?.numericValue,
+        fcp: audits["first-contentful-paint"]?.numericValue,
+        ttfb: audits["server-response-time"]?.numericValue,
+        tbt: audits["total-blocking-time"]?.numericValue,
+      },
     };
-
-    const coreWebVitals = {
-      lcp: audits["largest-contentful-paint"]?.numericValue,
-      fid: audits["max-potential-fid"]?.numericValue,
-      cls: audits["cumulative-layout-shift"]?.numericValue,
-      fcp: audits["first-contentful-paint"]?.numericValue,
-      ttfb: audits["server-response-time"]?.numericValue,
-      tbt: audits["total-blocking-time"]?.numericValue,
-    };
-
-    return { url: targetUrl, strategy, scores, coreWebVitals };
   } catch (err) {
     return {
       url: targetUrl,
@@ -111,6 +144,10 @@ async function runLighthouse(targetUrl: string, strategy: "mobile" | "desktop"):
     };
   }
 }
+
+// ---------------------------------------------------------------------------
+// Analysis
+// ---------------------------------------------------------------------------
 
 function scoreEmoji(score: number, type: keyof typeof SCORE_THRESHOLDS): string {
   const t = SCORE_THRESHOLDS[type];
@@ -149,25 +186,60 @@ function detectRegressions(result: AuditResult): string[] {
   return issues;
 }
 
-async function createGitHubIssue(title: string, body: string): Promise<void> {
-  const token = process.env.GITHUB_TOKEN;
-  const repo = process.env.GITHUB_REPO;
-  if (!token || !repo) return;
+// ---------------------------------------------------------------------------
+// Report
+// ---------------------------------------------------------------------------
 
-  await fetch(`https://api.github.com/repos/${repo}/issues`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      Accept: "application/vnd.github+json",
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      title,
-      body,
-      labels: ["performance", "design", "automated"],
-    }),
-  });
+function formatScoreTable(scores: LighthouseScore): string {
+  return [
+    `| Kategorie | Score |`,
+    `|-----------|-------|`,
+    `| Performance | ${scoreEmoji(scores.performance, "performance")} ${scores.performance}/100 |`,
+    `| Accessibility | ${scoreEmoji(scores.accessibility, "accessibility")} ${scores.accessibility}/100 |`,
+    `| Best Practices | ${scoreEmoji(scores.bestPractices, "bestPractices")} ${scores.bestPractices}/100 |`,
+    `| SEO | ${scoreEmoji(scores.seo, "seo")} ${scores.seo}/100 |`,
+  ].join("\n");
 }
+
+function formatPageSection(pr: PageResult): string {
+  const mc = pr.mobile.coreWebVitals;
+  const dc = pr.desktop.coreWebVitals;
+  const allIssues = [
+    ...pr.mobileIssues.map((i) => `📱 ${i}`),
+    ...pr.desktopIssues.map((i) => `🖥️ ${i}`),
+  ];
+
+  const lines = [
+    `### 📄 ${pr.label} (\`${pr.url}\`)`,
+  ];
+
+  if (allIssues.length > 0) {
+    lines.push(`**Probleme (${allIssues.length}):**`);
+    lines.push(allIssues.map((i) => `- ${i}`).join("\n"));
+    lines.push("");
+  }
+
+  if (pr.mobile.error || pr.desktop.error) {
+    if (pr.mobile.error) lines.push(`⚠️ Mobile-Fehler: ${pr.mobile.error}`);
+    if (pr.desktop.error) lines.push(`⚠️ Desktop-Fehler: ${pr.desktop.error}`);
+    lines.push("");
+  }
+
+  lines.push(`**📱 Mobile:**`);
+  lines.push(formatScoreTable(pr.mobile.scores));
+  lines.push(`CWV: LCP ${mc.lcp ? `${(mc.lcp / 1000).toFixed(1)}s` : "—"} | CLS ${mc.cls?.toFixed(3) ?? "—"} | TBT ${mc.tbt?.toFixed(0) ?? "—"}ms`);
+  lines.push("");
+
+  lines.push(`**🖥️ Desktop:**`);
+  lines.push(formatScoreTable(pr.desktop.scores));
+  lines.push(`CWV: LCP ${dc.lcp ? `${(dc.lcp / 1000).toFixed(1)}s` : "—"} | CLS ${dc.cls?.toFixed(3) ?? "—"} | TBT ${dc.tbt?.toFixed(0) ?? "—"}ms`);
+
+  return lines.join("\n");
+}
+
+// ---------------------------------------------------------------------------
+// GET Handler
+// ---------------------------------------------------------------------------
 
 export async function GET(req: Request) {
   if (!verifySecret(req)) {
@@ -176,59 +248,37 @@ export async function GET(req: Request) {
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL;
   if (!appUrl) {
-    console.warn("[AG-DESIGNER] NEXT_PUBLIC_APP_URL nicht gesetzt — Audit übersprungen. Env-Var in Vercel setzen!");
+    console.warn("[AG-DESIGNER] NEXT_PUBLIC_APP_URL nicht gesetzt — Audit übersprungen.");
     return NextResponse.json({
       success: false,
       message: "NEXT_PUBLIC_APP_URL nicht gesetzt — Audit übersprungen",
     });
   }
 
-  reportInfo("[AG-DESIGNER] Wöchentlicher Design-Audit gestartet", { appUrl });
+  reportInfo("[AG-DESIGNER] Wöchentlicher Multi-Page Design-Audit gestartet", { appUrl, pages: PAGES_TO_TEST.length });
 
-  // Mobile + Desktop parallel prüfen
-  const [mobile, desktop] = await Promise.all([
-    runLighthouse(appUrl, "mobile"),
-    runLighthouse(appUrl, "desktop"),
-  ]);
+  const pageResults: PageResult[] = [];
 
-  const mobileIssues = mobile.error ? [`API-Fehler: ${mobile.error}`] : detectRegressions(mobile);
-  const desktopIssues = desktop.error ? [`API-Fehler: ${desktop.error}`] : detectRegressions(desktop);
-  const allIssues = [...mobileIssues.map((i) => `📱 ${i}`), ...desktopIssues.map((i) => `🖥️ ${i}`)];
+  // Sequentiell — Rate-Limit-freundlich (8 Requests bei 25/Tag-Limit)
+  for (const { path, label } of PAGES_TO_TEST) {
+    const targetUrl = `${appUrl}${path}`;
+    const mobile = await runLighthouse(targetUrl, "mobile");
+    const desktop = await runLighthouse(targetUrl, "desktop");
+    const mobileIssues = mobile.error ? [`API-Fehler: ${mobile.error}`] : detectRegressions(mobile);
+    const desktopIssues = desktop.error ? [`API-Fehler: ${desktop.error}`] : detectRegressions(desktop);
+    pageResults.push({ label, url: targetUrl, mobile, desktop, mobileIssues, desktopIssues });
+  }
 
-  if (allIssues.length > 0) {
-    const ms = mobile.scores;
-    const ds = desktop.scores;
-    const mc = mobile.coreWebVitals;
-    const dc = desktop.coreWebVitals;
+  const totalIssues = pageResults.reduce(
+    (sum, pr) => sum + pr.mobileIssues.length + pr.desktopIssues.length, 0
+  );
 
+  if (totalIssues > 0) {
     const body = [
-      `## AG-DESIGNER Audit — ${new Date().toLocaleDateString("de-DE")}`,
-      `**URL:** ${appUrl}`,
+      `## AG-DESIGNER Multi-Page Audit — ${new Date().toLocaleDateString("de-DE")}`,
+      `**Seiten geprüft:** ${pageResults.length} | **Probleme gesamt:** ${totalIssues}`,
       "",
-      `### 🚨 Gefundene Probleme (${allIssues.length})`,
-      allIssues.map((i) => `- ${i}`).join("\n"),
-      "",
-      `### 📱 Mobile Scores`,
-      `| Kategorie | Score |`,
-      `|-----------|-------|`,
-      `| Performance | ${scoreEmoji(ms.performance, "performance")} ${ms.performance}/100 |`,
-      `| Accessibility | ${scoreEmoji(ms.accessibility, "accessibility")} ${ms.accessibility}/100 |`,
-      `| Best Practices | ${scoreEmoji(ms.bestPractices, "bestPractices")} ${ms.bestPractices}/100 |`,
-      `| SEO | ${scoreEmoji(ms.seo, "seo")} ${ms.seo}/100 |`,
-      "",
-      `**Core Web Vitals (Mobile):**`,
-      `LCP: ${mc.lcp ? `${(mc.lcp / 1000).toFixed(1)}s` : "—"} | CLS: ${mc.cls?.toFixed(3) ?? "—"} | TBT: ${mc.tbt?.toFixed(0) ?? "—"}ms | FCP: ${mc.fcp ? `${(mc.fcp / 1000).toFixed(1)}s` : "—"}`,
-      "",
-      `### 🖥️ Desktop Scores`,
-      `| Kategorie | Score |`,
-      `|-----------|-------|`,
-      `| Performance | ${scoreEmoji(ds.performance, "performance")} ${ds.performance}/100 |`,
-      `| Accessibility | ${scoreEmoji(ds.accessibility, "accessibility")} ${ds.accessibility}/100 |`,
-      `| Best Practices | ${scoreEmoji(ds.bestPractices, "bestPractices")} ${ds.bestPractices}/100 |`,
-      `| SEO | ${scoreEmoji(ds.seo, "seo")} ${ds.seo}/100 |`,
-      "",
-      `**Core Web Vitals (Desktop):**`,
-      `LCP: ${dc.lcp ? `${(dc.lcp / 1000).toFixed(1)}s` : "—"} | CLS: ${dc.cls?.toFixed(3) ?? "—"} | TBT: ${dc.tbt?.toFixed(0) ?? "—"}ms | TTFB: ${dc.ttfb?.toFixed(0) ?? "—"}ms`,
+      ...pageResults.map(formatPageSection),
       "",
       `### Score-Schwellwerte`,
       `🟢 Gut (≥90) | 🟡 OK (≥Warnung) | 🟠 Niedrig (≥Kritisch) | 🔴 Kritisch (<Kritisch)`,
@@ -237,18 +287,24 @@ export async function GET(req: Request) {
       `*Automatisch erstellt von AG-DESIGNER • ${new Date().toISOString()}*`,
     ].join("\n");
 
-    await createGitHubIssue(
-      `🎨 AG-DESIGNER: ${allIssues.length} Performance/Design-Problem(e) — ${new Date().toLocaleDateString("de-DE")}`,
-      body
-    );
+    await createGitHubIssueManaged({
+      title: `🎨 AG-DESIGNER: ${totalIssues} Problem(e) auf ${pageResults.length} Seiten — ${new Date().toLocaleDateString("de-DE")}`,
+      body,
+      labels: ["performance", "design", "automated"],
+      agentPrefix: "AG-DESIGNER",
+    });
   }
 
   return NextResponse.json({
     success: true,
     timestamp: new Date().toISOString(),
-    url: appUrl,
-    mobile: { scores: mobile.scores, issues: mobileIssues.length, error: mobile.error },
-    desktop: { scores: desktop.scores, issues: desktopIssues.length, error: desktop.error },
-    totalIssues: allIssues.length,
+    pagesChecked: pageResults.length,
+    totalIssues,
+    pages: pageResults.map((pr) => ({
+      label: pr.label,
+      url: pr.url,
+      mobile: { scores: pr.mobile.scores, issues: pr.mobileIssues.length, error: pr.mobile.error },
+      desktop: { scores: pr.desktop.scores, issues: pr.desktopIssues.length, error: pr.desktop.error },
+    })),
   });
 }

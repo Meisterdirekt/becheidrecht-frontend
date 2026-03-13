@@ -17,6 +17,7 @@
 import fs from "fs";
 import path from "path";
 import { reportInfo } from "@/lib/error-reporter";
+import { createGitHubIssueManaged } from "./tools/github-issues";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -524,37 +525,6 @@ function calculateScore(result: DesignGuardianResult): number {
 // GitHub Issue erstellen
 // ---------------------------------------------------------------------------
 
-async function createGitHubIssue(title: string, body: string): Promise<string | null> {
-  const token = process.env.GITHUB_TOKEN;
-  const repo = process.env.GITHUB_REPO;
-  if (!token || !repo) return null;
-
-  try {
-    const res = await fetch(`https://api.github.com/repos/${repo}/issues`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        Accept: "application/vnd.github+json",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        title,
-        body,
-        labels: ["design", "automated", "quality"],
-      }),
-    });
-
-    if (res.ok) {
-      const data = await res.json();
-      return data.html_url ?? null;
-    }
-    console.error("[AG19] GitHub Issue Fehler:", res.status, await res.text());
-    return null;
-  } catch (err) {
-    console.error("[AG19] GitHub Issue Exception:", err);
-    return null;
-  }
-}
 
 // ---------------------------------------------------------------------------
 // Report formatieren
@@ -705,10 +675,12 @@ export async function runDesignGuardian(): Promise<DesignGuardianResult> {
   if (totalViolations > 0) {
     const report = formatReport(result);
     const scoreLabel = result.gesamt_score >= 90 ? "🟢" : result.gesamt_score >= 70 ? "🟡" : result.gesamt_score >= 50 ? "🟠" : "🔴";
-    const issueUrl = await createGitHubIssue(
-      `🎨 AG19 Design-Guardian: ${scoreLabel} Score ${result.gesamt_score}/100 — ${new Date().toLocaleDateString("de-DE")}`,
-      report,
-    );
+    const issueUrl = await createGitHubIssueManaged({
+      title: `🎨 AG19 Design-Guardian: ${scoreLabel} Score ${result.gesamt_score}/100 — ${new Date().toLocaleDateString("de-DE")}`,
+      body: report,
+      labels: ["design", "automated", "quality"],
+      agentPrefix: "AG19",
+    });
 
     if (issueUrl) {
       result.issues_created.push(issueUrl);

@@ -3,6 +3,7 @@
 import React, { useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import { Check, ArrowRight, Shield, Zap, FileText, Clock, Users, TrendingUp, ChevronDown } from "lucide-react";
+import { DemoRequestButton } from "@/components/DemoRequestButton";
 
 /* ──────────────────────────────────────────────────────────
    HOOK — Scroll-triggered reveal via IntersectionObserver
@@ -405,13 +406,11 @@ export default function PitchDeckPage() {
           <Link href="/" style={{ fontSize: "0.8125rem", color: "var(--pd-text-muted)", textDecoration: "none", fontWeight: 500, transition: "color 0.2s" }}>
             Hauptseite
           </Link>
-          <a
-            href="mailto:info@bescheidrecht.de?subject=Demo-Anfrage%20B2B"
+          <DemoRequestButton
             className="pd-cta pd-cta-primary"
-            style={{ padding: "0.5rem 1.25rem", fontSize: "0.75rem" }}
           >
             Demo buchen
-          </a>
+          </DemoRequestButton>
         </div>
       </nav>
 
@@ -889,13 +888,12 @@ export default function PitchDeckPage() {
                       </li>
                     ))}
                   </ul>
-                  <a
-                    href="mailto:info@bescheidrecht.de?subject=Demo-Anfrage%20B2B"
+                  <DemoRequestButton
                     className={featured ? "pd-cta pd-cta-primary" : "pd-cta pd-cta-secondary"}
-                    style={{ marginTop: "1.5rem", padding: "0.75rem 1.5rem", fontSize: "0.8rem", width: "100%", textDecoration: "none" }}
+                    tarif={name}
                   >
                     Demo anfragen <ArrowRight size={14} />
-                  </a>
+                  </DemoRequestButton>
                 </div>
               </Reveal>
             ))}
@@ -1016,18 +1014,17 @@ export default function PitchDeckPage() {
 
           <Reveal delay={300}>
             <div style={{ display: "flex", flexDirection: "column" as const, alignItems: "center", gap: "1rem", marginBottom: "4rem" }}>
-              <a
-                href="mailto:info@bescheidrecht.de?subject=Demo-Anfrage%20B2B&body=Guten%20Tag%2C%0A%0Aich%20interessiere%20mich%20f%C3%BCr%20eine%20Demo%20von%20BescheidRecht%20f%C3%BCr%20unsere%20Einrichtung.%0A%0AOrganisation%3A%20%0AAnzahl%20Berater%3A%20%0A%0AMit%20freundlichen%20Gr%C3%BC%C3%9Fen"
+              <DemoRequestButton
                 className="pd-cta pd-cta-primary"
               >
                 Demo vereinbaren <ArrowRight size={16} />
-              </a>
-              <a
-                href="mailto:info@bescheidrecht.de?subject=Pilotprojekt-Anfrage%20B2B"
+              </DemoRequestButton>
+              <DemoRequestButton
                 className="pd-cta pd-cta-secondary"
+                tarif="Pilotprojekt"
               >
                 Pilotprojekt anfragen
-              </a>
+              </DemoRequestButton>
             </div>
           </Reveal>
 

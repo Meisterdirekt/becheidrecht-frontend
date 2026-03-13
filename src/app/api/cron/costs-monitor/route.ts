@@ -10,6 +10,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { reportInfo } from "@/lib/error-reporter";
+import { createGitHubIssueManaged } from "@/lib/logic/agents/tools/github-issues";
 
 export const runtime = "nodejs";
 export const maxDuration = 25;
@@ -98,22 +99,6 @@ function aggregateByDay(records: CostRecord[]): DailyStats[] {
   });
 }
 
-async function createGitHubIssue(title: string, body: string, labels: string[]): Promise<void> {
-  const token = process.env.GITHUB_TOKEN;
-  const repo = process.env.GITHUB_REPO;
-  if (!token || !repo) return;
-
-  await fetch(`https://api.github.com/repos/${repo}/issues`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      Accept: "application/vnd.github+json",
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ title, body, labels }),
-  });
-}
-
 export async function GET(req: Request) {
   if (!verifySecret(req)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -198,11 +183,12 @@ export async function GET(req: Request) {
       `*Automatisch erstellt von AG-COSTS • ${new Date().toISOString()}*`,
     ].join("\n");
 
-    await createGitHubIssue(
-      `${hasCritical ? "🚨" : "⚠️"} AG-COSTS: ${alerts.length} Alert(s) — ${new Date().toLocaleDateString("de-DE")}`,
+    await createGitHubIssueManaged({
+      title: `${hasCritical ? "🚨" : "⚠️"} AG-COSTS: ${alerts.length} Alert(s) — ${new Date().toLocaleDateString("de-DE")}`,
       body,
-      ["costs", "automated", hasCritical ? "critical" : "warning"]
-    );
+      labels: ["costs", "automated", hasCritical ? "critical" : "warning"],
+      agentPrefix: "AG-COSTS",
+    });
   }
 
   return NextResponse.json({

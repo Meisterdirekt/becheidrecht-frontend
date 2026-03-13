@@ -23,15 +23,13 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { RoiCalculator } from "@/components/RoiCalculator";
 import ScrollReveal from "@/components/ScrollReveal";
 import { B2BThemeInit } from "@/components/B2BThemeInit";
+import { DemoRequestButton } from "@/components/DemoRequestButton";
 
 export const metadata: Metadata = {
   title: "BescheidRecht für Einrichtungen — KI-Bescheidanalyse für Sozialberatung",
   description:
     "Behördenbescheide schnell prüfen statt manuell recherchieren. KI-gestützte Analyse für Sozialarbeiter, Schuldnerberatungen und Wohlfahrtsverbände. 16 Rechtsgebiete, DSGVO-konform.",
 };
-
-const DEMO_MAILTO =
-  "mailto:info@bescheidrecht.de?subject=Demo-Anfrage%20B2B&body=Guten%20Tag%2C%0A%0Aich%20interessiere%20mich%20f%C3%BCr%20eine%20Demo%20von%20BescheidRecht%20f%C3%BCr%20unsere%20Einrichtung.%0A%0AOrganisation%3A%20%0AAnzahl%20Berater%3A%20%0A%0AMit%20freundlichen%20Gr%C3%BC%C3%9Fen";
 
 const TRAEGER = [
   "Jobcenter / SGB II",
@@ -234,13 +232,12 @@ export default function B2BPage() {
             <Link href="/" className="hidden sm:inline-flex text-sm font-medium text-white/45 hover:text-white transition-colors">
               Startseite
             </Link>
-            <a
-              href={DEMO_MAILTO}
+            <DemoRequestButton
               className="inline-flex items-center gap-2 px-4 sm:px-5 py-2.5 bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white font-bold rounded-xl text-sm transition-all hover:-translate-y-0.5 shadow-lg shadow-blue-600/20"
             >
               <CalendarDays className="h-4 w-4" />
               Demo anfragen
-            </a>
+            </DemoRequestButton>
           </div>
         </div>
       </nav>
@@ -271,13 +268,12 @@ export default function B2BPage() {
           </p>
 
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center mb-14">
-            <a
-              href={DEMO_MAILTO}
+            <DemoRequestButton
               className="inline-flex items-center justify-center gap-2.5 px-8 py-4 bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white font-bold rounded-xl transition-all text-[15px] shadow-lg shadow-blue-600/20 hover:shadow-blue-600/35 hover:-translate-y-0.5"
             >
               <CalendarDays className="h-5 w-5" />
               Kostenlose Demo vereinbaren
-            </a>
+            </DemoRequestButton>
             <a
               href="#so-funktioniert-es"
               className="inline-flex items-center justify-center gap-2 px-8 py-4 border border-white/10 hover:border-white/25 text-white/60 hover:text-white font-bold rounded-xl transition-all text-[15px]"
@@ -600,8 +596,8 @@ export default function B2BPage() {
                   </li>
                 ))}
               </ul>
-              <a
-                href={`mailto:info@bescheidrecht.de?subject=Anfrage%20B2B%20Tarif%20${tarif.name}`}
+              <DemoRequestButton
+                tarif={tarif.name}
                 className={`flex items-center justify-center gap-2 py-3.5 rounded-xl font-bold text-sm sm:text-[14px] transition-all ${
                   tarif.highlight
                     ? "bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white shadow-md shadow-blue-600/20 hover:-translate-y-0.5"
@@ -610,7 +606,7 @@ export default function B2BPage() {
               >
                 <CalendarDays className="h-4 w-4" />
                 {tarif.name === "Einrichtung" ? "Angebot anfragen" : "Demo anfragen"}
-              </a>
+              </DemoRequestButton>
             </div>
           ))}
         </div>
@@ -691,13 +687,12 @@ export default function B2BPage() {
             kein Vertrag — einfach sehen wie es funktioniert.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
-            <a
-              href={DEMO_MAILTO}
+            <DemoRequestButton
               className="inline-flex items-center justify-center gap-2.5 px-8 sm:px-10 py-4 sm:py-5 bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white font-bold rounded-xl transition-all text-base sm:text-lg shadow-lg shadow-blue-600/20 hover:shadow-blue-600/35 hover:-translate-y-0.5"
             >
               <CalendarDays className="h-5 w-5" />
               Kostenlose Demo vereinbaren
-            </a>
+            </DemoRequestButton>
             <a
               href="#tarife"
               className="inline-flex items-center justify-center gap-2 px-8 sm:px-10 py-4 sm:py-5 border border-white/10 hover:border-white/25 text-white/60 hover:text-white font-bold rounded-xl transition-all text-base sm:text-lg"
@@ -717,13 +712,12 @@ export default function B2BPage() {
 
       {/* ── Sticky Mobile CTA ────────────────────────── */}
       <div className="fixed bottom-0 left-0 right-0 z-50 sm:hidden bg-[var(--bg)]/95 backdrop-blur-xl border-t border-white/10 p-4">
-        <a
-          href={DEMO_MAILTO}
+        <DemoRequestButton
           className="flex items-center justify-center gap-2.5 w-full py-4 bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white font-bold rounded-xl text-[15px] transition-all shadow-lg shadow-blue-600/20"
         >
           <CalendarDays className="h-5 w-5" />
           Kostenlose Demo vereinbaren
-        </a>
+        </DemoRequestButton>
       </div>
     </main>
   );

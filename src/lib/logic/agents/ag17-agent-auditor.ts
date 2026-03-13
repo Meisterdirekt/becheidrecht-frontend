@@ -164,7 +164,7 @@ async function execute(ctx: AgentContext): Promise<AgentResult<AgentAuditResult>
     success: true,
     data: {
       analyses_checked: analysesChecked,
-      agents_audited: 18,
+      agents_audited: 19,
       anomalies,
       issues_created: issueUrls,
       health_status: health,

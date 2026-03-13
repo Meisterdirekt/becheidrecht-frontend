@@ -298,7 +298,7 @@ Mobile first (375px zuerst). Arabisch (AR) → `dir="rtl"`. Fehler freundlich fo
 
 16. **B2B-Modul (Einrichtungen).** `einrichtung/` Pages + API-Routes bilden ein Org-Verwaltungssystem: Org anlegen (`admin/create-org`), Mitarbeiter einladen (`einrichtung/invite`), Einladung annehmen (`einrichtung/invite/accept`), Mitglieder verwalten (`einrichtung/members`). DB-Schema in `supabase/b2b_organizations.sql`. Einrichtungs-Routes nutzen User-JWT + Org-Zugehörigkeitsprüfung.
 
-17. **GitHub Actions (4 Workflows).** `ci.yml` (Build/Test), `pr-review.yml` (AG-CRITIC Claude PR-Review), `security.yml` (npm audit + Secrets-Scan), `uptime.yml` (Health-Check alle 5 Min). Secrets: ANTHROPIC_API_KEY, NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, CRON_SECRET, NEXT_PUBLIC_APP_URL.
+17. **GitHub Actions (4 Workflows).** `ci.yml` (Build/Test/E2E+Playwright), `pr-review.yml` (AG-CRITIC Claude PR-Review), `security.yml` (npm audit + Secrets-Scan), `uptime.yml` (Health-Check alle 5 Min). E2E-Tests laufen in CI mit Chromium, Screenshots werden als Artifacts gespeichert (30 Tage). Secrets: ANTHROPIC_API_KEY, NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, CRON_SECRET, NEXT_PUBLIC_APP_URL.
 
 ---
 
