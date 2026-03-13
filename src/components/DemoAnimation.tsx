@@ -161,7 +161,18 @@ export default function DemoAnimation() {
 
         {/* Step 2 – Analyse */}
         {step === STEPS.ANALYSE && (
-          <div className="space-y-6">
+          <div className="space-y-6 relative overflow-hidden">
+            {/* Scanning line */}
+            <div
+              className="absolute left-0 right-0 h-px pointer-events-none"
+              style={{
+                top: `${progress}%`,
+                background: "linear-gradient(90deg, transparent 0%, var(--accent) 30%, var(--accent) 70%, transparent 100%)",
+                opacity: progress < 98 ? 0.6 : 0,
+                boxShadow: "0 0 8px 2px var(--accent-glow)",
+                transition: "opacity 0.3s",
+              }}
+            />
             <div className="flex items-center justify-center gap-3 text-white/80">
               <Loader2 className="h-5 w-5 animate-spin text-[var(--accent)]" />
               <span className="text-sm font-medium">{ANALYSIS_TEXTS[analysisTextIndex]}</span>

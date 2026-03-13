@@ -384,6 +384,89 @@
   overflow: hidden;
 }
 
+/* ── Hero: Rotating gradient border (CSS Houdini) ── */
+@property --border-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+@keyframes spin-border {
+  to { --border-angle: 360deg; }
+}
+
+.hero-card-glow-wrapper {
+  position: relative;
+  padding: 1.5px;
+  border-radius: 1rem;
+  background: conic-gradient(
+    from var(--border-angle),
+    transparent 25%,
+    var(--accent) 50%,
+    transparent 75%
+  );
+  animation: spin-border 4s linear infinite;
+}
+@media (min-width: 640px) {
+  .hero-card-glow-wrapper { border-radius: 1.5rem; }
+}
+.hero-card-glow-wrapper::after {
+  content: '';
+  position: absolute;
+  inset: -6px;
+  border-radius: inherit;
+  background: conic-gradient(
+    from var(--border-angle),
+    transparent 25%,
+    var(--accent) 50%,
+    transparent 75%
+  );
+  filter: blur(24px);
+  opacity: 0.35;
+  z-index: -1;
+  animation: spin-border 4s linear infinite;
+}
+.hero-card-glow-inner {
+  background: var(--bg);
+  border-radius: calc(1rem - 1.5px);
+  position: relative;
+}
+@media (min-width: 640px) {
+  .hero-card-glow-inner { border-radius: calc(1.5rem - 1.5px); }
+}
+
+/* ── Hero: Scanning grid pattern ── */
+.hero-grid {
+  background-image:
+    linear-gradient(rgba(14, 165, 233, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(14, 165, 233, 0.04) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(ellipse 70% 60% at 50% 30%, black 0%, transparent 100%);
+  -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 30%, black 0%, transparent 100%);
+}
+[data-theme="light"] .hero-grid {
+  background-image:
+    linear-gradient(rgba(14, 165, 233, 0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(14, 165, 233, 0.07) 1px, transparent 1px);
+}
+
+/* ── Hero: Floating § symbols ── */
+@keyframes float-symbol {
+  0%, 100% { transform: translateY(0) rotate(0deg) scale(1); }
+  33% { transform: translateY(-20px) rotate(6deg) scale(1.05); }
+  66% { transform: translateY(-10px) rotate(-4deg) scale(0.95); }
+}
+.floating-symbol {
+  position: absolute;
+  color: var(--accent);
+  font-weight: 900;
+  font-family: var(--font-outfit), system-ui, sans-serif;
+  animation: float-symbol var(--fs-duration, 18s) ease-in-out infinite;
+  animation-delay: var(--fs-delay, 0s);
+  pointer-events: none;
+  user-select: none;
+}
+
 @media print {
   .no-print {
     display: none !important;

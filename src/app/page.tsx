@@ -24,6 +24,62 @@ import { getPageT, type Lang } from "@/lib/page-translations";
 import { PrivacyModal } from "@/components/PrivacyModal";
 import { PseudonymizationPreviewModal } from "@/components/PseudonymizationPreviewModal";
 
+/* ── Animated stat counter (counts up on scroll) ── */
+function parseStatValue(v: string) {
+  const match = v.match(/^([^\d]*?)(\d+(?:[.,]\d+)?)(.*)$/);
+  if (!match) return null;
+  return { prefix: match[1], numStr: match[2], suffix: match[3] };
+}
+
+function AnimatedStat({ value }: { value: string }) {
+  const ref = useRef<HTMLSpanElement>(null);
+  const parsed = parseStatValue(value);
+  const [display, setDisplay] = useState(() =>
+    parsed ? parsed.prefix + "0" + parsed.suffix : value
+  );
+  const hasAnimated = useRef(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || !parsed) return;
+    const { prefix, numStr, suffix } = parsed;
+    const target = parseFloat(numStr.replace(",", "."));
+    const hasDecimal = numStr.includes(".") || numStr.includes(",");
+    const usesComma = numStr.includes(",");
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !hasAnimated.current) {
+          hasAnimated.current = true;
+          const duration = 2000;
+          const startTime = performance.now();
+          const animate = (now: number) => {
+            const elapsed = now - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+            const eased = 1 - Math.pow(1 - progress, 3);
+            const current = eased * target;
+            let formatted: string;
+            if (hasDecimal) {
+              formatted = current.toFixed(1);
+              if (usesComma) formatted = formatted.replace(".", ",");
+            } else {
+              formatted = Math.round(current).toString();
+            }
+            setDisplay(prefix + formatted + suffix);
+            if (progress < 1) requestAnimationFrame(animate);
+          };
+          requestAnimationFrame(animate);
+        }
+      },
+      { threshold: 0.3 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [value]);
+
+  return <span ref={ref}>{display}</span>;
+}
+
 const supportedAuthorities = [
   "Jobcenter (Bürgergeld/SGB II)",
   "Agentur für Arbeit (Arbeitslosengeld)",
@@ -248,7 +304,10 @@ export default function Page() {
 
       {/* Hero */}
       <section className="relative max-w-5xl mx-auto pt-12 sm:pt-16 md:pt-20 pb-16 sm:pb-24 md:pb-28 px-4 sm:px-6 text-center overflow-hidden" aria-label="Hero">
-        {/* Pulsierende blaue Lichtkreise (radial gradient, opacity 0.15) */}
+        {/* Scanning grid pattern */}
+        <div className="hero-grid absolute inset-0 pointer-events-none" />
+
+        {/* Pulsierende blaue Lichtkreise */}
         <div className="absolute inset-0 pointer-events-none">
           <div
             className="hero-glow-orb absolute top-1/2 left-1/2 w-[600px] h-[600px] rounded-full blur-[100px]"
@@ -263,6 +322,34 @@ export default function Page() {
               animationDelay: "1s",
             }}
           />
+        </div>
+
+        {/* Floating § symbols */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          {[
+            { left: "8%", top: "18%", delay: "0s", duration: "20s", size: 16, opacity: 0.06 },
+            { left: "88%", top: "12%", delay: "4s", duration: "24s", size: 20, opacity: 0.05 },
+            { left: "22%", top: "72%", delay: "8s", duration: "18s", size: 14, opacity: 0.07 },
+            { left: "72%", top: "65%", delay: "2s", duration: "22s", size: 18, opacity: 0.04 },
+            { left: "48%", top: "8%", delay: "6s", duration: "26s", size: 22, opacity: 0.05 },
+            { left: "4%", top: "50%", delay: "11s", duration: "19s", size: 15, opacity: 0.06 },
+            { left: "92%", top: "45%", delay: "14s", duration: "21s", size: 13, opacity: 0.04 },
+          ].map((s, i) => (
+            <span
+              key={i}
+              className="floating-symbol"
+              style={{
+                left: s.left,
+                top: s.top,
+                fontSize: s.size,
+                opacity: s.opacity,
+                "--fs-delay": s.delay,
+                "--fs-duration": s.duration,
+              } as React.CSSProperties}
+            >
+              §
+            </span>
+          ))}
         </div>
         <h1 className={`hero-headline relative text-5xl md:text-7xl font-black leading-[1.05] tracking-tight bg-gradient-to-b from-white to-blue-200 bg-clip-text text-transparent transition-all duration-700 ${loaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}>
           {t.headlineSub != null ? (
@@ -300,7 +387,8 @@ export default function Page() {
           </div>
         </div>
 
-        <div ref={heroTabRef} id="hero-tab" className={`relative w-full max-w-2xl mx-auto rounded-2xl sm:rounded-3xl border border-white/10 bg-white/[0.04] p-4 sm:p-6 md:p-10 shadow-[0_0_60px_-15px_var(--accent-glow)] transition-all duration-700 delay-300 ${loaded ? "opacity-100 translate-y-0 scale-100" : "opacity-0 translate-y-6 scale-[0.98]"}`}>
+        <div className={`relative w-full max-w-2xl mx-auto hero-card-glow-wrapper transition-all duration-700 delay-300 ${loaded ? "opacity-100 translate-y-0 scale-100" : "opacity-0 translate-y-6 scale-[0.98]"}`}>
+        <div ref={heroTabRef} id="hero-tab" className="hero-card-glow-inner p-4 sm:p-6 md:p-10">
           {/* Tabs */}
           <div className="flex border-b border-white/10 mb-6 sm:mb-8">
             <button
@@ -692,6 +780,7 @@ export default function Page() {
           })()}
           </div>{/* end tab-transition wrapper */}
         </div>
+        </div>{/* end hero-card-glow-wrapper */}
 
         {/* Zweiter CTA: direkt zum Schreiben-Generator */}
         <div className="relative flex justify-center mt-8">
@@ -749,7 +838,7 @@ export default function Page() {
                 key={lbl}
                 className="text-center p-6 md:p-8 rounded-2xl border border-white/10 bg-white/[0.03] animate-slideUp opacity-0 hover:-translate-y-1 transition-transform duration-300"
               >
-                <p className="text-3xl md:text-4xl font-black text-white mb-2">{val}</p>
+                <p className="text-3xl md:text-4xl font-black text-white mb-2"><AnimatedStat value={val} /></p>
                 <p className="text-xs text-white/65 font-bold uppercase tracking-wider leading-snug">{lbl}</p>
               </div>
             ))}
