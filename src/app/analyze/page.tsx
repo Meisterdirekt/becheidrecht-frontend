@@ -727,15 +727,7 @@ export default function AnalyzePage() {
                       Einschaetzung
                     </h2>
                   </div>
-                  <span className={`text-sm font-bold ${
-                    result.kritik.erfolgschance_prozent >= 70
-                      ? "text-green-400"
-                      : result.kritik.erfolgschance_prozent >= 40
-                      ? "text-amber-400"
-                      : "text-red-400"
-                  }`}>
-                    {result.kritik.erfolgschance_prozent}% Erfolgschance
-                  </span>
+                  {/* Erfolgschance wird intern genutzt (AG07), aber nicht angezeigt — § 2 RDG */}
                 </div>
 
                 {result.kritik.schwachstellen.length > 0 && (
