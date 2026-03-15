@@ -38,25 +38,18 @@ const FALLBACK_ITEMS: FeedbackItem[] = [
 
 export default function TestimonialsBlock() {
   const [items, setItems] = useState<FeedbackItem[]>([]);
-  const [useFallback, setUseFallback] = useState(false);
 
   useEffect(() => {
     fetch("/api/feedback")
       .then((res) => res.json())
       .then((data) => {
         const fetched = (data?.items ?? []).slice(0, 5);
-        if (fetched.length > 0) {
-          setItems(fetched);
-        } else {
-          setItems(FALLBACK_ITEMS);
-          setUseFallback(true);
-        }
+        setItems(fetched.length > 0 ? fetched : FALLBACK_ITEMS);
       })
-      .catch(() => {
-        setItems(FALLBACK_ITEMS);
-        setUseFallback(true);
-      });
+      .catch(() => setItems(FALLBACK_ITEMS));
   }, []);
+
+  const isFallback = items === FALLBACK_ITEMS;
 
   if (items.length === 0) return null;
 
@@ -69,7 +62,7 @@ export default function TestimonialsBlock() {
         Stimmen aus der Praxis
       </h2>
       <p className="text-white/60 text-sm text-center mb-12 max-w-xl mx-auto">
-        {useFallback
+        {isFallback
           ? "So könnte BescheidRecht Ihren Arbeitsalltag verändern."
           : "Feedback von Einrichtungen, die BescheidRecht nutzen."}
       </p>

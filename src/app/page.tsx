@@ -9,8 +9,10 @@ import { SiteNavFull } from "@/components/SiteNav";
 import { SiteFooter } from "@/components/SiteFooter";
 import DemoAnimation from "@/components/DemoAnimation";
 import ScrollReveal from "@/components/ScrollReveal";
-import TestimonialsBlock from "@/components/TestimonialsBlock";
-import { RoiCalculator } from "@/components/RoiCalculator";
+import dynamic from "next/dynamic";
+
+const TestimonialsBlock = dynamic(() => import("@/components/TestimonialsBlock"), { ssr: false });
+const RoiCalculator = dynamic(() => import("@/components/RoiCalculator").then((m) => ({ default: m.RoiCalculator })), { ssr: false });
 import { pdf } from "@react-pdf/renderer";
 import LetterPDF, { type LetterPDFData } from "@/components/LetterPDF";
 import {
@@ -911,13 +913,13 @@ export default function Page() {
       <ScrollReveal>
         <section className="max-w-5xl mx-auto px-6 mb-32">
           <p className="text-xs font-bold uppercase tracking-[0.25em] text-[var(--accent)] mb-3 text-center">
-            Einsparung berechnen
+            {t.roiSectionLabel}
           </p>
           <h2 className="text-3xl md:text-4xl font-black tracking-tight text-center mb-4">
-            Was spart Ihre Einrichtung?
+            {t.roiSectionTitle}
           </h2>
           <p className="text-white/60 text-sm text-center mb-12 max-w-xl mx-auto">
-            Stellen Sie die Regler auf Ihre Einrichtungsgröße ein — der ROI berechnet sich automatisch.
+            {t.roiSectionDesc}
           </p>
           <RoiCalculator />
         </section>
@@ -948,16 +950,16 @@ export default function Page() {
       <ScrollReveal>
         <section className="max-w-5xl mx-auto px-6 mb-32">
           <p className="text-xs font-bold uppercase tracking-[0.25em] text-[var(--accent)] mb-3 text-center">
-            Einfache Integration
+            {t.integrationSectionLabel}
           </p>
           <h2 className="text-3xl md:text-4xl font-black tracking-tight text-center mb-16">
-            So nutzen Einrichtungen BescheidRecht
+            {t.integrationSectionTitle}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 stagger-group">
             {[
-              { n: "01", title: "Zugang einrichten", desc: "Ihr Team erhält einen gemeinsamen Einrichtungs-Account. Kein IT-Projekt, keine Installation — Browser genügt." },
-              { n: "02", title: "Berater schulen", desc: "15 Minuten Einführung reichen. Bescheid hochladen, Analyse lesen, Musterschreiben nutzen — fertig." },
-              { n: "03", title: "Im Alltag einsetzen", desc: "Bescheide direkt im Beratungsgespräch prüfen. Fehler erkennen, Fristen sichern, Widerspruch vorbereiten." },
+              { n: "01", title: t.integration1Title, desc: t.integration1Desc },
+              { n: "02", title: t.integration2Title, desc: t.integration2Desc },
+              { n: "03", title: t.integration3Title, desc: t.integration3Desc },
             ].map(({ n, title, desc }) => (
               <div
                 key={n}
