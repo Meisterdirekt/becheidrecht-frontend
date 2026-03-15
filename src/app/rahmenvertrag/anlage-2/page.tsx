@@ -147,6 +147,11 @@ export default function Anlage2Page() {
           Der Verantwortliche beauftragt den Auftragsverarbeiter im Rahmen des Rahmenvertrags
           {` ${vertragNr}`} mit der Verarbeitung personenbezogener Daten. Die Einzelheiten der
           Auftragsverarbeitung ergeben sich aus diesem Vertrag, der Bestandteil des Rahmenvertrags ist.
+          Soweit der Verantwortliche dem kirchlichen Datenschutzrecht unterliegt (KDG für katholische
+          Träger, DSG-EKD für evangelische Träger), gilt dieser AV-Vertrag sinngemäß auch im
+          Anwendungsbereich des jeweils geltenden kirchlichen Datenschutzrechts (§ 29 KDG bzw.
+          § 30 DSG-EKD). Soweit Sozialdaten im Sinne des § 67 Abs. 2 SGB X verarbeitet werden,
+          gelten ergänzend die Anforderungen des § 80 SGB X.
         </p>
 
         {/* § 1 */}
@@ -155,7 +160,9 @@ export default function Anlage2Page() {
           <ol className="avvlist">
             <li>Der Auftragsverarbeiter verarbeitet personenbezogene Daten im Auftrag des
               Verantwortlichen im Rahmen der Bereitstellung der SaaS-Plattform „BescheidRecht"
-              zur technischen Analyse von Behördenbescheiden.</li>
+              zur technischen Analyse von Behördenbescheiden. Soweit hierbei Sozialdaten
+              (§ 67 Abs. 2 SGB X) verarbeitet werden, erfolgt die Auftragsverarbeitung
+              unter Beachtung der Anforderungen des § 80 SGB X.</li>
             <li>Die Laufzeit dieses AV-Vertrags entspricht der Laufzeit des zugrunde liegenden
               Rahmenvertrags. Pflichten, die über das Vertragsende hinausgehen (insbesondere
               Löschung und Rückgabe), bestehen bis zu ihrer vollständigen Erfüllung fort.</li>
@@ -451,7 +458,7 @@ export default function Anlage2Page() {
           <ol className="avvlist">
             <li>Dieser AV-Vertrag unterliegt dem Recht der Bundesrepublik Deutschland.</li>
             <li>Gerichtsstand ist <strong>Vechta (Niedersachsen)</strong>, soweit gesetzlich zulässig.</li>
-            <li>Änderungen bedürfen der Schriftform (E-Mail genügt). Der Auftragsverarbeiter
+            <li>Änderungen bedürfen der Textform (§ 126b BGB; E-Mail genügt). Der Auftragsverarbeiter
               informiert den Verantwortlichen über wesentliche Änderungen mit einer Vorlaufzeit
               von 30 Tagen.</li>
             <li>Sollte eine Bestimmung unwirksam sein, bleibt die Wirksamkeit der übrigen

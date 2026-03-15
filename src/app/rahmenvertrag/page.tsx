@@ -12,7 +12,7 @@ const ANBIETER = {
   adresse: process.env.NEXT_PUBLIC_COMPANY_ADDRESS || "Antoniusstraße 47, 49377 Vechta",
   email: "kontakt@bescheidrecht.de",
   web: "bescheidrecht.de",
-  steuernummer: "Kleinunternehmer gem. § 19 UStG — es wird keine Umsatzsteuer berechnet",
+  umsatzsteuer: "Kleinunternehmer gem. § 19 UStG — es wird keine Umsatzsteuer berechnet",
   gerichtsstand: process.env.NEXT_PUBLIC_COMPANY_CITY || "Vechta",
 };
 
@@ -146,7 +146,7 @@ export default function RahmenvertragPage() {
             <p className="text-slate-500 text-sm mt-0.5">{ANBIETER.inhaber}</p>
             <p className="text-slate-500 text-sm">{ANBIETER.adresse}</p>
             <p className="text-slate-500 text-sm">{ANBIETER.email}</p>
-            <p className="text-slate-500 text-sm">USt-IdNr.: {ANBIETER.steuernummer}</p>
+            <p className="text-slate-500 text-sm">Umsatzsteuer: {ANBIETER.umsatzsteuer}</p>
           </div>
           <div className="text-right">
             <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Rahmenvertrag</p>
@@ -173,7 +173,7 @@ export default function RahmenvertragPage() {
             <p className="text-slate-600 mt-1">{ANBIETER.inhaber}</p>
             <p className="text-slate-600">{ANBIETER.adresse}</p>
             <p className="text-slate-600">{ANBIETER.email}</p>
-            <p className="text-slate-600">USt-IdNr.: {ANBIETER.steuernummer}</p>
+            <p className="text-slate-600">Umsatzsteuer: {ANBIETER.umsatzsteuer}</p>
           </div>
           <div className="bg-slate-50 rounded-xl p-6">
             <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-3">Auftraggeber (AG)</p>
@@ -189,6 +189,32 @@ export default function RahmenvertragPage() {
           Rahmenvertrag über die Bereitstellung und Nutzung der Software-as-a-Service-Plattform
           „BescheidRecht&rdquo; (nachfolgend: „Plattform&rdquo; oder „Software&rdquo;) ab:
         </p>
+
+        {/* Präambel / Begriffsbestimmungen */}
+        <div className="paragraf">
+          <h3>Begriffsbestimmungen</h3>
+          <ol className="vertragslist">
+            <li><strong>„Plattform"</strong> bezeichnet die webbasierte Software-as-a-Service-Anwendung
+              „BescheidRecht", erreichbar unter https://www.bescheidrecht.de, einschließlich aller
+              vom AN bereitgestellten Updates und Weiterentwicklungen.</li>
+            <li><strong>„Analyse"</strong> bezeichnet die automatisierte technische Prüfung eines
+              hochgeladenen Behördenbescheids auf formale und inhaltliche Unstimmigkeiten unter
+              Angabe der jeweiligen Rechtsgrundlage.</li>
+            <li><strong>„Musterschreiben"</strong> bezeichnet eine durch die Plattform generierte
+              Vorlage (Schreiben-Entwurf), die vor Verwendung zwingend durch eine Fachkraft des AG
+              inhaltlich zu prüfen ist. Musterschreiben stellen keine Rechtsberatung dar.</li>
+            <li><strong>„Nutzer"</strong> bezeichnet eine natürliche Person, die vom AG zur Nutzung
+              der Plattform autorisiert wurde und über einen eigenen Zugang (E-Mail + Passwort) verfügt.</li>
+            <li><strong>„Sozialdaten"</strong> bezeichnet personenbezogene Daten im Sinne des § 67
+              Abs. 2 SGB X, die im Rahmen der Aufgabenerfüllung nach dem Sozialgesetzbuch verarbeitet
+              werden.</li>
+            <li><strong>„Pseudonymisierung"</strong> bezeichnet die automatische Ersetzung
+              personenbezogener Daten (Namen, IBAN, Geburtsdaten, Adressen, Steuer-IDs,
+              Sozialversicherungsnummern) durch Platzhalter vor der KI-Verarbeitung, sodass eine
+              Zuordnung zu einer bestimmten Person ohne Hinzuziehung zusätzlicher Informationen
+              nicht möglich ist.</li>
+          </ol>
+        </div>
 
         {/* § 1 */}
         <div className="paragraf">
@@ -270,12 +296,54 @@ export default function RahmenvertragPage() {
           </ol>
         </div>
 
+        {/* § 5 Gewährleistung */}
+        <div className="paragraf">
+          <h3>§ 5 Gewährleistung und Mängelrecht</h3>
+          <ol className="vertragslist">
+            <li>Der AN gewährleistet, dass die Plattform während der Vertragslaufzeit im
+              Wesentlichen den in der Leistungsbeschreibung (Anlage 1) definierten Funktionsumfang
+              aufweist und die vereinbarte Verfügbarkeit (SLA) einhält.</li>
+            <li>Mängel sind Abweichungen von der vereinbarten Leistungsbeschreibung, die die
+              Nutzbarkeit der Plattform nicht nur unerheblich beeinträchtigen. Der AG hat Mängel
+              unverzüglich nach Entdeckung in Textform (E-Mail genügt) unter Beschreibung der
+              Abweichung zu melden.</li>
+            <li>Bei Vorliegen eines Mangels hat der AN das Recht zur Nachbesserung innerhalb
+              einer angemessenen Frist. Als Nachbesserung gilt auch die Bereitstellung eines
+              zumutbaren Workarounds.</li>
+            <li>Schlägt die Nachbesserung nach zwei Versuchen fehl oder verweigert der AN die
+              Nachbesserung, hat der AG das Recht zur Minderung der Lizenzgebühr oder zur
+              außerordentlichen Kündigung nach § 7 Abs. 3.</li>
+            <li>Die Gewährleistung umfasst keine Mängel, die auf eine vertragswidrige Nutzung
+              durch den AG, auf Eingriffe Dritter oder auf Umstände außerhalb des
+              Verantwortungsbereichs des AN zurückzuführen sind.</li>
+          </ol>
+        </div>
+
+        {/* § 6 Änderungsverfahren */}
+        <div className="paragraf">
+          <h3>§ 6 Änderungsverfahren (Change Management)</h3>
+          <ol className="vertragslist">
+            <li>Der AN ist berechtigt, die Plattform weiterzuentwickeln und Funktionen zu ändern,
+              sofern der in Anlage 1 vereinbarte Leistungsumfang nicht wesentlich verschlechtert
+              wird.</li>
+            <li>Wesentliche Änderungen am Leistungsumfang teilt der AN dem AG mindestens
+              <strong>4 Wochen</strong> vor Wirksamwerden in Textform (E-Mail genügt) mit.
+              Der AG kann der Änderung innerhalb von <strong>14 Tagen</strong> nach Zugang der
+              Mitteilung in Textform widersprechen.</li>
+            <li>Widerspricht der AG einer wesentlichen Änderung und kann keine einvernehmliche
+              Lösung gefunden werden, hat der AG ein Sonderkündigungsrecht mit einer Frist von
+              4 Wochen zum Zeitpunkt des Wirksamwerdens der Änderung.</li>
+            <li>Änderungen dieses Rahmenvertrags oder seiner Anlagen bedürfen der Textform
+              (E-Mail genügt) und der Zustimmung beider Parteien.</li>
+          </ol>
+        </div>
+
         {/* Seitenumbruch */}
         <div className="pagebreak" />
 
-        {/* § 5 */}
+        {/* § 7 */}
         <div className="paragraf pt-8">
-          <h3>§ 5 Laufzeit und Kündigung</h3>
+          <h3>§ 7 Laufzeit und Kündigung</h3>
           <ol className="vertragslist">
             <li>Der Vertrag wird für eine <strong>Mindestlaufzeit von 12 Monaten</strong> ab
               {laufzeitBeginn
@@ -283,10 +351,10 @@ export default function RahmenvertragPage() {
                 : " dem vereinbarten Leistungsbeginn"} geschlossen.</li>
             <li>Nach Ablauf der Mindestlaufzeit verlängert sich der Vertrag automatisch um jeweils
               12 Monate, sofern er nicht von einer Partei mit einer Frist von <strong>3 Monaten
-              zum jeweiligen Vertragsende</strong> schriftlich gekündigt wird.</li>
-            <li>Das Recht zur außerordentlichen Kündigung aus wichtigem Grund bleibt unberührt.
-              Ein wichtiger Grund liegt insbesondere vor, wenn eine Partei wesentliche
-              Vertragspflichten verletzt und die Verletzung trotz schriftlicher Abmahnung mit
+              zum jeweiligen Vertragsende</strong> in Textform gekündigt wird.</li>
+            <li>Das Recht zur außerordentlichen Kündigung aus wichtigem Grund (§ 314 BGB) bleibt
+              unberührt. Ein wichtiger Grund liegt insbesondere vor, wenn eine Partei wesentliche
+              Vertragspflichten verletzt und die Verletzung trotz Abmahnung in Textform mit
               einer Frist von 14 Tagen nicht behebt.</li>
             <li>Im Falle der Kündigung werden bereits gezahlte Lizenzgebühren für den
               ungenutzten Zeitraum anteilig erstattet, sofern der AN die Kündigung zu vertreten
@@ -294,15 +362,42 @@ export default function RahmenvertragPage() {
           </ol>
         </div>
 
-        {/* § 6 */}
+        {/* § 8 Exit und Datenmigration */}
         <div className="paragraf">
-          <h3>§ 6 Datenschutz und Datensicherheit</h3>
+          <h3>§ 8 Vertragsende, Datenmigration und Transition</h3>
+          <ol className="vertragslist">
+            <li>Bei Beendigung des Vertrages — gleich aus welchem Grund — hat der AG das Recht,
+              sämtliche in der Plattform gespeicherten Daten (Analyseergebnisse, Fristen,
+              Nutzerstatistiken) in einem maschinenlesbaren Format (<strong>JSON und/oder CSV</strong>)
+              zu exportieren. Der AN stellt die Exportfunktion für einen Zeitraum von
+              <strong> 30 Tagen nach Vertragsende</strong> zur Verfügung.</li>
+            <li>Nach Ablauf der 30-tägigen Übergangsfrist löscht der AN sämtliche Daten des AG
+              unwiderruflich, sofern keine gesetzlichen Aufbewahrungspflichten entgegenstehen.
+              Die Löschung wird dem AG auf Anfrage in Textform bestätigt.</li>
+            <li>Der AN unterstützt den AG bei der Transition zu einem anderen Anbieter im Rahmen
+              des Zumutbaren. Hierfür kann der AN eine Aufwandsentschädigung in Höhe der
+              jeweils gültigen Tagessätze berechnen.</li>
+            <li>Die Verpflichtungen aus § 11 (Vertraulichkeit) und § 9 (Datenschutz) bestehen
+              über das Vertragsende hinaus fort.</li>
+          </ol>
+        </div>
+
+        {/* § 9 */}
+        <div className="paragraf">
+          <h3>§ 9 Datenschutz und Datensicherheit</h3>
           <ol className="vertragslist">
             <li>Die Parteien verarbeiten personenbezogene Daten im Zusammenhang mit diesem Vertrag
               gemäß den geltenden datenschutzrechtlichen Bestimmungen, insbesondere der
-              Datenschutz-Grundverordnung (DSGVO) und dem Bundesdatenschutzgesetz (BDSG).</li>
+              Datenschutz-Grundverordnung (DSGVO), dem Bundesdatenschutzgesetz (BDSG) sowie
+              — soweit Sozialdaten im Sinne des § 67 Abs. 2 SGB X betroffen sind — den
+              bereichsspezifischen Regelungen des SGB X (insbesondere § 80 SGB X).</li>
+            <li>Soweit der AG dem kirchlichen Datenschutzrecht unterliegt (insbesondere KDG
+              für katholische Träger oder DSG-EKD für evangelische Träger), gelten die
+              Bestimmungen dieses Vertrags und des AV-Vertrags (Anlage 2) sinngemäß auch
+              im Anwendungsbereich des jeweils geltenden kirchlichen Datenschutzrechts.</li>
             <li>Der AN schließt mit dem AG einen gesonderten
-              <strong> Auftragsverarbeitungsvertrag (AV-Vertrag)</strong> gemäß Art. 28 DSGVO ab,
+              <strong> Auftragsverarbeitungsvertrag (AV-Vertrag)</strong> gemäß Art. 28 DSGVO
+              (bzw. § 29 KDG / § 30 DSG-EKD) ab,
               der Bestandteil dieses Rahmenvertrages wird. Der AV-Vertrag wird spätestens mit
               Vertragsbeginn unterzeichnet.</li>
             <li>Die Plattform pseudonymisiert alle personenbezogenen Daten (Namen, Geburtsdaten,
@@ -317,9 +412,9 @@ export default function RahmenvertragPage() {
           </ol>
         </div>
 
-        {/* § 7 */}
+        {/* § 10 */}
         <div className="paragraf">
-          <h3>§ 7 Pflichten des Auftraggebers</h3>
+          <h3>§ 10 Pflichten des Auftraggebers</h3>
           <ol className="vertragslist">
             <li>Der AG verpflichtet sich, die Zugangsdaten sicher aufzubewahren und nicht an
               Unbefugte weiterzugeben. Der AG haftet für Schäden, die durch unsachgemäße
@@ -334,9 +429,9 @@ export default function RahmenvertragPage() {
           </ol>
         </div>
 
-        {/* § 8 */}
+        {/* § 11 */}
         <div className="paragraf">
-          <h3>§ 8 Haftung</h3>
+          <h3>§ 11 Haftung</h3>
           <ol className="vertragslist">
             <li>Der AN haftet unbeschränkt für Schäden aus der Verletzung des Lebens, des Körpers
               oder der Gesundheit sowie für vorsätzliches oder grob fahrlässiges Verhalten.</li>
@@ -352,9 +447,11 @@ export default function RahmenvertragPage() {
           </ol>
         </div>
 
-        {/* § 9 */}
-        <div className="paragraf">
-          <h3>§ 9 Vertraulichkeit</h3>
+        <div className="pagebreak" />
+
+        {/* § 12 */}
+        <div className="paragraf pt-8">
+          <h3>§ 12 Vertraulichkeit</h3>
           <ol className="vertragslist">
             <li>Beide Parteien verpflichten sich, alle im Rahmen dieses Vertrages erlangten
               vertraulichen Informationen der jeweils anderen Partei (insbesondere technische,
@@ -368,16 +465,54 @@ export default function RahmenvertragPage() {
           </ol>
         </div>
 
-        {/* § 10 */}
+        {/* § 13 Höhere Gewalt */}
         <div className="paragraf">
-          <h3>§ 10 Schlussbestimmungen</h3>
+          <h3>§ 13 Höhere Gewalt (Force Majeure)</h3>
+          <ol className="vertragslist">
+            <li>Keine Partei haftet für die Nichterfüllung oder verspätete Erfüllung ihrer
+              vertraglichen Pflichten, soweit die Nichterfüllung auf Umständen beruht, die
+              außerhalb ihrer zumutbaren Kontrolle liegen (höhere Gewalt). Hierzu zählen
+              insbesondere: Naturkatastrophen, Pandemien, Krieg, Terroranschläge, behördliche
+              Anordnungen, großflächige Stromausfälle, Ausfall wesentlicher
+              Internet-Infrastruktur sowie Cyberangriffe, die trotz angemessener
+              Sicherheitsvorkehrungen nicht abgewendet werden konnten.</li>
+            <li>Die betroffene Partei hat die andere Partei unverzüglich über den Eintritt und
+              die voraussichtliche Dauer der höheren Gewalt zu informieren und alle zumutbaren
+              Maßnahmen zur Minimierung der Auswirkungen zu ergreifen.</li>
+            <li>Dauert ein Fall höherer Gewalt länger als <strong>3 Monate</strong> an, hat jede
+              Partei das Recht, den Vertrag mit einer Frist von 4 Wochen in Textform zu kündigen.
+              Bereits gezahlte Lizenzgebühren für den Zeitraum der Nichtleistung werden
+              anteilig erstattet.</li>
+          </ol>
+        </div>
+
+        {/* § 14 Insolvenz */}
+        <div className="paragraf">
+          <h3>§ 14 Insolvenz und Fortführung</h3>
+          <ol className="vertragslist">
+            <li>Im Falle der Eröffnung eines Insolvenzverfahrens über das Vermögen des AN oder
+              der Ablehnung der Eröffnung mangels Masse hat der AG das Recht zur
+              außerordentlichen Kündigung dieses Vertrages.</li>
+            <li>Der AN verpflichtet sich, im Falle einer drohenden Insolvenz dem AG unverzüglich
+              die Möglichkeit zum vollständigen Datenexport gemäß § 8 Abs. 1 einzuräumen.</li>
+            <li>Die Rechte des AG auf Datenherausgabe gemäß § 8 bestehen auch gegenüber einem
+              Insolvenzverwalter fort. Der AN wird den Insolvenzverwalter entsprechend
+              instruieren.</li>
+          </ol>
+        </div>
+
+        {/* § 15 */}
+        <div className="paragraf">
+          <h3>§ 15 Schlussbestimmungen</h3>
           <ol className="vertragslist">
             <li>Dieser Vertrag unterliegt dem Recht der Bundesrepublik Deutschland unter
               Ausschluss des UN-Kaufrechts (CISG).</li>
             <li>Ausschließlicher Gerichtsstand für alle Streitigkeiten aus oder im Zusammenhang
-              mit diesem Vertrag ist <strong>{ANBIETER.gerichtsstand}</strong>, soweit gesetzlich zulässig.</li>
-            <li>Änderungen und Ergänzungen dieses Vertrages bedürfen der Schriftform.
-              Dies gilt auch für die Aufhebung des Schriftformerfordernisses.</li>
+              mit diesem Vertrag ist <strong>{ANBIETER.gerichtsstand}</strong>, soweit beide
+              Parteien Kaufleute im Sinne des HGB sind oder der AG keinen allgemeinen
+              Gerichtsstand im Inland hat (§ 38 ZPO).</li>
+            <li>Änderungen und Ergänzungen dieses Vertrages bedürfen der Textform (E-Mail genügt).
+              Dies gilt auch für die Aufhebung dieses Textformerfordernisses.</li>
             <li>Sollten einzelne Bestimmungen dieses Vertrages unwirksam oder undurchführbar sein
               oder werden, so bleibt die Wirksamkeit des Vertrages im Übrigen unberührt
               (Salvatorische Klausel). Die Parteien verpflichten sich, die unwirksame Bestimmung
