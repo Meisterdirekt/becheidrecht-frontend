@@ -79,7 +79,10 @@ function AnalysisPipeline({ currentPhase, completedPhases }: { currentPhase: Pip
   const currentIdx = PIPELINE_STEPS.findIndex((s) => s.phase === currentPhase);
 
   return (
-    <div className="max-w-xl mx-auto my-10 rounded-2xl border border-white/10 bg-white/[0.03] p-6 animate-fadeIn">
+    <div className="max-w-xl mx-auto my-10 rounded-2xl border border-white/10 bg-white/[0.03] p-6 animate-fadeIn" role="status" aria-label="Analyse-Fortschritt">
+      <div className="sr-only" aria-live="polite" aria-atomic="true">
+        {PIPELINE_STEPS[currentIdx] ? `Schritt ${currentIdx + 1} von ${PIPELINE_STEPS.length}: ${PIPELINE_STEPS[currentIdx].label} — ${PIPELINE_STEPS[currentIdx].detail}` : ""}
+      </div>
       <div className="flex items-center gap-2 mb-6">
         <Shield size={14} className="text-[var(--accent)]" />
         <span className="text-[11px] font-bold uppercase tracking-widest text-[var(--accent)]">

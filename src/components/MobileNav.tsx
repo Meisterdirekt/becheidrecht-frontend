@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useCallback } from "react";
+import React, { useEffect, useCallback, useRef } from "react";
 import Link from "next/link";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { X } from "lucide-react";
@@ -26,6 +26,9 @@ export function MobileNav({
 }: MobileNavProps) {
   const langs: Lang[] = ["DE", "EN", "RU", "AR", "TR"];
 
+  const navRef = useRef<HTMLElement>(null);
+  const previousFocusRef = useRef<HTMLElement | null>(null);
+
   const handleEscape = useCallback(
     (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
@@ -35,8 +38,43 @@ export function MobileNav({
 
   useEffect(() => {
     if (open) {
+      previousFocusRef.current = document.activeElement as HTMLElement;
       document.addEventListener("keydown", handleEscape);
       document.body.style.overflow = "hidden";
+
+      // Focus trap
+      const handleTab = (e: KeyboardEvent) => {
+        if (e.key !== "Tab" || !navRef.current) return;
+        const focusable = navRef.current.querySelectorAll<HTMLElement>(
+          'a[href], button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])'
+        );
+        if (focusable.length === 0) return;
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      };
+      document.addEventListener("keydown", handleTab);
+
+      // Auto-focus first focusable element
+      requestAnimationFrame(() => {
+        const firstFocusable = navRef.current?.querySelector<HTMLElement>(
+          'a[href], button:not([disabled])'
+        );
+        firstFocusable?.focus();
+      });
+
+      return () => {
+        document.removeEventListener("keydown", handleEscape);
+        document.removeEventListener("keydown", handleTab);
+        document.body.style.overflow = "";
+        previousFocusRef.current?.focus();
+      };
     }
     return () => {
       document.removeEventListener("keydown", handleEscape);
@@ -57,6 +95,7 @@ export function MobileNav({
 
       {/* Panel — slide in from right */}
       <nav
+        ref={navRef}
         className="absolute top-0 right-0 h-full w-[280px] max-w-[85vw] bg-[var(--bg)] border-l border-white/10 p-6 flex flex-col gap-8 animate-slideDown"
         role="dialog"
         aria-modal="true"

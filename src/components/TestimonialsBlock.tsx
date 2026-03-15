@@ -74,10 +74,11 @@ export default function TestimonialsBlock() {
           >
             <div className="flex items-center gap-2 mb-3">
               {item.rating != null && (
-                <div className="flex gap-0.5">
+                <div className="flex gap-0.5" role="img" aria-label={`${item.rating} von 5 Sternen`}>
                   {[1, 2, 3, 4, 5].map((n) => (
                     <Star
                       key={n}
+                      aria-hidden="true"
                       className={`h-4 w-4 ${
                         n <= item.rating! ? "text-amber-400 fill-amber-400" : "text-white/20"
                       }`}

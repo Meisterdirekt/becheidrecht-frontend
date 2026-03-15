@@ -34,10 +34,11 @@ function SliderInput({
   unit: string;
 }) {
   const pct = ((value - min) / (max - min)) * 100;
+  const sliderId = `slider-${label.replace(/\s+/g, "-").toLowerCase()}`;
   return (
     <div>
       <div className="flex justify-between items-baseline mb-3">
-        <label className="text-xs font-bold uppercase tracking-widest text-white/40">
+        <label htmlFor={sliderId} className="text-xs font-bold uppercase tracking-widest text-white/40">
           {label}
         </label>
         <span className="text-[var(--accent)] font-black text-xl leading-none">
@@ -51,12 +52,17 @@ function SliderInput({
           style={{ width: `${pct}%` }}
         />
         <input
+          id={sliderId}
           type="range"
           min={min}
           max={max}
           step={step}
           value={value}
           onChange={(e) => onChange(Number(e.target.value))}
+          aria-label={`${label}: ${value.toLocaleString("de")} ${unit}`}
+          aria-valuemin={min}
+          aria-valuemax={max}
+          aria-valuenow={value}
           className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
           style={{ accentColor: "var(--accent)" }}
         />

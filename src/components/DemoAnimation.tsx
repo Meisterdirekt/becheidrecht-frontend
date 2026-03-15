@@ -126,7 +126,7 @@ export default function DemoAnimation() {
   }, []);
 
   return (
-    <section className="max-w-2xl mx-auto px-6 py-16">
+    <section className="max-w-2xl mx-auto px-6 py-16" aria-label="Demo-Animation: BescheidRecht in 4 Schritten">
       <p className="text-xs font-bold uppercase tracking-[0.25em] text-[var(--accent)] mb-2 text-center">
         So funktioniert es
       </p>
@@ -134,7 +134,7 @@ export default function DemoAnimation() {
         Demo: BescheidRecht in 4 Schritten
       </h2>
 
-      <div className="rounded-2xl border border-white/10 bg-[#05070a] p-6 md:p-8 min-h-[320px] flex flex-col justify-center">
+      <div role="img" aria-label="Animierte Demo: Upload, Analyse, Fehlererkennung und Musterschreiben" className="rounded-2xl border border-white/10 bg-[#05070a] p-6 md:p-8 min-h-[320px] flex flex-col justify-center">
         {/* Step 1 – Upload */}
         {step === STEPS.UPLOAD && (
           <div className="relative flex flex-col items-center justify-center min-h-[260px]">

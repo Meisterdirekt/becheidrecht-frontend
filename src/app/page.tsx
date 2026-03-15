@@ -341,6 +341,7 @@ export default function Page() {
           ].map((s, i) => (
             <span
               key={i}
+              aria-hidden="true"
               className="floating-symbol"
               style={{
                 left: s.left,
