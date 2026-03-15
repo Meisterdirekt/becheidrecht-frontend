@@ -34,14 +34,14 @@ async function checkDatabase(): Promise<CheckResult> {
     const latencyMs = Date.now() - t0;
 
     if (error && error.code !== "PGRST116") {
-      return { ok: false, latencyMs, detail: error.message };
+      return { ok: false, latencyMs, detail: "Datenbankfehler" };
     }
     return { ok: true, latencyMs };
   } catch (err) {
     return {
       ok: false,
       latencyMs: Date.now() - t0,
-      detail: err instanceof Error ? err.message : String(err),
+      detail: "Datenbankverbindung fehlgeschlagen",
     };
   }
 }
@@ -55,7 +55,8 @@ function checkEnvVars(): CheckResult {
   ];
   const missing = required.filter((k) => !process.env[k]);
   if (missing.length > 0) {
-    return { ok: false, detail: `Fehlend: ${missing.join(", ")}` };
+    // Keine Variablennamen in der Response — verhindert Information Disclosure
+    return { ok: false, detail: `${missing.length} erforderliche Variable(n) fehlen` };
   }
   return { ok: true };
 }

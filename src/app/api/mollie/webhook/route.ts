@@ -24,6 +24,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { reportInfo } from '@/lib/error-reporter';
+import { mollieWebhookLimiter } from '@/lib/rate-limit';
 
 export const runtime = 'nodejs';
 export const maxDuration = 30;
@@ -77,6 +78,13 @@ async function fetchMolliePayment(paymentId: string): Promise<MolliePayment> {
 // ---------------------------------------------------------------------------
 
 export async function POST(req: NextRequest) {
+  // Rate-Limiting gegen Webhook-Flooding
+  const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
+  const { success: rateLimitOk } = await mollieWebhookLimiter.limit(ip);
+  if (!rateLimitOk) {
+    return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
+  }
+
   const apiKey = process.env.MOLLIE_API_KEY ?? '';
   if (!apiKey) {
     console.error('[Mollie] MOLLIE_API_KEY nicht gesetzt!');
@@ -118,7 +126,7 @@ export async function POST(req: NextRequest) {
   const productKey = payment.metadata?.product_key ?? '';
 
   if (!buyerEmail || !productKey) {
-    console.warn(`[Mollie] Fehlende Metadaten: email=${buyerEmail} product=${productKey}`);
+    console.warn(`[Mollie] Fehlende Metadaten: email=${buyerEmail.replace(/(.{2}).*@/, "$1***@")} product=${productKey}`);
     return NextResponse.json({ received: true, note: 'Fehlende Metadaten im Mollie-Payment.' });
   }
 
@@ -147,7 +155,7 @@ export async function POST(req: NextRequest) {
 
   if (!rows || rows.length === 0) {
     console.warn(
-      `[Mollie] User nicht gefunden: ${buyerEmail} | Payment: ${paymentId}\n` +
+      `[Mollie] User nicht gefunden: ${buyerEmail.replace(/(.{2}).*@/, "$1***@")} | Payment: ${paymentId}\n` +
       '→ Manuell freischalten sobald User sich registriert hat.'
     );
     return NextResponse.json({ received: true, status: 'pending_registration' });

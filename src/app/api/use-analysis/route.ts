@@ -162,7 +162,7 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Counter reduzieren
+    // Counter atomar reduzieren — verhindert Race Condition bei gleichzeitigen Requests
     const { data: updated, error: updateError } = await supabaseAdmin
       .from('user_subscriptions')
       .update({
@@ -171,6 +171,7 @@ export async function POST(request: NextRequest) {
         updated_at: new Date().toISOString()
       })
       .eq('user_id', user.id)
+      .gt('analyses_remaining', 0)
       .select()
       .single();
 

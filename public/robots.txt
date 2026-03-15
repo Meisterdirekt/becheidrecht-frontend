@@ -1,0 +1,12 @@
+User-agent: *
+Allow: /
+
+Disallow: /admin
+Disallow: /intern
+Disallow: /pitch-deck
+Disallow: /angebot
+Disallow: /rahmenvertrag
+Disallow: /test-ki
+Disallow: /api/
+
+Sitemap: https://www.bescheidrecht.de/sitemap.xml

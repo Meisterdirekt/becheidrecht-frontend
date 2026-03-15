@@ -107,4 +107,16 @@ export const fristenLimiter = buildLimiter([30, "1m"]);
 /** /api/demo-request — 3 Anfragen / 1 Std pro IP */
 export const demoRequestLimiter = buildLimiter([3, "1h"]);
 
+/** /api/feedback — 10 Anfragen / 1 Std pro IP */
+export const feedbackLimiter = buildLimiter([10, "1h"]);
+
+/** /api/mollie/webhook — 30 Anfragen / 1 Min pro IP */
+export const mollieWebhookLimiter = buildLimiter([30, "1m"]);
+
+/** /api/use-analysis — 10 Anfragen / 1 Min pro User */
+export const useAnalysisLimiter = buildLimiter([10, "1m"]);
+
+/** /api/subscription-status — 30 Anfragen / 1 Min pro User */
+export const subscriptionStatusLimiter = buildLimiter([30, "1m"]);
+
 export { isRedisConfigured };

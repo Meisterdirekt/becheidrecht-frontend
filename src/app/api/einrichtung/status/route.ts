@@ -44,7 +44,7 @@ export async function GET(request: NextRequest) {
   const invitePromise = membership.role === 'admin'
     ? admin
         .from('organization_invites')
-        .select('id, email, role, token, expires_at, created_at')
+        .select('id, email, role, expires_at, created_at')
         .eq('org_id', orgId)
         .is('accepted_at', null)
         .order('created_at', { ascending: false })
