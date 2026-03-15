@@ -100,7 +100,8 @@ export type ProgressCallback = (phase: string, detail?: string) => void;
 
 export async function runPipeline(
   documentText: string,
-  onProgress?: ProgressCallback
+  onProgress?: ProgressCallback,
+  userContext?: string,
 ): Promise<AgentAnalysisResult> {
   reportInfo("[Orchestrator] Pipeline gestartet");
 
@@ -121,6 +122,7 @@ export async function runPipeline(
     routingStufe,
     fristTage: urgency.tage,
     pipeline,
+    userContext: userContext || undefined,
   };
 
   reportInfo("[Orchestrator] Vorab-Routing", { routingStufe, tage: urgency.tage ?? null });

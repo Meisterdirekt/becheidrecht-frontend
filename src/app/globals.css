@@ -96,6 +96,10 @@
   .hero-glow-orb {
     animation: hero-glow-pulse 4s ease-in-out infinite;
   }
+  [data-theme="light"] .hero-glow-orb {
+    opacity: 0.03;
+    animation: none;
+  }
 
   /* PRO-Card: animierter Border-Glow (blue pulsing) */
   @keyframes pro-border-glow {

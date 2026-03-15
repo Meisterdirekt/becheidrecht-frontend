@@ -59,10 +59,14 @@ async function execute(ctx: AgentContext): Promise<AgentResult<AnalyseResult>> {
     ? `\n\nKLASSIFIZIERUNG (AG01):\nBehörde: ${ctx.pipeline.triage.behoerde}\nRechtsgebiet: ${ctx.pipeline.triage.rechtsgebiet}\nUntergebiet: ${ctx.pipeline.triage.untergebiet}\nRouting: ${ctx.pipeline.triage.routing_stufe}`
     : "";
 
+  const nutzerKontext = ctx.userContext
+    ? `\n\nHINTERGRUND VOM NUTZER:\n${ctx.userContext}`
+    : "";
+
   const messages: Anthropic.MessageParam[] = [
     {
       role: "user",
-      content: `Analysiere diesen Bescheid auf Fehler:${triageInfo}\n\n${ctx.documentText}`,
+      content: `Analysiere diesen Bescheid auf Fehler:${triageInfo}${nutzerKontext}\n\n${ctx.documentText}`,
     },
   ];
 

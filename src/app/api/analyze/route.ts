@@ -203,6 +203,10 @@ export async function POST(req: Request) {
 
     const formData = await req.formData();
     const file = formData.get('file');
+    const userContext = formData.get('userContext');
+    const userContextStr = typeof userContext === 'string' && userContext.trim().length > 0
+      ? userContext.trim().slice(0, 1000)
+      : undefined;
 
     if (!file || typeof file === 'string') {
       return NextResponse.json({ error: 'Datei fehlt.' }, { status: 400 });
@@ -353,7 +357,7 @@ export async function POST(req: Request) {
             };
 
             reportInfo('[Analyze] SSE 13-Agenten-Pipeline gestartet');
-            let result = await runAgentAnalysis(pseudonymized, onProgress);
+            let result = await runAgentAnalysis(pseudonymized, onProgress, userContextStr);
             result = await postProcess(result);
             sendEvent('result', result);
           } catch (err: unknown) {
@@ -377,7 +381,7 @@ export async function POST(req: Request) {
     let result: AgentAnalysisResult;
     if (anthropicAvailable) {
       reportInfo('[Analyze] 13-Agenten-Pipeline (Claude) gestartet');
-      result = await runAgentAnalysis(pseudonymized);
+      result = await runAgentAnalysis(pseudonymized, undefined, userContextStr);
     } else {
       reportInfo('[Analyze] ANTHROPIC_API_KEY fehlt — Fallback auf Legacy GPT-4o Engine');
       const legacyResult = await runForensicAnalysis(pseudonymized);

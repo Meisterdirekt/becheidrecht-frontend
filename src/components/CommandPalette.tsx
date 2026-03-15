@@ -28,6 +28,13 @@ const ITEMS: PaletteItem[] = [
     keywords: ["fristen", "deadline", "termin", "frist"],
   },
   {
+    id: "analysen",
+    label: "Meine Analysen",
+    href: "/analysen",
+    icon: <FileText className="w-4 h-4" />,
+    keywords: ["analysen", "historie", "verlauf", "ergebnisse"],
+  },
+  {
     id: "assistant",
     label: "Widerspruchs-Assistent",
     href: "/assistant",

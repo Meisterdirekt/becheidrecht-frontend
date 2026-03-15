@@ -20,7 +20,8 @@ export type { ProgressCallback } from "./agents/orchestrator";
  */
 export async function runAgentAnalysis(
   documentText: string,
-  onProgress?: ProgressCallback
+  onProgress?: ProgressCallback,
+  userContext?: string,
 ): Promise<import("./agents/types").AgentAnalysisResult> {
-  return runPipeline(documentText, onProgress);
+  return runPipeline(documentText, onProgress, userContext);
 }

@@ -9,6 +9,8 @@ import { SiteNavFull } from "@/components/SiteNav";
 import { SiteFooter } from "@/components/SiteFooter";
 import DemoAnimation from "@/components/DemoAnimation";
 import ScrollReveal from "@/components/ScrollReveal";
+import TestimonialsBlock from "@/components/TestimonialsBlock";
+import { RoiCalculator } from "@/components/RoiCalculator";
 import { pdf } from "@react-pdf/renderer";
 import LetterPDF, { type LetterPDFData } from "@/components/LetterPDF";
 import {
@@ -299,7 +301,7 @@ export default function Page() {
   const t = getPageT(lang);
 
   return (
-    <main className="min-h-screen bg-mesh text-white" dir={t.dir}>
+    <main className="min-h-screen bg-mesh text-[var(--text)]" dir={t.dir}>
       <SiteNavFull lang={lang} onLangChange={setLang} dir={t.dir} navLogin={t.navLogin} navRegister={t.navRegister} />
 
       {/* Hero */}
@@ -905,6 +907,22 @@ export default function Page() {
         </section>
       </ScrollReveal>
 
+      {/* ROI-Rechner */}
+      <ScrollReveal>
+        <section className="max-w-5xl mx-auto px-6 mb-32">
+          <p className="text-xs font-bold uppercase tracking-[0.25em] text-[var(--accent)] mb-3 text-center">
+            Einsparung berechnen
+          </p>
+          <h2 className="text-3xl md:text-4xl font-black tracking-tight text-center mb-4">
+            Was spart Ihre Einrichtung?
+          </h2>
+          <p className="text-white/60 text-sm text-center mb-12 max-w-xl mx-auto">
+            Stellen Sie die Regler auf Ihre Einrichtungsgröße ein — der ROI berechnet sich automatisch.
+          </p>
+          <RoiCalculator />
+        </section>
+      </ScrollReveal>
+
       {/* B2B Bridge */}
       <ScrollReveal>
         <section className="max-w-3xl mx-auto px-6 mb-20">
@@ -924,6 +942,41 @@ export default function Page() {
             </span>
           </Link>
         </section>
+      </ScrollReveal>
+
+      {/* Integration — So nutzen Einrichtungen BescheidRecht */}
+      <ScrollReveal>
+        <section className="max-w-5xl mx-auto px-6 mb-32">
+          <p className="text-xs font-bold uppercase tracking-[0.25em] text-[var(--accent)] mb-3 text-center">
+            Einfache Integration
+          </p>
+          <h2 className="text-3xl md:text-4xl font-black tracking-tight text-center mb-16">
+            So nutzen Einrichtungen BescheidRecht
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 stagger-group">
+            {[
+              { n: "01", title: "Zugang einrichten", desc: "Ihr Team erhält einen gemeinsamen Einrichtungs-Account. Kein IT-Projekt, keine Installation — Browser genügt." },
+              { n: "02", title: "Berater schulen", desc: "15 Minuten Einführung reichen. Bescheid hochladen, Analyse lesen, Musterschreiben nutzen — fertig." },
+              { n: "03", title: "Im Alltag einsetzen", desc: "Bescheide direkt im Beratungsgespräch prüfen. Fehler erkennen, Fristen sichern, Widerspruch vorbereiten." },
+            ].map(({ n, title, desc }) => (
+              <div
+                key={n}
+                className="flex flex-col items-center text-center p-8 rounded-2xl border border-white/10 bg-white/[0.03] animate-slideUp opacity-0 hover:border-white/20 hover:-translate-y-1 transition-all duration-300"
+              >
+                <div className="w-12 h-12 rounded-full border border-[var(--accent)]/40 bg-[var(--accent)]/10 flex items-center justify-center mb-6">
+                  <span className="text-[var(--accent)] font-black text-sm tracking-wider">{n}</span>
+                </div>
+                <h3 className="font-bold text-sm text-white/90 mb-3 uppercase tracking-wider">{title}</h3>
+                <p className="text-white/60 text-[15px] leading-relaxed">{desc}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+      </ScrollReveal>
+
+      {/* Testimonials */}
+      <ScrollReveal>
+        <TestimonialsBlock />
       </ScrollReveal>
 
       {/* Pricing (PRO mit Glow + EMPFOHLEN Badge) */}

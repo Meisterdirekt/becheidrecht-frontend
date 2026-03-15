@@ -66,6 +66,8 @@ export interface AgentContext {
   fristTage: number | null;
   /** Ergebnisse vorheriger Agenten — Pipeline-übergreifend */
   pipeline: PipelineState;
+  /** Optionaler Nutzer-Kontext: Hintergrundinformationen zum Fall */
+  userContext?: string;
 }
 
 export interface PipelineState {

@@ -285,6 +285,7 @@ export default function AnalyzePage() {
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [analysesRemaining, setAnalysesRemaining] = useState<number | null>(null);
   const [showSavePrompt, setShowSavePrompt] = useState(false);
+  const [userContext, setUserContext] = useState("");
 
   useEffect(() => {
     let cancelled = false;
@@ -344,6 +345,7 @@ export default function AnalyzePage() {
     try {
       const formData = new FormData();
       formData.append("file", file);
+      if (userContext.trim()) formData.append("userContext", userContext.trim());
       const headers: Record<string, string> = { Accept: "text/event-stream" };
       if (token) headers["Authorization"] = `Bearer ${token}`;
       const analyzeRes = await fetch("/api/analyze", {
@@ -491,6 +493,12 @@ export default function AnalyzePage() {
               </span>
             )}
             <Link
+              href="/analysen"
+              className="text-[11px] font-bold uppercase tracking-widest text-white/40 hover:text-white/70"
+            >
+              Meine Analysen
+            </Link>
+            <Link
               href="/"
               className="text-[11px] font-bold uppercase tracking-widest text-[var(--accent)] hover:text-[var(--accent-hover)]"
             >
@@ -508,7 +516,7 @@ export default function AnalyzePage() {
         </p>
 
         {/* Upload Box */}
-        <div className="max-w-xl p-8 border-2 border-dashed border-white/10 rounded-2xl bg-white/[0.03] mb-10 hover:border-white/20 transition-colors">
+        <div className="max-w-xl p-8 border-2 border-dashed border-white/10 rounded-2xl bg-white/[0.03] mb-6 hover:border-white/20 transition-colors">
           <div className="flex flex-col items-center gap-4">
             <div className="w-16 h-16 bg-[var(--accent)]/10 rounded-2xl flex items-center justify-center text-[var(--accent)]">
               <Upload size={32} />
@@ -570,6 +578,26 @@ export default function AnalyzePage() {
               </div>
             )}
           </div>
+        </div>
+
+        {/* Hintergrund-Kontext (optional) */}
+        <div className="max-w-xl mb-10">
+          <label htmlFor="user-context" className="block text-[11px] font-bold uppercase tracking-widest text-white/40 mb-2">
+            Hintergrund (optional)
+          </label>
+          <textarea
+            id="user-context"
+            value={userContext}
+            onChange={(e) => setUserContext(e.target.value)}
+            placeholder={'z. B. "Habe B\u00fcrgergeld korrekt beantragt, alles rechtzeitig abgegeben, trotzdem abgelehnt." \u2014 Hilft der KI, Ihren Fall besser zu verstehen.'}
+            rows={3}
+            maxLength={1000}
+            disabled={loading}
+            className="w-full bg-white/[0.04] border border-white/10 rounded-xl px-4 py-3 text-sm text-white/80 placeholder:text-white/25 resize-none focus:outline-none focus:border-white/20 leading-relaxed disabled:opacity-50"
+          />
+          <p className="text-[11px] text-white/25 mt-1">
+            {userContext.length}/1000 Zeichen
+          </p>
         </div>
 
         {/* Keine Analysen mehr */}

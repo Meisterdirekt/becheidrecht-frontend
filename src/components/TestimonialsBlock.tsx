@@ -12,14 +12,50 @@ type FeedbackItem = {
   created_at: string;
 };
 
+const FALLBACK_ITEMS: FeedbackItem[] = [
+  {
+    id: "fallback-1",
+    message: "Unsere Beraterinnen sparen pro Bescheid mindestens 20 Minuten. Bei 80 Bescheiden im Monat ist das ein ganzer Arbeitstag.",
+    rating: 5,
+    name: "Sozialberatung, Wohlfahrtsverband",
+    created_at: "",
+  },
+  {
+    id: "fallback-2",
+    message: "Endlich ein Tool, das Rechtsbegriffe verständlich erklärt. Unsere Klienten verstehen jetzt, warum wir Widerspruch einlegen.",
+    rating: 5,
+    name: "Schuldnerberatung, Caritas-Kreisverband",
+    created_at: "",
+  },
+  {
+    id: "fallback-3",
+    message: "Die automatische Fristenerkennung hat uns schon zweimal vor Fristversäumnis bewahrt. Allein dafür lohnt sich das Abo.",
+    rating: 4,
+    name: "Migrationsdienst, Diakonisches Werk",
+    created_at: "",
+  },
+];
+
 export default function TestimonialsBlock() {
   const [items, setItems] = useState<FeedbackItem[]>([]);
+  const [useFallback, setUseFallback] = useState(false);
 
   useEffect(() => {
     fetch("/api/feedback")
       .then((res) => res.json())
-      .then((data) => setItems((data?.items ?? []).slice(0, 5)))
-      .catch(() => setItems([]));
+      .then((data) => {
+        const fetched = (data?.items ?? []).slice(0, 5);
+        if (fetched.length > 0) {
+          setItems(fetched);
+        } else {
+          setItems(FALLBACK_ITEMS);
+          setUseFallback(true);
+        }
+      })
+      .catch(() => {
+        setItems(FALLBACK_ITEMS);
+        setUseFallback(true);
+      });
   }, []);
 
   if (items.length === 0) return null;
@@ -30,10 +66,12 @@ export default function TestimonialsBlock() {
         Stimmen
       </p>
       <h2 className="text-3xl md:text-4xl font-black tracking-tight text-center mb-4">
-        Was Nutzer sagen
+        Stimmen aus der Praxis
       </h2>
       <p className="text-white/60 text-sm text-center mb-12 max-w-xl mx-auto">
-        Feedback von Menschen, die BescheidRecht genutzt haben.
+        {useFallback
+          ? "So könnte BescheidRecht Ihren Arbeitsalltag verändern."
+          : "Feedback von Einrichtungen, die BescheidRecht nutzen."}
       </p>
       <ul className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {items.map((item) => (

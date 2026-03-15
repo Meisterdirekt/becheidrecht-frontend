@@ -44,6 +44,10 @@ const RDG_DISCLAIMER =
 function buildVorabInfo(ctx: AgentContext): string {
   let vorabInfo = "";
 
+  if (ctx.userContext) {
+    vorabInfo += `\n\nHINTERGRUND VOM NUTZER:\n${ctx.userContext}`;
+  }
+
   if (ctx.pipeline.triage) {
     const t = ctx.pipeline.triage;
     vorabInfo += `\nKLASSIFIZIERUNG: ${t.behoerde} | ${t.rechtsgebiet} | ${t.untergebiet}`;
