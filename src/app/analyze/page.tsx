@@ -16,7 +16,13 @@ import {
   Search,
   Shield,
   CheckCircle,
+  CheckCircle2,
   XCircle,
+  ShieldCheck,
+  ScanEye,
+  Route,
+  FileSearch,
+  PenTool,
 } from "lucide-react";
 import DownloadButton from "@/components/DownloadButton";
 import { SiteNavSimple } from "@/components/SiteNav";
@@ -52,6 +58,106 @@ interface AnalysisResult {
     quellen: string[];
   };
   agenten_details?: Record<string, { success: boolean; durationMs: number; error?: string }>;
+}
+
+// ---------------------------------------------------------------------------
+// Pipeline Phase Tracking
+// ---------------------------------------------------------------------------
+
+type PipelinePhase = "upload" | "security" | "triage" | "analyse" | "brief" | "done";
+
+const PIPELINE_STEPS: { phase: PipelinePhase; label: string; detail: string; icon: React.ReactNode }[] = [
+  { phase: "upload", label: "Dokument", detail: "PII-Scan & Anonymisierung", icon: <ScanEye size={16} /> },
+  { phase: "security", label: "Sicherheit", detail: "Injection-Filter & Validierung", icon: <ShieldCheck size={16} /> },
+  { phase: "triage", label: "Routing", detail: "Rechtsgebiet & Dringlichkeit", icon: <Route size={16} /> },
+  { phase: "analyse", label: "Analyse", detail: "Fehlerprüfung & Recherche", icon: <FileSearch size={16} /> },
+  { phase: "brief", label: "Schreiben", detail: "Musterschreiben wird erstellt", icon: <PenTool size={16} /> },
+  { phase: "done", label: "Fertig", detail: "Analyse abgeschlossen", icon: <CheckCircle2 size={16} /> },
+];
+
+function AnalysisPipeline({ currentPhase, completedPhases }: { currentPhase: PipelinePhase; completedPhases: Set<PipelinePhase> }) {
+  const currentIdx = PIPELINE_STEPS.findIndex((s) => s.phase === currentPhase);
+
+  return (
+    <div className="max-w-xl mx-auto my-10 rounded-2xl border border-white/10 bg-white/[0.03] p-6 animate-fadeIn">
+      <div className="flex items-center gap-2 mb-6">
+        <Shield size={14} className="text-[var(--accent)]" />
+        <span className="text-[11px] font-bold uppercase tracking-widest text-[var(--accent)]">
+          Pipeline aktiv
+        </span>
+      </div>
+
+      <div className="space-y-0">
+        {PIPELINE_STEPS.map((step, i) => {
+          const isCompleted = completedPhases.has(step.phase);
+          const isCurrent = step.phase === currentPhase;
+          const isFuture = !isCompleted && !isCurrent;
+
+          return (
+            <div key={step.phase}>
+              <div className="flex items-center gap-4">
+                {/* Icon circle */}
+                <div
+                  className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 border transition-all duration-500 ${
+                    isCompleted
+                      ? "bg-emerald-500/20 border-emerald-500/40 text-emerald-400"
+                      : isCurrent
+                      ? "bg-[var(--accent)]/20 border-[var(--accent)] text-[var(--accent)] animate-pulse"
+                      : "bg-white/5 border-white/10 text-white/20"
+                  }`}
+                >
+                  {isCompleted ? <CheckCircle2 size={16} /> : step.icon}
+                </div>
+
+                {/* Text */}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span
+                      className={`text-sm font-bold transition-colors duration-300 ${
+                        isCompleted
+                          ? "text-emerald-400"
+                          : isCurrent
+                          ? "text-white"
+                          : "text-white/25"
+                      }`}
+                    >
+                      {step.label}
+                    </span>
+                    {isCompleted && (
+                      <span className="text-[9px] font-bold uppercase tracking-widest text-emerald-500/60">
+                        OK
+                      </span>
+                    )}
+                    {isCurrent && (
+                      <Loader2 size={12} className="animate-spin text-[var(--accent)]" />
+                    )}
+                  </div>
+                  <p
+                    className={`text-xs transition-colors duration-300 ${
+                      isFuture ? "text-white/15" : "text-white/40"
+                    }`}
+                  >
+                    {step.detail}
+                  </p>
+                </div>
+              </div>
+
+              {/* Connecting line */}
+              {i < PIPELINE_STEPS.length - 1 && (
+                <div className="ml-[18px] w-[1px] h-4 relative overflow-hidden">
+                  <div
+                    className={`absolute inset-0 transition-colors duration-500 ${
+                      i < currentIdx ? "bg-emerald-500/30" : "bg-white/10"
+                    }`}
+                  />
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
 }
 
 // ---------------------------------------------------------------------------
@@ -281,6 +387,8 @@ export default function AnalyzePage() {
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [progressPhase, setProgressPhase] = useState<string | null>(null);
+  const [currentPipelinePhase, setCurrentPipelinePhase] = useState<PipelinePhase>("upload");
+  const [completedPipelinePhases, setCompletedPipelinePhases] = useState<Set<PipelinePhase>>(new Set());
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [analysesRemaining, setAnalysesRemaining] = useState<number | null>(null);
@@ -342,6 +450,8 @@ export default function AnalyzePage() {
     setShowSavePrompt(false);
     setLoading(true);
     setProgressPhase(null);
+    setCurrentPipelinePhase("upload");
+    setCompletedPipelinePhases(new Set());
     try {
       const formData = new FormData();
       formData.append("file", file);
@@ -398,7 +508,9 @@ export default function AnalyzePage() {
       const contentType = analyzeRes.headers.get("content-type") ?? "";
 
       if (contentType.includes("text/event-stream") && analyzeRes.body) {
-        // SSE-Streaming
+        // SSE-Streaming — upload phase done, stream connected
+        setCompletedPipelinePhases(new Set(["upload"]));
+        setCurrentPipelinePhase("security");
         const reader = analyzeRes.body.getReader();
         const decoder = new TextDecoder();
         let buffer = "";
@@ -410,6 +522,16 @@ export default function AnalyzePage() {
           analyse: "Fehler werden analysiert…",
           brief: "Musterschreiben wird erstellt…",
           done: "Analyse abgeschlossen",
+        };
+
+        // Map SSE phases to pipeline phases
+        const SSE_TO_PIPELINE: Record<string, PipelinePhase> = {
+          init: "security",
+          security: "security",
+          triage: "triage",
+          analyse: "analyse",
+          brief: "brief",
+          done: "done",
         };
 
         let eventType = "";
@@ -428,6 +550,19 @@ export default function AnalyzePage() {
                 if (eventType === "progress") {
                   const label = PHASE_LABELS[parsed.phase] ?? parsed.phase;
                   setProgressPhase(parsed.detail ? `${label} — ${parsed.detail}` : label);
+
+                  // Advance pipeline stepper
+                  const pipelinePhase = SSE_TO_PIPELINE[parsed.phase];
+                  if (pipelinePhase) {
+                    const phaseOrder: PipelinePhase[] = ["upload", "security", "triage", "analyse", "brief", "done"];
+                    const targetIdx = phaseOrder.indexOf(pipelinePhase);
+                    setCompletedPipelinePhases((prev) => {
+                      const next = new Set(prev);
+                      for (let j = 0; j < targetIdx; j++) next.add(phaseOrder[j]);
+                      return next;
+                    });
+                    setCurrentPipelinePhase(pipelinePhase);
+                  }
                 } else if (eventType === "result") {
                   handleResult(parsed);
                 } else if (eventType === "error") {
@@ -481,7 +616,7 @@ export default function AnalyzePage() {
   }
 
   return (
-    <main className="min-h-screen bg-mesh text-white flex flex-col">
+    <main id="main-content" className="min-h-screen bg-mesh text-white flex flex-col">
       <SiteNavSimple
         backHref="/"
         backLabel="Zurück zur Startseite"
@@ -567,10 +702,10 @@ export default function AnalyzePage() {
                   className="text-[var(--accent)] font-bold text-[11px] uppercase tracking-widest hover:text-[var(--accent-hover)] disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                 >
                   {loading ? (
-                    <>
-                      <Loader2 className="h-4 w-4 animate-spin" />
+                    <span aria-live="polite">
+                      <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
                       {progressPhase ?? "Analysiere …"}
-                    </>
+                    </span>
                   ) : (
                     "Analyse starten"
                   )}
@@ -599,6 +734,14 @@ export default function AnalyzePage() {
             {userContext.length}/1000 Zeichen
           </p>
         </div>
+
+        {/* Pipeline-Stepper während Analyse */}
+        {loading && (
+          <AnalysisPipeline
+            currentPhase={currentPipelinePhase}
+            completedPhases={completedPipelinePhases}
+          />
+        )}
 
         {/* Keine Analysen mehr */}
         {analysesRemaining === 0 && (
@@ -641,7 +784,13 @@ export default function AnalyzePage() {
 
         {/* Ergebnis */}
         {result && (
-          <div className="space-y-6 stagger-group">
+          <div className="space-y-6 stagger-group" aria-live="polite">
+
+            {/* KI-Transparenz-Hinweis */}
+            <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-sky-500/20 bg-sky-500/5 text-sm" role="status">
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-sky-500/10 text-[var(--accent)] text-[11px] font-bold uppercase tracking-widest">KI-generiert</span>
+              <span className="text-[var(--text-muted)]">Dieses Ergebnis wurde automatisiert durch KI erstellt und stellt keine Rechtsberatung dar (§ 2 RDG).</span>
+            </div>
 
             {/* Save-Prompt (nach anonymer Analyse, direkt oben) */}
             {showSavePrompt && <SavePromptBanner />}

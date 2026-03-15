@@ -294,11 +294,23 @@ export default function Anlage2Page() {
                 <td className="py-2.5 pr-3">San Francisco, USA</td>
                 <td className="py-2.5">DPA + SCCs, Zero-Retention (API)</td>
               </tr>
-              <tr>
+              <tr className="border-b border-slate-100">
                 <td className="py-2.5 pr-3 font-bold text-slate-900">Mollie B.V.</td>
                 <td className="py-2.5 pr-3">Zahlungsabwicklung</td>
                 <td className="py-2.5 pr-3">Amsterdam, Niederlande (EU)</td>
                 <td className="py-2.5">EU — DSGVO, PCI-DSS</td>
+              </tr>
+              <tr className="border-b border-slate-100">
+                <td className="py-2.5 pr-3 font-bold text-slate-900">Functional Software Inc. (Sentry)</td>
+                <td className="py-2.5 pr-3">Fehlerüberwachung, Stabilitätsmonitoring</td>
+                <td className="py-2.5 pr-3">San Francisco, USA</td>
+                <td className="py-2.5">DPA + SCCs, keine gezielte PII-Erfassung</td>
+              </tr>
+              <tr>
+                <td className="py-2.5 pr-3 font-bold text-slate-900">Upstash Inc.</td>
+                <td className="py-2.5 pr-3">Rate-Limiting (Redis)</td>
+                <td className="py-2.5 pr-3">San Francisco, USA<br /><span className="text-xs text-slate-400">(Daten-Region: EU/Frankfurt)</span></td>
+                <td className="py-2.5">DPA + SCCs, Daten in EU gehostet</td>
               </tr>
             </tbody>
           </table>
@@ -496,6 +508,9 @@ export default function Anlage2Page() {
           </Link>
           <Link href="/rahmenvertrag/anlage-1" className="px-5 py-2.5 rounded-xl text-sm font-bold bg-slate-100 text-slate-700 hover:bg-slate-200 transition-colors">
             Anlage 1: Leistungsbeschreibung
+          </Link>
+          <Link href="/rahmenvertrag/anlage-3" className="px-5 py-2.5 rounded-xl text-sm font-bold bg-sky-500 text-white hover:bg-sky-400 transition-colors">
+            Anlage 3: TOM
           </Link>
         </div>
       </div>

@@ -303,7 +303,7 @@ export default function Page() {
   const t = getPageT(lang);
 
   return (
-    <main className="min-h-screen bg-mesh text-[var(--text)]" dir={t.dir}>
+    <main id="main-content" className="min-h-screen bg-mesh text-[var(--text)]" dir={t.dir}>
       <SiteNavFull lang={lang} onLangChange={setLang} dir={t.dir} navLogin={t.navLogin} navRegister={t.navRegister} />
 
       {/* Hero */}

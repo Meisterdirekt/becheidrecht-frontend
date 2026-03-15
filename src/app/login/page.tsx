@@ -73,15 +73,16 @@ function LoginForm() {
   };
 
   return (
-    <main className="min-h-screen bg-mesh text-white flex flex-col">
+    <main id="main-content" className="min-h-screen bg-mesh text-white flex flex-col">
       <SiteNavSimple backHref="/" backLabel="Zurück zur Startseite" />
       <div className="flex-1 flex items-center justify-center p-6 py-16">
         <div className="w-full max-w-md rounded-3xl border border-white/10 bg-white/[0.04] p-8 md:p-10 shadow-xl animate-slideUp">
           <h1 className="text-3xl font-black tracking-tight mb-8">Anmeldung</h1>
           <form className="space-y-6" onSubmit={handleSubmit} noValidate>
             <div>
-              <label className="label-upper">E-Mail-Adresse</label>
+              <label htmlFor="login-email" className="label-upper">E-Mail-Adresse</label>
               <input
+                id="login-email"
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -92,12 +93,13 @@ function LoginForm() {
             </div>
             <div>
               <div className="flex justify-between items-center mb-2">
-                <label className="label-upper">Passwort</label>
+                <label htmlFor="login-password" className="label-upper">Passwort</label>
                 <Link href="/forgot" className="text-xs text-[var(--accent)] hover:text-[var(--accent-hover)] font-bold uppercase tracking-wider transition-colors">
                   Vergessen?
                 </Link>
               </div>
               <input
+                id="login-password"
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}

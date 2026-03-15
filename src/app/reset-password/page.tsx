@@ -88,7 +88,7 @@ export default function ResetPasswordPage() {
   }
 
   return (
-    <main className="min-h-screen bg-mesh text-white flex flex-col">
+    <main id="main-content" className="min-h-screen bg-mesh text-white flex flex-col">
       <SiteNavSimple backHref="/login" backLabel="Zurück zum Login" />
       <div className="flex-1 flex items-center justify-center p-6 py-16">
         <div className="w-full max-w-md rounded-3xl border border-white/10 bg-white/[0.04] p-8 md:p-10 shadow-xl">
@@ -123,8 +123,9 @@ export default function ResetPasswordPage() {
                 </div>
               )}
               <div>
-                <label className="label-upper">Neues Passwort</label>
+                <label htmlFor="reset-password" className="label-upper">Neues Passwort</label>
                 <input
+                  id="reset-password"
                   type="password"
                   minLength={8}
                   className="input-field"
@@ -134,8 +135,9 @@ export default function ResetPasswordPage() {
                 />
               </div>
               <div>
-                <label className="label-upper">Passwort bestätigen</label>
+                <label htmlFor="reset-confirm" className="label-upper">Passwort bestätigen</label>
                 <input
+                  id="reset-confirm"
                   type="password"
                   minLength={8}
                   className="input-field"

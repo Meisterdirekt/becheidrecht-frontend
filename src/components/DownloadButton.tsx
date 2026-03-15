@@ -102,15 +102,16 @@ export default function DownloadButton({
         onClick={handleDownload}
         className={className ?? `${btnBase} bg-green-600 hover:bg-green-700`}
       >
-        <Download size={20} />
+        <Download size={20} aria-hidden="true" />
         {label}
       </button>
       <button
         type="button"
         onClick={handlePrint}
+        aria-label="Dokument direkt drucken"
         className={`${btnBase} bg-[var(--accent)] hover:bg-[var(--accent-hover)]`}
       >
-        <Printer size={20} />
+        <Printer size={20} aria-hidden="true" />
         Direkt drucken
       </button>
     </div>

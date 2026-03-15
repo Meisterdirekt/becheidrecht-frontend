@@ -6,6 +6,8 @@ interface SiteFooterProps {
   impressum?: string;
   datenschutz?: string;
   agb?: string;
+  barrierefreiheit?: string;
+  kiTransparenz?: string;
   disclaimer?: string;
   copyright?: string;
 }
@@ -24,6 +26,8 @@ export function SiteFooter({
   impressum = DEFAULT_FOOTER.impressum,
   datenschutz = DEFAULT_FOOTER.datenschutz,
   agb = DEFAULT_FOOTER.agb,
+  barrierefreiheit = "Barrierefreiheit",
+  kiTransparenz = "KI-Transparenz",
   disclaimer = DEFAULT_FOOTER.disclaimer,
   copyright: copyrightText = DEFAULT_FOOTER.copyright,
 }: SiteFooterProps) {
@@ -48,6 +52,12 @@ export function SiteFooter({
           </Link>
           <Link href="/b2b" className="text-sm font-bold tracking-[0.2em] text-white/40 uppercase hover:text-white transition-colors">
             Für Einrichtungen
+          </Link>
+          <Link href="/barrierefreiheit" className="text-sm font-bold tracking-[0.2em] text-white/40 uppercase hover:text-white transition-colors">
+            {barrierefreiheit}
+          </Link>
+          <Link href="/ki-transparenz" className="text-sm font-bold tracking-[0.2em] text-white/40 uppercase hover:text-white transition-colors">
+            {kiTransparenz}
           </Link>
         </div>
         <p className="text-xs text-center text-white/25 leading-relaxed">

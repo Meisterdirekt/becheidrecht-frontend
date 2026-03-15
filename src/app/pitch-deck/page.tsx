@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useEffect, useRef, useCallback } from "react";
+import React, { useEffect, useRef, useCallback, useState } from "react";
 import Link from "next/link";
-import { Check, ArrowRight, Shield, Zap, FileText, Clock, Users, TrendingUp, ChevronDown } from "lucide-react";
+import { Check, ArrowRight, Shield, Zap, FileText, Clock, Users, TrendingUp, ChevronDown, ScanEye, ShieldCheck, Route, FileSearch, PenTool, CheckCircle2, Loader2 } from "lucide-react";
 import { DemoRequestButton } from "@/components/DemoRequestButton";
 
 /* ──────────────────────────────────────────────────────────
@@ -84,6 +84,150 @@ function Counter({ end, suffix = "", prefix = "", duration = 1800 }: { end: numb
   }, [end, suffix, prefix, duration]);
 
   return <span ref={ref}>{prefix}0{suffix}</span>;
+}
+
+/* ──────────────────────────────────────────────────────────
+   PIPELINE DEMO — Auto-animierte Pipeline für Pitch-Deck
+   ────────────────────────────────────────────────────────── */
+
+const DEMO_STEPS = [
+  { phase: "upload", label: "Dokument", detail: "PII-Scan & Anonymisierung", detailDone: "2 PII-Treffer anonymisiert", icon: ScanEye },
+  { phase: "security", label: "Sicherheit", detail: "Injection-Filter & Validierung", detailDone: "Dokument freigegeben", icon: ShieldCheck },
+  { phase: "triage", label: "Routing", detail: "Rechtsgebiet & Dringlichkeit", detailDone: "SGB II — Jobcenter — HOCH", icon: Route },
+  { phase: "analyse", label: "Analyse", detail: "Fehlerprüfung & Recherche", detailDone: "3 Fehler, 5 Urteile gefunden", icon: FileSearch },
+  { phase: "brief", label: "Schreiben", detail: "Musterschreiben wird erstellt", detailDone: "DIN A4 PDF generiert", icon: PenTool },
+  { phase: "done", label: "Fertig", detail: "Analyse abgeschlossen", detailDone: "Ergebnis in 12 Sekunden", icon: CheckCircle2 },
+] as const;
+
+function PipelineDemo() {
+  const [activeStep, setActiveStep] = useState(-1);
+  const [started, setStarted] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  // Start animation when visible
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !started) {
+          setStarted(true);
+          observer.unobserve(el);
+        }
+      },
+      { threshold: 0.3 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [started]);
+
+  // Step through phases
+  useEffect(() => {
+    if (!started) return;
+    let step = 0;
+    setActiveStep(0);
+    const interval = setInterval(() => {
+      step++;
+      if (step >= DEMO_STEPS.length) {
+        clearInterval(interval);
+        // Restart after pause
+        setTimeout(() => {
+          setActiveStep(-1);
+          setStarted(false);
+          setTimeout(() => setStarted(true), 800);
+        }, 3000);
+        return;
+      }
+      setActiveStep(step);
+    }, 1800);
+    return () => clearInterval(interval);
+  }, [started]);
+
+  return (
+    <div ref={ref} style={{ maxWidth: 480, margin: "0 auto" }}>
+      <div className="glass-card" style={{ padding: "2rem 2rem 1.5rem", position: "relative", overflow: "hidden" }}>
+        {/* Header */}
+        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "1.75rem" }}>
+          <Shield size={14} style={{ color: "var(--pd-accent)" }} />
+          <span style={{ fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.3em", textTransform: "uppercase" as const, color: "var(--pd-accent)" }}>
+            Pipeline aktiv
+          </span>
+          {activeStep >= 0 && activeStep < DEMO_STEPS.length && (
+            <Loader2 size={12} style={{ color: "var(--pd-accent)", animation: "spin 1s linear infinite" }} />
+          )}
+        </div>
+
+        {/* Steps */}
+        <div style={{ display: "flex", flexDirection: "column" as const, gap: 0 }}>
+          {DEMO_STEPS.map((step, i) => {
+            const isCompleted = i < activeStep;
+            const isCurrent = i === activeStep;
+            const isFuture = i > activeStep || activeStep === -1;
+            const Icon = step.icon;
+
+            return (
+              <div key={step.phase}>
+                <div style={{
+                  display: "flex", alignItems: "center", gap: "1rem",
+                  transition: "opacity 0.4s ease",
+                  opacity: isFuture ? 0.25 : 1,
+                }}>
+                  {/* Icon */}
+                  <div style={{
+                    width: 36, height: 36, borderRadius: "50%",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    flexShrink: 0, transition: "all 0.5s ease",
+                    background: isCompleted ? "rgba(34,197,94,0.15)" : isCurrent ? "rgba(14,165,233,0.15)" : "rgba(255,255,255,0.03)",
+                    border: isCompleted ? "1px solid rgba(34,197,94,0.3)" : isCurrent ? "1px solid rgba(14,165,233,0.4)" : "1px solid rgba(255,255,255,0.08)",
+                    color: isCompleted ? "#4ade80" : isCurrent ? "var(--pd-accent)" : "rgba(255,255,255,0.2)",
+                  }}>
+                    {isCompleted ? <CheckCircle2 size={16} /> : <Icon size={16} />}
+                  </div>
+
+                  {/* Text */}
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                      <span style={{
+                        fontSize: "0.85rem", fontWeight: 700,
+                        transition: "color 0.4s ease",
+                        color: isCompleted ? "#4ade80" : isCurrent ? "var(--pd-text)" : "rgba(255,255,255,0.25)",
+                      }}>
+                        {step.label}
+                      </span>
+                      {isCompleted && (
+                        <span style={{ fontSize: "0.55rem", fontWeight: 700, letterSpacing: "0.15em", textTransform: "uppercase" as const, color: "rgba(34,197,94,0.5)" }}>
+                          OK
+                        </span>
+                      )}
+                      {isCurrent && (
+                        <Loader2 size={11} style={{ color: "var(--pd-accent)", animation: "spin 1s linear infinite" }} />
+                      )}
+                    </div>
+                    <p style={{
+                      fontSize: "0.7rem", margin: 0, lineHeight: 1.4,
+                      transition: "color 0.4s ease",
+                      color: isFuture ? "rgba(255,255,255,0.12)" : "rgba(255,255,255,0.35)",
+                    }}>
+                      {isCompleted ? step.detailDone : step.detail}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Line */}
+                {i < DEMO_STEPS.length - 1 && (
+                  <div style={{
+                    marginLeft: 18, width: 1, height: 14,
+                    transition: "background 0.5s ease",
+                    background: i < activeStep ? "rgba(34,197,94,0.25)" : "rgba(255,255,255,0.06)",
+                  }} />
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
 }
 
 /* ──────────────────────────────────────────────────────────
@@ -724,11 +868,21 @@ export default function PitchDeckPage() {
             ))}
           </div>
 
-          {/* Bottom KPI bar */}
+          {/* Live Pipeline Demo */}
           <Reveal delay={600}>
+            <div style={{ marginTop: "3.5rem", borderTop: "1px solid var(--pd-border)", paddingTop: "2.5rem" }}>
+              <p style={{ fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.3em", textTransform: "uppercase" as const, color: "var(--pd-text-dim)", marginBottom: "0.75rem", textAlign: "center" as const }}>
+                Live: Was im Hintergrund passiert
+              </p>
+              <PipelineDemo />
+            </div>
+          </Reveal>
+
+          {/* Bottom KPI bar */}
+          <Reveal delay={700}>
             <div style={{
               display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "1rem",
-              marginTop: "3.5rem", borderTop: "1px solid var(--pd-border)", paddingTop: "2.5rem",
+              marginTop: "2.5rem",
             }}>
               {[
                 { val: "163+", lbl: "Fehlertypen" },

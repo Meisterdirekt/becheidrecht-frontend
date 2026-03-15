@@ -7,7 +7,7 @@ import { SiteFooter } from "@/components/SiteFooter";
 
 export default function DatenschutzPage() {
   return (
-    <main className="min-h-screen bg-mesh text-[var(--text)] flex flex-col">
+    <main id="main-content" className="min-h-screen bg-mesh text-[var(--text)] flex flex-col">
       <SiteNavSimple backHref="/" backLabel="Zurück zur Startseite" />
       <div className="max-w-4xl mx-auto px-6 py-20 flex-grow">
         <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-[var(--accent)] mb-2">Rechtliches</p>
@@ -154,7 +154,14 @@ export default function DatenschutzPage() {
           </div>
 
           <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-8">
-            <h2 className="text-[var(--text)] font-bold uppercase tracking-widest text-xs mb-4">13. Änderungen dieser Erklärung</h2>
+            <h2 className="text-[var(--text)] font-bold uppercase tracking-widest text-xs mb-4">13. Rate-Limiting (Upstash)</h2>
+            <p className="text-[var(--text)]">
+              Zum Schutz vor Missbrauch und zur Sicherstellung der Verfügbarkeit setzen wir den Dienst Upstash (Upstash Inc., USA; Datenverarbeitung auf Servern in der EU/Frankfurt) ein. Dabei werden ausschließlich gehashte IP-Adressen und Zähler kurzfristig gespeichert, um Anfragelimits durchzusetzen. Eine Identifizierung einzelner Nutzer ist anhand dieser Daten nicht möglich. Die Verarbeitung erfolgt auf Grundlage unseres berechtigten Interesses an der Sicherheit und Stabilität der Plattform (Art. 6 Abs. 1 lit. f DSGVO). Es besteht ein Auftragsverarbeitungsvertrag mit Upstash gemäß Art. 28 DSGVO.
+            </p>
+          </div>
+
+          <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-8">
+            <h2 className="text-[var(--text)] font-bold uppercase tracking-widest text-xs mb-4">14. Änderungen dieser Erklärung</h2>
             <p className="text-[var(--text)]">
               Wir behalten uns vor, diese Datenschutzerklärung bei Bedarf anzupassen, um sie an geänderte Rechtslage oder an Änderungen unseres Angebots anzupassen. Die jeweils aktuelle Version finden Sie auf dieser Seite. Bei wesentlichen Änderungen werden wir Sie, soweit erforderlich, gesondert informieren.
             </p>

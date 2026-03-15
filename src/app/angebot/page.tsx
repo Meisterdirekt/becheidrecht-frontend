@@ -141,32 +141,36 @@ export default function AngebotPage() {
           </p>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
             <div>
-              <label className="block text-xs font-bold text-slate-500 mb-1">Organisation</label>
+              <label htmlFor="angebot-org" className="block text-xs font-bold text-slate-500 mb-1">Organisation</label>
               <input
+                id="angebot-org"
                 className="w-full text-sm border border-slate-200 rounded-lg px-3 py-2 bg-white focus:outline-none focus:border-sky-400"
                 value={kundeOrg}
                 onChange={(e) => setKundeOrg(e.target.value)}
               />
             </div>
             <div>
-              <label className="block text-xs font-bold text-slate-500 mb-1">Ansprechpartner</label>
+              <label htmlFor="angebot-ansprechpartner" className="block text-xs font-bold text-slate-500 mb-1">Ansprechpartner</label>
               <input
+                id="angebot-ansprechpartner"
                 className="w-full text-sm border border-slate-200 rounded-lg px-3 py-2 bg-white focus:outline-none focus:border-sky-400"
                 value={kundeAnsprechpartner}
                 onChange={(e) => setKundeAnsprechpartner(e.target.value)}
               />
             </div>
             <div>
-              <label className="block text-xs font-bold text-slate-500 mb-1">E-Mail Kunde</label>
+              <label htmlFor="angebot-email" className="block text-xs font-bold text-slate-500 mb-1">E-Mail Kunde</label>
               <input
+                id="angebot-email"
                 className="w-full text-sm border border-slate-200 rounded-lg px-3 py-2 bg-white focus:outline-none focus:border-sky-400"
                 value={kundeEmail}
                 onChange={(e) => setKundeEmail(e.target.value)}
               />
             </div>
             <div>
-              <label className="block text-xs font-bold text-slate-500 mb-1">Angebots-Nr.</label>
+              <label htmlFor="angebot-nr" className="block text-xs font-bold text-slate-500 mb-1">Angebots-Nr.</label>
               <input
+                id="angebot-nr"
                 className="w-full text-sm border border-slate-200 rounded-lg px-3 py-2 bg-white focus:outline-none focus:border-sky-400"
                 value={angebotsNr}
                 onChange={(e) => setAngebotsNr(e.target.value)}

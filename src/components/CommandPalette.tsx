@@ -135,7 +135,7 @@ export function CommandPalette() {
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-[70]">
+    <div className="fixed inset-0 z-[70]" role="dialog" aria-modal="true" aria-label="Befehlspalette">
       {/* Backdrop */}
       <div
         className="absolute inset-0 bg-black/50 backdrop-blur-sm modal-backdrop"
@@ -158,6 +158,7 @@ export function CommandPalette() {
               placeholder="Suchen…"
               className="flex-1 bg-transparent text-sm outline-none placeholder:text-white/30"
               aria-label="Suche"
+              aria-controls="command-results"
             />
             <kbd className="hidden sm:flex items-center text-[10px] font-bold text-white/20 border border-white/10 rounded px-1.5 py-0.5">
               ESC
@@ -165,7 +166,7 @@ export function CommandPalette() {
           </div>
 
           {/* Results */}
-          <div className="max-h-[300px] overflow-y-auto py-2">
+          <div className="max-h-[300px] overflow-y-auto py-2" role="listbox" aria-live="polite" id="command-results">
             {filtered.length === 0 ? (
               <p className="text-sm text-white/30 text-center py-6">
                 Keine Ergebnisse
@@ -175,6 +176,8 @@ export function CommandPalette() {
                 <button
                   key={item.id}
                   type="button"
+                  role="option"
+                  aria-selected={i === activeIndex}
                   onClick={() => navigate(item.href)}
                   onMouseEnter={() => setActiveIndex(i)}
                   className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm transition-colors ${

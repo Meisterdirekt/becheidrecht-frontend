@@ -7,7 +7,7 @@ import { SiteFooter } from "@/components/SiteFooter";
 
 export default function ImpressumPage() {
   return (
-    <main className="min-h-screen bg-mesh text-[var(--text)] flex flex-col">
+    <main id="main-content" className="min-h-screen bg-mesh text-[var(--text)] flex flex-col">
       <SiteNavSimple backHref="/" backLabel="Zurück zur Startseite" />
       <div className="max-w-4xl mx-auto px-6 py-20 flex-grow">
         <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-[var(--accent)] mb-2">Rechtliches</p>

@@ -34,6 +34,8 @@ export function SiteNavFull({ lang, onLangChange, dir: _dir, navLogin, navRegist
                 key={l}
                 type="button"
                 onClick={() => onLangChange(l)}
+                aria-current={lang === l ? "true" : undefined}
+                aria-label={`Sprache: ${l}`}
                 className={`text-xs font-bold tracking-widest transition-colors rounded-lg px-2 py-1 ${
                   lang === l ? "text-[var(--accent)] bg-[var(--accent)]/10" : "text-white/40 hover:text-white"
                 }`}

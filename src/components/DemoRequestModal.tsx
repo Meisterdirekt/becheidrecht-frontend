@@ -101,13 +101,15 @@ export function DemoRequestModal({
   return (
     <div
       className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="demo-modal-title"
+      role="presentation"
+      aria-hidden="true"
       onClick={onClose}
     >
       <div
         className="w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-2xl border border-white/10 bg-[var(--bg)] p-6 sm:p-8 shadow-2xl"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="demo-modal-title"
         onClick={(e) => e.stopPropagation()}
       >
         {status === "success" ? (

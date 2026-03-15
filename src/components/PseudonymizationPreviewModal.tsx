@@ -61,13 +61,15 @@ export function PseudonymizationPreviewModal({
   return (
     <div
       className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm modal-backdrop"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="pseudonym-preview-title"
+      role="presentation"
+      aria-hidden="true"
       onClick={onClose}
     >
       <div
         className="modal-content w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl border-2 border-[var(--accent)]/50 bg-[var(--bg)] p-6 shadow-xl"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="pseudonym-preview-title"
         onClick={(e) => e.stopPropagation()}
       >
         <h2

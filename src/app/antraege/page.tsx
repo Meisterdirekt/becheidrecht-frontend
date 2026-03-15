@@ -237,7 +237,7 @@ export default function AntraegePage() {
     : null;
 
   return (
-    <main className="min-h-screen bg-mesh text-white flex flex-col">
+    <main id="main-content" className="min-h-screen bg-mesh text-white flex flex-col">
       <SiteNavSimple
         backHref="/"
         backLabel="Startseite"

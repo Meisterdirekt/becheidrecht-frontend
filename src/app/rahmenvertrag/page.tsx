@@ -12,7 +12,7 @@ const ANBIETER = {
   adresse: process.env.NEXT_PUBLIC_COMPANY_ADDRESS || "Antoniusstraße 47, 49377 Vechta",
   email: "kontakt@bescheidrecht.de",
   web: "bescheidrecht.de",
-  steuernummer: "Kleinunternehmer gem. § 19 UStG (keine USt-IdNr.)",
+  steuernummer: "Kleinunternehmer gem. § 19 UStG — es wird keine Umsatzsteuer berechnet",
   gerichtsstand: process.env.NEXT_PUBLIC_COMPANY_CITY || "Vechta",
 };
 
@@ -90,32 +90,32 @@ export default function RahmenvertragPage() {
           </p>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
             <div>
-              <label className="block text-xs font-bold text-slate-500 mb-1">Organisation (Auftraggeber)</label>
-              <input className="w-full text-sm border border-slate-200 rounded-lg px-3 py-2 bg-white focus:outline-none focus:border-sky-400" value={kundeOrg} onChange={(e) => setKundeOrg(e.target.value)} />
+              <label htmlFor="rv-org" className="block text-xs font-bold text-slate-500 mb-1">Organisation (Auftraggeber)</label>
+              <input id="rv-org" className="w-full text-sm border border-slate-200 rounded-lg px-3 py-2 bg-white focus:outline-none focus:border-sky-400" value={kundeOrg} onChange={(e) => setKundeOrg(e.target.value)} />
             </div>
             <div>
-              <label className="block text-xs font-bold text-slate-500 mb-1">Adresse</label>
-              <input className="w-full text-sm border border-slate-200 rounded-lg px-3 py-2 bg-white focus:outline-none focus:border-sky-400" value={kundeAdresse} onChange={(e) => setKundeAdresse(e.target.value)} />
+              <label htmlFor="rv-adresse" className="block text-xs font-bold text-slate-500 mb-1">Adresse</label>
+              <input id="rv-adresse" className="w-full text-sm border border-slate-200 rounded-lg px-3 py-2 bg-white focus:outline-none focus:border-sky-400" value={kundeAdresse} onChange={(e) => setKundeAdresse(e.target.value)} />
             </div>
             <div>
-              <label className="block text-xs font-bold text-slate-500 mb-1">Vertreten durch</label>
-              <input className="w-full text-sm border border-slate-200 rounded-lg px-3 py-2 bg-white focus:outline-none focus:border-sky-400" value={kundeVertreter} onChange={(e) => setKundeVertreter(e.target.value)} />
+              <label htmlFor="rv-vertreter" className="block text-xs font-bold text-slate-500 mb-1">Vertreten durch</label>
+              <input id="rv-vertreter" className="w-full text-sm border border-slate-200 rounded-lg px-3 py-2 bg-white focus:outline-none focus:border-sky-400" value={kundeVertreter} onChange={(e) => setKundeVertreter(e.target.value)} />
             </div>
             <div>
-              <label className="block text-xs font-bold text-slate-500 mb-1">Ansprechpartner</label>
-              <input className="w-full text-sm border border-slate-200 rounded-lg px-3 py-2 bg-white focus:outline-none focus:border-sky-400" value={kundeAnsprechpartner} onChange={(e) => setKundeAnsprechpartner(e.target.value)} />
+              <label htmlFor="rv-ansprechpartner" className="block text-xs font-bold text-slate-500 mb-1">Ansprechpartner</label>
+              <input id="rv-ansprechpartner" className="w-full text-sm border border-slate-200 rounded-lg px-3 py-2 bg-white focus:outline-none focus:border-sky-400" value={kundeAnsprechpartner} onChange={(e) => setKundeAnsprechpartner(e.target.value)} />
             </div>
             <div>
-              <label className="block text-xs font-bold text-slate-500 mb-1">Vertrags-Nr.</label>
-              <input className="w-full text-sm border border-slate-200 rounded-lg px-3 py-2 bg-white focus:outline-none focus:border-sky-400" value={vertragNr} onChange={(e) => setVertragNr(e.target.value)} />
+              <label htmlFor="rv-nr" className="block text-xs font-bold text-slate-500 mb-1">Vertrags-Nr.</label>
+              <input id="rv-nr" className="w-full text-sm border border-slate-200 rounded-lg px-3 py-2 bg-white focus:outline-none focus:border-sky-400" value={vertragNr} onChange={(e) => setVertragNr(e.target.value)} />
             </div>
             <div>
-              <label className="block text-xs font-bold text-slate-500 mb-1">Vertragsdatum (leer = heute)</label>
-              <input type="date" className="w-full text-sm border border-slate-200 rounded-lg px-3 py-2 bg-white focus:outline-none focus:border-sky-400" value={vertragsDatum} onChange={(e) => setVertragsDatum(e.target.value)} />
+              <label htmlFor="rv-datum" className="block text-xs font-bold text-slate-500 mb-1">Vertragsdatum (leer = heute)</label>
+              <input id="rv-datum" type="date" className="w-full text-sm border border-slate-200 rounded-lg px-3 py-2 bg-white focus:outline-none focus:border-sky-400" value={vertragsDatum} onChange={(e) => setVertragsDatum(e.target.value)} />
             </div>
             <div>
-              <label className="block text-xs font-bold text-slate-500 mb-1">Laufzeit beginnt am</label>
-              <input type="date" className="w-full text-sm border border-slate-200 rounded-lg px-3 py-2 bg-white focus:outline-none focus:border-sky-400" value={laufzeitBeginn} onChange={(e) => setLaufzeitBeginn(e.target.value)} />
+              <label htmlFor="rv-laufzeit" className="block text-xs font-bold text-slate-500 mb-1">Laufzeit beginnt am</label>
+              <input id="rv-laufzeit" type="date" className="w-full text-sm border border-slate-200 rounded-lg px-3 py-2 bg-white focus:outline-none focus:border-sky-400" value={laufzeitBeginn} onChange={(e) => setLaufzeitBeginn(e.target.value)} />
             </div>
           </div>
           <div>
@@ -251,10 +251,13 @@ export default function RahmenvertragPage() {
         <div className="paragraf">
           <h3>§ 4 Vergütung und Zahlungsbedingungen</h3>
           <ol className="vertragslist">
-            <li>Die monatliche Lizenzgebühr beträgt <strong>{p.preis} € netto zzgl. der gesetzlichen
-              Mehrwertsteuer</strong>. Die Abrechnung erfolgt monatlich im Voraus.</li>
+            <li>Die monatliche Lizenzgebühr beträgt <strong>{p.preis} €</strong>. Gemäß § 19 UStG
+              wird keine Umsatzsteuer berechnet (Kleinunternehmerregelung). Die Abrechnung
+              erfolgt monatlich im Voraus. Sollte der AN die Kleinunternehmerregelung künftig
+              nicht mehr in Anspruch nehmen, wird die gesetzliche Umsatzsteuer zusätzlich
+              berechnet; der AG wird hierüber rechtzeitig informiert.</li>
             <li>Bei jährlicher Vorauszahlung gewährt der AN einen Rabatt von <strong>10 %</strong>
-              auf den Jahresbetrag (= {jahresnetto} € netto für 12 Monate).</li>
+              auf den Jahresbetrag (= {jahresnetto} € für 12 Monate).</li>
             <li>Rechnungen sind innerhalb von <strong>14 Tagen</strong> ohne Abzug zur Zahlung
               fällig. Bei Zahlungsverzug gilt der gesetzliche Verzugszinssatz gemäß § 288 BGB.</li>
             <li>Der AN ist berechtigt, die Lizenzgebühren einmal jährlich um bis zu <strong>5 %</strong>
@@ -262,8 +265,8 @@ export default function RahmenvertragPage() {
               schriftlich mitgeteilt. Bei einer Erhöhung über 5 % hat der AG ein
               Sonderkündigungsrecht mit einer Frist von 4 Wochen.</li>
             <li>Ein einmaliges Onboarding-Entgelt in Höhe von
-              {paket === "S" ? " 1.500 €" : paket === "M" ? " 2.500 €" : " 4.500 €"} netto
-              zzgl. MwSt. wird mit der ersten Rechnung fällig.</li>
+              {paket === "S" ? " 1.500 €" : paket === "M" ? " 2.500 €" : " 4.500 €"} wird
+              mit der ersten Rechnung fällig (§ 19 UStG — keine Umsatzsteuer).</li>
           </ol>
         </div>
 
@@ -384,7 +387,8 @@ export default function RahmenvertragPage() {
               der Parteien zu seinem Gegenstand dar und ersetzt alle vorherigen mündlichen oder
               schriftlichen Vereinbarungen.</li>
             <li><strong>Anlagen:</strong> Anlage 1 — Leistungsbeschreibung & SLA-Definition;
-              Anlage 2 — Auftragsverarbeitungsvertrag (AV-Vertrag) gemäß Art. 28 DSGVO</li>
+              Anlage 2 — Auftragsverarbeitungsvertrag (AV-Vertrag) gemäß Art. 28 DSGVO;
+              Anlage 3 — Technische und organisatorische Maßnahmen (TOM) gemäß Art. 32 DSGVO</li>
           </ol>
         </div>
 
@@ -426,6 +430,9 @@ export default function RahmenvertragPage() {
           </Link>
           <Link href="/rahmenvertrag/anlage-2" className="px-5 py-2.5 rounded-xl text-sm font-bold bg-sky-500 text-white hover:bg-sky-400 transition-colors">
             Anlage 2: AV-Vertrag (Art. 28 DSGVO)
+          </Link>
+          <Link href="/rahmenvertrag/anlage-3" className="px-5 py-2.5 rounded-xl text-sm font-bold bg-sky-500 text-white hover:bg-sky-400 transition-colors">
+            Anlage 3: TOM (Art. 32 DSGVO)
           </Link>
         </div>
 

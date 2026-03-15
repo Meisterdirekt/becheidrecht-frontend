@@ -130,7 +130,7 @@ function RegisterForm() {
   };
 
   return (
-    <main className="min-h-screen bg-mesh text-white flex flex-col">
+    <main id="main-content" className="min-h-screen bg-mesh text-white flex flex-col">
       <SiteNavSimple backHref="/" backLabel="Zurück zur Startseite" />
       <div className="flex-1 flex items-center justify-center p-6 py-16">
         <div className="w-full max-w-xl rounded-3xl border border-white/10 bg-white/[0.04] p-8 md:p-10 shadow-xl animate-slideUp">
@@ -155,10 +155,11 @@ function RegisterForm() {
               <form className="grid grid-cols-1 md:grid-cols-2 gap-6" onSubmit={handleSubmit} noValidate>
                 {(["firstName", "lastName"] as const).map((name) => (
                   <div key={name}>
-                    <label className="label-upper">
+                    <label htmlFor={`reg-${name}`} className="label-upper">
                       {name === "firstName" ? "Vorname" : "Nachname"} <span className="text-[var(--accent)]">*</span>
                     </label>
                     <input
+                      id={`reg-${name}`}
                       type="text"
                       name={name}
                       value={formData[name]}
@@ -171,8 +172,9 @@ function RegisterForm() {
                   </div>
                 ))}
                 <div className="md:col-span-2">
-                  <label className="label-upper">E-Mail <span className="text-[var(--accent)]">*</span></label>
+                  <label htmlFor="reg-email" className="label-upper">E-Mail <span className="text-[var(--accent)]">*</span></label>
                   <input
+                    id="reg-email"
                     type="email"
                     name="email"
                     value={formData.email}
@@ -184,16 +186,17 @@ function RegisterForm() {
                   {errors.email && <p className="text-red-400 text-sm mt-1">{errors.email}</p>}
                 </div>
                 <div className="md:col-span-2">
-                  <label className="label-upper">Straße & Hausnummer <span className="text-white/30">(optional)</span></label>
-                  <input type="text" name="street" value={formData.street} onChange={handleChange} autoComplete="street-address" className="input-field" placeholder="Musterstraße 1" />
+                  <label htmlFor="reg-street" className="label-upper">Straße & Hausnummer <span className="text-white/30">(optional)</span></label>
+                  <input id="reg-street" type="text" name="street" value={formData.street} onChange={handleChange} autoComplete="street-address" className="input-field" placeholder="Musterstraße 1" />
                 </div>
                 <div>
-                  <label className="label-upper">PLZ & Ort <span className="text-white/30">(optional)</span></label>
-                  <input type="text" name="city" value={formData.city} onChange={handleChange} autoComplete="postal-code" className="input-field" placeholder="12345 Berlin" />
+                  <label htmlFor="reg-city" className="label-upper">PLZ & Ort <span className="text-white/30">(optional)</span></label>
+                  <input id="reg-city" type="text" name="city" value={formData.city} onChange={handleChange} autoComplete="postal-code" className="input-field" placeholder="12345 Berlin" />
                 </div>
                 <div>
-                  <label className="label-upper">Passwort <span className="text-[var(--accent)]">*</span></label>
+                  <label htmlFor="reg-password" className="label-upper">Passwort <span className="text-[var(--accent)]">*</span></label>
                   <input
+                    id="reg-password"
                     type="password"
                     name="password"
                     value={formData.password}
@@ -205,8 +208,9 @@ function RegisterForm() {
                   {errors.password && <p className="text-red-400 text-sm mt-1">{errors.password}</p>}
                 </div>
                 <div className="md:col-span-2">
-                  <label className="label-upper">Passwort wiederholen <span className="text-[var(--accent)]">*</span></label>
+                  <label htmlFor="reg-passwordConfirm" className="label-upper">Passwort wiederholen <span className="text-[var(--accent)]">*</span></label>
                   <input
+                    id="reg-passwordConfirm"
                     type="password"
                     name="passwordConfirm"
                     value={formData.passwordConfirm}

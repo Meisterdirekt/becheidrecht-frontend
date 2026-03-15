@@ -82,7 +82,7 @@ export default function ForgotPage() {
   }
 
   return (
-    <main className="min-h-screen bg-mesh text-white flex flex-col">
+    <main id="main-content" className="min-h-screen bg-mesh text-white flex flex-col">
       <SiteNavSimple backHref="/login" backLabel="Zurück zum Login" />
       <div className="flex-1 flex items-center justify-center p-6 py-16">
         <div className="w-full max-w-md rounded-3xl border border-white/10 bg-white/[0.04] p-8 md:p-10 shadow-xl">
@@ -113,8 +113,9 @@ export default function ForgotPage() {
                 </div>
               )}
               <div>
-                <label className="label-upper">E-Mail-Adresse</label>
+                <label htmlFor="forgot-email" className="label-upper">E-Mail-Adresse</label>
                 <input
+                  id="forgot-email"
                   type="email"
                   className="input-field"
                   value={email}

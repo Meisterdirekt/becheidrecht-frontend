@@ -5,7 +5,7 @@ import { FileText, Download } from "lucide-react";
 
 export default function AvvPage() {
   return (
-    <main className="min-h-screen bg-[var(--bg)] text-[var(--text)] pb-24">
+    <main id="main-content" className="min-h-screen bg-[var(--bg)] text-[var(--text)] pb-24">
       {/* Nav */}
       <nav className="sticky top-0 z-40 bg-[var(--bg)]/90 backdrop-blur-xl border-b border-[var(--border)]">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
@@ -213,10 +213,25 @@ export default function AvvPage() {
                     <td className="py-3 pr-4">KI-Verarbeitung (pseudonymisiert)</td>
                     <td className="py-3">USA — DPA + SCCs, Zero-Retention</td>
                   </tr>
-                  <tr>
+                  <tr className="border-b border-[var(--border)]">
+                    <td className="py-3 pr-4 font-medium text-[var(--text)]">OpenAI LLC</td>
+                    <td className="py-3 pr-4">Technischer Fallback (OCR/Analyse bei Nichtverfügbarkeit von Anthropic)</td>
+                    <td className="py-3">USA — DPA + SCCs, Zero-Retention (API)</td>
+                  </tr>
+                  <tr className="border-b border-[var(--border)]">
                     <td className="py-3 pr-4 font-medium text-[var(--text)]">Mollie B.V.</td>
                     <td className="py-3 pr-4">Zahlungsabwicklung</td>
                     <td className="py-3">NL (EU) — PCI-DSS, DSGVO</td>
+                  </tr>
+                  <tr className="border-b border-[var(--border)]">
+                    <td className="py-3 pr-4 font-medium text-[var(--text)]">Functional Software Inc. (Sentry)</td>
+                    <td className="py-3 pr-4">Fehlerüberwachung und Stabilitätsmonitoring</td>
+                    <td className="py-3">USA — DPA + SCCs</td>
+                  </tr>
+                  <tr>
+                    <td className="py-3 pr-4 font-medium text-[var(--text)]">Upstash Inc.</td>
+                    <td className="py-3 pr-4">Rate-Limiting (Redis, keine personenbezogenen Daten)</td>
+                    <td className="py-3">USA — DPA + SCCs, EU-Region</td>
                   </tr>
                 </tbody>
               </table>

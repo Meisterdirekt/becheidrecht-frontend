@@ -140,7 +140,9 @@ function Schritt2({
         falsch vorkommt.
       </p>
 
+      <label htmlFor="assist-anliegen" className="sr-only">Ihr Anliegen</label>
       <textarea
+        id="assist-anliegen"
         value={beschreibung}
         onChange={(e) => onChange(e.target.value)}
         placeholder={`Beispiel:\n\nDas Jobcenter hat meinen Antrag auf Grundsicherungsgeld (ehem. Bürgergeld) abgelehnt. Sie schreiben, mein Einkommen übersteige die Grenze, aber ich glaube, sie haben meine Mietkosten nicht korrekt einberechnet. Der Bescheid ist vom 15.02.2026.`}
@@ -187,10 +189,11 @@ function Schritt3({
           </div>
 
           <div>
-            <label className="block text-[11px] font-bold uppercase tracking-widest text-white/40 mb-2">
+            <label htmlFor="assist-antworten" className="block text-[11px] font-bold uppercase tracking-widest text-white/40 mb-2">
               Ihre Antworten
             </label>
             <textarea
+              id="assist-antworten"
               value={antworten}
               onChange={(e) => onChange(e.target.value)}
               placeholder="Schreiben Sie hier Ihre Antworten auf die obigen Fragen..."
@@ -252,17 +255,21 @@ function Schritt4({
         <>
           <div className="flex gap-2 mb-4">
             <button
+              type="button"
               onClick={copyToClipboard}
+              aria-label="Schreiben in Zwischenablage kopieren"
               className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-white/60 text-[11px] font-bold uppercase tracking-widest hover:bg-white/10 transition-colors"
             >
-              <Copy size={12} />
+              <Copy size={12} aria-hidden="true" />
               Kopieren
             </button>
             <button
+              type="button"
               onClick={downloadTxt}
+              aria-label="Schreiben als Textdatei herunterladen"
               className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-white/60 text-[11px] font-bold uppercase tracking-widest hover:bg-white/10 transition-colors"
             >
-              <Download size={12} />
+              <Download size={12} aria-hidden="true" />
               Herunterladen
             </button>
           </div>
@@ -497,7 +504,7 @@ function AssistantPage() {
   }
 
   return (
-    <main className="min-h-screen bg-mesh text-white flex flex-col">
+    <main id="main-content" className="min-h-screen bg-mesh text-white flex flex-col">
       <SiteNavSimple
         backHref="/"
         backLabel="Startseite"

@@ -204,7 +204,7 @@ const LOESUNG_ITEMS = [
 
 export default function B2BPage() {
   return (
-    <main className="min-h-screen bg-[var(--bg)] text-[var(--text)] overflow-x-hidden pb-20 sm:pb-0">
+    <main id="main-content" className="min-h-screen bg-[var(--bg)] text-[var(--text)] overflow-x-hidden pb-20 sm:pb-0">
       <B2BThemeInit />
 
       {/* ── Nav ─────────────────────────────────────── */}

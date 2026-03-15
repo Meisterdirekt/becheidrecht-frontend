@@ -193,7 +193,7 @@ export default function EinrichtungDashboard() {
   ] as { id: typeof activeTab; label: string }[];
 
   return (
-    <main className="min-h-screen bg-[var(--bg)] text-[var(--text)] pb-20">
+    <main id="main-content" className="min-h-screen bg-[var(--bg)] text-[var(--text)] pb-20">
       {/* ── Header ──────────────────────────────────────────────────────── */}
       <header className="sticky top-0 z-40 bg-[var(--bg)]/90 backdrop-blur-xl border-b border-white/5">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between gap-4">
