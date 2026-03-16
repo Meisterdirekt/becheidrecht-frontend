@@ -182,7 +182,7 @@ supabase/                               # SQL-Migrations (manuell via SQL-Editor
 
 ## Agent Engine (src/lib/logic/agent_engine.ts)
 
-**Aktueller Stand:** 13-Agenten-Pipeline + 7 Cron-Agenten vollständig implementiert in `src/lib/logic/agents/`.
+**Aktueller Stand:** 13-Agenten-Pipeline vollständig implementiert in `src/lib/logic/agents/`.
 `agent_engine.ts` ist ein dünner Wrapper über `agents/orchestrator.ts`.
 
 **Pipeline:** AG08 → AG12 → AG01 → [AG02 ‖ AG04] → AG03 → [AG07 ‖ AG14] → AG13
@@ -203,7 +203,7 @@ supabase/                               # SQL-Migrations (manuell via SQL-Editor
 | AG16 | ag16-vercel-agent.ts | Vercel-Ops (täglich 06:00 UTC) |
 | AG17 | ag17-agent-auditor.ts | Agent-Auditor (Mi 05:00 UTC) |
 | AG18 | ag18-content-auditor.ts | Content-Auditor (15. des Monats 01:00 UTC) |
-| AG19 | ag19-design-guardian.ts | Design-Guardian (donnerstags 05:00 UTC) |
+| AG19 | ag19-design-guardian.ts | Design-Guardian (Do 05:00 UTC, statische Analyse, €0) |
 
 **Routing nach Dringlichkeit:**
 - NORMAL (>14 Tage Frist) → `claude-sonnet-4-6`
@@ -214,7 +214,7 @@ supabase/                               # SQL-Migrations (manuell via SQL-Editor
 
 ## Supabase
 
-- Projekt: `xprrzmcickfparpogbpj`
+- Projekt: `xprrzmcickfparpogbpj`  # Öffentliche URL — nie in generierten Code einbauen
 - **Aktive Tabellen:** analyses, documents, plans, profiles, single_purchases, site_feedback, subscriptions, usage, usage_counters, user_subscriptions, user_fristen, organizations, organization_members, organization_invites, analysis_results
 - **Wissensdatenbank (SQL existiert in `supabase/wissensdatenbank.sql`, manuell via SQL-Editor zu deployen):** urteile, kennzahlen, behoerdenfehler, update_protokoll, sessions, analysis_results
 - **Setup:** `npx ts-node -r tsconfig-paths/register scripts/setup-wissensdatenbank.ts` prüft Tabellen-Status und gibt Deploy-Anleitung aus
@@ -272,7 +272,7 @@ Mobile first (375px zuerst). Arabisch (AR) → `dir="rtl"`. Fehler freundlich fo
 
 8. **OCR-Fallback (tesseract.js) ist langsam** (~5–15 Sek/Seite). `pdf2json` ist primär. Tesseract nur wenn kein Text gefunden.
 
-9. **Zehn Vercel Crons (vercel.json):**
+9. **Neun Vercel Crons (vercel.json):**
    - `rechts-update` → 1. des Monats 03:00 UTC (AG15 Rechts-Monitor)
    - `agent-batch` → Sonntag 02:00 UTC (AG09/AG10/AG11)
    - `backend-health` → täglich 03:00 UTC (DB-Health + Kosten-Anomalien → GitHub Issue)
@@ -281,7 +281,7 @@ Mobile first (375px zuerst). Arabisch (AR) → `dir="rtl"`. Fehler freundlich fo
    - `vercel-monitor` → täglich 06:00 UTC (AG16 Deployment-Check)
    - `agent-audit` → Mi 05:00 UTC (AG17 Agent-Metriken → GitHub Issue)
    - `content-audit` → 15. des Monats 01:00 UTC (AG18 Kennzahlen/Fehlerkatalog/Weisungen-Audit → GitHub Issue)
-   - `design-guardian` → Do 05:00 UTC (AG19 Statische Design-System-Analyse → GitHub Issue)
+   - `design-guardian` → Do 05:00 UTC (AG19 Statische Design-System-Analyse → GitHub Issue, €0)
    Alle: Auth via `?secret=CRON_SECRET`. Manuell: `curl "http://localhost:3000/api/cron/design-guardian?secret=$CRON_SECRET"`.
 
 10. **SSE-Streaming** (`/api/assistant/route.ts`) nutzt `ReadableStream` + `TextEncoder`. Client: `reader.read()` in While-Schleife. Kein EventSource API.
@@ -290,7 +290,7 @@ Mobile first (375px zuerst). Arabisch (AR) → `dir="rtl"`. Fehler freundlich fo
 
 12. **`mollie/webhook/route.ts` ist der produktive Payment-Webhook** — verarbeitet Mollie-Zahlungen (paid/failed/expired). Beim Erstellen einer Zahlung via Mollie API: `metadata: { product_key: "starter"|"team"|"einrichtung", buyer_email: "..." }`. MOLLIE_API_KEY Pflicht.
 
-13. **19-Agenten-System vollständig implementiert** in `src/lib/logic/agents/` (AG01–AG18 + orchestrator.ts). `agent_engine.ts` ist nur ein dünner Wrapper. Die `wissensdatenbank.sql`-Tabellen (urteile, kennzahlen, analysis_results etc.) müssen noch manuell in Supabase deployed werden — erst dann können AG04/AG05 in die DB schreiben.
+13. **19-Agenten-System vollständig implementiert** in `src/lib/logic/agents/` (AG01–AG19 + orchestrator.ts). `agent_engine.ts` ist nur ein dünner Wrapper. Die `wissensdatenbank.sql`-Tabellen (urteile, kennzahlen, analysis_results etc.) müssen noch manuell in Supabase deployed werden — erst dann können AG04/AG05 in die DB schreiben.
 
 14. **`vault/` enthält echte Credentials** (`keys.env`, `provider_logins.txt`). In `.gitignore`, aber als Entwickler nie darin stöbern oder Inhalte ausgeben. **Dev-Workaround:** 4 Routes (`analyze`, `generate-letter`, `assistant`, `agents/utils.ts`) lesen `vault/keys.env` via `fs.readFileSync` als lokalen Key-Fallback. Auf Vercel scheitert das stumm (`try/catch`) und es werden ENV-Vars verwendet. Das ist Absicht — nicht "fixen".
 
@@ -298,7 +298,7 @@ Mobile first (375px zuerst). Arabisch (AR) → `dir="rtl"`. Fehler freundlich fo
 
 16. **B2B-Modul (Einrichtungen).** `einrichtung/` Pages + API-Routes bilden ein Org-Verwaltungssystem: Org anlegen (`admin/create-org`), Mitarbeiter einladen (`einrichtung/invite`), Einladung annehmen (`einrichtung/invite/accept`), Mitglieder verwalten (`einrichtung/members`). DB-Schema in `supabase/b2b_organizations.sql`. Einrichtungs-Routes nutzen User-JWT + Org-Zugehörigkeitsprüfung.
 
-17. **GitHub Actions (4 Workflows).** `ci.yml` (Build/Test/E2E+Playwright), `pr-review.yml` (AG-CRITIC Claude PR-Review), `security.yml` (npm audit + Secrets-Scan), `uptime.yml` (Health-Check alle 5 Min). E2E-Tests laufen in CI mit Chromium, Screenshots werden als Artifacts gespeichert (30 Tage). Secrets: ANTHROPIC_API_KEY, NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, CRON_SECRET, NEXT_PUBLIC_APP_URL.
+17. **GitHub Actions (4 Workflows).** `ci.yml` (Build/Test), `pr-review.yml` (AG-CRITIC Claude PR-Review), `security.yml` (npm audit + Secrets-Scan), `uptime.yml` (Health-Check alle 5 Min). Secrets: ANTHROPIC_API_KEY, NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, CRON_SECRET, NEXT_PUBLIC_APP_URL.
 
 ---
 
@@ -319,38 +319,7 @@ ADMIN_EMAILS                   # Komma-separierte Admin-E-Mails
 ADMIN_SECRET                   # Admin-Authentifizierung
 ```
 
-Infrastruktur:
-```
-VERCEL_TOKEN                   # Vercel API (AG16 Deployment-Check)
-VERCEL_TEAM_ID                 # Vercel Team-ID
-GITHUB_TOKEN                   # GitHub API (AG15/AG16/AG17 Issues/PRs)
-GITHUB_REPO                    # Format: owner/repo
-CLOUDFLARE_DOMAIN              # Cloudflare Domain
-CLOUDFLARE_TOKEN               # Cloudflare API-Token
-UPSTASH_REDIS_REST_URL         # Redis für Rate-Limiting (rate-limit.ts)
-UPSTASH_REDIS_REST_TOKEN       # Redis Auth-Token
-```
-
-Monitoring:
-```
-SENTRY_DSN                     # Sentry Error-Tracking
-NEXT_PUBLIC_SENTRY_DSN         # Sentry Client-Side (gleicher Wert wie SENTRY_DSN)
-SENTRY_AUTH_TOKEN              # Sentry Release-Upload
-SENTRY_ORG                     # Sentry Organisation
-SENTRY_PROJECT                 # Sentry Projektname
-SENTRY_URL                     # Sentry URL
-NEXT_PUBLIC_APP_URL            # Produktions-URL für Lighthouse-Audit (https://bescheidrecht.de)
-PAGESPEED_API_KEY              # Google PageSpeed Insights API Key (optional, ohne Key: 25 req/Tag limit)
-```
-
-**GitHub Actions Secrets (in Repo → Settings → Secrets):**
-```
-ANTHROPIC_API_KEY              # Für AG-CRITIC automatisches PR-Review
-NEXT_PUBLIC_SUPABASE_URL       # Für Build-Job
-NEXT_PUBLIC_SUPABASE_ANON_KEY  # Für Build-Job
-CRON_SECRET                    # Für Cron-Endpunkte
-NEXT_PUBLIC_APP_URL            # Für Lighthouse
-```
+Infra, Monitoring & GitHub Actions Secrets → siehe `INFRASTRUCTURE.md`
 
 ---
 
