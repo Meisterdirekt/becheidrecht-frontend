@@ -1,0 +1,247 @@
+name: Agent System
+
+on:
+  push:
+    branches: [main, dev]
+  schedule:
+    # Täglich 03:00 UTC — Health-Check
+    - cron: '0 3 * * *'
+    # Wöchentlich Sonntag 02:00 UTC — Vollprüfung
+    - cron: '0 2 * * 0'
+  workflow_dispatch:
+    inputs:
+      trigger:
+        description: 'Trigger-Typ (push/daily/weekly/incident/manual)'
+        required: true
+        default: 'manual'
+      scope:
+        description: 'Optionaler Scope (z.B. Dateiname oder Fehler-Beschreibung)'
+        required: false
+
+jobs:
+  orchestrate:
+    name: Run Agent Orchestrator
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 10
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Determine trigger type
+        id: trigger
+        run: |
+          if [ "${{ github.event_name }}" = "push" ]; then
+            echo "type=push" >> $GITHUB_OUTPUT
+            echo "scope=git-push on ${{ github.ref_name }}" >> $GITHUB_OUTPUT
+          elif [ "${{ github.event_name }}" = "schedule" ]; then
+            HOUR=$(date -u +%H)
+            DAY=$(date -u +%u)
+            if [ "$DAY" = "7" ] && [ "$HOUR" = "02" ]; then
+              echo "type=weekly" >> $GITHUB_OUTPUT
+            else
+              echo "type=daily" >> $GITHUB_OUTPUT
+            fi
+          else
+            echo "type=${{ github.event.inputs.trigger }}" >> $GITHUB_OUTPUT
+            echo "scope=${{ github.event.inputs.scope }}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: TypeScript Check
+        run: npx tsc --noEmit
+        continue-on-error: true
+        id: typescript
+
+      - name: ESLint
+        run: npm run lint -- --format json --output-file lint-results.json
+        continue-on-error: true
+        id: eslint
+
+      - name: Security Audit
+        run: npm audit --json > audit-results.json
+        continue-on-error: true
+
+      - name: Build Check
+        run: npm run build
+        continue-on-error: true
+        id: build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          NEXT_PUBLIC_APP_URL: ${{ secrets.NEXT_PUBLIC_APP_URL }}
+
+      - name: Run Agent Analysis via Claude API
+        id: agent-run
+        run: |
+          node - << 'EOF'
+          const fs = require('fs');
+
+          // Kontext sammeln
+          const context = {
+            trigger: process.env.TRIGGER_TYPE,
+            scope: process.env.TRIGGER_SCOPE,
+            typescript_ok: process.env.TS_OUTCOME === 'success',
+            build_ok: process.env.BUILD_OUTCOME === 'success',
+            changed_files: process.env.CHANGED_FILES || '',
+            lint_results: fs.existsSync('lint-results.json')
+              ? fs.readFileSync('lint-results.json', 'utf8') : '[]',
+            audit_results: fs.existsSync('audit-results.json')
+              ? fs.readFileSync('audit-results.json', 'utf8') : '{}',
+            claude_md: fs.existsSync('CLAUDE.md')
+              ? fs.readFileSync('CLAUDE.md', 'utf8') : 'CLAUDE.md not found',
+            memory_md: fs.existsSync('MEMORY.md')
+              ? fs.readFileSync('MEMORY.md', 'utf8') : '',
+          };
+
+          const prompt = `Du bist der MASTER-ORCHESTRATOR des Agent-Systems.
+
+TRIGGER: ${context.trigger}
+SCOPE: ${context.scope}
+
+PROJEKT-KONTEXT (CLAUDE.md):
+${context.claude_md.substring(0, 3000)}
+
+SYSTEM-MEMORY (MEMORY.md - letzte Runs):
+${context.memory_md.substring(0, 1000)}
+
+BUILD-STATUS:
+- TypeScript: ${context.typescript_ok ? '✅ OK' : '🔴 FEHLER'}
+- Build: ${context.build_ok ? '✅ OK' : '🔴 FEHLER'}
+- Geänderte Dateien: ${context.changed_files}
+
+LINT-FINDINGS (Zusammenfassung):
+${context.lint_results.substring(0, 500)}
+
+SECURITY-AUDIT:
+${context.audit_results.substring(0, 500)}
+
+Analysiere den aktuellen Zustand und erstelle einen strukturierten Report.
+Fokus auf:
+1. Kritische Probleme die sofort behoben werden müssen
+2. Deploy-Empfehlung (✅ / ⚠️ / 🚫)
+3. Top 3 konkrete Fixes
+
+Format: Markdown, klar strukturiert, direkt und actionable.`;
+
+          async function runOrchestrator() {
+            const response = await fetch('https://api.anthropic.com/v1/messages', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'x-api-key': process.env.ANTHROPIC_API_KEY,
+                'anthropic-version': '2023-06-01',
+              },
+              body: JSON.stringify({
+                model: 'claude-sonnet-4-6',
+                max_tokens: 2000,
+                messages: [{ role: 'user', content: prompt }],
+              }),
+            });
+
+            const data = await response.json();
+            const report = data.content[0].text;
+
+            fs.writeFileSync('REPORT.md', report);
+            console.log('REPORT generated');
+
+            // Deploy-Empfehlung extrahieren
+            const isBlocked = report.includes('🚫') || report.includes('NICHT DEPLOYEN');
+            const hasWarnings = report.includes('⚠️') || report.includes('MIT VORSICHT');
+
+            fs.writeFileSync('deploy-status.txt',
+              isBlocked ? 'BLOCK' : hasWarnings ? 'WARN' : 'OK'
+            );
+          }
+
+          runOrchestrator().catch(console.error);
+          EOF
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          TRIGGER_TYPE: ${{ steps.trigger.outputs.type }}
+          TRIGGER_SCOPE: ${{ steps.trigger.outputs.scope }}
+          TS_OUTCOME: ${{ steps.typescript.outcome }}
+          BUILD_OUTCOME: ${{ steps.build.outcome }}
+          CHANGED_FILES: ${{ github.event.head_commit.modified }}
+
+      - name: Read deploy status
+        id: deploy
+        run: |
+          STATUS=$(cat deploy-status.txt 2>/dev/null || echo "OK")
+          echo "status=$STATUS" >> $GITHUB_OUTPUT
+
+      # PR-Kommentar bei Push auf Feature-Branch
+      - name: Comment on PR
+        if: github.event_name == 'push' && github.ref != 'refs/heads/main'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const report = fs.readFileSync('REPORT.md', 'utf8');
+            const status = '${{ steps.deploy.outputs.status }}';
+            const emoji = status === 'BLOCK' ? '🚫' : status === 'WARN' ? '⚠️' : '✅';
+
+            const prs = await github.rest.pulls.list({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              head: `${context.repo.owner}:${context.ref.replace('refs/heads/', '')}`,
+            });
+
+            if (prs.data.length > 0) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: prs.data[0].number,
+                body: `## ${emoji} Agent System Report\n\n${report}`,
+              });
+            }
+
+      # GitHub Issue bei kritischen Problemen
+      - name: Open critical issue
+        if: steps.deploy.outputs.status == 'BLOCK'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const report = fs.readFileSync('REPORT.md', 'utf8');
+
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `🚫 [AGENT SYSTEM] Kritisches Problem erkannt — ${new Date().toISOString().split('T')[0]}`,
+              body: `## Automatisch erkannt durch Agent System\n\nTrigger: ${{ steps.trigger.outputs.type }}\nBranch: ${{ github.ref_name }}\n\n${report}`,
+              labels: ['critical', 'agent-system', 'needs-immediate-attention'],
+            });
+
+      # Report-Artifact speichern
+      - name: Upload Report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: agent-report-${{ github.run_number }}
+          path: |
+            REPORT.md
+            PLAN.md
+          retention-days: 30
+
+      # Block wenn kritisch
+      - name: Fail on BLOCK
+        if: steps.deploy.outputs.status == 'BLOCK'
+        run: |
+          echo "🚫 Agent System hat BLOCK gesetzt. Deploy verhindert."
+          echo "Details in REPORT.md und GitHub Issues."
+          exit 1
