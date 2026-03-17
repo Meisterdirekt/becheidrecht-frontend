@@ -114,9 +114,13 @@ export const ALG_BEITRAGSBEMESSUNGSGRENZE = 101400; // EUR/Jahr (8.450€/Monat)
 // ---------------------------------------------------------------------------
 // Unterhaltsvorschuss (§ 2 UVG, 2026)
 // Quelle: https://www.fokus-sozialrecht.de/mindestunterhalt-und-unterhaltsvorschuss-2026
+// Mindestunterhalt (§ 1612a BGB) minus Kindergeld (259€) = UVG-Leistung
 // ---------------------------------------------------------------------------
-export const UNTERHALTSVORSCHUSS = {
+export const MINDESTUNTERHALT = {
   alter_0_5: 486, alter_6_11: 558, alter_12_17: 653,
+} as const;
+export const UNTERHALTSVORSCHUSS = {
+  alter_0_5: 227, alter_6_11: 299, alter_12_17: 394,
 } as const;
 
 // ---------------------------------------------------------------------------
@@ -139,7 +143,7 @@ export function kennzahlenPromptBlock(): string {
     `• SGB XI Pflegegeld: PG2=${p.PG2}€, PG3=${p.PG3}€, PG4=${p.PG4}€, PG5=${p.PG5}€. Verhinderung+Kurzzeitpflege gesamt: ${PFLEGE_VERHINDERUNG_KURZZEITPFLEGE_GESAMT}€`,
     `• SGB IX Eingliederungshilfe: Vermögensfreigrenze ${EH_VERMOEGENSFREIGRENZE}€ (2025: 67.410€)`,
     `• Elterngeld: ${el.min}–${el.max}€, Einkommensgrenze einheitlich ${el.einkommensgrenze_paar}€ (vorher 200.000€ Paare). Max. 1 Monat Parallelbezug Basiselterngeld`,
-    `• Unterhaltsvorschuss: 0–5J=${UNTERHALTSVORSCHUSS.alter_0_5}€, 6–11J=${UNTERHALTSVORSCHUSS.alter_6_11}€, 12–17J=${UNTERHALTSVORSCHUSS.alter_12_17}€`,
+    `• Unterhaltsvorschuss (§ 2 UVG = Mindestunterhalt minus Kindergeld): 0–5J=${UNTERHALTSVORSCHUSS.alter_0_5}€ (Mindestunterhalt ${MINDESTUNTERHALT.alter_0_5}€), 6–11J=${UNTERHALTSVORSCHUSS.alter_6_11}€ (${MINDESTUNTERHALT.alter_6_11}€), 12–17J=${UNTERHALTSVORSCHUSS.alter_12_17}€ (${MINDESTUNTERHALT.alter_12_17}€)`,
     `• Überzahlungsberechnung: Ist sie nachvollziehbar und korrekt berechnet?`,
   ].join("\n");
 }

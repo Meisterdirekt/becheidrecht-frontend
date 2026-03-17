@@ -114,10 +114,14 @@ INSERT INTO kennzahlen (schluessel, wert, einheit, gueltig_ab, beschreibung) VAL
 ON CONFLICT (schluessel) DO NOTHING;
 
 -- Grundwerte — Unterhaltsvorschuss (UVG) 2026
+-- UVG-Leistung = Mindestunterhalt (§ 1612a BGB) minus volles Kindergeld (259€)
 INSERT INTO kennzahlen (schluessel, wert, einheit, gueltig_ab, beschreibung) VALUES
-  ('uvs_2026_0_5',                  227,   'EUR', '2026-01-01', 'Unterhaltsvorschuss 0-5 Jahre 2026'),
-  ('uvs_2026_6_11',                 299,   'EUR', '2026-01-01', 'Unterhaltsvorschuss 6-11 Jahre 2026'),
-  ('uvs_2026_12_17',                394,   'EUR', '2026-01-01', 'Unterhaltsvorschuss 12-17 Jahre 2026')
+  ('uvs_2026_0_5',                  227,   'EUR', '2026-01-01', 'Unterhaltsvorschuss 0-5 Jahre 2026 (Mindestunterhalt 486€ − Kindergeld 259€)'),
+  ('uvs_2026_6_11',                 299,   'EUR', '2026-01-01', 'Unterhaltsvorschuss 6-11 Jahre 2026 (Mindestunterhalt 558€ − Kindergeld 259€)'),
+  ('uvs_2026_12_17',                394,   'EUR', '2026-01-01', 'Unterhaltsvorschuss 12-17 Jahre 2026 (Mindestunterhalt 653€ − Kindergeld 259€)'),
+  ('mindestunterhalt_2026_0_5',     486,   'EUR', '2026-01-01', 'Mindestunterhalt 0-5 Jahre 2026 (§ 1612a BGB, 1. Einkommensstufe Düsseldorfer Tabelle)'),
+  ('mindestunterhalt_2026_6_11',    558,   'EUR', '2026-01-01', 'Mindestunterhalt 6-11 Jahre 2026'),
+  ('mindestunterhalt_2026_12_17',   653,   'EUR', '2026-01-01', 'Mindestunterhalt 12-17 Jahre 2026')
 ON CONFLICT (schluessel) DO NOTHING;
 
 -- Grundwerte — Rente (SGB VI)

@@ -61,16 +61,21 @@ export const SGB_TO_RECHTSGEBIET: Record<string, Rechtsgebiet> = {
 // ---------------------------------------------------------------------------
 
 export const SGB_SIGNAL_WORDS: Record<string, string[]> = {
-  SGB_II: ["Bürgergeld", "Grundsicherungsgeld", "Jobcenter", "Regelbedarfsstufe", "KdU"],
-  SGB_III: ["Arbeitslosengeld", "Arbeitsagentur für Arbeit", "ALG I"],
-  SGB_V: ["Krankengeld", "Krankenkasse", "GKV", "Krankenversicherung"],
-  SGB_XI: ["Pflegegeld", "Pflegegrad", "Pflegekasse"],
-  SGB_VI: ["Rente", "DRV", "Rentenversicherung", "Erwerbsminderung"],
-  SGB_XII: ["Grundsicherung", "Sozialhilfe", "Sozialamt"],
-  SGB_IX: ["Eingliederungshilfe", "Schwerbehinderung", "Behinderung"],
-  ASYL: ["Asyl", "BAMF", "Aufenthaltsgestattung", "AsylbLG"],
-  BAFOEG: ["BAföG", "Bildungsförderung"],
-  WOHNGELD: ["Wohngeld", "Wohngeldbehörde"],
+  SGB_II: ["Bürgergeld", "Grundsicherungsgeld", "Jobcenter", "Regelbedarfsstufe", "KdU", "Kosten der Unterkunft", "Eingliederungsvereinbarung", "Bedarfsgemeinschaft"],
+  SGB_III: ["Arbeitslosengeld", "Arbeitsagentur für Arbeit", "ALG I", "Sperrzeit", "Bemessungsentgelt", "Anwartschaftszeit"],
+  SGB_V: ["Krankengeld", "Krankenkasse", "GKV", "Krankenversicherung", "Hilfsmittel", "Heilmittel", "Zuzahlung", "Wirtschaftlichkeitsgebot"],
+  SGB_VI: ["Rente", "DRV", "Rentenversicherung", "Erwerbsminderung", "Erwerbsminderungsrente", "Altersrente", "Wartezeit", "Rentenwert", "Entgeltpunkte"],
+  SGB_VII: ["Unfallversicherung", "Berufsgenossenschaft", "Unfallkasse", "Arbeitsunfall", "Wegeunfall", "Berufskrankheit", "Verletztengeld", "MdE"],
+  SGB_VIII: ["Jugendamt", "Jugendhilfe", "Hilfe zur Erziehung", "Inobhutnahme", "Eingliederungshilfe für Kinder", "Kindertagesbetreuung"],
+  SGB_IX: ["Eingliederungshilfe", "Schwerbehinderung", "Behinderung", "Teilhabe", "Persönliches Budget", "GdB", "Merkzeichen"],
+  SGB_XI: ["Pflegegeld", "Pflegegrad", "Pflegekasse", "Pflegesachleistung", "Verhinderungspflege", "Kurzzeitpflege", "Pflegebedürftigkeit"],
+  SGB_XII: ["Grundsicherung", "Sozialhilfe", "Sozialamt", "Grundsicherung im Alter", "Hilfe zum Lebensunterhalt"],
+  ASYL: ["Asyl", "BAMF", "Aufenthaltsgestattung", "AsylbLG", "Aufenthaltserlaubnis", "Duldung", "Flüchtlingsanerkennung"],
+  BAFOEG: ["BAföG", "Bildungsförderung", "Ausbildungsförderung", "Studierendenwerk"],
+  BEEG: ["Elterngeld", "ElterngeldPlus", "Elterngeldstelle", "Partnerschaftsbonus", "BEEG"],
+  KINDERGELD: ["Kindergeld", "Familienkasse", "Kinderzuschlag", "BKGG"],
+  WOHNGELD: ["Wohngeld", "Wohngeldbehörde", "Wohngeldbescheid", "Mietzuschuss", "Lastenzuschuss"],
+  UVG: ["Unterhaltsvorschuss", "Unterhaltsvorschussgesetz", "UVG", "Unterhaltsvorschusskasse"],
 };
 
 // ---------------------------------------------------------------------------
