@@ -65,6 +65,10 @@
           {
             "type": "command",
             "command": "filepath=\"$CLAUDE_FILE_PATH\"; case \"$filepath\" in *.ts|*.tsx) cd /home/henne1990/bescheidrecht-frontend 2>/dev/null && output=$(timeout 30 npx tsc --noEmit --pretty 2>&1); tsc_exit=$?; echo \"$output\" | tail -25; if [ $tsc_exit -ne 0 ]; then echo 'TypeScript-Fehler gefunden. Bitte beheben.' >&2; fi; lint_out=$(timeout 20 npx next lint --file \"$filepath\" 2>&1); lint_exit=$?; if [ $lint_exit -ne 0 ]; then echo \"$lint_out\" | tail -15; echo 'ESLint-Fehler gefunden. Bitte beheben.' >&2; fi; exit 0;; esac; exit 0"
+          },
+          {
+            "type": "command",
+            "command": "export CLAUDE_FILE_PATH=\"$CLAUDE_FILE_PATH\"; /home/henne1990/.claude/hooks/bescheidrecht-guard.sh"
           }
         ]
       }
