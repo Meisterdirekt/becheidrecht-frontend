@@ -30,8 +30,8 @@ test.describe("Mobile Responsiveness (375px)", () => {
     }
   });
 
-  test("Blog-Seite ist auf Mobile lesbar", async ({ page }) => {
-    await page.goto("/blog");
+  test("B2B-Seite ist auf Mobile lesbar", async ({ page }) => {
+    await page.goto("/b2b");
     const bodyWidth = await page.evaluate(() => document.body.scrollWidth);
     expect(bodyWidth).toBeLessThanOrEqual(376);
   });

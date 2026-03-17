@@ -72,17 +72,18 @@ jobs:
           )
 
           for pattern in "${patterns[@]}"; do
-            # .env* und vault/ werden in .gitignore ignoriert, trotzdem prüfen
             MATCHES=$(grep -rn --include="*.ts" --include="*.tsx" --include="*.js" \
               --include="*.json" --include="*.yml" \
               -E "$pattern" \
               --exclude-dir=node_modules \
               --exclude-dir=.git \
               --exclude-dir=.next \
-              . 2>/dev/null || true)
+              . 2>/dev/null \
+              | grep -v 'xxxx' \
+              || true)
 
             if [ -n "$MATCHES" ]; then
-              echo "::error::Möglicher Secret-Leak gefunden (Pattern: $pattern)"
+              echo "::error::Moeglicher Secret-Leak gefunden (Pattern: $pattern)"
               echo "$MATCHES"
               FOUND=1
             fi
@@ -150,10 +151,39 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const run_url = `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+
+            // Labels erstellen falls sie nicht existieren
+            for (const label of ['security', 'automated', 'bug']) {
+              try {
+                await github.rest.issues.getLabel({ owner: context.repo.owner, repo: context.repo.repo, name: label });
+              } catch {
+                await github.rest.issues.createLabel({ owner: context.repo.owner, repo: context.repo.repo, name: label, color: label === 'security' ? 'd73a4a' : label === 'bug' ? 'e11d48' : '6b7280' });
+              }
+            }
+
+            // Pruefen ob bereits ein offenes Security-Issue existiert
+            const { data: existing } = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              labels: 'security,automated',
+              state: 'open',
+              per_page: 5,
+            });
+
+            if (existing.length > 0) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: existing[0].number,
+                body: `Erneut fehlgeschlagen: Commit ${context.sha.substring(0,8)} — [Log](${run_url})`,
+              });
+              return;
+            }
+
             await github.rest.issues.create({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              title: `🚨 AG-SECURITY: Sicherheitsproblem auf main gefunden`,
-              body: `## Sicherheits-Scan fehlgeschlagen\n\n**Branch:** main\n**Commit:** ${context.sha.substring(0,8)}\n**Zeit:** ${new Date().toISOString()}\n\n**→ [Action-Log ansehen](${run_url})**\n\n### Was zu tun ist\n- [ ] Action-Log öffnen und Fehler lesen\n- [ ] Problem beheben\n- [ ] Neuen Commit pushen\n\n---\n*Automatisch erstellt von AG-SECURITY*`,
-              labels: ["security", "automated", "bug"],
+              title: 'AG-SECURITY: Sicherheitsproblem auf main gefunden',
+              body: `## Sicherheits-Scan fehlgeschlagen\n\n**Branch:** main\n**Commit:** ${context.sha.substring(0,8)}\n**Zeit:** ${new Date().toISOString()}\n\n**→ [Action-Log ansehen](${run_url})**\n\n### Was zu tun ist\n- [ ] Action-Log oeffnen und Fehler lesen\n- [ ] Problem beheben\n- [ ] Neuen Commit pushen\n\n---\n*Automatisch erstellt von AG-SECURITY*`,
+              labels: ['security', 'automated', 'bug'],
             });

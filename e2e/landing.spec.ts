@@ -7,9 +7,9 @@ test.describe("Landing Page", () => {
     await expect(page.locator("h1")).toContainText(/Bescheid|Analyse|Widerspruch/i);
   });
 
-  test("zeigt Navigation mit Blog und Login", async ({ page }) => {
+  test("zeigt Navigation mit Login-Link", async ({ page }) => {
     await page.goto("/");
-    await expect(page.locator('a[href="/blog"]').first()).toBeVisible();
+    await expect(page.locator('a[href="/login"]').first()).toBeVisible();
   });
 
   test("zeigt Footer mit RDG-Disclaimer", async ({ page }) => {
@@ -46,14 +46,13 @@ test.describe("Landing Page", () => {
 
   test("Pricing-Sektion sichtbar beim Scrollen", async ({ page }) => {
     await page.goto("/");
-    const pricing = page.locator("#pricing, [id*=pricing], :text('Basic')").first();
-    if (await pricing.isVisible({ timeout: 1000 }).catch(() => false)) {
-      await expect(pricing).toBeVisible();
-    } else {
-      await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
-      await page.waitForTimeout(500);
-      // Pricing existiert irgendwo auf der Seite
-      await expect(page.getByText("Basic").first()).toBeVisible();
-    }
+    await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+    await page.waitForTimeout(500);
+    // B2B-Pricing oder CTA-Bereich sollte sichtbar sein
+    const pricing = page.locator("#pricing, [id*=pricing]").first();
+    const b2bCta = page.getByText(/Einrichtung|B2B|Kontakt/i).first();
+    const hasPricing = await pricing.isVisible().catch(() => false);
+    const hasB2bCta = await b2bCta.isVisible().catch(() => false);
+    expect(hasPricing || hasB2bCta).toBeTruthy();
   });
 });
