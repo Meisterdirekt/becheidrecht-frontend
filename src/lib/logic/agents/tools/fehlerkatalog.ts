@@ -109,7 +109,6 @@ export function executeSucheFehlerkatalog(
         const haystack = [
           item.titel,
           item.beschreibung,
-          ...(item.musterschreiben_hinweis ? [item.musterschreiben_hinweis] : []),
           ...(item.rechtsbasis ?? []),
           ...(item.prueflogik?.suchbegriffe ?? []),
         ]
@@ -124,23 +123,20 @@ export function executeSucheFehlerkatalog(
         ).length;
         return { item, score: score + reverseScore };
       })
-      .filter(({ score }) => score > 0)
+      // Mindest-Score 2: Ein einziges breites Keyword-Match reicht nicht
+      .filter(({ score }) => score >= 2)
       .sort(
         (a, b) =>
           b.score +
           (severityOrder[b.item.severity ?? "hinweis"] ?? 0) -
           (a.score + (severityOrder[a.item.severity ?? "hinweis"] ?? 0))
       )
-      .slice(0, 8)
+      .slice(0, 6)
       .map(({ item }) => item);
 
-    // Fallback: Bei 0 Stichwort-Treffern → Top-Fehler nach Severity liefern
-    if (scored.length === 0 && byPrefix.length > 0) {
-      console.warn("[Fehlerkatalog] 0 Stichwort-Treffer, Fallback auf Top-Severity");
-      const order: Record<string, number> = { kritisch: 0, wichtig: 1, hinweis: 2 };
-      return byPrefix
-        .sort((a, b) => (order[a.severity ?? "hinweis"] ?? 2) - (order[b.severity ?? "hinweis"] ?? 2))
-        .slice(0, 5);
+    // Kein Fallback bei 0 Treffern — lieber keine Fehler als falsche
+    if (scored.length === 0) {
+      console.info("[Fehlerkatalog] 0 Treffer mit Score >= 2 — keine generischen Fehler einfügen");
     }
 
     return scored;

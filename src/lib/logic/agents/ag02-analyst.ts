@@ -120,21 +120,17 @@ async function execute(ctx: AgentContext): Promise<AgentResult<AnalyseResult>> {
         }
       }
 
-      // Retry-Logik: Gründliche Suche erzwingen
+      // Retry-Logik: Nur bei komplettem Fehlschlag (0 Fehler UND 0 Auffälligkeiten)
       const needsMoreSearch =
-        gefundeneFehler.length === 0 ||
-        (gefundeneFehler.length < 3 && auffaelligkeiten.length === 0);
+        gefundeneFehler.length === 0 && auffaelligkeiten.length === 0;
 
       if (needsMoreSearch && i < 2) {
-        const retryMsg = gefundeneFehler.length === 0
-          ? "Du hast suche_fehlerkatalog noch nicht aufgerufen. Das ist Pflicht. " +
-            "Rufe JETZT suche_fehlerkatalog auf mit 4-6 Stichwörtern aus dem Bescheid " +
-            "(Paragraphen, Leistungsarten, Behördenentscheidungen)."
-          : "Du hast erst " + gefundeneFehler.length + " Fehler gefunden. Das reicht nicht. " +
-            "Rufe suche_fehlerkatalog ERNEUT auf mit ANDEREN Stichwörtern — " +
-            "fokussiere auf: Berechnungsfehler, fehlende Begründung, Verfahrensfehler, Fristverstoß, " +
-            "falsche Rechtsgrundlage. Gib auch auffaelligkeiten als JSON zurück.";
-        messages.push({ role: "user", content: retryMsg });
+        messages.push({ role: "user", content:
+          "Du hast suche_fehlerkatalog noch nicht aufgerufen oder keine Ergebnisse erhalten. " +
+          "Rufe JETZT suche_fehlerkatalog auf mit 4-6 PRÄZISEN Stichwörtern aus dem Bescheid " +
+          "(konkrete Paragraphen und Leistungsarten die im Text vorkommen). " +
+          "Gib auch auffaelligkeiten als JSON zurück."
+        });
         continue;
       }
       break;

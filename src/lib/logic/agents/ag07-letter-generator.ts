@@ -61,10 +61,22 @@ function buildVorabInfo(ctx: AgentContext): string {
   if (ctx.pipeline.analyse) {
     const a = ctx.pipeline.analyse;
     if (a.fehler.length > 0) {
-      vorabInfo += `\n\nFEHLERKATALOG-TREFFER (${a.fehler.length}):\n`;
-      vorabInfo += a.fehler
-        .map((f) => `- [${f.severity}] ${f.titel}: ${f.musterschreiben_hinweis ?? f.beschreibung}`)
-        .join("\n");
+      // Nur Fehlerkatalog-Treffer an AG07 weiterleiten die keine Template-Platzhalter enthalten
+      const relevanteFehler = a.fehler.filter(f => {
+        const text = (f.musterschreiben_hinweis ?? f.beschreibung).toLowerCase();
+        // Platzhalter = generisches Template, nicht fallspezifisch
+        if (/\[.*(?:einfügen|einf[uü]gen|angeben|nennen).*\]/.test(text)) return false;
+        // Ultra-generische Floskeln
+        if (/ich bitte um (?:überprüfung|prüfung|erneute)/.test(text) && text.length < 200) return false;
+        if (/entspricht nicht den vorgaben/.test(text) && text.length < 200) return false;
+        return true;
+      });
+      if (relevanteFehler.length > 0) {
+        vorabInfo += `\n\nFEHLERKATALOG-TREFFER (${relevanteFehler.length}):\n`;
+        vorabInfo += relevanteFehler
+          .map((f) => `- [${f.severity}] ${f.titel}: ${f.beschreibung}`)
+          .join("\n");
+      }
     }
     if (a.auffaelligkeiten.length > 0) {
       vorabInfo += `\n\nAUFFÄLLIGKEITEN:\n${a.auffaelligkeiten.map((a) => `- ${a}`).join("\n")}`;

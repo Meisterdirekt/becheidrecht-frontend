@@ -379,6 +379,14 @@ export async function runPipeline(
       if (/\[.*(?:einfügen|einf[uü]gen|angeben|nennen).*\]/.test(lower)) return true;
       // AG03 hat diesen Fehler als unbegründet markiert
       if (halluzinationsKeywords.length > 0 && halluzinationsKeywords.some(kw => lower.includes(kw))) return true;
+      // Ultra-generische SGB-I-Floskeln die auf alles passen
+      if (/§\s*14\s+sgb\s+i\b/.test(lower) && /beratung/i.test(lower)) return true;
+      if (/§\s*16\s+sgb\s+i\b/.test(lower) && /antr[aä]g/i.test(lower)) return true;
+      if (/§\s*60\s+sgb\s+i\b/.test(lower) && /mitwirkung/i.test(lower)) return true;
+      // Generische "entspricht nicht den Vorgaben" ohne konkreten Fehler
+      if (/entspricht nicht den vorgaben/.test(lower) && !/\d+\s*€/.test(lower) && lower.length < 200) return true;
+      // "Ich bitte um Überprüfung" ohne Spezifik = Template
+      if (/ich bitte um (?:überprüfung|prüfung|erneute)/.test(lower) && lower.length < 200) return true;
       return false;
     };
 
@@ -423,6 +431,35 @@ export async function runPipeline(
         }
       }
     }
+    // --- Semantische Deduplizierung ---
+    // Wenn ein kürzerer Fehler (Titel) komplett im längeren Fehler (Auffälligkeit) enthalten ist → raus
+    const deduplicated: string[] = [];
+    for (const fehler of fehlerListe) {
+      const isDuplicate = deduplicated.some(existing => {
+        const shorter = fehler.length < existing.length ? fehler : existing;
+        const longer = fehler.length < existing.length ? existing : fehler;
+        // Kernaussage extrahieren (erste 60 Zeichen ohne Severity-Prefix)
+        const shorterCore = shorter.replace(/^(KRITISCH|WICHTIG|HINWEIS):\s*/i, "").slice(0, 60).toLowerCase();
+        const longerLower = longer.toLowerCase();
+        return shorterCore.length > 15 && longerLower.includes(shorterCore);
+      });
+      if (!isDuplicate) deduplicated.push(fehler);
+    }
+
+    // Error-Cap: Max 10 Fehler — priorisiert nach Severity-Prefix
+    const severityRank = (text: string): number => {
+      if (text.startsWith("KRITISCH:")) return 0;
+      if (text.startsWith("WICHTIG:")) return 1;
+      if (text.startsWith("HINWEIS:")) return 2;
+      return 1; // Ohne Prefix = WICHTIG-Äquivalent
+    };
+    const capped = deduplicated
+      .sort((a, b) => severityRank(a) - severityRank(b))
+      .slice(0, 10);
+
+    fehlerListe.length = 0;
+    fehlerListe.push(...capped);
+
     // Fallback nur wenn wirklich gar nichts gefunden
     if (fehlerListe.length === 0) {
       fehlerListe.push("Analyse abgeschlossen. Keine spezifischen Auffälligkeiten identifiziert.");
