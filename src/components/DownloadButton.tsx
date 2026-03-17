@@ -1,7 +1,7 @@
 'use client';
 import React from 'react';
 import { Download, Printer } from 'lucide-react';
-import { jsPDF } from 'jspdf';
+import type { jsPDF } from 'jspdf';
 
 interface DownloadProps {
   content: string;
@@ -11,8 +11,7 @@ interface DownloadProps {
   className?: string;
 }
 
-function buildPDF(content: string, findings?: string[]): jsPDF {
-  const doc = new jsPDF();
+function buildPDF(doc: jsPDF, content: string, findings?: string[]): jsPDF {
   let yPos = 20;
 
   // Auffälligkeiten / Analyseergebnis — vor dem Brief
@@ -77,12 +76,14 @@ export default function DownloadButton({
   label = "Dokument als PDF speichern",
   className,
 }: DownloadProps) {
-  const handleDownload = () => {
-    buildPDF(content, findings).save(fileName);
+  const handleDownload = async () => {
+    const { jsPDF } = await import('jspdf');
+    buildPDF(new jsPDF(), content, findings).save(fileName);
   };
 
-  const handlePrint = () => {
-    const doc = buildPDF(content, findings);
+  const handlePrint = async () => {
+    const { jsPDF } = await import('jspdf');
+    const doc = buildPDF(new jsPDF(), content, findings);
     const blobUrl = doc.output("bloburl");
     const printWindow = window.open(blobUrl.toString(), "_blank");
     if (printWindow) {
