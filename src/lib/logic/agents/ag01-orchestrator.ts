@@ -82,10 +82,14 @@ async function runClassification(
     ? `\n\nVORAB-INFORMATION: detectUrgency() hat ${ctx.fristTage} Tage bis Fristablauf erkannt → Routing-Stufe: ${ctx.routingStufe}`
     : `\n\nVORAB-INFORMATION: Keine Frist erkannt → Routing-Stufe: ${ctx.routingStufe}`;
 
+  const nutzerKontext = ctx.userContext
+    ? `\n\nHINTERGRUND VOM NUTZER:\n${ctx.userContext}`
+    : "";
+
   const messages: Anthropic.MessageParam[] = [
     {
       role: "user",
-      content: `Klassifiziere diesen Bescheid:${urgencyHint}\n\n${ctx.documentText}`,
+      content: `Klassifiziere diesen Bescheid:${urgencyHint}${nutzerKontext}\n\n${ctx.documentText}`,
     },
   ];
 

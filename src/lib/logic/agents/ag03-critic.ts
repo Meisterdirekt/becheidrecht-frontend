@@ -63,6 +63,10 @@ async function execute(ctx: AgentContext): Promise<AgentResult<KritikResult>> {
     }
   }
 
+  if (ctx.userContext) {
+    kontext += `\n\nHINTERGRUND VOM NUTZER:\n${ctx.userContext}`;
+  }
+
   kontext += `\nBescheid (Auszug):\n${ctx.documentText.slice(0, 3000)}`;
 
   const response = await anthropic.messages.create({

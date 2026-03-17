@@ -58,6 +58,10 @@ async function execute(ctx: AgentContext): Promise<AgentResult<ErklaerungResult>
     kontext += `\nErfolgschance: ${ctx.pipeline.kritik.erfolgschance_prozent}%`;
   }
 
+  if (ctx.userContext) {
+    kontext += `\nNutzer-Hintergrund: ${ctx.userContext}`;
+  }
+
   if (ctx.pipeline.musterschreiben?.forderung) {
     kontext += `\nKernforderung: ${ctx.pipeline.musterschreiben.forderung}`;
   }

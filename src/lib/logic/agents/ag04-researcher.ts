@@ -95,6 +95,10 @@ async function execute(ctx: AgentContext): Promise<AgentResult<RechercheResult>>
     kontext += `Rechtsgebiet: ${t.rechtsgebiet}, Untergebiet: ${t.untergebiet}, Behörde: ${t.behoerde}`;
   }
 
+  if (ctx.userContext) {
+    kontext += `\n\nHINTERGRUND VOM NUTZER:\n${ctx.userContext}`;
+  }
+
   const messages: Anthropic.MessageParam[] = [
     {
       role: "user",
