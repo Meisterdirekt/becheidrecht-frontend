@@ -61,18 +61,11 @@ function checkEnvVars(): CheckResult {
   return { ok: true };
 }
 
-function checkOptionalEnvVars(): { configured: number; total: number } {
-  const vars = ["MOLLIE_API_KEY", "TAVILY_API_KEY", "CRON_SECRET", "GITHUB_TOKEN", "SENTRY_DSN"];
-  const configured = vars.filter((k) => !!process.env[k]).length;
-  return { configured, total: vars.length };
-}
-
 export async function GET() {
   const t0 = Date.now();
 
   const [db, env] = await Promise.all([checkDatabase(), Promise.resolve(checkEnvVars())]);
 
-  const optional = checkOptionalEnvVars();
   const healthy = db.ok && env.ok;
   const status = healthy ? "healthy" : "degraded";
 
@@ -83,8 +76,7 @@ export async function GET() {
       uptimeMs: Date.now() - t0,
       checks: {
         database: db,
-        env: env,
-        optional,
+        env,
       },
     },
     { status: healthy ? 200 : 503 }

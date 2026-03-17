@@ -103,6 +103,14 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Einladung abgelaufen' }, { status: 410 });
   }
 
+  // E-Mail-Verifikation: Einladung gilt nur für die eingeladene Adresse
+  if (invite.email.toLowerCase() !== user.email!.toLowerCase()) {
+    return NextResponse.json(
+      { error: 'Diese Einladung wurde an eine andere E-Mail-Adresse gesendet.' },
+      { status: 403 }
+    );
+  }
+
   // Ist der User bereits Mitglied dieser Einrichtung?
   const { data: existingMember } = await admin
     .from('organization_members')
