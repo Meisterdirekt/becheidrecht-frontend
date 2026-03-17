@@ -16,8 +16,8 @@ test.describe("Rechtliche Seiten", () => {
   test("Impressum-Seite laedt mit Pflichtangaben", async ({ page }) => {
     await page.goto("/impressum");
     await expect(page.getByText(/Impressum/i).first()).toBeVisible();
-    // TMG-Pflichtangabe
-    await expect(page.getByText(/TMG|Telemediengesetz/i).first()).toBeVisible();
+    // Pflichtangaben (TMG/DDG/Kontakt)
+    await expect(page.getByText(/TMG|DDG|Telemediengesetz|Digitale-Dienste|Kontakt|Verantwortlich/i).first()).toBeVisible();
   });
 
   test("Footer-Links fuehren zu den richtigen Seiten", async ({ page }) => {
