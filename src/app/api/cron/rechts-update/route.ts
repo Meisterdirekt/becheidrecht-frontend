@@ -16,6 +16,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { runRechtsMonitor } from "@/lib/logic/agents/ag15-rechts-monitor";
 import { reportError, reportInfo } from "@/lib/error-reporter";
 
+export const runtime = "nodejs";
+export const maxDuration = 60;
+
 const CRON_SECRET = process.env.CRON_SECRET;
 
 function checkAuth(req: NextRequest): boolean {
