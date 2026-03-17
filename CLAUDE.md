@@ -89,6 +89,7 @@ src/
 │       ├── cron/vercel-monitor/route.ts # GET — Täglicher Cron 06:00 UTC: AG16 Deployment-Check
 │       ├── cron/agent-audit/route.ts    # GET — Wöchentlicher Cron Mi 05:00 UTC: AG17 Metriken
 │       ├── cron/content-audit/route.ts  # GET — Monatlicher Cron 15. 01:00 UTC: AG18 Content-Audit
+│       ├── cron/fristen-reminder/route.ts # GET — Täglicher Cron 08:00 UTC: E-Mail-Erinnerungen bei nahenden Fristen
 │       └── cron/design-guardian/route.ts # GET — Wöchentlicher Cron Do 05:00 UTC: AG19 Design-Guardian
 ├── components/
 │   ├── LetterPDF.tsx                   # DIN A4 PDF-Vorschau (@react-pdf/renderer)
@@ -110,7 +111,8 @@ src/
 │   ├── B2BThemeInit.tsx                # B2B Theme-Initialisierung
 │   ├── RoiCalculator.tsx               # ROI-Kalkulator (B2B)
 │   ├── EmptyState.tsx                  # Leerzustand-Platzhalter
-│   └── Skeleton.tsx                    # Loading-Skeleton
+│   ├── Skeleton.tsx                    # Loading-Skeleton
+│   └── LazyCommandPalette.tsx          # Client-Wrapper für lazy-loaded CommandPalette
 ├── lib/
 │   ├── logic/
 │   │   ├── agent_engine.ts             # KERN — Claude Tool-Use Loop, 4 Skills, Routing
@@ -122,6 +124,7 @@ src/
 │   │   ├── client.ts                   # Frontend-Client (Anon Key) ← DIESEN VERWENDEN
 │   │   ├── middleware.ts               # Server-Client (SSR Session-Refresh)
 │   │   └── auth.ts                     # Shared Auth-Helper: getAuthenticatedUser(req) → {id, token} | null
+│   ├── admin-auth.ts                   # Shared verifyAdmin() für alle Admin-Routes
 │   ├── error-reporter.ts               # Zentrales Error-Tracking (Sentry wenn SENTRY_DSN gesetzt, sonst structured logging)
 │   ├── rate-limit.ts                   # API Rate-Limiting
 │   ├── supabase.ts                     # LEGACY-Client — NICHT verwenden, nur noch für Abwärtskompatibilität
@@ -272,16 +275,18 @@ Mobile first (375px zuerst). Arabisch (AR) → `dir="rtl"`. Fehler freundlich fo
 
 8. **OCR-Fallback (tesseract.js) ist langsam** (~5–15 Sek/Seite). `pdf2json` ist primär. Tesseract nur wenn kein Text gefunden.
 
-9. **Neun Vercel Crons (vercel.json):**
+9. **Elf Vercel Crons (vercel.json):**
    - `rechts-update` → 1. des Monats 03:00 UTC (AG15 Rechts-Monitor)
    - `agent-batch` → Sonntag 02:00 UTC (AG09/AG10/AG11)
    - `backend-health` → täglich 03:00 UTC (DB-Health + Kosten-Anomalien → GitHub Issue)
-   - `costs-monitor` → täglich 07:00 UTC (Claude-API-Kosten-Tracking + Alert)
-   - `design-audit` → Di 04:00 UTC (Lighthouse + Core Web Vitals → GitHub Issue)
+   - `data-retention` → täglich 04:00 UTC (DSGVO: analysis_results + user_fristen nach 90 Tagen löschen)
    - `vercel-monitor` → täglich 06:00 UTC (AG16 Deployment-Check)
+   - `costs-monitor` → täglich 07:00 UTC (Claude-API-Kosten-Tracking + Alert)
+   - `fristen-reminder` → täglich 08:00 UTC (E-Mail-Erinnerungen 7/3/1/0 Tage vor Fristablauf via Resend)
+   - `design-audit` → Di 04:00 UTC (Lighthouse + Core Web Vitals → GitHub Issue)
    - `agent-audit` → Mi 05:00 UTC (AG17 Agent-Metriken → GitHub Issue)
-   - `content-audit` → 15. des Monats 01:00 UTC (AG18 Kennzahlen/Fehlerkatalog/Weisungen-Audit → GitHub Issue)
    - `design-guardian` → Do 05:00 UTC (AG19 Statische Design-System-Analyse → GitHub Issue, €0)
+   - `content-audit` → 15. des Monats 01:00 UTC (AG18 Kennzahlen/Fehlerkatalog/Weisungen-Audit → GitHub Issue)
    Alle: Auth via `?secret=CRON_SECRET`. Manuell: `curl "http://localhost:3000/api/cron/design-guardian?secret=$CRON_SECRET"`.
 
 10. **SSE-Streaming** (`/api/assistant/route.ts`) nutzt `ReadableStream` + `TextEncoder`. Client: `reader.read()` in While-Schleife. Kein EventSource API.
