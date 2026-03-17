@@ -107,35 +107,37 @@ jobs:
               ? fs.readFileSync('MEMORY.md', 'utf8') : '',
           };
 
-          const prompt = `Du bist der MASTER-ORCHESTRATOR des Agent-Systems.
-
-TRIGGER: ${context.trigger}
-SCOPE: ${context.scope}
-
-PROJEKT-KONTEXT (CLAUDE.md):
-${context.claude_md.substring(0, 3000)}
-
-SYSTEM-MEMORY (MEMORY.md - letzte Runs):
-${context.memory_md.substring(0, 1000)}
-
-BUILD-STATUS:
-- TypeScript: ${context.typescript_ok ? '✅ OK' : '🔴 FEHLER'}
-- Build: ${context.build_ok ? '✅ OK' : '🔴 FEHLER'}
-- Geänderte Dateien: ${context.changed_files}
-
-LINT-FINDINGS (Zusammenfassung):
-${context.lint_results.substring(0, 500)}
-
-SECURITY-AUDIT:
-${context.audit_results.substring(0, 500)}
-
-Analysiere den aktuellen Zustand und erstelle einen strukturierten Report.
-Fokus auf:
-1. Kritische Probleme die sofort behoben werden müssen
-2. Deploy-Empfehlung (✅ / ⚠️ / 🚫)
-3. Top 3 konkrete Fixes
-
-Format: Markdown, klar strukturiert, direkt und actionable.`;
+          const prompt = [
+            'Du bist der MASTER-ORCHESTRATOR des Agent-Systems.',
+            '',
+            'TRIGGER: ' + context.trigger,
+            'SCOPE: ' + context.scope,
+            '',
+            'PROJEKT-KONTEXT (CLAUDE.md):',
+            context.claude_md.substring(0, 3000),
+            '',
+            'SYSTEM-MEMORY (MEMORY.md - letzte Runs):',
+            context.memory_md.substring(0, 1000),
+            '',
+            'BUILD-STATUS:',
+            '- TypeScript: ' + (context.typescript_ok ? 'OK' : 'FEHLER'),
+            '- Build: ' + (context.build_ok ? 'OK' : 'FEHLER'),
+            '- Geaenderte Dateien: ' + context.changed_files,
+            '',
+            'LINT-FINDINGS (Zusammenfassung):',
+            context.lint_results.substring(0, 500),
+            '',
+            'SECURITY-AUDIT:',
+            context.audit_results.substring(0, 500),
+            '',
+            'Analysiere den aktuellen Zustand und erstelle einen strukturierten Report.',
+            'Fokus auf:',
+            '1. Kritische Probleme die sofort behoben werden muessen',
+            '2. Deploy-Empfehlung (OK / WARNUNG / BLOCK)',
+            '3. Top 3 konkrete Fixes',
+            '',
+            'Format: Markdown, klar strukturiert, direkt und actionable.',
+          ].join('\n');
 
           async function runOrchestrator() {
             if (!process.env.ANTHROPIC_API_KEY) {
