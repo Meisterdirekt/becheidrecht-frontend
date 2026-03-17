@@ -10,10 +10,11 @@ import {
   type AgentContext,
   type AgentResult,
   type TriageResult,
+  type TokenUsage,
   emptyTokenUsage,
 } from "./types";
 import { getSystemPrompt } from "./prompts";
-import { HAIKU_MODEL, extractTokenUsage, getAnthropicKey, createAnthropicClient, mergeTokenUsage } from "./utils";
+import { HAIKU_MODEL, SONNET_MODEL, extractTokenUsage, getAnthropicKey, createAnthropicClient, mergeTokenUsage } from "./utils";
 
 const TOOL_KLASSIFIZIERE: Anthropic.Tool = {
   name: "klassifiziere_bescheid",
@@ -66,29 +67,15 @@ interface KlassifizierungInput {
   bg_nummer?: string;
 }
 
-async function execute(ctx: AgentContext): Promise<AgentResult<TriageResult>> {
-  const start = Date.now();
-  const apiKey = getAnthropicKey();
-
-  const fallback: TriageResult = {
-    behoerde: "Unbekannt",
-    rechtsgebiet: "Unbekannt",
-    untergebiet: "Unbekannt",
-    routing_stufe: ctx.routingStufe,
-  };
-
-  if (!apiKey) {
-    return {
-      agentId: "AG01",
-      success: false,
-      data: fallback,
-      tokens: emptyTokenUsage(),
-      durationMs: Date.now() - start,
-      error: "Kein API-Key",
-    };
-  }
-
-  const anthropic = createAnthropicClient(apiKey);
+/**
+ * Führt die Klassifizierung mit einem bestimmten Modell durch.
+ * Gibt TriageResult zurück oder null wenn Klassifizierung fehlschlägt.
+ */
+async function runClassification(
+  ctx: AgentContext,
+  anthropic: Anthropic,
+  model: string,
+): Promise<{ result: TriageResult; tokens: TokenUsage } | null> {
   let totalTokens = emptyTokenUsage();
 
   const urgencyHint = ctx.fristTage !== null
@@ -102,10 +89,9 @@ async function execute(ctx: AgentContext): Promise<AgentResult<TriageResult>> {
     },
   ];
 
-  // Tool-Use Loop (max 3 Iterationen)
   for (let i = 0; i < 3; i++) {
     const response = await anthropic.messages.create({
-      model: HAIKU_MODEL,
+      model,
       max_tokens: 1024,
       system: getSystemPrompt("AG01"),
       tools: [TOOL_KLASSIFIZIERE],
@@ -138,20 +124,13 @@ async function execute(ctx: AgentContext): Promise<AgentResult<TriageResult>> {
           routing_stufe: ctx.routingStufe,
         };
 
-        // Wenn AG01 eine andere Dringlichkeit erkennt: höhere Stufe gewinnt
         if (input.frist_tage !== undefined && input.frist_tage <= 7 && ctx.routingStufe !== "NOTFALL") {
           result.routing_stufe = "NOTFALL";
         } else if (input.frist_tage !== undefined && input.frist_tage <= 14 && ctx.routingStufe === "NORMAL") {
           result.routing_stufe = "HOCH";
         }
 
-        return {
-          agentId: "AG01",
-          success: true,
-          data: result,
-          tokens: totalTokens,
-          durationMs: Date.now() - start,
-        };
+        return { result, tokens: totalTokens };
       }
 
       toolResults.push({
@@ -166,13 +145,79 @@ async function execute(ctx: AgentContext): Promise<AgentResult<TriageResult>> {
     }
   }
 
+  return null;
+}
+
+async function execute(ctx: AgentContext): Promise<AgentResult<TriageResult>> {
+  const start = Date.now();
+  const apiKey = getAnthropicKey();
+
+  const fallback: TriageResult = {
+    behoerde: "Unbekannt",
+    rechtsgebiet: "Unbekannt",
+    untergebiet: "Unbekannt",
+    routing_stufe: ctx.routingStufe,
+  };
+
+  if (!apiKey) {
+    return {
+      agentId: "AG01",
+      success: false,
+      data: fallback,
+      tokens: emptyTokenUsage(),
+      durationMs: Date.now() - start,
+      error: "Kein API-Key",
+    };
+  }
+
+  const anthropic = createAnthropicClient(apiKey);
+  let totalTokens = emptyTokenUsage();
+
+  // Versuch 1: Haiku (schnell, günstig)
+  const haikuResult = await runClassification(ctx, anthropic, HAIKU_MODEL);
+  if (haikuResult) {
+    totalTokens = mergeTokenUsage(totalTokens, haikuResult.tokens);
+
+    // Prüfe ob Haiku eine echte Klassifizierung geliefert hat
+    const isUnbekannt =
+      haikuResult.result.behoerde === "Unbekannt" ||
+      haikuResult.result.rechtsgebiet === "Unbekannt";
+
+    if (!isUnbekannt) {
+      return {
+        agentId: "AG01",
+        success: true,
+        data: haikuResult.result,
+        tokens: totalTokens,
+        durationMs: Date.now() - start,
+      };
+    }
+
+    // Haiku hat "Unbekannt" geliefert → Fallback auf Sonnet
+    console.warn("[AG01] Haiku-Klassifizierung gescheitert (Unbekannt) → Sonnet-Fallback");
+  }
+
+  // Versuch 2: Sonnet (stärker, teurer) — nur wenn Haiku versagt hat
+  const sonnetResult = await runClassification(ctx, anthropic, SONNET_MODEL);
+  if (sonnetResult) {
+    totalTokens = mergeTokenUsage(totalTokens, sonnetResult.tokens);
+    console.info("[AG01] Sonnet-Fallback erfolgreich:", sonnetResult.result.behoerde, sonnetResult.result.rechtsgebiet);
+    return {
+      agentId: "AG01",
+      success: true,
+      data: sonnetResult.result,
+      tokens: totalTokens,
+      durationMs: Date.now() - start,
+    };
+  }
+
   return {
     agentId: "AG01",
     success: false,
     data: fallback,
     tokens: totalTokens,
     durationMs: Date.now() - start,
-    error: "Klassifizierung nicht abgeschlossen",
+    error: "Klassifizierung nicht abgeschlossen (Haiku + Sonnet gescheitert)",
   };
 }
 

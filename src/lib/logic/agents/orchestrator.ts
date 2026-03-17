@@ -358,21 +358,69 @@ export async function runPipeline(
   const fehlerListe: string[] = systemError ? [systemError] : [];
 
   if (!systemError) {
+    // --- Halluzinations-Filter aus AG03-Schwachstellen ---
+    const halluzinationsKeywords: string[] = [];
+    if (pipeline.kritik?.schwachstellen) {
+      for (const s of pipeline.kritik.schwachstellen) {
+        const lower = s.toLowerCase();
+        // AG03 markiert halluzinierte Fehler mit "keinerlei Grundlage", "nicht im Bescheid", "keine Basis"
+        if (lower.includes("keinerlei grundlage") || lower.includes("nicht im bescheid") || lower.includes("keine basis im")) {
+          // Extrahiere Schlüsselwörter aus der Schwachstelle (z.B. "Sanktion", "Vermögensanrechnung", "Umzug")
+          const keywords = lower.match(/\b(sanktion|vermögen|umzug|sperrzeit|schwerbehinderung|pflegegrad|kindergeld|unterhalt|baf[öo]g|elterngeld|wohngeld)\w*/g);
+          if (keywords) halluzinationsKeywords.push(...keywords);
+        }
+      }
+    }
+
+    /** Prüft ob ein Fehler-Text ein halluzinierter/generischer Eintrag ist */
+    const isHalluziniert = (text: string): boolean => {
+      const lower = text.toLowerCase();
+      // Platzhalter-Texte sind nie fallspezifisch
+      if (/\[.*(?:einfügen|einf[uü]gen|angeben|nennen).*\]/.test(lower)) return true;
+      // AG03 hat diesen Fehler als unbegründet markiert
+      if (halluzinationsKeywords.length > 0 && halluzinationsKeywords.some(kw => lower.includes(kw))) return true;
+      return false;
+    };
+
+    /** Prüft ob ein Fehler zum erkannten Rechtsgebiet passt */
+    const rechtsgebiet = pipeline.triage?.rechtsgebiet?.toUpperCase() ?? "";
+    const isRechtsgebietMismatch = (text: string): boolean => {
+      if (!rechtsgebiet || rechtsgebiet === "UNBEKANNT") return false;
+      const lower = text.toLowerCase();
+      // Mapping: Wenn Rechtsgebiet SGB XII ist, blocke SGB-II-spezifische Fehler (und umgekehrt)
+      const sgbSpecific: Record<string, RegExp[]> = {
+        "SGB II":  [/§\s*12\s+sgb\s+xii/i, /§\s*90\s.*sgb\s+xii/i, /§\s*159\s+sgb\s+iii/i, /§\s*43\s+sgb\s+vi/i, /§\s*56\s+sgb\s+vi/i],
+        "SGB XII": [/§\s*11b?\s+sgb\s+ii\b/i, /§\s*12\s+sgb\s+ii\b/i, /§\s*31a?\s+sgb\s+ii\b/i, /§\s*159\s+sgb\s+iii/i, /§\s*43\s+sgb\s+vi/i],
+        "SGB VI":  [/§\s*11b?\s+sgb\s+ii\b/i, /§\s*12\s+sgb\s+ii\b/i, /§\s*31a?\s+sgb\s+ii\b/i, /§\s*22\s.*sgb\s+ii\b/i, /§\s*159\s+sgb\s+iii/i],
+        "SGB III": [/§\s*11b?\s+sgb\s+ii\b/i, /§\s*12\s+sgb\s+ii\b/i, /§\s*31a?\s+sgb\s+ii\b/i, /§\s*22\s.*sgb\s+ii\b/i],
+      };
+      const blockedPatterns = sgbSpecific[rechtsgebiet] ?? [];
+      return blockedPatterns.some(pattern => pattern.test(lower));
+    };
+
     // AG07-Auffälligkeiten (höchste Priorität — vom Brief-Generator selbst erkannt)
     if (letterResult.data.auffaelligkeiten.length > 0) {
-      fehlerListe.push(...letterResult.data.auffaelligkeiten);
+      for (const a of letterResult.data.auffaelligkeiten) {
+        if (!isHalluziniert(a) && !isRechtsgebietMismatch(a)) {
+          fehlerListe.push(a);
+        }
+      }
     }
     // AG02-Auffälligkeiten ergänzen (falls AG07 weniger gefunden hat)
     if (analyseData && analyseData.auffaelligkeiten.length > 0) {
       for (const a of analyseData.auffaelligkeiten) {
-        if (!fehlerListe.includes(a)) fehlerListe.push(a);
+        if (!fehlerListe.includes(a) && !isHalluziniert(a) && !isRechtsgebietMismatch(a)) {
+          fehlerListe.push(a);
+        }
       }
     }
-    // AG02-Fehlerkatalog-Treffer ergänzen
+    // AG02-Fehlerkatalog-Treffer ergänzen — nur Titel (nicht musterschreiben_hinweis-Templates)
     if (analyseData && analyseData.fehler.length > 0) {
       for (const f of analyseData.fehler) {
-        const text = f.musterschreiben_hinweis ?? f.titel;
-        if (!fehlerListe.includes(text)) fehlerListe.push(text);
+        const text = f.titel;
+        if (!fehlerListe.includes(text) && !isHalluziniert(text) && !isRechtsgebietMismatch(f.musterschreiben_hinweis ?? text)) {
+          fehlerListe.push(text);
+        }
       }
     }
     // Fallback nur wenn wirklich gar nichts gefunden
