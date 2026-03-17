@@ -13,7 +13,7 @@
 import { NextResponse } from "next/server";
 import { safeExecute } from "@/lib/logic/agents/utils";
 import type { PipelineState } from "@/lib/logic/agents/types";
-import { reportInfo } from "@/lib/error-reporter";
+import { reportError, reportInfo } from "@/lib/error-reporter";
 
 export const runtime = "nodejs";
 
@@ -155,7 +155,7 @@ export async function GET(req: Request) {
     });
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
-    console.error(`[Vercel-Monitor] Fehler: ${message}`);
+    await reportError(err, { context: "[Vercel-Monitor] AG16 Fehler" });
     return NextResponse.json(
       { success: false, error: message, timestamp: new Date().toISOString() },
       { status: 500 },

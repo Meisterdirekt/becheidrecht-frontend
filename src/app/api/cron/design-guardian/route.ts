@@ -9,7 +9,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { runDesignGuardian } from "@/lib/logic/agents/ag19-design-guardian";
-import { reportInfo } from "@/lib/error-reporter";
+import { reportError, reportInfo } from "@/lib/error-reporter";
 
 export const runtime = "nodejs";
 export const maxDuration = 30;
@@ -54,7 +54,7 @@ export async function GET(req: NextRequest) {
       zusammenfassung: result.zusammenfassung,
     });
   } catch (err: unknown) {
-    console.error("[DesignGuardian] AG19 Fehler:", err);
+    await reportError(err, { context: "[DesignGuardian] AG19 Fehler" });
     return NextResponse.json(
       {
         success: false,

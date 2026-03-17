@@ -9,7 +9,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { runContentAudit } from "@/lib/logic/agents/ag18-content-auditor";
-import { reportInfo } from "@/lib/error-reporter";
+import { reportError, reportInfo } from "@/lib/error-reporter";
 
 export const runtime = "nodejs";
 export const maxDuration = 30;
@@ -41,7 +41,7 @@ export async function GET(req: NextRequest) {
       ...result,
     });
   } catch (err: unknown) {
-    console.error("[ContentAudit] AG18 Fehler:", err);
+    await reportError(err, { context: "[ContentAudit] AG18 Fehler" });
     return NextResponse.json(
       {
         success: false,

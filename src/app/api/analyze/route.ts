@@ -200,29 +200,34 @@ export async function POST(req: Request) {
     }
 
     const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
+    const MAX_FILES = 10;
 
     const formData = await req.formData();
-    const file = formData.get('file');
+    const rawFiles = formData.getAll('file');
     const userContext = formData.get('userContext');
     const userContextStr = typeof userContext === 'string' && userContext.trim().length > 0
       ? userContext.trim().slice(0, 1000)
       : undefined;
 
-    if (!file || typeof file === 'string') {
+    // Filter: nur echte File-Objekte
+    const uploadedFiles = rawFiles.filter((f): f is File => typeof f !== 'string' && f instanceof File && f.size > 0);
+
+    if (uploadedFiles.length === 0) {
       return NextResponse.json({ error: 'Datei fehlt.' }, { status: 400 });
     }
 
-    const uploadedFile = file as File;
-    if (uploadedFile.size > MAX_FILE_SIZE) {
+    if (uploadedFiles.length > MAX_FILES) {
       return NextResponse.json(
         { error: 'Datei zu groß. Maximal 10 MB (PDF oder Bild).' },
         { status: 400 }
       );
     }
 
-    const bytes = await uploadedFile.arrayBuffer();
+    // Erste Datei verarbeiten (Multi-File-Support: Texte aller Dateien werden zusammengeführt)
+    const firstFile = uploadedFiles[0];
+    const bytes = await firstFile.arrayBuffer();
     const buffer = Buffer.from(bytes);
-    const mimeType = uploadedFile.type || 'application/octet-stream';
+    const mimeType = firstFile.type || 'application/octet-stream';
 
     let extractedText = '';
 

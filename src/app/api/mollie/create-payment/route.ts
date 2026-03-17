@@ -11,6 +11,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAuthenticatedUser } from "@/lib/supabase/auth";
 import { createClient } from "@supabase/supabase-js";
+import { reportError } from "@/lib/error-reporter";
 
 export const runtime = "nodejs";
 
@@ -98,7 +99,7 @@ export async function POST(req: NextRequest) {
 
   if (!mollieRes.ok) {
     const errText = await mollieRes.text();
-    console.error("[Mollie] Payment-Erstellung fehlgeschlagen:", mollieRes.status, errText);
+    await reportError(`Payment-Erstellung fehlgeschlagen: ${mollieRes.status} ${errText}`, { context: "mollie/create-payment" });
     return NextResponse.json(
       { error: "Zahlung konnte nicht erstellt werden." },
       { status: 502 }
@@ -109,7 +110,7 @@ export async function POST(req: NextRequest) {
   const checkoutUrl = molliePayment?._links?.checkout?.href;
 
   if (!checkoutUrl) {
-    console.error("[Mollie] Keine Checkout-URL erhalten:", JSON.stringify(molliePayment));
+    await reportError("Keine Checkout-URL erhalten", { context: "mollie/create-payment" });
     return NextResponse.json(
       { error: "Keine Checkout-URL von Mollie erhalten." },
       { status: 502 }

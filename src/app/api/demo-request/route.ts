@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { demoRequestLimiter } from "@/lib/rate-limit";
+import { reportError } from "@/lib/error-reporter";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -66,7 +67,7 @@ async function sendNotification(data: {
       `,
     });
   } catch (err) {
-    console.error("Demo-Request E-Mail Fehler:", err);
+    await reportError(err, { context: "demo-request/email" });
   }
 }
 
@@ -153,7 +154,7 @@ export async function POST(req: NextRequest) {
     });
 
     if (error) {
-      console.error("Demo-Request insert error:", error);
+      await reportError(error, { context: "demo-request/insert" });
       return NextResponse.json(
         { error: "Anfrage konnte nicht gespeichert werden. Bitte später erneut versuchen." },
         { status: 500 }
@@ -173,7 +174,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ success: true });
   } catch (e) {
-    console.error("Demo-Request API error:", e);
+    await reportError(e, { context: "demo-request" });
     return NextResponse.json(
       { error: "Ein Fehler ist aufgetreten. Bitte später erneut versuchen." },
       { status: 500 }

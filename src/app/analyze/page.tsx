@@ -24,7 +24,8 @@ import {
   FileSearch,
   PenTool,
 } from "lucide-react";
-import DownloadButton from "@/components/DownloadButton";
+import dynamic from "next/dynamic";
+const DownloadButton = dynamic(() => import("@/components/DownloadButton"), { ssr: false });
 import { SiteNavSimple } from "@/components/SiteNav";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SkeletonCard } from "@/components/Skeleton";
@@ -387,7 +388,7 @@ export default function AnalyzePage() {
   const [supabase, setSupabase] = useState<ReturnType<typeof createBrowserClient> | null>(null);
   const [configLoading, setConfigLoading] = useState(true);
   const [token, setToken] = useState<string | null>(null);
-  const [file, setFile] = useState<File | null>(null);
+  const [files, setFiles] = useState<File[]>([]);
   const [loading, setLoading] = useState(false);
   const [progressPhase, setProgressPhase] = useState<string | null>(null);
   const [currentPipelinePhase, setCurrentPipelinePhase] = useState<PipelinePhase>("upload");
@@ -446,8 +447,10 @@ export default function AnalyzePage() {
     return () => { cancelled = true; };
   }, [configLoading, supabase]);
 
+  const MAX_FILES = 10;
+
   const handleUpload = async () => {
-    if (!file) return;
+    if (files.length === 0) return;
     setError(null);
     setResult(null);
     setShowSavePrompt(false);
@@ -457,7 +460,9 @@ export default function AnalyzePage() {
     setCompletedPipelinePhases(new Set());
     try {
       const formData = new FormData();
-      formData.append("file", file);
+      for (const f of files) {
+        formData.append("file", f);
+      }
       if (userContext.trim()) formData.append("userContext", userContext.trim());
       const headers: Record<string, string> = { Accept: "text/event-stream" };
       if (token) headers["Authorization"] = `Bearer ${token}`;
@@ -659,8 +664,8 @@ export default function AnalyzePage() {
             <div className="w-16 h-16 bg-[var(--accent)]/10 rounded-2xl flex items-center justify-center text-[var(--accent)]">
               <Upload size={32} />
             </div>
-            <p className="text-base text-gray-500 text-center">PDF oder Bild (JPEG, PNG, WebP – max. 10 MB)</p>
-            <p className="text-sm text-white/40 text-center">Auch Foto vom Handy: Bescheid abfotografieren und hochladen.</p>
+            <p className="text-base text-gray-500 text-center">PDF oder Bild (JPEG, PNG, WebP – max. 10 MB pro Datei)</p>
+            <p className="text-sm text-white/40 text-center">Bis zu 10 Schreiben gleichzeitig hochladen – auch Fotos vom Handy. Alle Dokumente werden zusammen analysiert.</p>
             {process.env.NODE_ENV === "development" && (
               <p className="text-sm text-violet-500 text-center">
                 [Nur Entwicklung] Zum Testen:{" "}
@@ -672,45 +677,74 @@ export default function AnalyzePage() {
             )}
             <input
               type="file"
+              multiple
               accept=".pdf,application/pdf,image/jpeg,image/png,image/webp,image/*"
               className="hidden"
               id="file-upload"
               onChange={(e) => {
-                const f = e.target.files?.[0];
-                if (f && f.size > 10 * 1024 * 1024) {
-                  setError("Datei zu groß. Maximal 10 MB.");
-                  setFile(null);
+                const selected = e.target.files;
+                if (!selected || selected.length === 0) return;
+                const incoming = Array.from(selected);
+                const total = files.length + incoming.length;
+                if (total > MAX_FILES) {
+                  setError(`Maximal ${MAX_FILES} Dateien gleichzeitig.`);
                   e.target.value = "";
                   return;
                 }
-                setFile(f || null);
+                for (const f of incoming) {
+                  if (f.size > 10 * 1024 * 1024) {
+                    setError(`„${f.name}" ist zu groß. Maximal 10 MB pro Datei.`);
+                    e.target.value = "";
+                    return;
+                  }
+                }
+                setFiles((prev) => [...prev, ...incoming]);
                 setResult(null);
                 setError(null);
+                e.target.value = "";
               }}
             />
             <label
               htmlFor="file-upload"
               className="px-8 py-3 bg-[var(--accent)] hover:bg-[var(--accent-hover)] rounded-2xl font-bold text-[11px] uppercase tracking-widest cursor-pointer transition-all text-white"
             >
-              Datei auswählen
+              {files.length === 0 ? "Dateien auswählen" : "Weitere hinzufügen"}
             </label>
-            {file && (
-              <div className="flex items-center gap-2 mt-4 p-3 bg-white/5 rounded-xl border border-white/10 w-full max-w-md">
-                <FileText size={20} className="text-[var(--accent)] flex-shrink-0" />
-                <span className="text-sm truncate flex-1">{file.name}</span>
+            {files.length > 0 && (
+              <div className="w-full max-w-md mt-4 space-y-2">
+                {files.map((f, i) => (
+                  <div key={`${f.name}-${i}`} className="flex items-center gap-2 p-3 bg-white/5 rounded-xl border border-white/10">
+                    <FileText size={16} className="text-[var(--accent)] flex-shrink-0" />
+                    <span className="text-sm truncate flex-1">{f.name}</span>
+                    <span className="text-[10px] text-white/30 flex-shrink-0">
+                      {(f.size / 1024 / 1024).toFixed(1)} MB
+                    </span>
+                    {!loading && (
+                      <button
+                        type="button"
+                        onClick={() => setFiles((prev) => prev.filter((_, j) => j !== i))}
+                        className="text-white/30 hover:text-red-400 transition-colors flex-shrink-0"
+                        aria-label={`${f.name} entfernen`}
+                      >
+                        <XCircle size={14} />
+                      </button>
+                    )}
+                  </div>
+                ))}
+                <p className="text-[11px] text-white/25">{files.length}/{MAX_FILES} Dateien</p>
                 <button
                   type="button"
                   onClick={handleUpload}
                   disabled={loading || (token !== null && analysesRemaining === 0)}
-                  className="text-[var(--accent)] font-bold text-[11px] uppercase tracking-widest hover:text-[var(--accent-hover)] disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                  className="w-full mt-2 flex items-center justify-center gap-2 px-6 py-3 bg-[var(--accent)] hover:bg-[var(--accent-hover)] rounded-2xl font-bold text-[11px] uppercase tracking-widest text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {loading ? (
-                    <span aria-live="polite">
+                    <span className="flex items-center gap-2" aria-live="polite">
                       <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
                       {progressPhase ?? "Analysiere …"}
                     </span>
                   ) : (
-                    "Analyse starten"
+                    <>Analyse starten ({files.length} {files.length === 1 ? "Datei" : "Dateien"})</>
                   )}
                 </button>
               </div>

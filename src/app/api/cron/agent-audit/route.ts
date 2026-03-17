@@ -15,7 +15,7 @@ import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { safeExecute } from "@/lib/logic/agents/utils";
 import type { PipelineState } from "@/lib/logic/agents/types";
-import { reportInfo } from "@/lib/error-reporter";
+import { reportError, reportInfo } from "@/lib/error-reporter";
 
 export const runtime = "nodejs";
 
@@ -183,7 +183,7 @@ async function computeMetrics(): Promise<{
       raw_count: total,
     };
   } catch (err) {
-    console.error("[Agent-Audit] Metriken-Fehler:", err);
+    await reportError(err, { context: "[Agent-Audit] Metriken-Fehler" });
     return emptyResult;
   }
 }
@@ -362,7 +362,7 @@ export async function GET(req: Request) {
     });
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
-    console.error(`[Agent-Audit] Fehler: ${message}`);
+    await reportError(err, { context: "[Agent-Audit] AG17 Fehler" });
     return NextResponse.json(
       { success: false, error: message, timestamp: new Date().toISOString() },
       { status: 500 },

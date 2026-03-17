@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { verifyAdmin } from '@/lib/admin-auth';
+import { reportError } from '@/lib/error-reporter';
 
 /**
  * POST /api/admin/grant-subscription
@@ -7,50 +9,6 @@ import { createClient } from '@supabase/supabase-js';
  * Admin-Route: User manuell ein Abo zuweisen
  * Geschützt durch Admin-Token (ADMIN_SECRET) und Supabase-Auth
  */
-
-const ADMIN_EMAILS = (process.env.ADMIN_EMAILS || '').split(',').map(e => e.trim().toLowerCase()).filter(Boolean);
-
-async function verifyAdmin(request: NextRequest): Promise<{ authorized: boolean; error?: string }> {
-  // Methode 1: ADMIN_SECRET Token im Header
-  const adminSecret = process.env.ADMIN_SECRET;
-  const adminToken = request.headers.get('x-admin-token');
-  if (adminSecret && adminToken === adminSecret) {
-    return { authorized: true };
-  }
-
-  // Methode 2: Eingeloggter User muss in ADMIN_EMAILS stehen
-  const authHeader = request.headers.get('authorization');
-  if (!authHeader?.startsWith('Bearer ')) {
-    return { authorized: false, error: 'Nicht authentifiziert. Admin-Zugang erforderlich.' };
-  }
-
-  const token = authHeader.replace('Bearer ', '').trim();
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL || '';
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY || '';
-
-  if (!supabaseUrl || !supabaseAnonKey) {
-    return { authorized: false, error: 'Supabase nicht konfiguriert.' };
-  }
-
-  const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-    global: { headers: { Authorization: `Bearer ${token}` } },
-  });
-
-  const { data: { user }, error } = await supabase.auth.getUser();
-  if (error || !user?.email) {
-    return { authorized: false, error: 'Ungültiger Token.' };
-  }
-
-  if (ADMIN_EMAILS.length === 0) {
-    return { authorized: false, error: 'Keine Admin-E-Mails konfiguriert. Bitte ADMIN_EMAILS in Umgebungsvariablen setzen.' };
-  }
-
-  if (!ADMIN_EMAILS.includes(user.email.toLowerCase())) {
-    return { authorized: false, error: 'Kein Admin-Zugang. Ihre E-Mail ist nicht berechtigt.' };
-  }
-
-  return { authorized: true };
-}
 
 export async function POST(request: NextRequest) {
   try {
@@ -159,7 +117,7 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (updateError) {
-      console.error('Update error:', updateError);
+      await reportError(updateError, { context: 'admin/grant-subscription', userId });
       return NextResponse.json(
         { error: 'Failed to grant subscription: ' + updateError.message },
         { status: 500 }
@@ -176,7 +134,7 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error: unknown) {
-    console.error('Grant subscription error:', error);
+    await reportError(error, { context: 'admin/grant-subscription' });
     const msg = error instanceof Error ? error.message : 'Internal server error';
     return NextResponse.json(
       { error: msg },

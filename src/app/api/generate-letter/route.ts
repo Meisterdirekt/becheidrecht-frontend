@@ -5,6 +5,7 @@ import fs from "fs";
 import path from "path";
 import { TRAEGER_TO_PREFIX, getTraegerLabel, getSchreibentypLabel } from "@/lib/letter-generator";
 import { getAuthenticatedUser } from "@/lib/supabase/auth";
+import { reportError } from "@/lib/error-reporter";
 import { letterLimiter } from "@/lib/rate-limit";
 import { getOpenAIKey } from "@/lib/logic/agents/utils";
 
@@ -197,7 +198,7 @@ Erstelle nun das fertige Schreiben gemäß der Systemanweisung.`;
     // Kein RDG-Disclaimer im Brief-Text — wird rein als UI-Element angezeigt, nicht im PDF
     return NextResponse.json({ letter: rawLetter });
   } catch (e) {
-    console.error("generate-letter error:", e);
+    await reportError(e, { context: "generate-letter" });
     const message = e instanceof Error ? e.message : "Unbekannter Fehler";
     return NextResponse.json(
       { error: message.includes("rate") ? "Zu viele Anfragen. Bitte kurz warten." : "Ein Fehler ist aufgetreten. Bitte erneut versuchen." },

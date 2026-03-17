@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { fristenLimiter } from "@/lib/rate-limit";
+import { reportError } from "@/lib/error-reporter";
 
 export const runtime = "nodejs";
 
@@ -58,7 +59,7 @@ export async function GET(req: NextRequest) {
     .order("frist_datum", { ascending: true, nullsFirst: false });
 
   if (error) {
-    console.error("[Fristen] GET Fehler:", error);
+    await reportError(error, { context: "fristen/GET" });
     if (error.code === "42P01") {
       // Tabelle existiert noch nicht
       return NextResponse.json({ fristen: [], hinweis: "Tabelle noch nicht angelegt." });
@@ -98,6 +99,11 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Nicht angemeldet." }, { status: 401 });
   }
 
+  const { success: rateLimitOk } = await fristenLimiter.limit(auth.userId);
+  if (!rateLimitOk) {
+    return NextResponse.json({ error: "Zu viele Anfragen. Bitte kurz warten." }, { status: 429 });
+  }
+
   const supabase = getUserClient(auth.token);
   if (!supabase) {
     return NextResponse.json({ error: "Datenbank nicht konfiguriert." }, { status: 500 });
@@ -119,6 +125,18 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "frist_datum ist erforderlich." }, { status: 400 });
   }
 
+  // Datum-Validierung
+  const fristDate = new Date(frist_datum);
+  if (Number.isNaN(fristDate.getTime())) {
+    return NextResponse.json({ error: "Ungültiges Frist-Datum." }, { status: 400 });
+  }
+  if (bescheid_datum) {
+    const bescheidDate = new Date(bescheid_datum);
+    if (Number.isNaN(bescheidDate.getTime())) {
+      return NextResponse.json({ error: "Ungültiges Bescheid-Datum." }, { status: 400 });
+    }
+  }
+
   const { data, error } = await supabase
     .from("user_fristen")
     .insert({
@@ -136,7 +154,7 @@ export async function POST(req: NextRequest) {
     .single();
 
   if (error) {
-    console.error("[Fristen] POST Fehler:", error);
+    await reportError(error, { context: "fristen/POST" });
     return NextResponse.json({ error: "Fehler beim Speichern." }, { status: 500 });
   }
 
@@ -151,6 +169,11 @@ export async function PATCH(req: NextRequest) {
   const auth = await getTokenAndUser(req);
   if (!auth) {
     return NextResponse.json({ error: "Nicht angemeldet." }, { status: 401 });
+  }
+
+  const { success: rateLimitOk } = await fristenLimiter.limit(auth.userId);
+  if (!rateLimitOk) {
+    return NextResponse.json({ error: "Zu viele Anfragen. Bitte kurz warten." }, { status: 429 });
   }
 
   const supabase = getUserClient(auth.token);
@@ -191,7 +214,7 @@ export async function PATCH(req: NextRequest) {
     .eq("id", id);
 
   if (error) {
-    console.error("[Fristen] PATCH Fehler:", error);
+    await reportError(error, { context: "fristen/PATCH" });
     return NextResponse.json({ error: "Fehler beim Aktualisieren." }, { status: 500 });
   }
 

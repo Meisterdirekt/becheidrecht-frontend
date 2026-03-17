@@ -13,8 +13,7 @@ import dynamic from "next/dynamic";
 
 const TestimonialsBlock = dynamic(() => import("@/components/TestimonialsBlock"), { ssr: false });
 const RoiCalculator = dynamic(() => import("@/components/RoiCalculator").then((m) => ({ default: m.RoiCalculator })), { ssr: false });
-import { pdf } from "@react-pdf/renderer";
-import LetterPDF, { type LetterPDFData } from "@/components/LetterPDF";
+import type { LetterPDFData } from "@/components/LetterPDF";
 import {
   TRAEGER_OPTIONS,
   SCHREIBENTYP_OPTIONS,
@@ -274,7 +273,11 @@ export default function Page() {
     if (!data) return;
     setLetterError(null);
     try {
-      const blob = await pdf(<LetterPDF data={data} />).toBlob();
+      const [{ pdf: pdfRenderer }, { default: LetterPDF }] = await Promise.all([
+        import("@react-pdf/renderer"),
+        import("@/components/LetterPDF"),
+      ]);
+      const blob = await pdfRenderer(<LetterPDF data={data} />).toBlob();
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;

@@ -14,7 +14,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { runRechtsMonitor } from "@/lib/logic/agents/ag15-rechts-monitor";
-import { reportInfo } from "@/lib/error-reporter";
+import { reportError, reportInfo } from "@/lib/error-reporter";
 
 const CRON_SECRET = process.env.CRON_SECRET;
 
@@ -43,7 +43,7 @@ export async function GET(req: NextRequest) {
       ...result,
     });
   } catch (err: unknown) {
-    console.error("[RechtsUpdate] AG15 Fehler:", err);
+    await reportError(err, { context: "[RechtsUpdate] AG15 Fehler" });
     return NextResponse.json(
       {
         success: false,

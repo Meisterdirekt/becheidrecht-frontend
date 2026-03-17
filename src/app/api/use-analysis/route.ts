@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { getAuthenticatedUser } from '@/lib/supabase/auth';
+import { reportError } from '@/lib/error-reporter';
+import { useAnalysisLimiter } from '@/lib/rate-limit';
 
 /**
  * POST /api/use-analysis
@@ -9,54 +12,44 @@ import { createClient } from '@supabase/supabase-js';
  */
 export async function POST(request: NextRequest) {
   try {
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL || '';
-    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY || '';
-    const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+    const user = await getAuthenticatedUser(request);
+    if (!user) {
+      return NextResponse.json(
+        { error: 'Nicht angemeldet.' },
+        { status: 401 }
+      );
+    }
+
+    const { success: rateLimitOk } = await useAnalysisLimiter.limit(user.id);
+    if (!rateLimitOk) {
+      return NextResponse.json(
+        { error: 'Zu viele Anfragen. Bitte kurz warten.' },
+        { status: 429 }
+      );
+    }
+
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.SUPABASE_URL ?? '';
+    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? process.env.SUPABASE_ANON_KEY ?? '';
+    const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY ?? '';
 
     if (!supabaseUrl || !supabaseAnonKey) {
       return NextResponse.json(
-        { error: 'Supabase configuration missing' },
+        { error: 'Datenbank nicht konfiguriert.' },
         { status: 500 }
       );
     }
 
-    // Authorization Header
-    const authHeader = request.headers.get('authorization');
-    if (!authHeader) {
-      return NextResponse.json(
-        { error: 'Not authenticated' },
-        { status: 401 }
-      );
-    }
-
-    const token = authHeader.replace('Bearer ', '');
-
-    // Supabase Client mit User Token
+    // User-Client für RLS-konforme Queries
     const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-      global: {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      }
+      global: { headers: { Authorization: `Bearer ${user.token}` } },
     });
 
-    // User abrufen
-    const { data: { user }, error: userError } = await supabase.auth.getUser();
-
-    if (userError || !user) {
-      return NextResponse.json(
-        { error: 'User not found' },
-        { status: 401 }
-      );
-    }
-
-    // Service Role Client für Update (RLS bypass)
+    // Service Role Client für Admin-Operationen (RLS bypass)
     const supabaseAdmin = serviceRoleKey
-      ? createClient(supabaseUrl, serviceRoleKey)
+      ? createClient(supabaseUrl, serviceRoleKey, { auth: { persistSession: false } })
       : supabase;
 
     // ── Org-Pool prüfen (B2B) ──────────────────────────────────────────────
-    // Ist der User Mitglied einer Einrichtung? Dann aus dem gemeinsamen Pool abbuchen.
     if (serviceRoleKey) {
       const { data: membership } = await supabaseAdmin
         .from('organization_members')
@@ -85,7 +78,6 @@ export async function POST(request: NextRequest) {
         }
 
         // Org-Pool + Per-Member-Counter atomar per RPC inkrementieren
-        // Verhindert Race Condition bei gleichzeitigen Requests
         const [orgUpdate, memberUpdate] = await Promise.all([
           supabaseAdmin.rpc('increment_field', {
             table_name: 'organizations',
@@ -105,6 +97,10 @@ export async function POST(request: NextRequest) {
             .from('organizations')
             .update({ analyses_used: org.analyses_used + 1 })
             .eq('id', membership.org_id);
+        }
+
+        if (memberUpdate.error) {
+          await reportError(memberUpdate.error, { context: 'use-analysis/org-member-update', userId: user.id });
         }
 
         return NextResponse.json({
@@ -137,7 +133,7 @@ export async function POST(request: NextRequest) {
         });
       }
       return NextResponse.json(
-        { error: 'No subscription found' },
+        { error: 'Kein Abonnement gefunden.' },
         { status: 404 }
       );
     }
@@ -145,7 +141,7 @@ export async function POST(request: NextRequest) {
     if (!isDevUnlimited && subscription.analyses_remaining <= 0) {
       return NextResponse.json(
         {
-          error: 'No analyses remaining',
+          error: 'Keine Analysen mehr verfügbar.',
           analyses_remaining: 0,
           subscription_type: subscription.subscription_type
         },
@@ -162,7 +158,7 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Counter atomar reduzieren — verhindert Race Condition bei gleichzeitigen Requests
+    // Counter atomar reduzieren — .gt('analyses_remaining', 0) verhindert Race Condition
     const { data: updated, error: updateError } = await supabaseAdmin
       .from('user_subscriptions')
       .update({
@@ -176,9 +172,9 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (updateError) {
-      console.error('Update error:', updateError);
+      await reportError(updateError, { context: 'use-analysis/update', userId: user.id });
       return NextResponse.json(
-        { error: 'Failed to update subscription' },
+        { error: 'Abo-Aktualisierung fehlgeschlagen.' },
         { status: 500 }
       );
     }
@@ -191,10 +187,9 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error: unknown) {
-    console.error('Use analysis error:', error);
-    const msg = error instanceof Error ? error.message : 'Internal server error';
+    await reportError(error, { context: 'use-analysis' });
     return NextResponse.json(
-      { error: msg },
+      { error: 'Ein Fehler ist aufgetreten.' },
       { status: 500 }
     );
   }

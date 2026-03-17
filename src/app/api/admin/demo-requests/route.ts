@@ -1,58 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-
-const ADMIN_EMAILS = (process.env.ADMIN_EMAILS || "")
-  .split(",")
-  .map((e) => e.trim().toLowerCase())
-  .filter(Boolean);
-
-async function verifyAdmin(
-  request: NextRequest
-): Promise<{ authorized: boolean; error?: string }> {
-  const adminSecret = process.env.ADMIN_SECRET;
-  const adminToken = request.headers.get("x-admin-token");
-  if (adminSecret && adminToken === adminSecret) {
-    return { authorized: true };
-  }
-
-  const authHeader = request.headers.get("authorization");
-  if (!authHeader?.startsWith("Bearer ")) {
-    return {
-      authorized: false,
-      error: "Nicht authentifiziert. Admin-Zugang erforderlich.",
-    };
-  }
-
-  const token = authHeader.replace("Bearer ", "").trim();
-  const supabaseUrl =
-    process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL || "";
-  const supabaseAnonKey =
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
-    process.env.SUPABASE_ANON_KEY ||
-    "";
-
-  if (!supabaseUrl || !supabaseAnonKey) {
-    return { authorized: false, error: "Supabase nicht konfiguriert." };
-  }
-
-  const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-    global: { headers: { Authorization: `Bearer ${token}` } },
-  });
-
-  const {
-    data: { user },
-    error,
-  } = await supabase.auth.getUser();
-  if (error || !user?.email) {
-    return { authorized: false, error: "Ungültiger Token." };
-  }
-
-  if (!ADMIN_EMAILS.includes(user.email.toLowerCase())) {
-    return { authorized: false, error: "Kein Admin-Zugang." };
-  }
-
-  return { authorized: true };
-}
+import { verifyAdmin } from "@/lib/admin-auth";
+import { reportError } from "@/lib/error-reporter";
 
 function getServiceClient() {
   const url =
@@ -96,7 +45,7 @@ export async function GET(request: NextRequest) {
   const { data, error } = await query;
 
   if (error) {
-    console.error("Demo-Requests GET error:", error);
+    await reportError(error, { context: "admin/demo-requests GET" });
     return NextResponse.json(
       { error: "Fehler beim Laden der Demo-Anfragen." },
       { status: 500 }
@@ -143,7 +92,7 @@ export async function PATCH(request: NextRequest) {
       .eq("id", id);
 
     if (error) {
-      console.error("Demo-Request PATCH error:", error);
+      await reportError(error, { context: "admin/demo-requests PATCH" });
       return NextResponse.json(
         { error: "Status konnte nicht aktualisiert werden." },
         { status: 500 }
@@ -152,7 +101,7 @@ export async function PATCH(request: NextRequest) {
 
     return NextResponse.json({ success: true });
   } catch (e) {
-    console.error("Demo-Request PATCH error:", e);
+    await reportError(e, { context: "admin/demo-requests PATCH" });
     return NextResponse.json(
       { error: "Ein Fehler ist aufgetreten." },
       { status: 500 }

@@ -29,9 +29,7 @@ export async function GET() {
     );
   }
 
-  const urlPrefix = url.replace(/^https?:\/\//, '').slice(0, 40);
   return NextResponse.json({
     configured: true,
-    debug: { urlPrefix },
   });
 }

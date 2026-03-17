@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { feedbackLimiter } from "@/lib/rate-limit";
+import { reportError } from "@/lib/error-reporter";
 
 function getSupabaseClient(useServiceRole = false) {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL || "";
@@ -12,10 +13,10 @@ function getSupabaseClient(useServiceRole = false) {
   return createClient(url, key);
 }
 
-/** GET: Öffentliche Feedback-Liste (für Anzeige auf der Website – ohne E-Mail) */
+/** GET: Öffentliche Feedback-Liste (für Anzeige auf der Website — ohne E-Mail) */
 export async function GET() {
   try {
-    const supabase = getSupabaseClient(true);
+    const supabase = getSupabaseClient(false);
     if (!supabase) {
       return NextResponse.json({ items: [] });
     }
@@ -25,7 +26,7 @@ export async function GET() {
       .order("created_at", { ascending: false })
       .limit(50);
     if (error) {
-      console.error("Feedback list error:", error);
+      await reportError(error, { context: "feedback/GET" });
       return NextResponse.json({ items: [] });
     }
     const items = (data || []).map((row) => ({
@@ -37,7 +38,7 @@ export async function GET() {
     }));
     return NextResponse.json({ items });
   } catch (e) {
-    console.error("Feedback GET error:", e);
+    await reportError(e, { context: "feedback/GET" });
     return NextResponse.json({ items: [] });
   }
 }
@@ -91,7 +92,7 @@ export async function POST(req: NextRequest) {
     });
 
     if (error) {
-      console.error("Feedback insert error:", error);
+      await reportError(error, { context: "feedback/POST" });
       const msg =
         error.code === "42501" || error.message?.includes("policy")
           ? "Feedback konnte nicht gespeichert werden. In Supabase die Policies aus supabase/feedback_policies.sql ausführen."
@@ -101,7 +102,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ success: true });
   } catch (e) {
-    console.error("Feedback API error:", e);
+    await reportError(e, { context: "feedback/POST" });
     return NextResponse.json(
       { error: "Ein Fehler ist aufgetreten. Bitte später erneut versuchen." },
       { status: 500 }

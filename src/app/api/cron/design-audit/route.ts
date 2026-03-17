@@ -9,7 +9,7 @@
  */
 
 import { NextResponse } from "next/server";
-import { reportInfo } from "@/lib/error-reporter";
+import { reportInfo, reportWarning } from "@/lib/error-reporter";
 import { createGitHubIssueManaged } from "@/lib/logic/agents/tools/github-issues";
 
 export const runtime = "nodejs";
@@ -248,7 +248,7 @@ export async function GET(req: Request) {
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL;
   if (!appUrl) {
-    console.warn("[AG-DESIGNER] NEXT_PUBLIC_APP_URL nicht gesetzt — Audit übersprungen.");
+    await reportWarning("NEXT_PUBLIC_APP_URL nicht gesetzt — Audit übersprungen", { context: "design-audit" });
     return NextResponse.json({
       success: false,
       message: "NEXT_PUBLIC_APP_URL nicht gesetzt — Audit übersprungen",

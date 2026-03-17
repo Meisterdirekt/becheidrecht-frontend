@@ -3,7 +3,7 @@ import { Outfit } from "next/font/google";
 import "./globals.css";
 import { RecoveryRedirect } from "@/components/RecoveryRedirect";
 import { Toaster } from "sonner";
-import { CommandPalette } from "@/components/CommandPalette";
+import { LazyCommandPalette } from "@/components/LazyCommandPalette";
 
 const outfit = Outfit({
   subsets: ["latin"],
@@ -12,11 +12,18 @@ const outfit = Outfit({
 });
 
 export const metadata: Metadata = {
-  title: "BescheidRecht",
-  description: "Softwaregestützte Analyse für Verwaltungsschreiben",
+  title: {
+    default: "BescheidRecht — KI-Analyse von Behördenbescheiden",
+    template: "%s | BescheidRecht",
+  },
+  description: "KI-gestützte Analyse von Behördenbescheiden für Sozialeinrichtungen. Fehler erkennen, Fristen wahren, Widerspruch einlegen — rechtssicher und DSGVO-konform.",
+  metadataBase: new URL("https://www.bescheidrecht.de"),
+  alternates: {
+    canonical: "/",
+  },
   openGraph: {
-    title: "BescheidRecht",
-    description: "KI-gestützte Analyse von Behördenbescheiden — Fehler erkennen, Fristen wahren, Widerspruch einlegen.",
+    title: "BescheidRecht — KI-Analyse von Behördenbescheiden",
+    description: "KI-gestützte Analyse von Behördenbescheiden für Sozialeinrichtungen. Fehler erkennen, Fristen wahren, Widerspruch einlegen.",
     url: "https://www.bescheidrecht.de",
     siteName: "BescheidRecht",
     locale: "de_DE",
@@ -24,8 +31,12 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "BescheidRecht",
-    description: "KI-gestützte Analyse von Behördenbescheiden — Fehler erkennen, Fristen wahren, Widerspruch einlegen.",
+    title: "BescheidRecht — KI-Analyse von Behördenbescheiden",
+    description: "KI-gestützte Analyse von Behördenbescheiden für Sozialeinrichtungen. Fehler erkennen, Fristen wahren, Widerspruch einlegen.",
+  },
+  robots: {
+    index: true,
+    follow: true,
   },
 };
 
@@ -57,7 +68,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           Zum Inhalt springen
         </a>
         <RecoveryRedirect />
-        <CommandPalette />
+        <LazyCommandPalette />
         <Toaster
           theme="system"
           position="top-right"

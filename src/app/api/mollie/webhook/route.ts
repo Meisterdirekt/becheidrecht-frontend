@@ -23,7 +23,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import { reportInfo } from '@/lib/error-reporter';
+import { reportInfo, reportError, reportWarning } from '@/lib/error-reporter';
 import { mollieWebhookLimiter } from '@/lib/rate-limit';
 
 export const runtime = 'nodejs';
@@ -87,7 +87,7 @@ export async function POST(req: NextRequest) {
 
   const apiKey = process.env.MOLLIE_API_KEY ?? '';
   if (!apiKey) {
-    console.error('[Mollie] MOLLIE_API_KEY nicht gesetzt!');
+    await reportError('MOLLIE_API_KEY nicht gesetzt', { context: 'mollie/webhook' });
     return NextResponse.json({ error: 'Webhook nicht konfiguriert.' }, { status: 500 });
   }
 
@@ -111,7 +111,7 @@ export async function POST(req: NextRequest) {
     payment = await fetchMolliePayment(paymentId);
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : 'Mollie-Fehler';
-    console.error('[Mollie] Zahlungsabfrage fehlgeschlagen:', msg);
+    await reportError(msg, { context: 'mollie/webhook', paymentId });
     return NextResponse.json({ error: msg }, { status: 500 });
   }
 
@@ -126,13 +126,13 @@ export async function POST(req: NextRequest) {
   const productKey = payment.metadata?.product_key ?? '';
 
   if (!buyerEmail || !productKey) {
-    console.warn(`[Mollie] Fehlende Metadaten: email=${buyerEmail.replace(/(.{2}).*@/, "$1***@")} product=${productKey}`);
+    await reportWarning(`Fehlende Metadaten: email=${buyerEmail.replace(/(.{2}).*@/, "$1***@")} product=${productKey}`, { context: 'mollie/webhook', paymentId });
     return NextResponse.json({ received: true, note: 'Fehlende Metadaten im Mollie-Payment.' });
   }
 
   const product = PRODUCT_CONFIGS[productKey];
   if (!product) {
-    console.warn(`[Mollie] Unbekannter product_key: ${productKey}`);
+    await reportWarning(`Unbekannter product_key: ${productKey}`, { context: 'mollie/webhook', paymentId });
     return NextResponse.json({ received: true, note: 'Unbekannter Produktschlüssel.' });
   }
 
@@ -140,7 +140,7 @@ export async function POST(req: NextRequest) {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? '';
   const serviceKey  = process.env.SUPABASE_SERVICE_ROLE_KEY ?? '';
   if (!supabaseUrl || !serviceKey) {
-    console.error('[Mollie] Supabase nicht konfiguriert.');
+    await reportError('Supabase nicht konfiguriert', { context: 'mollie/webhook' });
     return NextResponse.json({ error: 'DB nicht konfiguriert.' }, { status: 500 });
   }
 
@@ -154,9 +154,9 @@ export async function POST(req: NextRequest) {
     .limit(1);
 
   if (!rows || rows.length === 0) {
-    console.warn(
-      `[Mollie] User nicht gefunden: ${buyerEmail.replace(/(.{2}).*@/, "$1***@")} | Payment: ${paymentId}\n` +
-      '→ Manuell freischalten sobald User sich registriert hat.'
+    await reportWarning(
+      `User nicht gefunden: ${buyerEmail.replace(/(.{2}).*@/, "$1***@")} — manuell freischalten nach Registrierung`,
+      { context: 'mollie/webhook', paymentId }
     );
     return NextResponse.json({ received: true, status: 'pending_registration' });
   }
