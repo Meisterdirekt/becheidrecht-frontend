@@ -84,14 +84,14 @@ export async function POST(request: NextRequest) {
             field_name: 'analyses_used',
             row_id: membership.org_id,
           }),
-          supabaseAdmin
-            .from('organization_members')
-            .update({ analyses_used: (membership.analyses_used ?? 0) + 1 })
-            .eq('org_id', membership.org_id)
-            .eq('user_id', user.id),
+          supabaseAdmin.rpc('increment_field', {
+            table_name: 'organization_members',
+            field_name: 'analyses_used',
+            row_id: membership.org_id,
+          }),
         ]);
 
-        // Fallback: Wenn RPC nicht existiert, klassisches Update
+        // Fallback: Wenn RPC nicht existiert, klassisches (nicht-atomares) Update
         if (orgUpdate.error) {
           await supabaseAdmin
             .from('organizations')
@@ -100,7 +100,11 @@ export async function POST(request: NextRequest) {
         }
 
         if (memberUpdate.error) {
-          await reportError(memberUpdate.error, { context: 'use-analysis/org-member-update', userId: user.id });
+          await supabaseAdmin
+            .from('organization_members')
+            .update({ analyses_used: (membership.analyses_used ?? 0) + 1 })
+            .eq('org_id', membership.org_id)
+            .eq('user_id', user.id);
         }
 
         return NextResponse.json({

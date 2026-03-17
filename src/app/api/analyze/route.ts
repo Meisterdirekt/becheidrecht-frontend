@@ -37,7 +37,7 @@ async function extractTextFromPdf(buffer: Buffer): Promise<string> {
 }
 
 /**
- * Tesseract Worker-Pool: Round-Robin über POOL_SIZE Worker.
+ * Tesseract Worker-Pool: Round-Robin \u00fcber POOL_SIZE Worker.
  * Lazy-Init beim ersten OCR-Call. Jeder Worker bleibt persistent.
  * Bei Multi-Page-PDFs werden Seiten parallel auf verschiedene Worker verteilt.
  */
@@ -84,7 +84,7 @@ async function resetWorkerPool(): Promise<void> {
 }
 
 /**
- * Lokale OCR via Tesseract.js — Bilder verlassen NICHT den Server.
+ * Lokale OCR via Tesseract.js \u2014 Bilder verlassen NICHT den Server.
  * DSGVO-konform: keine personenbezogenen Daten an externe APIs.
  * Nutzt Round-Robin Worker-Pool (3 Worker, lazy init).
  * Fallback: Pool-Reset + Neuinitialisierung bei Fehler.
@@ -112,9 +112,9 @@ async function extractTextFromImageLocal(buffer: Buffer): Promise<string> {
 }
 
 /**
- * OpenAI OCR — NUR als letzter Fallback wenn Tesseract versagt.
+ * OpenAI OCR \u2014 NUR als letzter Fallback wenn Tesseract versagt.
  * Nutzer wird in der UI informiert (privacy-notice in der Antwort).
- * Bild enthält zu diesem Zeitpunkt noch PII — daher nur wenn unbedingt nötig.
+ * Bild enth\u00e4lt zu diesem Zeitpunkt noch PII \u2014 daher nur wenn unbedingt n\u00f6tig.
  */
 async function extractTextFromImageOpenAI(buffer: Buffer, mimeType: string): Promise<string> {
   const apiKey = getOpenAIKey();
@@ -129,7 +129,7 @@ async function extractTextFromImageOpenAI(buffer: Buffer, mimeType: string): Pro
     messages: [
       {
         role: 'system',
-        content: 'Du bist ein OCR-Tool. Extrahiere den vollständigen Text des Bescheids. Gib NUR den reinen Text zurück, ohne Erklärungen.',
+        content: 'Du bist ein OCR-Tool. Extrahiere den vollst\u00e4ndigen Text des Bescheids. Gib NUR den reinen Text zur\u00fcck, ohne Erkl\u00e4rungen.',
       },
       {
         role: 'user',
@@ -147,7 +147,7 @@ async function extractTextFromImageOpenAI(buffer: Buffer, mimeType: string): Pro
 }
 
 /**
- * Haupt-OCR für Bilder:
+ * Haupt-OCR f\u00fcr Bilder:
  * 1. Tesseract.js lokal (DSGVO-konform, kein Datentransfer)
  * 2. Fallback OpenAI wenn Tesseract < 50 Zeichen liefert
  */
@@ -160,7 +160,7 @@ async function extractTextFromImage(buffer: Buffer, mimeType: string): Promise<s
     return localText;
   }
 
-  // Lokale OCR hat versagt — OpenAI als Fallback (mit Logging für Audit)
+  // Lokale OCR hat versagt \u2014 OpenAI als Fallback (mit Logging f\u00fcr Audit)
   reportInfo('[OCR] Tesseract unzureichend, Fallback auf OpenAI Vision');
   try {
     const openAiText = await extractTextFromImageOpenAI(buffer, mimeType);
@@ -168,20 +168,20 @@ async function extractTextFromImage(buffer: Buffer, mimeType: string): Promise<s
     return openAiText;
   } catch {
     if (localText.length > 0) return localText; // Lieber schlechtes Ergebnis als keins
-    throw new Error('Texterkennung fehlgeschlagen. Bitte PDF hochladen oder Foto in besserer Qualität aufnehmen.');
+    throw new Error('Texterkennung fehlgeschlagen. Bitte PDF hochladen oder Foto in besserer Qualit\u00e4t aufnehmen.');
   }
 }
 
 export async function POST(req: Request) {
   try {
-    // Auth ist optional — eingeloggte User haben mehr Features, anonyme 1 Demo-Analyse
+    // Auth ist optional \u2014 eingeloggte User haben mehr Features, anonyme 1 Demo-Analyse
     const user = await getAuthenticatedUser(req);
 
     if (user) {
       const { success } = await analyzeLimiter.limit(user.id);
       if (!success) {
         return NextResponse.json(
-          { error: 'Zu viele Anfragen. Du hast bereits 5 Analysen in den letzten 15 Minuten durchgeführt. Bitte kurz warten.' },
+          { error: 'Zu viele Anfragen. Du hast bereits 5 Analysen in den letzten 15 Minuten durchgef\u00fchrt. Bitte kurz warten.' },
           { status: 429 }
         );
       }
@@ -193,7 +193,7 @@ export async function POST(req: Request) {
       const { success } = await analyzeAnonLimiter.limit(ip);
       if (!success) {
         return NextResponse.json(
-          { error: 'Sie haben heute bereits eine kostenlose Demo-Analyse genutzt. Registrieren Sie sich für weitere Analysen.' },
+          { error: 'Sie haben heute bereits eine kostenlose Demo-Analyse genutzt. Registrieren Sie sich f\u00fcr weitere Analysen.' },
           { status: 429 }
         );
       }
@@ -218,49 +218,80 @@ export async function POST(req: Request) {
 
     if (uploadedFiles.length > MAX_FILES) {
       return NextResponse.json(
-        { error: 'Datei zu groß. Maximal 10 MB (PDF oder Bild).' },
+        { error: `Maximal ${MAX_FILES} Dateien gleichzeitig.` },
         { status: 400 }
       );
     }
 
-    // Erste Datei verarbeiten (Multi-File-Support: Texte aller Dateien werden zusammengeführt)
-    const firstFile = uploadedFiles[0];
-    const bytes = await firstFile.arrayBuffer();
-    const buffer = Buffer.from(bytes);
-    const mimeType = firstFile.type || 'application/octet-stream';
-
-    let extractedText = '';
-
-    if (mimeType === 'application/pdf') {
-      extractedText = await extractTextFromPdf(buffer);
-    } else if (mimeType.startsWith('image/')) {
-      try {
-        extractedText = await extractTextFromImage(buffer, mimeType);
-      } catch (imgErr: unknown) {
-        reportError(imgErr instanceof Error ? imgErr : new Error(String(imgErr)), { critical: false, context: 'bild_ocr' }).catch(() => {});
-        const imgMsg = imgErr instanceof Error ? imgErr.message : '';
-        const msg = imgMsg.includes('Key') || imgMsg.includes('key')
-          ? 'Bildanalyse ist derzeit nicht verfügbar. Bitte PDF hochladen oder später erneut versuchen.'
-          : 'Text aus dem Bild konnte nicht gelesen werden. Bitte Foto erneut aufnehmen (gut beleuchtet, leserlich) oder PDF verwenden.';
-        return NextResponse.json({ error: msg }, { status: 500 });
+    // Validierung: Gr\u00f6\u00dfe + Typ jeder Datei
+    for (const f of uploadedFiles) {
+      if (f.size > MAX_FILE_SIZE) {
+        return NextResponse.json(
+          { error: `\u201E${f.name}\u201C ist zu gro\u00df. Maximal 10 MB pro Datei.` },
+          { status: 400 }
+        );
       }
-    } else {
-      return NextResponse.json(
-        { error: 'Nur PDF- oder Bilddateien (z. B. Foto des Bescheids) werden unterstützt.' },
-        { status: 400 }
-      );
+      const mime = f.type || 'application/octet-stream';
+      if (mime !== 'application/pdf' && !mime.startsWith('image/')) {
+        return NextResponse.json(
+          { error: `\u201E${f.name}\u201C: Nur PDF- oder Bilddateien werden unterst\u00fctzt.` },
+          { status: 400 }
+        );
+      }
     }
+
+    // Text aus allen Dateien parallel extrahieren
+    const extractionResults = await Promise.allSettled(
+      uploadedFiles.map(async (f, idx) => {
+        const bytes = await f.arrayBuffer();
+        const buffer = Buffer.from(bytes);
+        const mimeType = f.type || 'application/octet-stream';
+
+        let text = '';
+        if (mimeType === 'application/pdf') {
+          text = await extractTextFromPdf(buffer);
+        } else if (mimeType.startsWith('image/')) {
+          text = await extractTextFromImage(buffer, mimeType);
+        }
+        return { idx, name: f.name, text };
+      })
+    );
+
+    // Ergebnisse zusammenf\u00fchren
+    const textParts: string[] = [];
+    for (const r of extractionResults) {
+      if (r.status === 'fulfilled' && r.value.text.trim().length > 0) {
+        if (uploadedFiles.length > 1) {
+          textParts.push(`--- Dokument ${r.value.idx + 1}: ${r.value.name} ---\n${r.value.text}`);
+        } else {
+          textParts.push(r.value.text);
+        }
+      } else if (r.status === 'rejected') {
+        const err = r.reason instanceof Error ? r.reason : new Error(String(r.reason));
+        reportError(err, { critical: false, context: 'multi_file_extraction' }).catch(() => {});
+      }
+    }
+
+    const extractedText = textParts.join('\n\n');
 
     if (!extractedText || extractedText.trim().length < 10) {
       return NextResponse.json(
         {
           musterschreiben:
-            'Die Datei scheint leer zu sein oder enthält keinen lesbaren Text. Text konnte nicht extrahiert werden.',
+            uploadedFiles.length > 1
+              ? 'Aus den hochgeladenen Dateien konnte kein lesbarer Text extrahiert werden.'
+              : 'Die Datei scheint leer zu sein oder enth\u00e4lt keinen lesbaren Text.',
           fehler: [],
         },
         { status: 200 }
       );
     }
+
+    reportInfo('[Analyze] Textextraktion abgeschlossen', {
+      dateien: uploadedFiles.length,
+      extrahiert: textParts.length,
+      zeichen: extractedText.length,
+    });
 
     const { pseudonymized, map } = pseudonymizeText(extractedText);
 
@@ -289,11 +320,11 @@ export async function POST(req: Request) {
         musterschreiben: depseudonymizeText(result.musterschreiben || '', map),
       };
 
-      // Qualitäts-Alert
+      // Qualit\u00e4ts-Alert
       const erfolgschance = result.kritik?.erfolgschance_prozent;
       if (erfolgschance !== undefined && erfolgschance < 35) {
         reportError(
-          new Error(`Schlechte KI-Qualität: AG03 Erfolgschance nur ${erfolgschance}%`),
+          new Error(`Schlechte KI-Qualit\u00e4t: AG03 Erfolgschance nur ${erfolgschance}%`),
           { critical: true, agent: 'AG03', erfolgschance, rechtsgebiet: result.zuordnung?.rechtsgebiet ?? 'unbekannt', routing_stufe: result.routing_stufe ?? 'unbekannt', user_id: user?.id ?? 'anon' }
         ).catch(() => {});
       }
@@ -344,7 +375,7 @@ export async function POST(req: Request) {
       return result;
     }
 
-    // 13-Agenten-Pipeline (Claude) — primäre Engine
+    // 13-Agenten-Pipeline (Claude) \u2014 prim\u00e4re Engine
     const anthropicAvailable = !!getAnthropicKey();
 
     if (wantsSSE && anthropicAvailable) {
@@ -388,7 +419,7 @@ export async function POST(req: Request) {
       reportInfo('[Analyze] 13-Agenten-Pipeline (Claude) gestartet');
       result = await runAgentAnalysis(pseudonymized, undefined, userContextStr);
     } else {
-      reportInfo('[Analyze] ANTHROPIC_API_KEY fehlt — Fallback auf Legacy GPT-4o Engine');
+      reportInfo('[Analyze] ANTHROPIC_API_KEY fehlt \u2014 Fallback auf Legacy GPT-4o Engine');
       const legacyResult = await runForensicAnalysis(pseudonymized);
       result = { routing_stufe: 'NORMAL', agenten_aktiv: ['gpt4o-legacy'], ...legacyResult };
     }

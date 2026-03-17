@@ -54,8 +54,3 @@ export async function GET(req: NextRequest) {
     );
   }
 }
-
-// POST für manuelle Trigger (z.B. Admin-Panel)
-export async function POST(req: NextRequest) {
-  return GET(req);
-}

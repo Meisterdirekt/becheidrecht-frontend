@@ -20,6 +20,13 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://www.bescheidrecht.de"),
   alternates: {
     canonical: "/",
+    languages: {
+      "de": "/",
+      "en": "/",
+      "ru": "/",
+      "ar": "/",
+      "tr": "/",
+    },
   },
   openGraph: {
     title: "BescheidRecht — KI-Analyse von Behördenbescheiden",
@@ -59,6 +66,33 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="de" suppressHydrationWarning className={outfit.variable}>
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "SoftwareApplication",
+              "name": "BescheidRecht",
+              "applicationCategory": "LegalService",
+              "operatingSystem": "Web",
+              "description": "KI-gestützte Analyse von Behördenbescheiden für Sozialeinrichtungen. Fehler erkennen, Fristen wahren, Widerspruch einlegen.",
+              "url": "https://www.bescheidrecht.de",
+              "inLanguage": ["de", "en", "ru", "ar", "tr"],
+              "offers": {
+                "@type": "AggregateOffer",
+                "priceCurrency": "EUR",
+                "lowPrice": "199",
+                "highPrice": "699",
+                "offerCount": "3",
+              },
+              "provider": {
+                "@type": "Organization",
+                "name": "BescheidRecht",
+                "url": "https://www.bescheidrecht.de",
+              },
+            }),
+          }}
+        />
       </head>
       <body className="min-h-screen bg-[var(--bg)] text-[var(--text)] antialiased font-sans">
         <a

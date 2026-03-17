@@ -52,8 +52,3 @@ export async function GET(req: NextRequest) {
     );
   }
 }
-
-// POST für manuelle Trigger
-export async function POST(req: NextRequest) {
-  return GET(req);
-}
