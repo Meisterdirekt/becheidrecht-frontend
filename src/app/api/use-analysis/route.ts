@@ -77,40 +77,34 @@ export async function POST(request: NextRequest) {
           );
         }
 
-        // Org-Pool + Per-Member-Counter atomar per RPC inkrementieren
-        const [orgUpdate, memberUpdate] = await Promise.all([
-          supabaseAdmin.rpc('increment_field', {
-            table_name: 'organizations',
-            field_name: 'analyses_used',
-            row_id: membership.org_id,
-          }),
-          supabaseAdmin.rpc('increment_field', {
-            table_name: 'organization_members',
-            field_name: 'analyses_used',
-            row_id: membership.org_id,
-          }),
-        ]);
+        // Atomares Org-Pool-Decrement: .gt() verhindert Race Condition (wie beim Individual-Pfad)
+        const { data: orgUpdated, error: orgUpdateError } = await supabaseAdmin
+          .from('organizations')
+          .update({ analyses_used: org.analyses_used + 1 })
+          .eq('id', membership.org_id)
+          .lt('analyses_used', org.analyses_total)
+          .select('analyses_used, analyses_total')
+          .single();
 
-        // Fallback: Wenn RPC nicht existiert, klassisches (nicht-atomares) Update
-        if (orgUpdate.error) {
-          await supabaseAdmin
-            .from('organizations')
-            .update({ analyses_used: org.analyses_used + 1 })
-            .eq('id', membership.org_id);
+        if (orgUpdateError || !orgUpdated) {
+          // Race Condition: Zwischen Read und Write hat ein anderer Request das Kontingent erschöpft
+          return NextResponse.json(
+            { error: 'Analyse-Kontingent Ihrer Einrichtung erschöpft.', analyses_remaining: 0 },
+            { status: 403 }
+          );
         }
 
-        if (memberUpdate.error) {
-          await supabaseAdmin
-            .from('organization_members')
-            .update({ analyses_used: (membership.analyses_used ?? 0) + 1 })
-            .eq('org_id', membership.org_id)
-            .eq('user_id', user.id);
-        }
+        // Per-Member-Counter (best-effort, nicht kritisch)
+        await supabaseAdmin
+          .from('organization_members')
+          .update({ analyses_used: (membership.analyses_used ?? 0) + 1 })
+          .eq('org_id', membership.org_id)
+          .eq('user_id', user.id);
 
         return NextResponse.json({
           success: true,
-          analyses_remaining: remaining - 1,
-          analyses_used: org.analyses_used + 1,
+          analyses_remaining: orgUpdated.analyses_total - orgUpdated.analyses_used,
+          analyses_used: orgUpdated.analyses_used,
           subscription_type: 'b2b_pool',
         });
       }

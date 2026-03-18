@@ -138,12 +138,12 @@ export async function POST(request: NextRequest) {
   // 3. Abo upgraden
   const isYearly = subscription_type.startsWith("b2b_");
   const months = isYearly ? 12 : subscription_type === "single" ? 0 : 1;
-  const expiresAt =
-    months > 0
-      ? new Date(
-          Date.now() + months * 30 * 24 * 60 * 60 * 1000,
-        ).toISOString()
-      : null;
+  let expiresAt: string | null = null;
+  if (months > 0) {
+    const expiryDate = new Date();
+    expiryDate.setMonth(expiryDate.getMonth() + months);
+    expiresAt = expiryDate.toISOString();
+  }
 
   const { error: updateError } = await admin
     .from("user_subscriptions")

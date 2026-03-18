@@ -32,20 +32,19 @@ export async function POST(request: NextRequest) {
 
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL || '';
     const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
-    const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY || '';
 
-    if (!supabaseUrl || (!serviceRoleKey && !anonKey)) {
+    if (!supabaseUrl || !serviceRoleKey) {
       return NextResponse.json(
-        { error: 'Supabase configuration missing' },
+        { error: 'Supabase Service-Key fehlt — Admin-Operationen nicht möglich.' },
         { status: 500 }
       );
     }
 
-    // Service Role Client (für Admin-Aktionen)
+    // Service Role Client (für Admin-Aktionen — kein Fallback auf Anon-Key)
     const supabase = createClient(
       supabaseUrl,
-      serviceRoleKey || anonKey,
-      serviceRoleKey ? { auth: { persistSession: false } } : undefined
+      serviceRoleKey,
+      { auth: { persistSession: false } }
     );
 
     // User anhand E-Mail finden

@@ -19,11 +19,13 @@ export async function GET() {
       {
         configured: false,
         error: 'Supabase URL oder Anon Key fehlt in den Umgebungsvariablen.',
-        debug: {
-          hasUrl: !!url,
-          hasAnonKey: !!anonKey,
-          hint: 'In Vercel: Settings → Environment Variables. SUPABASE_URL und SUPABASE_ANON_KEY für Production setzen. Danach Seite neu laden (kein Redeploy nötig).',
-        },
+        ...(process.env.NODE_ENV !== 'production' && {
+          debug: {
+            hasUrl: !!url,
+            hasAnonKey: !!anonKey,
+            hint: 'In Vercel: Settings → Environment Variables. SUPABASE_URL und SUPABASE_ANON_KEY für Production setzen.',
+          },
+        }),
       },
       { status: 200 }
     );

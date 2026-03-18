@@ -16,15 +16,15 @@ type CheckResult = { ok: boolean; latencyMs?: number; detail?: string };
 
 async function checkDatabase(): Promise<CheckResult> {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
-  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || "";
+  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
 
-  if (!url || !serviceKey) {
+  if (!url || !anonKey) {
     return { ok: false, detail: "Supabase env vars fehlen" };
   }
 
   const t0 = Date.now();
   try {
-    const supabase = createClient(url, serviceKey);
+    const supabase = createClient(url, anonKey);
     const { error } = await supabase
       .from("user_fristen")
       .select("id")

@@ -176,11 +176,14 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ received: true, status: 'already_processed' });
   }
 
-  const expiresAt = product.months > 0
-    ? new Date(Date.now() + product.months * 30 * 24 * 60 * 60 * 1000).toISOString()
-    : null;
+  let expiresAt: string | null = null;
+  if (product.months > 0) {
+    const expiryDate = new Date();
+    expiryDate.setMonth(expiryDate.getMonth() + product.months);
+    expiresAt = expiryDate.toISOString();
+  }
 
-  await supabase
+  const { error: updateError } = await supabase
     .from('user_subscriptions')
     .update({
       subscription_type: product.type,
@@ -195,6 +198,11 @@ export async function POST(req: NextRequest) {
       updated_at: new Date().toISOString(),
     })
     .eq('user_id', userId);
+
+  if (updateError) {
+    await reportError(`Abo-Update fehlgeschlagen: ${updateError.message}`, { context: 'mollie/webhook', paymentId, userId });
+    return NextResponse.json({ error: 'Abo-Aktivierung fehlgeschlagen.' }, { status: 500 });
+  }
 
   reportInfo('[Mollie] Abo aktiviert', { email: buyerEmail.replace(/(.{2}).*@/, "$1***@"), product: product.type, analyses: product.analyses });
   return NextResponse.json({ received: true, status: 'activated' });
