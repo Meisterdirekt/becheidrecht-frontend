@@ -9,6 +9,28 @@ import type { FehlerItem } from "../types";
 import type Anthropic from "@anthropic-ai/sdk";
 import { executeDbRead } from "./db-read";
 
+/**
+ * Begriffe die in praktisch JEDEM Bescheid vorkommen (Rechtsbehelfsbelehrung,
+ * Standardformulierungen). Diese erzeugen kein Signal für einen spezifischen
+ * Fehler und werden beim Scoring ignoriert.
+ */
+const GENERIC_TERMS = new Set([
+  "bescheid", "widerspruch", "frist", "begründung", "rechtsbehelfsbelehrung",
+  "leistung", "leistungen", "antrag", "berechnung", "bewilligung",
+  "zahlung", "betrag", "geld", "unterlagen", "entscheidung",
+]);
+
+/** Prüft ob ein Begriff generisch ist (exakt oder als Stamm enthalten) */
+const isGeneric = (term: string): boolean => {
+  const lower = term.toLowerCase();
+  if (GENERIC_TERMS.has(lower)) return true;
+  // "Widerspruchsfrist" → Stamm "widerspruch" ist generisch
+  for (const g of GENERIC_TERMS) {
+    if (lower === g || (lower.startsWith(g) && lower.length <= g.length + 6)) return true;
+  }
+  return false;
+};
+
 export const TOOL_SUCHE_FEHLERKATALOG: Anthropic.Tool = {
   name: "suche_fehlerkatalog",
   description:
@@ -122,17 +144,37 @@ export function executeSucheFehlerkatalog(
         ]
           .join(" ")
           .toLowerCase();
+
+        // Forward: Wie viele Input-Keywords matchen im Katalog-Eintrag?
         const score = stichworten.filter((s) =>
           haystack.includes(s.toLowerCase())
         ).length;
-        // Bonus: Prüfe ob Suchbegriffe des Fehlers im Input vorkommen (bidirektional)
+
+        // Reverse: Wie viele Katalog-Suchbegriffe matchen im Input?
         const reverseScore = (item.prueflogik?.suchbegriffe ?? []).filter((sb) =>
           stichworten.some((s) => s.toLowerCase().includes(sb.toLowerCase()) || sb.toLowerCase().includes(s.toLowerCase()))
         ).length;
-        return { item, score: score + reverseScore };
+
+        // Spezifischer Match: Mindestens 1 NICHT-generischer Begriff muss matchen.
+        // Ohne das matchen Einträge mit Suchbegriffen wie ['Widerspruch', 'Frist', 'Begründung']
+        // bei JEDEM Bescheid — das sind keine echten Fehler-Signale.
+        const hasSpecificForward = stichworten.some(s => {
+          const lower = s.toLowerCase();
+          if (isGeneric(lower)) return false;
+          return haystack.includes(lower);
+        });
+        const hasSpecificReverse = (item.prueflogik?.suchbegriffe ?? []).some(sb => {
+          if (isGeneric(sb)) return false;
+          return stichworten.some(s =>
+            s.toLowerCase().includes(sb.toLowerCase()) || sb.toLowerCase().includes(s.toLowerCase())
+          );
+        });
+        const hasSpecificMatch = hasSpecificForward || hasSpecificReverse;
+
+        return { item, score: score + reverseScore, hasSpecificMatch };
       })
-      // Mindest-Score 2: Ein einziges breites Keyword-Match reicht nicht
-      .filter(({ score }) => score >= 2)
+      // Gate: Score >= 2 UND mindestens ein spezifischer (nicht-generischer) Match
+      .filter(({ score, hasSpecificMatch }) => score >= 2 && hasSpecificMatch)
       .sort(
         (a, b) =>
           b.score +
@@ -142,9 +184,8 @@ export function executeSucheFehlerkatalog(
       .slice(0, 6)
       .map(({ item }) => item);
 
-    // Kein Fallback bei 0 Treffern — lieber keine Fehler als falsche
     if (scored.length === 0) {
-      console.info("[Fehlerkatalog] 0 Treffer mit Score >= 2 — keine generischen Fehler einfügen");
+      console.info("[Fehlerkatalog] 0 Treffer — kein spezifischer Match über Schwelle");
     }
 
     return scored;

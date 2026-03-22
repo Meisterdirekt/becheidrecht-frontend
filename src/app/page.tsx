@@ -947,6 +947,13 @@ export default function Page() {
               Mehr erfahren <ArrowRight className="h-3.5 w-3.5" />
             </span>
           </Link>
+          <p className="text-xs text-white/40 text-center mt-4 leading-relaxed">
+            Technische Dokumentenanalyse gem. § 2 Abs. 1 RDG — kein Ersatz für Rechtsberatung.
+            Bei Rechtsfragen wenden Sie sich an eine{" "}
+            <a href="https://www.vdk.de/deutschland/pages/sozialrecht/83616/rechtsberatung" target="_blank" rel="noopener noreferrer" className="underline hover:text-white/60">Beratungsstelle (VdK)</a>,{" "}
+            <a href="https://www.caritas.de/hilfeundberatung/onlineberatung/allgemeine-sozialberatung/allgemeine-sozialberatung" target="_blank" rel="noopener noreferrer" className="underline hover:text-white/60">Caritas</a> oder{" "}
+            <a href="https://www.awo.org/beratungsstellen" target="_blank" rel="noopener noreferrer" className="underline hover:text-white/60">AWO</a>.
+          </p>
         </section>
       </ScrollReveal>
 

@@ -20,7 +20,9 @@ const TOOL_KLASSIFIZIERE: Anthropic.Tool = {
   name: "klassifiziere_bescheid",
   description:
     "Klassifiziert den Bescheid: Behörde, Rechtsgebiet, Datum und Widerspruchsfrist. " +
-    "Rufe dieses Tool ZUERST auf, sobald du den Bescheidtyp erkannt hast.",
+    "Rufe dieses Tool ZUERST auf, sobald du den Bescheidtyp erkannt hast. " +
+    "Bei rechtsgebietsübergreifenden Bescheiden: Hauptrechtsgebiet in 'rechtsgebiet', " +
+    "weitere in 'weitere_rechtsgebiete' (z.B. Bürgergeld+Krankengeld → rechtsgebiet='SGB II', weitere=['SGB V']).",
   input_schema: {
     type: "object" as const,
     properties: {
@@ -30,7 +32,12 @@ const TOOL_KLASSIFIZIERE: Anthropic.Tool = {
       },
       rechtsgebiet: {
         type: "string",
-        description: "Anwendbares Gesetz (z.B. 'SGB II', 'SGB V')",
+        description: "Hauptsächlich anwendbares Gesetz (z.B. 'SGB II', 'SGB V')",
+      },
+      weitere_rechtsgebiete: {
+        type: "array",
+        items: { type: "string" },
+        description: "Weitere betroffene Rechtsgebiete (nur wenn Bescheid mehrere berührt). Leer lassen bei Einzel-Rechtsgebiet.",
       },
       untergebiet: {
         type: "string",
@@ -60,6 +67,7 @@ const TOOL_KLASSIFIZIERE: Anthropic.Tool = {
 interface KlassifizierungInput {
   behoerde: string;
   rechtsgebiet: string;
+  weitere_rechtsgebiete?: string[];
   untergebiet: string;
   bescheid_datum?: string;
   frist_datum?: string;
@@ -121,6 +129,9 @@ async function runClassification(
           behoerde: input.behoerde,
           rechtsgebiet: input.rechtsgebiet,
           untergebiet: input.untergebiet,
+          weitere_rechtsgebiete: input.weitere_rechtsgebiete?.length
+            ? input.weitere_rechtsgebiete
+            : undefined,
           bescheid_datum: input.bescheid_datum,
           frist_datum: input.frist_datum,
           frist_tage: input.frist_tage,

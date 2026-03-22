@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { verifyAdmin } from '@/lib/admin-auth';
+import { ANALYSES_MAP } from '@/lib/plans';
 
 /**
  * POST /api/admin/create-org
@@ -15,13 +16,6 @@ import { verifyAdmin } from '@/lib/admin-auth';
  *   admin_email: string          — E-Mail des ersten Admins (muss registriert sein)
  *   subscription_type: string    — b2b_starter | b2b_professional | b2b_enterprise | b2b_corporate
  */
-
-const ANALYSES_MAP: Record<string, number> = {
-  b2b_starter:      300,
-  b2b_professional: 1000,
-  b2b_enterprise:   2500,
-  b2b_corporate:    6000,
-};
 
 export async function POST(request: NextRequest) {
   const auth = await verifyAdmin(request);

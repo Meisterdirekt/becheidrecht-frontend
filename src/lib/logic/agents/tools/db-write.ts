@@ -6,6 +6,7 @@
 
 import { createClient } from "@supabase/supabase-js";
 import type Anthropic from "@anthropic-ai/sdk";
+import { invalidateTableCache } from "./db-read";
 
 export const TOOL_DB_WRITE: Anthropic.Tool = {
   name: "db_write",
@@ -80,6 +81,9 @@ export async function executeDbWrite(
       const { error } = await supabase.from(tabelle).insert(daten);
       if (error) return { success: false, error: error.message };
     }
+
+    // Cache invalidieren nach erfolgreichem Write
+    invalidateTableCache(tabelle);
 
     return { success: true };
   } catch (err) {

@@ -23,6 +23,7 @@ interface FormErrors {
   email?: string;
   password?: string;
   passwordConfirm?: string;
+  consent?: string;
 }
 
 function RegisterForm() {
@@ -39,6 +40,7 @@ function RegisterForm() {
     password: "",
     passwordConfirm: "",
   });
+  const [consentGiven, setConsentGiven] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
   const [isLoading, setIsLoading] = useState(false);
   const [supabase, setSupabase] = useState<ReturnType<typeof createBrowserClient> | null>(null);
@@ -86,6 +88,7 @@ function RegisterForm() {
     if (!formData.email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) newErrors.email = "Ungültige E-Mail-Adresse";
     if (formData.password.length < 8) newErrors.password = "Mindestens 8 Zeichen";
     if (formData.password !== formData.passwordConfirm) newErrors.passwordConfirm = "Passwörter stimmen nicht überein";
+    if (!consentGiven) newErrors.consent = "Bitte stimmen Sie der Datenschutzerklärung zu";
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -109,6 +112,8 @@ function RegisterForm() {
             last_name: formData.lastName.trim(),
             street: formData.street.trim() || undefined,
             city: formData.city.trim() || undefined,
+            consent_given: true,
+            consent_timestamp: new Date().toISOString(),
           },
         },
       });
@@ -220,6 +225,27 @@ function RegisterForm() {
                     placeholder="Passwort wiederholen"
                   />
                   {errors.passwordConfirm && <p className="text-red-400 text-sm mt-1">{errors.passwordConfirm}</p>}
+                </div>
+                <div className="md:col-span-2">
+                  <label className="flex items-start gap-3 cursor-pointer select-none">
+                    <input
+                      type="checkbox"
+                      checked={consentGiven}
+                      onChange={(e) => {
+                        setConsentGiven(e.target.checked);
+                        if (errors.consent) setErrors((prev) => ({ ...prev, consent: undefined }));
+                      }}
+                      className="mt-1 shrink-0 w-4 h-4 accent-[var(--accent)]"
+                    />
+                    <span className="text-sm text-white/70">
+                      Ich habe die{" "}
+                      <Link href="/datenschutz" target="_blank" className="underline text-[var(--accent)] hover:text-[var(--accent-hover)]">
+                        Datenschutzerklärung
+                      </Link>{" "}
+                      gelesen und stimme der Verarbeitung meiner Daten zu. <span className="text-[var(--accent)]">*</span>
+                    </span>
+                  </label>
+                  {errors.consent && <p className="text-red-400 text-sm mt-1 ml-7">{errors.consent}</p>}
                 </div>
                 <div className="md:col-span-2 pt-2">
                   <button

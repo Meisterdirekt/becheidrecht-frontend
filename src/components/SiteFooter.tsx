@@ -60,7 +60,7 @@ export function SiteFooter({
             {kiTransparenz}
           </Link>
         </div>
-        <p className="text-xs text-center text-white/25 leading-relaxed">
+        <p className="text-xs text-center text-white/40 leading-relaxed">
           {disclaimer}
         </p>
         <p className="text-xs font-bold tracking-[0.2em] text-white/30 uppercase text-center">

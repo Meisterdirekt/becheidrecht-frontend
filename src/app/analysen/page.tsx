@@ -101,11 +101,7 @@ function AnalyseCard({ eintrag }: { eintrag: AnalyseEintrag }) {
             })}
           </span>
         )}
-        {eintrag.analyse_meta?.erfolgschance != null && (
-          <span className="text-xs text-white/40">
-            Einschaetzung: {eintrag.analyse_meta.erfolgschance}%
-          </span>
-        )}
+        {/* Erfolgschance wird intern genutzt (AG07), aber nicht angezeigt — § 2 RDG */}
         {eintrag.analyse_meta?.agenten_aktiv && (
           <span className="text-xs text-white/25 ml-auto">
             {eintrag.analyse_meta.agenten_aktiv.length} Agenten

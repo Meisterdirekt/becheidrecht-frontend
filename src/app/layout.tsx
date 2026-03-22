@@ -16,7 +16,7 @@ export const metadata: Metadata = {
     default: "BescheidRecht — KI-Analyse von Behördenbescheiden",
     template: "%s | BescheidRecht",
   },
-  description: "KI-gestützte Analyse von Behördenbescheiden für Sozialeinrichtungen. Fehler erkennen, Fristen wahren, Widerspruch einlegen — rechtssicher und DSGVO-konform.",
+  description: "KI-gestützte Analyse von Behördenbescheiden für Sozialeinrichtungen. Fehler erkennen, Fristen wahren, Widerspruch vorbereiten — professionell und DSGVO-konform.",
   metadataBase: new URL("https://www.bescheidrecht.de"),
   alternates: {
     canonical: "/",

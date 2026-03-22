@@ -26,6 +26,7 @@ import {
 } from "lucide-react";
 import dynamic from "next/dynamic";
 const DownloadButton = dynamic(() => import("@/components/DownloadButton"), { ssr: false });
+const AnalysisFeedback = dynamic(() => import("@/components/AnalysisFeedback"), { ssr: false });
 import { SiteNavSimple } from "@/components/SiteNav";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SkeletonCard } from "@/components/Skeleton";
@@ -59,6 +60,7 @@ interface AnalysisResult {
     quellen: string[];
   };
   agenten_details?: Record<string, { success: boolean; durationMs: number; error?: string }>;
+  analysis_result_id?: string;
 }
 
 // ---------------------------------------------------------------------------
@@ -997,6 +999,15 @@ export default function AnalyzePage() {
                   />
                 )}
               </div>
+            )}
+
+            {/* Analyse-Feedback */}
+            {token && result.analysis_result_id && (
+              <AnalysisFeedback
+                analysisResultId={result.analysis_result_id}
+                fehler={result.fehler}
+                token={token}
+              />
             )}
 
             {/* Agenten-Status (kollapsibel) */}

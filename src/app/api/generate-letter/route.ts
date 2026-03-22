@@ -8,6 +8,7 @@ import { getAuthenticatedUser } from "@/lib/supabase/auth";
 import { reportError } from "@/lib/error-reporter";
 import { letterLimiter } from "@/lib/rate-limit";
 import { getOpenAIKey } from "@/lib/logic/agents/utils";
+import { pseudonymizeText, depseudonymizeText } from "@/lib/privacy/pseudonymizer";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -164,13 +165,16 @@ export async function POST(req: NextRequest) {
     const behoerdeLabel = getTraegerLabel(behoerde);
     const typLabel = getSchreibentypLabel(schreibentyp);
 
+    // Pseudonymisierung: Freitext vor KI-Übertragung anonymisieren
+    const { pseudonymized: stichpunkteAnon, map: stichpunkteMap } = pseudonymizeText(stichpunkteTrim);
+
     const userMessage = `Behörde: ${behoerdeLabel}
 Schreibentyp: ${typLabel}
 Aktenzeichen: ${aktenzeichen || "[vom Nutzer nicht angegeben – im Schreiben Platzhalter verwenden]"}
 Bescheiddatum: ${bescheiddatum || "[vom Nutzer nicht angegeben – im Schreiben Platzhalter verwenden]"}
 
 Situation:
-${stichpunkteTrim}
+${stichpunkteAnon}
 
 Kontext (Rechtsgrundlagen und typische Fehler für diese Behörde – zur Orientierung, nicht 1:1 übernehmen):
 ${kontextText}
@@ -195,8 +199,11 @@ Erstelle nun das fertige Schreiben gemäß der Systemanweisung.`;
       );
     }
 
+    // Depseudonymisierung: Platzhalter im generierten Brief durch Originaldaten ersetzen
+    const letter = depseudonymizeText(rawLetter, stichpunkteMap);
+
     // Kein RDG-Disclaimer im Brief-Text — wird rein als UI-Element angezeigt, nicht im PDF
-    return NextResponse.json({ letter: rawLetter });
+    return NextResponse.json({ letter });
   } catch (e) {
     await reportError(e, { context: "generate-letter" });
     const message = e instanceof Error ? e.message : "Unbekannter Fehler";

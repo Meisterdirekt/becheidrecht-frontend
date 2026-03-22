@@ -59,6 +59,87 @@ export const OPUS_MODEL = "claude-opus-4-6";
 // Urgency Detection (kostenlos, kein API-Call)
 // ---------------------------------------------------------------------------
 
+/**
+ * Berechnet Ostersonntag für ein Jahr nach dem Gaußschen Algorithmus.
+ * Quelle: https://de.wikipedia.org/wiki/Gau%C3%9Fsche_Osterformel
+ */
+function osterSonntag(year: number): Date {
+  const a = year % 19;
+  const b = Math.floor(year / 100);
+  const c = year % 100;
+  const d = Math.floor(b / 4);
+  const e = b % 4;
+  const f = Math.floor((b + 8) / 25);
+  const g = Math.floor((b - f + 1) / 3);
+  const h = (19 * a + b - d - g + 15) % 30;
+  const i = Math.floor(c / 4);
+  const k = c % 4;
+  const l = (32 + 2 * e + 2 * i - h - k) % 7;
+  const m = Math.floor((a + 11 * h + 22 * l) / 451);
+  const month = Math.floor((h + l - 7 * m + 114) / 31) - 1; // 0-based
+  const day = ((h + l - 7 * m + 114) % 31) + 1;
+  return new Date(year, month, day);
+}
+
+/**
+ * Bundeseinheitliche Feiertage für ein Jahr.
+ * 9 gesetzliche Feiertage die in allen 16 Bundesländern gelten.
+ * Quellen:
+ * - Art. 139 WRV i.V.m. Art. 140 GG (Sonntagsschutz)
+ * - Feiertagsgesetze der Länder (bundeseinheitlich: diese 9)
+ * - https://www.bmi.bund.de/DE/themen/verfassung/staatliche-symbole/nationale-feiertage/nationale-feiertage-node.html
+ */
+function bundesFeiertage(year: number): Set<string> {
+  const feiertage = new Set<string>();
+  const fmt = (d: Date) => `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+
+  // Feste Feiertage
+  feiertage.add(fmt(new Date(year, 0, 1)));   // Neujahr
+  feiertage.add(fmt(new Date(year, 4, 1)));   // Tag der Arbeit
+  feiertage.add(fmt(new Date(year, 9, 3)));   // Tag der Deutschen Einheit
+  feiertage.add(fmt(new Date(year, 11, 25))); // 1. Weihnachtstag
+  feiertage.add(fmt(new Date(year, 11, 26))); // 2. Weihnachtstag
+
+  // Bewegliche Feiertage (abhängig von Ostern)
+  const ostern = osterSonntag(year);
+  const osterMs = ostern.getTime();
+  const tag = 24 * 60 * 60 * 1000;
+
+  feiertage.add(fmt(new Date(osterMs - 2 * tag)));  // Karfreitag (-2)
+  feiertage.add(fmt(new Date(osterMs + 1 * tag)));  // Ostermontag (+1)
+  feiertage.add(fmt(new Date(osterMs + 39 * tag))); // Christi Himmelfahrt (+39)
+  feiertage.add(fmt(new Date(osterMs + 50 * tag))); // Pfingstmontag (+50)
+
+  return feiertage;
+}
+
+/**
+ * § 193 BGB: Fällt das Fristende auf Sa/So/Feiertag → nächster Werktag.
+ * Gibt das korrigierte Datum zurück.
+ * Quelle: § 193 BGB (https://www.gesetze-im-internet.de/bgb/__193.html)
+ */
+export function fristende193BGB(date: Date): Date {
+  const result = new Date(date);
+  const feiertageSet = bundesFeiertage(result.getFullYear());
+  // Auch Feiertage des Folgejahres laden (für Silvester-Randfälle)
+  const feiertageNext = bundesFeiertage(result.getFullYear() + 1);
+  const combined = new Set([...feiertageSet, ...feiertageNext]);
+
+  const fmt = (d: Date) => `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+  const tag = 24 * 60 * 60 * 1000;
+
+  // Max 10 Tage verschieben (Sicherheitsgrenze gegen Endlosschleifen)
+  for (let i = 0; i < 10; i++) {
+    const dow = result.getDay(); // 0=So, 6=Sa
+    if (dow !== 0 && dow !== 6 && !combined.has(fmt(result))) {
+      break;
+    }
+    result.setTime(result.getTime() + tag);
+  }
+
+  return result;
+}
+
 export function detectUrgency(text: string): { stufe: RoutingStufe; tage: number | null } {
   const lower = text.toLowerCase();
 
@@ -84,9 +165,13 @@ export function detectUrgency(text: string): { stufe: RoutingStufe; tage: number
 
     if (year < 2024 || year > 2035) continue;
 
-    const date = new Date(year, month, day);
+    const rawDate = new Date(year, month, day);
+
+    // § 193 BGB: Fristende auf Sa/So/Feiertag → nächster Werktag
+    const adjustedDate = fristende193BGB(rawDate);
+
     const daysLeft = Math.floor(
-      (date.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
+      (adjustedDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
     );
 
     if (daysLeft >= 0 && daysLeft <= 60) {

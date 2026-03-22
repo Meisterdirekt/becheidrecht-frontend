@@ -2,10 +2,14 @@
  * Tool: db_read
  * Liest aus Supabase-Tabellen: urteile, kennzahlen, behoerdenfehler
  * Graceful Degradation: Falls Tabelle nicht existiert → { available: false, rows: [] }
+ *
+ * Caching: Wissensdaten (behoerdenfehler, kennzahlen, urteile) werden 5-15 Min
+ * im In-Memory-Cache gehalten. analysis_results wird nie gecacht (user-spezifisch).
  */
 
 import { createClient } from "@supabase/supabase-js";
 import type Anthropic from "@anthropic-ai/sdk";
+import { cached, invalidate, TTL_5MIN, TTL_15MIN } from "@/lib/cache";
 
 export const TOOL_DB_READ: Anthropic.Tool = {
   name: "db_read",
@@ -40,6 +44,13 @@ function getSupabaseServiceClient() {
   return createClient(url, serviceKey);
 }
 
+// Wissensdaten-Tabellen die gecacht werden (ändern sich selten)
+const CACHED_TABLES: Record<string, number> = {
+  behoerdenfehler: TTL_5MIN,
+  kennzahlen: TTL_15MIN,
+  urteile: TTL_15MIN,
+};
+
 export async function executeDbRead(
   tabelle: string,
   filter?: Record<string, string>,
@@ -50,6 +61,25 @@ export async function executeDbRead(
     return { available: false, rows: [] };
   }
 
+  const ttl = CACHED_TABLES[tabelle];
+  const filterKey = filter && Object.keys(filter).length > 0
+    ? `:${JSON.stringify(filter)}`
+    : "";
+  const cacheKey = `db:${tabelle}:${limit ?? 20}${filterKey}`;
+
+  // Wissensdaten aus Cache holen (analysis_results nie cachen — user-spezifisch)
+  if (ttl) {
+    return cached(cacheKey, ttl, () => fetchFromDb(tabelle, filter, limit));
+  }
+
+  return fetchFromDb(tabelle, filter, limit);
+}
+
+async function fetchFromDb(
+  tabelle: string,
+  filter?: Record<string, string>,
+  limit?: number,
+): Promise<{ available: boolean; rows: Record<string, unknown>[] }> {
   const supabase = getSupabaseServiceClient();
   if (!supabase) {
     return { available: false, rows: [] };
@@ -67,7 +97,6 @@ export async function executeDbRead(
     const { data, error } = await query;
 
     if (error) {
-      // Tabelle existiert möglicherweise nicht
       console.warn(`[db_read] ${tabelle}: ${error.message}`);
       return { available: false, rows: [] };
     }
@@ -76,4 +105,12 @@ export async function executeDbRead(
   } catch {
     return { available: false, rows: [] };
   }
+}
+
+/** Cache für eine Wissensdaten-Tabelle invalidieren (nach DB-Write aufrufen). */
+export function invalidateTableCache(tabelle: string): void {
+  // Alle Cache-Keys für diese Tabelle löschen
+  invalidate(`db:${tabelle}:20`);
+  invalidate(`db:${tabelle}:30`);
+  invalidate(`db:${tabelle}:100`);
 }

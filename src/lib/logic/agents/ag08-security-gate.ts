@@ -21,8 +21,8 @@ async function execute(ctx: AgentContext): Promise<AgentResult<SecurityResult>> 
   if (!apiKey) {
     return {
       agentId: "AG08",
-      success: true,
-      data: { freigabe: true, grund: "Kein API-Key — Security-Check übersprungen" },
+      success: false,
+      data: { freigabe: false, grund: "Security-Check nicht möglich: kein API-Key konfiguriert" },
       tokens: emptyTokenUsage(),
       durationMs: Date.now() - start,
     };
@@ -58,8 +58,8 @@ async function execute(ctx: AgentContext): Promise<AgentResult<SecurityResult>> 
       grund: parsed.grund,
     };
   } catch {
-    // Bei Parse-Fehler: freigeben (false positive vermeiden)
-    result = { freigabe: true, grund: "Parse-Fehler bei Security-Check — freigegeben" };
+    // Bei Parse-Fehler: blockieren (Sicherheit vor Verfügbarkeit)
+    result = { freigabe: false, grund: "Security-Check Parse-Fehler — sicherheitshalber abgelehnt" };
   }
 
   return {

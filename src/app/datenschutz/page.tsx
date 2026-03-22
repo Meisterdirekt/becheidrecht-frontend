@@ -107,6 +107,13 @@ export default function DatenschutzPage() {
           </div>
 
           <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-8">
+            <h2 className="text-[var(--text)] font-bold uppercase tracking-widest text-xs mb-4">7b. E-Mail-Benachrichtigungen (Fristen-Erinnerungen)</h2>
+            <p className="text-[var(--text)]">
+              Wenn Sie für eine Analyse eine Frist gespeichert haben, erhalten Sie per E-Mail eine Erinnerung, bevor die Frist abläuft. Für den E-Mail-Versand nutzen wir den Dienst <strong>Resend (Resend Inc., USA)</strong>. Dabei werden Ihre E-Mail-Adresse sowie die Fristinformationen (Behörde, Rechtsgebiet, Fristdatum) an Resend übermittelt. Mit Resend besteht ein Auftragsverarbeitungsvertrag gemäß Art. 28 DSGVO inkl. Standardvertragsklauseln (SCCs). Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO (Vertragserfüllung).
+            </p>
+          </div>
+
+          <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-8">
             <h2 className="text-[var(--text)] font-bold uppercase tracking-widest text-xs mb-4">8. Feedback-Formular</h2>
             <p className="text-[var(--text)]">
               Über unser Feedback-Formular (z. B. unter „Feedback" im Footer) können Sie uns Anregungen oder Kritik mitteilen. Dabei werden die von Ihnen eingegebenen Daten (Nachricht, optional Bewertung, Name, E-Mail) an uns übermittelt und in unserer Datenbank (Auftragsverarbeiter: Supabase) gespeichert. Die Verarbeitung erfolgt auf Grundlage Ihrer Einwilligung beim Absenden (Art. 6 Abs. 1 lit. a DSGVO) bzw. unseres berechtigten Interesses an der Verbesserung unseres Angebots (Art. 6 Abs. 1 lit. f DSGVO). <strong>Nachricht, Bewertung und – sofern angegeben – Ihr Name können auf der Website öffentlich angezeigt werden</strong> (z. B. unter „Was andere sagen"). Ihre E-Mail-Adresse wird nicht veröffentlicht. Eine Weitergabe an Dritte erfolgt nicht, soweit nicht gesetzlich erforderlich.
@@ -142,7 +149,7 @@ export default function DatenschutzPage() {
               <li><strong>Widerruf einer Einwilligung</strong> (Art. 7 Abs. 3 DSGVO) – die Rechtmäßigkeit der bis zum Widerruf erfolgten Verarbeitung bleibt unberührt</li>
             </ul>
             <p className="text-[var(--text)]">
-              Zur Ausübung Ihrer Rechte wenden Sie sich bitte an die oben genannten Kontaktdaten. Sie haben ferner das Recht, sich bei einer Aufsichtsbehörde für den Datenschutz zu beschweren (z. B. die für Ihren Wohnsitz zuständige Landesdatenschutzbehörde oder den Bundesbeauftragten für den Datenschutz und die Informationsfreiheit).
+              Zur Ausübung Ihrer Rechte wenden Sie sich bitte per E-Mail an <strong>datenschutz@bescheidrecht.de</strong>. Sie haben ferner das Recht, sich bei einer Aufsichtsbehörde für den Datenschutz zu beschweren (z. B. die für Ihren Wohnsitz zuständige Landesdatenschutzbehörde oder den Bundesbeauftragten für den Datenschutz und die Informationsfreiheit).
             </p>
           </div>
 

@@ -16,6 +16,7 @@ import { getTraegerLabel } from "@/lib/letter-generator";
 import { getAuthenticatedUser } from "@/lib/supabase/auth";
 import { assistantLimiter } from "@/lib/rate-limit";
 import { getAnthropicKey } from "@/lib/logic/agents/utils";
+import { pseudonymizeText, depseudonymizeText } from "@/lib/privacy/pseudonymizer";
 
 export const runtime = "nodejs";
 export const maxDuration = 90;
@@ -242,15 +243,19 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "traeger und beschreibung sind erforderlich." }, { status: 400 });
   }
 
+  // Pseudonymisierung: Freitext vor KI-Übertragung anonymisieren
+  const { pseudonymized: beschreibungAnon } = pseudonymizeText(beschreibung);
+  const antwortenAnon = antworten ? pseudonymizeText(antworten).pseudonymized : undefined;
+
   const { stream, send, close } = createSSEStream();
 
   // Non-blocking execution
   (async () => {
     try {
-      if (schritt === "erstelle" && antworten) {
-        await handleErstelle(traeger, beschreibung, antworten, send, close);
+      if (schritt === "erstelle" && antwortenAnon) {
+        await handleErstelle(traeger, beschreibungAnon, antwortenAnon, send, close);
       } else {
-        await handleAnalyse(traeger, beschreibung, send, close);
+        await handleAnalyse(traeger, beschreibungAnon, send, close);
       }
     } catch (err: unknown) {
       send({ type: "error", message: err instanceof Error ? err.message : "Unbekannter Fehler." });

@@ -805,8 +805,8 @@ SATZ 3 — Die Forderung + Kontext (was das Musterschreiben fordert, und Ausblic
 → Nutze die Kernforderung aus AG07 wenn vorhanden.
 → Nenne den konkreten Paragraphen wenn bekannt.
 → Wenn AG14 Präzedenzfalldaten liefert UND aehnliche_faelle >= 5: Ergänze optional einen 4. Satz:
-  "In ähnlichen Fällen wurde ein Widerspruch in X% der Fälle erfolgreich — handeln Sie daher jetzt."
-  (Nur wenn erfolgsquote_prozent >= 50 und aehnliche_faelle >= 5)
+  "In ähnlichen Fällen war ein Widerspruch häufig erfolgreich — handeln Sie daher zeitnah."
+  (Nur wenn erfolgsquote_prozent >= 50 und aehnliche_faelle >= 5. KEINE Prozentzahlen nennen — § 2 RDG.)
 
 SONDERFALL NOTFALL (Frist ≤ 7 Tage):
 Beginne Satz 1 mit: "⚠️ DRINGEND: "

@@ -124,7 +124,7 @@ const QUELLEN = {
     { name: "BA Weisungen BKGG/KiZ",  url: "https://www.arbeitsagentur.de/ueber-uns/veroeffentlichungen/gesetze-und-weisungen/sonstige-rechtsnormen", traeger: "familienkasse", rechtsgebiet: "KINDERGELD" },
   ],
   struktur: [
-    { name: "Bundesgesetzblatt",       url: "https://www.recht.bund.de/bgbl/1", typ: "gesetzblatt" },
+    { name: "Bundesgesetzblatt",       url: "https://www.bgbl.de/xaver/bgbl/start.xav", typ: "gesetzblatt" },
     { name: "BMAS Gesetze & Vorhaben", url: "https://www.bmas.de/DE/Service/Gesetze-und-Gesetzesvorhaben/gesetze-und-gesetzesvorhaben.html", typ: "ministerium" },
     { name: "Bundesrat Tagesordnung",  url: "https://www.bundesrat.de/DE/plenum/to-plenum/to-plenum-node.html", typ: "bundesrat" },
     { name: "Bundestag Gesetze",       url: "https://www.bundestag.de/gesetze", typ: "bundestag" },
@@ -196,9 +196,16 @@ Heute: ${today}. Nur Entscheidungen der letzten 90 Tage. Leeres Array [] wenn ke
     cache_control: { type: "ephemeral" },
   }];
 
-  for (const quelle of QUELLEN.urteile) {
+  // Alle Quellen-Seiten parallel vorher fetchen (spart ~2-3s)
+  const prefetched = await Promise.all(
+    QUELLEN.urteile.map(async (q) => ({
+      quelle: q,
+      text: await fetchPageText(q.url),
+    }))
+  );
+
+  for (const { quelle, text: pageText } of prefetched) {
     try {
-      const pageText = await fetchPageText(quelle.url);
       if (!pageText) {
         fehlerQuellen.push(`${quelle.name}: Nicht erreichbar`);
         continue;
@@ -274,9 +281,16 @@ Nur wenn konkrete neue Zahlen im Text stehen — kein Raten.`,
     cache_control: { type: "ephemeral" },
   }];
 
-  for (const quelle of QUELLEN.gesetze) {
+  // Alle Gesetzesquellen parallel prefetchen
+  const prefetchedGesetze = await Promise.all(
+    QUELLEN.gesetze.map(async (q) => ({
+      quelle: q,
+      text: await fetchPageText(q.url),
+    }))
+  );
+
+  for (const { quelle, text: pageText } of prefetchedGesetze) {
     try {
-      const pageText = await fetchPageText(quelle.url);
       if (!pageText) {
         fehlerQuellen.push(`${quelle.name}: Nicht erreichbar`);
         continue;
@@ -302,6 +316,17 @@ Nur wenn konkrete neue Zahlen im Text stehen — kein Raten.`,
       for (const u of updates) {
         if (!u.schluessel || u.wert === undefined) continue;
 
+        // Alten Wert lesen (für History + Audit-Trail)
+        const { data: existing } = await supabase
+          .from("kennzahlen" as string)
+          .select("wert, einheit, gueltig_ab, beschreibung")
+          .eq("schluessel", u.schluessel)
+          .single();
+
+        const alterWert = existing ? `${existing.wert} ${existing.einheit || ""}`.trim() : null;
+        const neuerWert = `${u.wert} ${u.einheit || "EUR"}`;
+        const hatSichGeaendert = !existing || Number(existing.wert) !== u.wert;
+
         const row: Record<string, unknown> = {
           schluessel: u.schluessel,
           wert: u.wert,
@@ -315,7 +340,25 @@ Nur wenn konkrete neue Zahlen im Text stehen — kein Raten.`,
           row, { onConflict: "schluessel" }
         );
 
-        if (!error) geaendert++;
+        if (!error) {
+          geaendert++;
+
+          // Versionierung: DB-Trigger auf kennzahlen schreibt automatisch
+          // in kennzahlen_history (old/new Werte). Hier nur Audit-Trail.
+          if (hatSichGeaendert) {
+            try {
+              await supabase.from("update_protokoll" as string).insert({
+                agent_id: "AG15",
+                tabelle: "kennzahlen",
+                operation: alterWert ? "KENNZAHL_UPDATE" : "KENNZAHL_NEU",
+                notiz: alterWert
+                  ? `${u.schluessel}: ${alterWert} → ${neuerWert}`
+                  : `${u.schluessel}: ${neuerWert} (neu)`,
+                alter_wert: alterWert,
+              });
+            } catch { /* update_protokoll nicht verfügbar */ }
+          }
+        }
       }
 
       reportInfo("[AG15 P2] Kennzahlen geprüft", { quelle: quelle.name, anzahl: updates.length });
@@ -612,9 +655,16 @@ Traeger: jobcenter | arbeitsagentur | drv | krankenkasse | pflegekasse | bamf | 
     cache_control: { type: "ephemeral" },
   }];
 
-  for (const quelle of QUELLEN.weisungen) {
+  // Alle Weisungsquellen parallel prefetchen
+  const prefetchedWeisungen = await Promise.all(
+    QUELLEN.weisungen.map(async (q) => ({
+      quelle: q,
+      text: await fetchPageText(q.url),
+    }))
+  );
+
+  for (const { quelle, text: pageText } of prefetchedWeisungen) {
     try {
-      const pageText = await fetchPageText(quelle.url);
       if (!pageText) {
         fehlerQuellen.push(`${quelle.name}: Nicht erreichbar`);
         continue;
@@ -898,10 +948,16 @@ WICHTIG: Nur wenn OFFIZIELL BESCHLOSSEN oder IN KRAFT GETRETEN — keine Vorhabe
 
   const erkannteAenderungen: StrukturAenderung[] = [];
 
-  // Quellen scannen
-  for (const quelle of QUELLEN.struktur) {
+  // Alle Struktur-Quellen parallel prefetchen
+  const prefetchedStruktur = await Promise.all(
+    QUELLEN.struktur.map(async (q) => ({
+      quelle: q,
+      text: await fetchPageText(q.url),
+    }))
+  );
+
+  for (const { quelle, text: pageText } of prefetchedStruktur) {
     try {
-      const pageText = await fetchPageText(quelle.url);
       if (!pageText) {
         fehlerQuellen.push(`${quelle.name}: Nicht erreichbar`);
         continue;
@@ -1073,37 +1129,53 @@ export async function runRechtsMonitor(): Promise<MonitorResult> {
   if (!apiKey) throw new Error("ANTHROPIC_API_KEY fehlt");
 
   const anthropic = new Anthropic({ apiKey });
+  const startTime = Date.now();
+  const BUDGET_MS = 55_000; // 55s Budget (5s Reserve vor 60s Hobby-Timeout)
 
   const alleFehlerQuellen: string[] = [];
 
+  const timeLeft = () => BUDGET_MS - (Date.now() - startTime);
+
   reportInfo("[AG15] Rechts-Monitor gestartet", { timestamp: new Date().toISOString() });
 
-  // Phase 1: Urteile (alle 6 Urteilsquellen)
-  const p1 = await runPhase1Urteile(anthropic);
-  alleFehlerQuellen.push(...p1.fehlerQuellen);
+  // Phase 1 + 2 PARALLEL (unabhängig voneinander)
+  const [p1, p2] = await Promise.all([
+    runPhase1Urteile(anthropic),
+    runPhase2Kennzahlen(anthropic),
+  ]);
+  alleFehlerQuellen.push(...p1.fehlerQuellen, ...p2.fehlerQuellen);
 
-  // Phase 2: Kennzahlen (alle 8 Gesetzesquellen)
-  const p2 = await runPhase2Kennzahlen(anthropic);
-  alleFehlerQuellen.push(...p2.fehlerQuellen);
+  // Phase 3 + 3b + 4 PARALLEL (3 braucht P1/P2-Ergebnis als Zahl, aber nicht deren DB-Daten)
+  // Phase 4 (Weisungen) ist komplett unabhängig
+  let p3 = { hinzugefuegt: 0 };
+  let p3b: ValidierungsErgebnis = { geprueft: 0, veraltet: 0, details: [] };
+  let p4 = { neu: 0, fehlerQuellen: [] as string[] };
 
-  // Phase 3: Fehlerkatalog-Erweiterung (basiert auf P1+P2)
-  const p3 = await runPhase3Fehlerkatalog(anthropic, p1.neu, p2.geaendert);
+  if (timeLeft() > 10_000) {
+    [p3, p3b, p4] = await Promise.all([
+      runPhase3Fehlerkatalog(anthropic, p1.neu, p2.geaendert),
+      runPhase3bValidierung(anthropic),
+      runPhase4Weisungen(anthropic),
+    ]);
+    alleFehlerQuellen.push(...p4.fehlerQuellen);
+  } else {
+    reportInfo("[AG15] Phasen 3/3b/4 übersprungen — Zeitbudget erschöpft", { timeLeftMs: timeLeft() });
+  }
 
-  // Phase 3b: Fehlerkatalog-Validierung (bestehende Einträge prüfen)
-  const p3b = await runPhase3bValidierung(anthropic);
-
-  // Phase 4: Weisungen (8 Weisungsquellen)
-  const p4 = await runPhase4Weisungen(anthropic);
-  alleFehlerQuellen.push(...p4.fehlerQuellen);
-
-  // Phase 5: Struktur-Monitor (Gesetzesumbenennungen → GitHub PR)
-  const p5 = await runPhase5StrukturMonitor(anthropic);
-  alleFehlerQuellen.push(...p5.fehlerQuellen);
+  // Phase 5: Struktur-Monitor (nur wenn noch Zeit)
+  let p5 = { prs_erstellt: 0, fehlerQuellen: [] as string[] };
+  if (timeLeft() > 8_000) {
+    p5 = await runPhase5StrukturMonitor(anthropic);
+    alleFehlerQuellen.push(...p5.fehlerQuellen);
+  } else {
+    reportInfo("[AG15] Phase 5 übersprungen — Zeitbudget erschöpft", { timeLeftMs: timeLeft() });
+  }
 
   // Phase 6: Audit-Protokoll
   const gesamtQuellen = QUELLEN.urteile.length + QUELLEN.gesetze.length + QUELLEN.weisungen.length + QUELLEN.struktur.length;
+  const durationSec = ((Date.now() - startTime) / 1000).toFixed(1);
   const zusammenfassung =
-    `AG15 Wochenlauf: ${p1.neu} Urteile, ${p2.geaendert} Kennzahlen, ` +
+    `AG15 Lauf (${durationSec}s): ${p1.neu} Urteile, ${p2.geaendert} Kennzahlen, ` +
     `${p3.hinzugefuegt} Fehlertypen, ${p3b.veraltet}/${p3b.geprueft} veraltet, ` +
     `${p4.neu} Weisungen, ${p5.prs_erstellt} Struktur-PRs. ` +
     `${alleFehlerQuellen.length} Quellen fehlgeschlagen.`;
@@ -1134,7 +1206,7 @@ export async function runRechtsMonitor(): Promise<MonitorResult> {
     zusammenfassung,
   };
 
-  reportInfo("[AG15] Fertig", { urteile_neu: result.urteile_neu, kennzahlen_geaendert: result.kennzahlen_geaendert, fehler_hinzugefuegt: result.fehler_hinzugefuegt, weisungen_neu: result.weisungen_neu, struktur_prs: result.struktur_prs });
+  reportInfo("[AG15] Fertig", { durationSec, urteile_neu: result.urteile_neu, kennzahlen_geaendert: result.kennzahlen_geaendert, fehler_hinzugefuegt: result.fehler_hinzugefuegt, weisungen_neu: result.weisungen_neu, struktur_prs: result.struktur_prs });
   return result;
 }
 

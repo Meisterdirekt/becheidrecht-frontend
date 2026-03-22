@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { verifyAdmin } from '@/lib/admin-auth';
 import { reportError } from '@/lib/error-reporter';
+import { ANALYSES_MAP, computeExpiresAt } from '@/lib/plans';
 
 /**
  * POST /api/admin/grant-subscription
@@ -63,20 +64,7 @@ export async function POST(request: NextRequest) {
 
     const userId = users[0].user_id;
 
-    // Anzahl Analysen je nach Typ
-    const analysisMap: Record<string, number> = {
-      'single': 1,
-      'basic': 5,
-      'standard': 15,
-      'pro': 50,
-      'business': 120,
-      'b2b_starter': 300,
-      'b2b_professional': 1000,
-      'b2b_enterprise': 2500,
-      'b2b_corporate': 6000,
-    };
-
-    const analyses = analysisMap[subscription_type] || 0;
+    const analyses = ANALYSES_MAP[subscription_type] || 0;
 
     if (analyses === 0) {
       return NextResponse.json(
@@ -85,16 +73,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Ablaufdatum berechnen
-    let expiresAt: string | null = null;
-    if (subscription_type !== 'single') {
-      // Abos laufen nach 1 Monat bzw. 1 Jahr ab
-      const isYearly = subscription_type.startsWith('b2b_');
-      const months = isYearly ? 12 : 1;
-      const expiryDate = new Date();
-      expiryDate.setMonth(expiryDate.getMonth() + months);
-      expiresAt = expiryDate.toISOString();
-    }
+    const expiresAt = computeExpiresAt(subscription_type);
 
     // Subscription aktualisieren
     const { data: updated, error: updateError } = await supabase

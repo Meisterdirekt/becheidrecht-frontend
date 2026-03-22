@@ -25,25 +25,20 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { reportInfo, reportError, reportWarning } from '@/lib/error-reporter';
 import { mollieWebhookLimiter } from '@/lib/rate-limit';
+import { PLAN_CONFIG, computeExpiresAt } from '@/lib/plans';
 
 export const runtime = 'nodejs';
 export const maxDuration = 30;
 
 // ---------------------------------------------------------------------------
-// Produkt-Mapping (muss mit den metadata.product_key-Werten beim Payment-Create übereinstimmen)
+// Produkt-Mapping: Mollie product_key → subscription_type aus PLAN_CONFIG
+// Analysen-Zahlen + Laufzeiten kommen aus der Single Source of Truth (plans.ts)
 // ---------------------------------------------------------------------------
 
-interface ProductConfig {
-  type: string;
-  analyses: number;
-  /** 0 = Einzel-Kauf ohne Ablaufdatum, >0 = Anzahl Monate */
-  months: number;
-}
-
-const PRODUCT_CONFIGS: Record<string, ProductConfig> = {
-  starter:     { type: 'b2b_starter',      analyses: 100,  months: 1 },
-  team:        { type: 'b2b_professional',  analyses: 400,  months: 1 },
-  einrichtung: { type: 'b2b_enterprise',    analyses: 1000, months: 1 },
+const PRODUCT_KEY_TO_PLAN: Record<string, string> = {
+  starter:     'b2b_starter',
+  team:        'b2b_professional',
+  einrichtung: 'b2b_enterprise',
 };
 
 // ---------------------------------------------------------------------------
@@ -130,8 +125,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ received: true, note: 'Fehlende Metadaten im Mollie-Payment.' });
   }
 
-  const product = PRODUCT_CONFIGS[productKey];
-  if (!product) {
+  const subscriptionType = PRODUCT_KEY_TO_PLAN[productKey];
+  const planConfig = subscriptionType ? PLAN_CONFIG[subscriptionType] : undefined;
+  if (!subscriptionType || !planConfig) {
     await reportWarning(`Unbekannter product_key: ${productKey}`, { context: 'mollie/webhook', paymentId });
     return NextResponse.json({ received: true, note: 'Unbekannter Produktschlüssel.' });
   }
@@ -176,20 +172,15 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ received: true, status: 'already_processed' });
   }
 
-  let expiresAt: string | null = null;
-  if (product.months > 0) {
-    const expiryDate = new Date();
-    expiryDate.setMonth(expiryDate.getMonth() + product.months);
-    expiresAt = expiryDate.toISOString();
-  }
+  const expiresAt = computeExpiresAt(subscriptionType);
 
   const { error: updateError } = await supabase
     .from('user_subscriptions')
     .update({
-      subscription_type: product.type,
+      subscription_type: subscriptionType,
       status: 'active',
-      analyses_total: product.analyses,
-      analyses_remaining: product.analyses,
+      analyses_total: planConfig.analyses,
+      analyses_remaining: planConfig.analyses,
       analyses_used: 0,
       order_id: paymentId,
       payment_method: 'mollie',
@@ -204,6 +195,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Abo-Aktivierung fehlgeschlagen.' }, { status: 500 });
   }
 
-  reportInfo('[Mollie] Abo aktiviert', { email: buyerEmail.replace(/(.{2}).*@/, "$1***@"), product: product.type, analyses: product.analyses });
+  reportInfo('[Mollie] Abo aktiviert', { email: buyerEmail.replace(/(.{2}).*@/, "$1***@"), product: subscriptionType, analyses: planConfig.analyses });
   return NextResponse.json({ received: true, status: 'activated' });
 }

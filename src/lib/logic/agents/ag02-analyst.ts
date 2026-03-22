@@ -6,6 +6,7 @@
 
 import Anthropic from "@anthropic-ai/sdk";
 import { TRAEGER_TO_PREFIX } from "@/lib/letter-generator";
+import { normalizeSgb, SGB_TO_RECHTSGEBIET, RECHTSGEBIET_TRAEGER } from "../constants/rechtsgebiete";
 import {
   type Agent,
   type AgentContext,
@@ -55,8 +56,13 @@ async function execute(ctx: AgentContext): Promise<AgentResult<AnalyseResult>> {
   const model = modelForStufe(ctx.routingStufe);
   let totalTokens = emptyTokenUsage();
 
+  const weitereRg = ctx.pipeline.triage?.weitere_rechtsgebiete;
+  const weitereInfo = weitereRg?.length
+    ? `\nWeitere Rechtsgebiete: ${weitereRg.join(", ")}`
+    : "";
+
   const triageInfo = ctx.pipeline.triage
-    ? `\n\nKLASSIFIZIERUNG (AG01):\nBehörde: ${ctx.pipeline.triage.behoerde}\nRechtsgebiet: ${ctx.pipeline.triage.rechtsgebiet}\nUntergebiet: ${ctx.pipeline.triage.untergebiet}\nRouting: ${ctx.pipeline.triage.routing_stufe}`
+    ? `\n\nKLASSIFIZIERUNG (AG01):\nBehörde: ${ctx.pipeline.triage.behoerde}\nRechtsgebiet: ${ctx.pipeline.triage.rechtsgebiet}${weitereInfo}\nUntergebiet: ${ctx.pipeline.triage.untergebiet}\nRouting: ${ctx.pipeline.triage.routing_stufe}`
     : "";
 
   const nutzerKontext = ctx.userContext
@@ -70,13 +76,28 @@ async function execute(ctx: AgentContext): Promise<AgentResult<AnalyseResult>> {
     },
   ];
 
+  // Primärer Träger-Key aus Behördenname
   const traegerKey = ctx.pipeline.triage
     ? detectTraegerKey(ctx.pipeline.triage.behoerde)
     : "jobcenter";
 
+  // Multi-Rechtsgebiet: Auch Prefixes der weiteren Rechtsgebiete sammeln
+  const allTraegerKeys = new Set<string>([traegerKey]);
+  if (weitereRg) {
+    for (const sgb of weitereRg) {
+      const normalized = normalizeSgb(sgb);
+      const rgCode = SGB_TO_RECHTSGEBIET[normalized];
+      if (rgCode) {
+        const tKey = RECHTSGEBIET_TRAEGER[rgCode];
+        if (tKey) allTraegerKeys.add(tKey);
+      }
+    }
+  }
+
   const gefundeneIds = new Set<string>();
   const gefundeneFehler: AnalyseResult["fehler"] = [];
   let auffaelligkeiten: string[] = [];
+  let katalogToolCalled = false;
 
   // Extended Thinking für NOTFALL — maximale Analysetiefe bei life-critical Fällen
   const useExtendedThinking = ctx.routingStufe === "NOTFALL";
@@ -120,13 +141,12 @@ async function execute(ctx: AgentContext): Promise<AgentResult<AnalyseResult>> {
         }
       }
 
-      // Retry-Logik: Nur bei komplettem Fehlschlag (0 Fehler UND 0 Auffälligkeiten)
-      const needsMoreSearch =
-        gefundeneFehler.length === 0 && auffaelligkeiten.length === 0;
-
-      if (needsMoreSearch && i < 2) {
+      // Retry nur wenn das Tool NIE aufgerufen wurde (LLM hat Tool-Call übersprungen).
+      // Wenn das Tool aufgerufen wurde und 0 Treffer liefert, ist das ein valides Ergebnis
+      // — nicht jeder Bescheid hat Fehler. Aggressives Retry erzwingt sonst False Positives.
+      if (!katalogToolCalled && i < 2) {
         messages.push({ role: "user", content:
-          "Du hast suche_fehlerkatalog noch nicht aufgerufen oder keine Ergebnisse erhalten. " +
+          "Du hast suche_fehlerkatalog noch nicht aufgerufen. " +
           "Rufe JETZT suche_fehlerkatalog auf mit 4-6 PRÄZISEN Stichwörtern aus dem Bescheid " +
           "(konkrete Paragraphen und Leistungsarten die im Text vorkommen). " +
           "Gib auch auffaelligkeiten als JSON zurück."
@@ -140,7 +160,13 @@ async function execute(ctx: AgentContext): Promise<AgentResult<AnalyseResult>> {
     const toolResults = await processToolBlocks(response.content, {
       suche_fehlerkatalog: {
         execute: async (input) => {
-          const prefixes = TRAEGER_TO_PREFIX[traegerKey] ?? [];
+          katalogToolCalled = true;
+          // Prefixes aller relevanten Träger sammeln (Haupt + weitere Rechtsgebiete)
+          const prefixes: string[] = [];
+          for (const tKey of allTraegerKeys) {
+            const tp = TRAEGER_TO_PREFIX[tKey];
+            if (tp) prefixes.push(...tp);
+          }
           const fehler = await executeSucheFehlerkatalogMitDb(prefixes, input.stichworten as string[]);
           for (const f of fehler) {
             if (!gefundeneIds.has(f.id)) {

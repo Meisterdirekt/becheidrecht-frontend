@@ -110,6 +110,9 @@ export const demoRequestLimiter = buildLimiter([3, "1h"]);
 /** /api/feedback — 10 Anfragen / 1 Std pro IP */
 export const feedbackLimiter = buildLimiter([10, "1h"]);
 
+/** /api/analysis-feedback — 20 Anfragen / 1 Std pro User */
+export const analysisFeedbackLimiter = buildLimiter([20, "1h"]);
+
 /** /api/mollie/webhook — 30 Anfragen / 1 Min pro IP */
 export const mollieWebhookLimiter = buildLimiter([30, "1m"]);
 

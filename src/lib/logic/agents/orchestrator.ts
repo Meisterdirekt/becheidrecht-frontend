@@ -135,7 +135,7 @@ export async function runPipeline(
     safeExecute(
       "AG08",
       () => ag08SecurityGate.execute(baseCtx),
-      { freigabe: true }
+      { freigabe: false, grund: "AG08 technisch gescheitert — Analyse abgebrochen" }
     ),
     safeExecute(
       "AG12",
@@ -146,7 +146,7 @@ export async function runPipeline(
 
   const securityResult = securitySettled.status === "fulfilled"
     ? securitySettled.value
-    : { agentId: "AG08" as const, success: false, data: { freigabe: true }, tokens: emptyTokenUsage(), durationMs: 0, error: "AG08 rejected" };
+    : { agentId: "AG08" as const, success: false, data: { freigabe: false, grund: "AG08 technisch gescheitert" }, tokens: emptyTokenUsage(), durationMs: 0, error: "AG08 rejected" };
 
   const dokResult = dokSettled.status === "fulfilled"
     ? dokSettled.value
@@ -196,7 +196,10 @@ export async function runPipeline(
   agentCosts.push({ tokens: triageResult.tokens, model: HAIKU_MODEL });
   pipeline.triage = triageResult.data;
 
-  onProgress?.("triage", `${triageResult.data.rechtsgebiet} — ${triageResult.data.behoerde}`);
+  const weitereRgInfo = triageResult.data.weitere_rechtsgebiete?.length
+    ? ` (+ ${triageResult.data.weitere_rechtsgebiete.join(", ")})`
+    : "";
+  onProgress?.("triage", `${triageResult.data.rechtsgebiet}${weitereRgInfo} — ${triageResult.data.behoerde}`);
 
   // AG01 kann Routing-Stufe korrigieren
   if (triageResult.data.routing_stufe !== routingStufe) {
@@ -392,6 +395,10 @@ export async function runPipeline(
 
     /** Prüft ob ein Fehler zum erkannten Rechtsgebiet passt */
     const rechtsgebiet = pipeline.triage?.rechtsgebiet?.toUpperCase() ?? "";
+    // Multi-Rechtsgebiet: Alle beteiligten Rechtsgebiete als erlaubt betrachten
+    const alleRechtsgebiete = new Set<string>(
+      [rechtsgebiet, ...(pipeline.triage?.weitere_rechtsgebiete?.map(r => r.toUpperCase()) ?? [])].filter(Boolean)
+    );
     const isRechtsgebietMismatch = (text: string): boolean => {
       if (!rechtsgebiet || rechtsgebiet === "UNBEKANNT") return false;
       const lower = text.toLowerCase();
@@ -402,8 +409,19 @@ export async function runPipeline(
         "SGB VI":  [/§\s*11b?\s+sgb\s+ii\b/i, /§\s*12\s+sgb\s+ii\b/i, /§\s*31a?\s+sgb\s+ii\b/i, /§\s*22\s.*sgb\s+ii\b/i, /§\s*159\s+sgb\s+iii/i],
         "SGB III": [/§\s*11b?\s+sgb\s+ii\b/i, /§\s*12\s+sgb\s+ii\b/i, /§\s*31a?\s+sgb\s+ii\b/i, /§\s*22\s.*sgb\s+ii\b/i],
       };
+      // Nur blocken, wenn das referenzierte Rechtsgebiet NICHT in den erkannten Rechtsgebieten ist
       const blockedPatterns = sgbSpecific[rechtsgebiet] ?? [];
-      return blockedPatterns.some(pattern => pattern.test(lower));
+      return blockedPatterns.some(pattern => {
+        if (!pattern.test(lower)) return false;
+        // Prüfe ob der Fehler zu einem der weiteren_rechtsgebiete gehört → dann NICHT blocken
+        // z.B. SGB V-Fehler bei Haupt=SGB II + weitere=[SGB V] → erlaubt
+        const sgbInText = lower.match(/sgb\s+(i{1,3}|iv|v|vi|vii|viii|ix|x|xi|xii)/i);
+        if (sgbInText) {
+          const found = `SGB ${sgbInText[1].toUpperCase()}`;
+          if (alleRechtsgebiete.has(found)) return false;
+        }
+        return true;
+      });
     };
 
     // AG07-Auffälligkeiten (höchste Priorität — vom Brief-Generator selbst erkannt)

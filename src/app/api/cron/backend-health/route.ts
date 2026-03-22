@@ -35,7 +35,6 @@ async function checkTables(): Promise<TableCheck[]> {
   const tables = [
     "user_fristen",
     "profiles",
-    "analyses",
     "analysis_results",
     "urteile",
     "kennzahlen",

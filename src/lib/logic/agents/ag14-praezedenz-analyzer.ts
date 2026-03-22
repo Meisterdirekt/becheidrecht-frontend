@@ -37,6 +37,15 @@ async function execute(ctx: AgentContext): Promise<AgentResult<PraezedenzResult>
     : null;
   const behoerde = ctx.pipeline.triage?.behoerde;
 
+  // Multi-Rechtsgebiet: Weitere Rechtsgebiete in Kürzel auflösen
+  const weitereRg = ctx.pipeline.triage?.weitere_rechtsgebiete ?? [];
+  const weitereKuerzel: string[] = [];
+  for (const sgb of weitereRg) {
+    const normalized = normalizeSgb(sgb);
+    const code = SGB_TO_RECHTSGEBIET[normalized];
+    if (code && code !== rechtsgebiet) weitereKuerzel.push(code);
+  }
+
   if (!rechtsgebiet) {
     return {
       agentId: "AG14",
@@ -49,14 +58,23 @@ async function execute(ctx: AgentContext): Promise<AgentResult<PraezedenzResult>
   }
 
   try {
-    // Lade historische Analyseergebnisse für dieses Rechtsgebiet
+    // Lade historische Analyseergebnisse für Haupt-Rechtsgebiet
     const dbResult = await executeDbRead(
       "analysis_results",
       { rechtsgebiet },
       50
     );
 
-    if (!dbResult.available || dbResult.rows.length === 0) {
+    // Multi-Rechtsgebiet: Auch Ergebnisse der weiteren Rechtsgebiete laden
+    const allRows = [...(dbResult.available ? dbResult.rows : [])];
+    for (const rg of weitereKuerzel) {
+      const extraResult = await executeDbRead("analysis_results", { rechtsgebiet: rg }, 20);
+      if (extraResult.available && extraResult.rows.length > 0) {
+        allRows.push(...extraResult.rows);
+      }
+    }
+
+    if (allRows.length === 0) {
       return {
         agentId: "AG14",
         success: true,
@@ -66,7 +84,7 @@ async function execute(ctx: AgentContext): Promise<AgentResult<PraezedenzResult>
       };
     }
 
-    const rawResults = dbResult.rows;
+    const rawResults = allRows;
 
     // Filtern: Gleiche Behörde bevorzugen (aber auch allgemeine Daten nutzen)
     const behoerdeNormalized = (behoerde ?? "").toLowerCase();
@@ -116,13 +134,15 @@ async function execute(ctx: AgentContext): Promise<AgentResult<PraezedenzResult>
 
     // Kontextueller Hinweis
     let hinweis = "";
+    // Hinweis-Text ohne Prozentzahlen — § 2 RDG verbietet konkrete Erfolgsaussagen gegenüber Nutzern.
+    // erfolgsquote_prozent bleibt intern verfügbar (AG07 Schwerpunktsetzung), wird aber nie dem Nutzer angezeigt.
     if (aehnliche_faelle >= 5 && erfolgsquote_prozent !== null) {
       if (erfolgsquote_prozent >= 65) {
-        hinweis = `Gute Ausgangslage: In ${aehnliche_faelle} ähnlichen Fällen lag die Erfolgsquote bei ${erfolgsquote_prozent}%.`;
+        hinweis = `In ${aehnliche_faelle} ähnlichen Fällen war ein Widerspruch häufig erfolgreich.`;
       } else if (erfolgsquote_prozent >= 40) {
-        hinweis = `Mittlere Ausgangslage: In ${aehnliche_faelle} ähnlichen Fällen lag die Erfolgsquote bei ${erfolgsquote_prozent}%.`;
+        hinweis = `In ${aehnliche_faelle} ähnlichen Fällen hatte ein Widerspruch teils Erfolg.`;
       } else {
-        hinweis = `Schwierige Ausgangslage: In ${aehnliche_faelle} ähnlichen Fällen lag die Erfolgsquote bei ${erfolgsquote_prozent}%.`;
+        hinweis = `In ${aehnliche_faelle} ähnlichen Fällen war die Ausgangslage schwierig.`;
       }
     } else if (aehnliche_faelle > 0) {
       hinweis = `${aehnliche_faelle} ähnliche Fälle in der Datenbank (noch zu wenig für statistisch sichere Aussage).`;
