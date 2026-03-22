@@ -9,6 +9,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { getAuthenticatedUser } from "@/lib/supabase/auth";
+import { reportError } from "@/lib/error-reporter";
 
 export const runtime = "nodejs";
 
@@ -52,13 +53,19 @@ export async function PATCH(req: NextRequest) {
   if (street !== undefined) metadata.street = (street ?? "").trim();
   if (city !== undefined) metadata.city = (city ?? "").trim();
 
-  const { error } = await supabase.auth.admin.updateUserById(user.id, {
-    user_metadata: metadata,
-  });
+  try {
+    const { error } = await supabase.auth.admin.updateUserById(user.id, {
+      user_metadata: metadata,
+    });
 
-  if (error) {
+    if (error) {
+      reportError(new Error(error.message), { context: "account-profile" });
+      return NextResponse.json({ error: "Profil konnte nicht aktualisiert werden." }, { status: 500 });
+    }
+
+    return NextResponse.json({ ok: true, updated: Object.keys(metadata) });
+  } catch (error) {
+    reportError(error instanceof Error ? error : new Error(String(error)), { context: "account-profile" });
     return NextResponse.json({ error: "Profil konnte nicht aktualisiert werden." }, { status: 500 });
   }
-
-  return NextResponse.json({ ok: true, updated: Object.keys(metadata) });
 }

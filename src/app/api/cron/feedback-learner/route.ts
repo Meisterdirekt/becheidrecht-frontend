@@ -53,6 +53,7 @@ interface AnalysisRow {
 interface FehlerStat {
   fehler_id: string;
   false_positive_count: number;
+  true_positive_count: number;
   total_count: number;
   rechtsgebiet: string | null;
 }
@@ -136,12 +137,17 @@ async function aggregateFeedback(): Promise<{
       const stat = fehlerStats.get(fehlerId) ?? {
         fehler_id: fehlerId,
         false_positive_count: 0,
+        true_positive_count: 0,
         total_count: 0,
         rechtsgebiet,
       };
 
       stat.total_count++;
-      if (!item.correct) stat.false_positive_count++;
+      if (item.correct) {
+        stat.true_positive_count++;
+      } else {
+        stat.false_positive_count++;
+      }
       fehlerStats.set(fehlerId, stat);
     }
   }
@@ -165,6 +171,9 @@ async function upsertFeedbackStats(stats: Map<string, FehlerStat>): Promise<numb
     const fpRate = stat.total_count > 0
       ? Math.round((stat.false_positive_count / stat.total_count) * 10000) / 100
       : 0;
+    const tpRate = stat.total_count > 0
+      ? Math.round((stat.true_positive_count / stat.total_count) * 10000) / 100
+      : 0;
 
     const { error } = await supabase
       .from("feedback_stats")
@@ -172,8 +181,10 @@ async function upsertFeedbackStats(stats: Map<string, FehlerStat>): Promise<numb
         {
           fehler_id: stat.fehler_id,
           false_positive_count: stat.false_positive_count,
+          true_positive_count: stat.true_positive_count,
           total_count: stat.total_count,
           false_positive_rate: fpRate,
+          true_positive_rate: tpRate,
           rechtsgebiet: stat.rechtsgebiet,
           last_updated: new Date().toISOString(),
         },
@@ -218,6 +229,24 @@ function formatFeedbackReport(
     lines.push(`FALSE POSITIVES (Top ${fpSorted.length}):`);
     for (const fp of fpSorted) {
       lines.push(`FP: ${fp.fehler_id} rate=${fp.rate.toFixed(1)}% count=${fp.total_count} rechtsgebiet=${fp.rechtsgebiet ?? "?"}`);
+    }
+    lines.push(``);
+  }
+
+  // Top True Positives (haeufig bestaetigte Fehler, min 2 Bewertungen)
+  const tpSorted = [...fehlerStats.values()]
+    .filter((s) => s.total_count >= 2 && s.true_positive_count > 0)
+    .map((s) => ({
+      ...s,
+      rate: s.total_count > 0 ? (s.true_positive_count / s.total_count) * 100 : 0,
+    }))
+    .sort((a, b) => b.rate - a.rate)
+    .slice(0, 20);
+
+  if (tpSorted.length > 0) {
+    lines.push(`TRUE POSITIVES (Top ${tpSorted.length}):`);
+    for (const tp of tpSorted) {
+      lines.push(`TP: ${tp.fehler_id} rate=${tp.rate.toFixed(1)}% count=${tp.total_count} rechtsgebiet=${tp.rechtsgebiet ?? "?"}`);
     }
     lines.push(``);
   }
