@@ -39,7 +39,7 @@ function localSecurityCheck(text: string): SecurityResult {
 
   // Prompt-Injection-Muster
   const injectionPatterns = [
-    /ignore\s+(previous|all|your)\s+instructions/i,
+    /ignore\s+(all\s+)?(previous|your)\s+instructions/i,
     /vergiss\s+(deine|alle)\s+anweisungen/i,
     /you\s+are\s+now\s+/i,
     /du\s+bist\s+jetzt\s+/i,
