@@ -26,43 +26,48 @@ export async function GET(req: NextRequest) {
 
   const supabase = createClient(url, serviceKey);
 
-  // Nutzer-E-Mail für Feedback-Abfrage ermitteln
-  const { data: { user: authUser } } = await supabase.auth.admin.getUserById(user.id);
-  const userEmail = authUser?.email ?? "";
+  try {
+    // Nutzer-E-Mail für Feedback-Abfrage ermitteln
+    const { data: { user: authUser } } = await supabase.auth.admin.getUserById(user.id);
+    const userEmail = authUser?.email ?? "";
 
-  // Alle Nutzerdaten parallel abfragen
-  const [
-    { data: profile },
-    { data: subscriptions },
-    { data: analyses },
-    { data: fristen },
-    { data: feedback },
-    { data: orgMemberships },
-  ] = await Promise.all([
-    supabase.from("profiles").select("*").eq("id", user.id).maybeSingle(),
-    supabase.from("user_subscriptions").select("*").eq("user_id", user.id),
-    supabase.from("analysis_results").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
-    supabase.from("user_fristen").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
-    supabase.from("site_feedback").select("id, created_at, message, rating, name").eq("email", userEmail || "___none___"),
-    supabase.from("organization_members").select("organization_id, role, joined_at, user_email").eq("user_id", user.id),
-  ]);
+    // Alle Nutzerdaten parallel abfragen
+    const [
+      { data: profile },
+      { data: subscriptions },
+      { data: analyses },
+      { data: fristen },
+      { data: feedback },
+      { data: orgMemberships },
+    ] = await Promise.all([
+      supabase.from("profiles").select("*").eq("id", user.id).maybeSingle(),
+      supabase.from("user_subscriptions").select("*").eq("user_id", user.id),
+      supabase.from("analysis_results").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
+      supabase.from("user_fristen").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
+      supabase.from("site_feedback").select("id, created_at, message, rating, name").eq("email", userEmail || "___none___"),
+      supabase.from("organization_members").select("organization_id, role, joined_at, user_email").eq("user_id", user.id),
+    ]);
 
-  const exportData = {
-    export_datum: new Date().toISOString(),
-    hinweis: "Dieser Export enthält alle bei BescheidRecht gespeicherten personenbezogenen Daten gemäß Art. 20 DSGVO.",
-    profil: profile ?? null,
-    abonnements: subscriptions ?? [],
-    analysen: analyses ?? [],
-    fristen: fristen ?? [],
-    feedback: feedback ?? [],
-    organisationen: orgMemberships ?? [],
-  };
+    const exportData = {
+      export_datum: new Date().toISOString(),
+      hinweis: "Dieser Export enthält alle bei BescheidRecht gespeicherten personenbezogenen Daten gemäß Art. 20 DSGVO.",
+      profil: profile ?? null,
+      abonnements: subscriptions ?? [],
+      analysen: analyses ?? [],
+      fristen: fristen ?? [],
+      feedback: feedback ?? [],
+      organisationen: orgMemberships ?? [],
+    };
 
-  return new NextResponse(JSON.stringify(exportData, null, 2), {
-    status: 200,
-    headers: {
-      "Content-Type": "application/json; charset=utf-8",
-      "Content-Disposition": `attachment; filename="bescheidrecht-datenexport-${new Date().toISOString().slice(0, 10)}.json"`,
-    },
-  });
+    return new NextResponse(JSON.stringify(exportData, null, 2), {
+      status: 200,
+      headers: {
+        "Content-Type": "application/json; charset=utf-8",
+        "Content-Disposition": `attachment; filename="bescheidrecht-datenexport-${new Date().toISOString().slice(0, 10)}.json"`,
+      },
+    });
+  } catch (error) {
+    reportError(error instanceof Error ? error : new Error(String(error)), { context: "account-export" });
+    return NextResponse.json({ error: "Datenexport fehlgeschlagen." }, { status: 500 });
+  }
 }

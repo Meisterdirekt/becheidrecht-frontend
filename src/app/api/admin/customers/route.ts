@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { verifyAdmin } from "@/lib/admin-auth";
+import { reportError } from "@/lib/error-reporter";
 
 /**
  * GET /api/admin/customers
@@ -59,6 +60,7 @@ export async function GET(request: NextRequest) {
   const { data, error } = subsResult;
 
   if (error) {
+    reportError(new Error(error.message), { context: "admin-customers" });
     return NextResponse.json(
       { error: "Daten konnten nicht geladen werden: " + error.message },
       { status: 500 },

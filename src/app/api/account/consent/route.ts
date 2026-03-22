@@ -8,7 +8,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { getAuthenticatedUser } from "@/lib/supabase/auth";
-import { reportInfo } from "@/lib/error-reporter";
+import { reportError, reportInfo } from "@/lib/error-reporter";
 
 export const runtime = "nodejs";
 
@@ -50,6 +50,7 @@ export async function PATCH(req: NextRequest) {
   });
 
   if (error) {
+    reportError(new Error(error.message), { context: "account-consent" });
     return NextResponse.json({ error: "Fehler beim Aktualisieren." }, { status: 500 });
   }
 
