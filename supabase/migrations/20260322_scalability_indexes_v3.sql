@@ -13,9 +13,9 @@ CREATE INDEX IF NOT EXISTS idx_analysis_results_user_id
 CREATE INDEX IF NOT EXISTS idx_usage_counters_user_id
   ON usage_counters (user_id);
 
--- 4. usage_counters: per org_id + user_id abgefragt (B2B use-analysis)
-CREATE INDEX IF NOT EXISTS idx_usage_counters_org_user
-  ON usage_counters (org_id, user_id);
+-- 4. usage_counters: per period + user_id abgefragt (monatliche Nutzung)
+CREATE INDEX IF NOT EXISTS idx_usage_counters_user_period
+  ON usage_counters (user_id, period);
 
 -- 5. demo_requests: created_at DESC für Admin-Liste + status-Filter
 CREATE INDEX IF NOT EXISTS idx_demo_requests_created
