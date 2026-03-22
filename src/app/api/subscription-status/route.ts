@@ -50,13 +50,15 @@ export async function GET(request: NextRequest) {
       if (membership?.org_id) {
         const org = membership.organizations;
         if (org) {
+          // Org-Ablauf prüfen
+          const orgExpired = org.expires_at && new Date(org.expires_at) < new Date();
           return NextResponse.json({
             user_id: user.id,
             subscription_type: org.subscription_type,
-            status: 'active',
+            status: orgExpired ? 'expired' : 'active',
             analyses_total: org.analyses_total,
             analyses_used: org.analyses_used,
-            analyses_remaining: Math.max(0, org.analyses_total - org.analyses_used),
+            analyses_remaining: orgExpired ? 0 : Math.max(0, org.analyses_total - org.analyses_used),
             expires_at: org.expires_at,
             org_id: membership.org_id,
             org_name: org.name,
@@ -92,12 +94,19 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    const analysesRemaining = isDevUnlimited ? Math.max(subscription.analyses_remaining, 999) : subscription.analyses_remaining;
+    // Ablauf prüfen: expires_at in der Vergangenheit → expired
+    const isExpired = !isDevUnlimited
+      && subscription.expires_at
+      && new Date(subscription.expires_at) < new Date();
+    const effectiveStatus = isExpired ? 'expired' : subscription.status;
+    const analysesRemaining = isDevUnlimited
+      ? Math.max(subscription.analyses_remaining, 999)
+      : isExpired ? 0 : subscription.analyses_remaining;
 
     return NextResponse.json({
       user_id: subscription.user_id,
       subscription_type: isDevUnlimited ? 'dev_test' : subscription.subscription_type,
-      status: subscription.status,
+      status: effectiveStatus,
       analyses_total: subscription.analyses_total,
       analyses_used: subscription.analyses_used,
       analyses_remaining: analysesRemaining,

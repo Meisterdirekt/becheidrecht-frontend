@@ -26,6 +26,7 @@ import {
 import { getPageT, type Lang } from "@/lib/page-translations";
 import { PrivacyModal } from "@/components/PrivacyModal";
 import { PseudonymizationPreviewModal } from "@/components/PseudonymizationPreviewModal";
+import { CheckoutButton } from "@/components/CheckoutButton";
 
 /* ── Animated stat counter (counts up on scroll) ── */
 function parseStatValue(v: string) {
@@ -1004,10 +1005,10 @@ export default function Page() {
           <p className="text-center text-white/30 mb-12 text-sm">Alle Preise netto zzgl. 19 % MwSt. · Monatlich kündbar.</p>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6 items-start stagger-group">
             {[
-              { name: t.pricingBasicName, price: t.pricingBasicPrice, features: [t.pricingBasicF1, t.pricingBasicF2, t.pricingBasicF3], cta: t.pricingBasicCta, highlight: false, href: "mailto:info@bescheidrecht.de?subject=Anfrage%20Starter-Tarif" },
-              { name: t.pricingStandardName, price: t.pricingStandardPrice, features: [t.pricingStandardF1, t.pricingStandardF2, t.pricingStandardF3], cta: t.pricingStandardCta, highlight: false, href: "mailto:info@bescheidrecht.de?subject=Anfrage%20Team-Tarif" },
-              { name: t.pricingProName, price: t.pricingProPrice, features: [t.pricingProF1, t.pricingProF2, t.pricingProF3], cta: t.pricingProCta, highlight: true, href: "mailto:info@bescheidrecht.de?subject=Anfrage%20Einrichtung-Tarif" },
-              { name: t.pricingBusinessName, price: t.pricingBusinessPrice, features: [t.pricingBusinessF1, t.pricingBusinessF2, t.pricingBusinessF3], cta: t.pricingBusinessCta, highlight: false, href: "mailto:info@bescheidrecht.de?subject=Anfrage%20Rahmenvertrag" },
+              { name: t.pricingBasicName, price: t.pricingBasicPrice, features: [t.pricingBasicF1, t.pricingBasicF2, t.pricingBasicF3], cta: t.pricingBasicCta, highlight: false, productKey: "starter" as const },
+              { name: t.pricingStandardName, price: t.pricingStandardPrice, features: [t.pricingStandardF1, t.pricingStandardF2, t.pricingStandardF3], cta: t.pricingStandardCta, highlight: false, productKey: "team" as const },
+              { name: t.pricingProName, price: t.pricingProPrice, features: [t.pricingProF1, t.pricingProF2, t.pricingProF3], cta: t.pricingProCta, highlight: true, productKey: "einrichtung" as const },
+              { name: t.pricingBusinessName, price: t.pricingBusinessPrice, features: [t.pricingBusinessF1, t.pricingBusinessF2, t.pricingBusinessF3], cta: t.pricingBusinessCta, highlight: false, productKey: null },
             ].map((p) => (
               <div key={p.name} className="relative pt-8 animate-slideUp opacity-0">
                 {p.highlight && (
@@ -1037,17 +1038,17 @@ export default function Page() {
                       </li>
                     ))}
                   </ul>
-                  <a
-                    href={p.href}
-                    className={`w-full py-3.5 rounded-xl font-bold text-xs uppercase tracking-widest transition-all duration-300 flex items-center justify-center gap-2 ${
-                      p.highlight
-                        ? "bg-white text-[var(--accent)] hover:bg-white/90"
-                        : "bg-[var(--accent)] text-white hover:bg-[var(--accent-hover)]"
-                    }`}
-                  >
-                    {p.cta}
-                    <ArrowRight className="h-3 w-3" />
-                  </a>
+                  {p.productKey ? (
+                    <CheckoutButton productKey={p.productKey} label={p.cta} highlight={p.highlight} />
+                  ) : (
+                    <a
+                      href="mailto:info@bescheidrecht.de?subject=Anfrage%20Rahmenvertrag"
+                      className="w-full py-3.5 rounded-xl font-bold text-xs uppercase tracking-widest transition-all duration-300 flex items-center justify-center gap-2 bg-[var(--accent)] text-white hover:bg-[var(--accent-hover)]"
+                    >
+                      {p.cta}
+                      <ArrowRight className="h-3 w-3" />
+                    </a>
+                  )}
                 </div>
               </div>
             ))}

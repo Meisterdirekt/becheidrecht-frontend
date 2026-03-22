@@ -7,10 +7,11 @@
  * woechentlicher oder monatlicher Task faellig ist.
  *
  * Taeglich:  backend-health, data-retention, costs-monitor, fristen-reminder
+ * So:        agent-batch + urteile-update (parallel)
  * Di:        design-audit
  * Mi:        agent-audit
  * Do:        design-guardian
- * So:        agent-batch
+ * Fr:        feedback-learner (AG20)
  * 1. des Monats: rechts-update
  * 15. des Monats: content-audit
  *
@@ -104,6 +105,7 @@ export async function GET(req: NextRequest) {
     runTask("data-retention", baseUrl, "/api/cron/data-retention", 10_000),
     runTask("costs-monitor", baseUrl, "/api/cron/costs-monitor", 10_000),
     runTask("fristen-reminder", baseUrl, "/api/cron/fristen-reminder", 15_000),
+    runTask("subscription-expiry", baseUrl, "/api/cron/subscription-expiry", 15_000),
   ];
 
   const dailyResults = await Promise.allSettled(dailyTasks);
@@ -117,8 +119,16 @@ export async function GET(req: NextRequest) {
 
   // --- Woechentliche Tasks (sequentiell, nur am richtigen Tag) ---
   if (dayOfWeek === 0) {
-    // Sonntag: agent-batch
-    results.push(await runTask("agent-batch", baseUrl, "/api/cron/agent-batch", 20_000));
+    // Sonntag: agent-batch + urteile-update (parallel)
+    const sundayTasks = [
+      runTask("agent-batch", baseUrl, "/api/cron/agent-batch", 20_000),
+      runTask("urteile-update", baseUrl, "/api/cron/urteile-update", 40_000),
+    ];
+    const sundayResults = await Promise.allSettled(sundayTasks);
+    for (const r of sundayResults) {
+      if (r.status === "fulfilled") results.push(r.value);
+      else results.push({ name: "sunday-task", success: false, durationMs: 0, error: String(r.reason) });
+    }
   }
   if (dayOfWeek === 2) {
     // Dienstag: design-audit
@@ -131,6 +141,10 @@ export async function GET(req: NextRequest) {
   if (dayOfWeek === 4) {
     // Donnerstag: design-guardian
     results.push(await runTask("design-guardian", baseUrl, "/api/cron/design-guardian", 10_000));
+  }
+  if (dayOfWeek === 5) {
+    // Freitag: feedback-learner (AG20)
+    results.push(await runTask("feedback-learner", baseUrl, "/api/cron/feedback-learner", 15_000));
   }
 
   // --- Monatliche Tasks ---

@@ -60,12 +60,20 @@ export async function POST(request: NextRequest) {
       if (membership?.org_id) {
         const { data: org } = await supabaseAdmin
           .from('organizations')
-          .select('analyses_total, analyses_used')
+          .select('analyses_total, analyses_used, expires_at')
           .eq('id', membership.org_id)
           .single();
 
         if (!org) {
           return NextResponse.json({ error: 'Einrichtung nicht gefunden' }, { status: 404 });
+        }
+
+        // Org-Ablauf prüfen
+        if (org.expires_at && new Date(org.expires_at) < new Date()) {
+          return NextResponse.json(
+            { error: 'Das Abonnement Ihrer Einrichtung ist abgelaufen. Bitte den Einrichtungs-Admin kontaktieren.', analyses_remaining: 0 },
+            { status: 403 }
+          );
         }
 
         const remaining = org.analyses_total - org.analyses_used;
@@ -133,6 +141,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { error: 'Kein Abonnement gefunden.' },
         { status: 404 }
+      );
+    }
+
+    // Ablauf prüfen: expires_at in der Vergangenheit → kein Zugang
+    if (!isDevUnlimited && subscription.expires_at && new Date(subscription.expires_at) < new Date()) {
+      return NextResponse.json(
+        { error: 'Ihr Abonnement ist abgelaufen.', analyses_remaining: 0, subscription_type: subscription.subscription_type },
+        { status: 403 }
       );
     }
 
