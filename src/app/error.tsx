@@ -23,7 +23,7 @@ export default function Error({
         </div>
         <h1 className="text-xl font-bold mb-4">Etwas ist schiefgelaufen</h1>
         <p className="text-[var(--text-muted)] text-sm mb-6 max-w-md text-center">
-          {error.message || "Ein unerwarteter Fehler ist aufgetreten."}
+          Ein unerwarteter Fehler ist aufgetreten. Bitte versuchen Sie es erneut.
         </p>
         <div className="flex gap-4">
           <button
