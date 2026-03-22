@@ -9,7 +9,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { getAuthenticatedUser } from "@/lib/supabase/auth";
-import { reportInfo } from "@/lib/error-reporter";
+import { reportError, reportInfo } from "@/lib/error-reporter";
 
 export const runtime = "nodejs";
 
@@ -76,6 +76,10 @@ export async function DELETE(req: NextRequest) {
   });
 
   if (hasErrors) {
+    reportError(new Error("Account-Löschung teilweise fehlgeschlagen"), {
+      context: "account-delete",
+      tables: deletions.filter((d) => !d.ok).map((d) => `${d.table}:${d.error}`).join(", "),
+    });
     return NextResponse.json({
       error: "Einige Daten konnten nicht gelöscht werden. Bitte kontaktieren Sie datenschutz@bescheidrecht.de.",
       details: deletions.filter((d) => !d.ok),

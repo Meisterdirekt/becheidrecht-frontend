@@ -8,6 +8,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { getAuthenticatedUser } from "@/lib/supabase/auth";
+import { reportError } from "@/lib/error-reporter";
 
 export const runtime = "nodejs";
 

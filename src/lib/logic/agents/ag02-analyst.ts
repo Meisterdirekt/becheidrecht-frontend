@@ -39,15 +39,19 @@ const TOOLS: Anthropic.Tool[] = [
 ];
 
 // ---------------------------------------------------------------------------
-// False-Positive-Signale aus Nutzerfeedback (AG20 → feedback_stats)
+// Feedback-Signale aus Nutzerfeedback (AG20 → feedback_stats)
+// Zwei Richtungen: False Positives (Vorsicht) + True Positives (bestaetigt)
 // ---------------------------------------------------------------------------
 
-async function loadFalsePositiveSignals(): Promise<string> {
+async function loadFeedbackSignals(): Promise<string> {
   try {
-    const result = await executeDbRead("feedback_stats", undefined, 20);
+    const result = await executeDbRead("feedback_stats", undefined, 30);
     if (!result.available || result.rows.length === 0) return "";
 
-    const signals = result.rows
+    const parts: string[] = [];
+
+    // 1. False Positives — Fehler die haeufig NICHT zutrafen
+    const fpSignals = result.rows
       .filter(
         (r) =>
           (r.false_positive_rate as number) >= 30 &&
@@ -59,19 +63,46 @@ async function loadFalsePositiveSignals(): Promise<string> {
       )
       .slice(0, 10);
 
-    if (signals.length === 0) return "";
+    if (fpSignals.length > 0) {
+      const fpLines = fpSignals.map(
+        (s) =>
+          `- ${s.fehler_id} (${Math.round(s.false_positive_rate as number)}% false positive, n=${s.total_count})`,
+      );
+      parts.push(
+        `BEKANNTE FALSE POSITIVES (aus Nutzerfeedback):\n` +
+        `Diese Fehler-IDs wurden haeufig als nicht zutreffend markiert. ` +
+        `Pruefe besonders kritisch ob sie WIRKLICH auf diesen Bescheid zutreffen:\n` +
+        fpLines.join("\n"),
+      );
+    }
 
-    const lines = signals.map(
-      (s) =>
-        `- ${s.fehler_id} (${Math.round(s.false_positive_rate as number)}% false positive, n=${s.total_count})`,
-    );
+    // 2. True Positives — Fehler die haeufig BESTAETIGT wurden
+    const tpSignals = result.rows
+      .filter(
+        (r) =>
+          (r.true_positive_rate as number) >= 60 &&
+          (r.total_count as number) >= 3,
+      )
+      .sort(
+        (a, b) =>
+          (b.true_positive_rate as number) - (a.true_positive_rate as number),
+      )
+      .slice(0, 10);
 
-    return (
-      `\n\nBEKANNTE FALSE POSITIVES (aus Nutzerfeedback):\n` +
-      `Diese Fehler-IDs wurden haeufig als nicht zutreffend markiert. ` +
-      `Pruefe besonders kritisch ob sie WIRKLICH auf diesen Bescheid zutreffen:\n` +
-      lines.join("\n")
-    );
+    if (tpSignals.length > 0) {
+      const tpLines = tpSignals.map(
+        (s) =>
+          `- ${s.fehler_id} (${Math.round(s.true_positive_rate as number)}% bestaetigt, n=${s.total_count})`,
+      );
+      parts.push(
+        `HAEUFIG BESTAETIGTE FEHLER (aus Nutzerfeedback):\n` +
+        `Diese Fehler-IDs wurden von Nutzern ueberdurchschnittlich oft als korrekt bestaetigt. ` +
+        `Pruefe gezielt ob sie auch auf diesen Bescheid zutreffen:\n` +
+        tpLines.join("\n"),
+      );
+    }
+
+    return parts.length > 0 ? "\n\n" + parts.join("\n\n") : "";
   } catch {
     return ""; // Graceful degradation
   }
@@ -111,13 +142,13 @@ async function execute(ctx: AgentContext): Promise<AgentResult<AnalyseResult>> {
     ? `\n\nHINTERGRUND VOM NUTZER:\n${ctx.userContext}`
     : "";
 
-  // False-Positive-Signale aus Nutzerfeedback laden (AG20 schreibt in feedback_stats)
-  const fpWarning = await loadFalsePositiveSignals();
+  // Feedback-Signale laden: False Positives (Vorsicht) + True Positives (bestaetigt)
+  const feedbackSignals = await loadFeedbackSignals();
 
   const messages: Anthropic.MessageParam[] = [
     {
       role: "user",
-      content: `Analysiere diesen Bescheid auf Fehler:${triageInfo}${nutzerKontext}${fpWarning}\n\n${ctx.documentText}`,
+      content: `Analysiere diesen Bescheid auf Fehler:${triageInfo}${nutzerKontext}${feedbackSignals}\n\n${ctx.documentText}`,
     },
   ];
 
