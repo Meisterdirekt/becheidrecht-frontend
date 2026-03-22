@@ -58,8 +58,8 @@ function buildPDF(doc: jsPDF, content: string, findings?: string[]): jsPDF {
   // § 2 RDG Disclaimer (Pflicht)
   const disclaimer =
     "Hinweis gemäß § 2 RDG: Dieses Schreiben ist ein KI-gestützter Entwurf und kein Ersatz für eine " +
-    "qualifizierte Rechtsberatung. Bei rechtlich komplexen Sachverhalten empfehlen wir die Konsultation " +
-    "eines Rechtsanwalts oder einer Beratungsstelle.";
+    "qualifizierte Rechtsberatung. Bei rechtlich komplexen Sachverhalten ziehen Sie bitte die Konsultation " +
+    "eines Rechtsanwalts oder einer Beratungsstelle (z.B. VdK, Sozialverband) in Betracht.";
   const pageHeight = doc.internal.pageSize.getHeight();
   doc.setFontSize(8);
   doc.setTextColor(120);

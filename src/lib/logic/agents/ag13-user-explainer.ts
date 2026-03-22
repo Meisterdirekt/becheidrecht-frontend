@@ -55,7 +55,10 @@ async function execute(ctx: AgentContext): Promise<AgentResult<ErklaerungResult>
   }
 
   if (ctx.pipeline.kritik) {
-    kontext += `\nErfolgschance: ${ctx.pipeline.kritik.erfolgschance_prozent}%`;
+    // Erfolgschance als qualitative Stufe — KEINE Prozentzahlen an LLM weiterleiten (§ 2 RDG)
+    const ep = ctx.pipeline.kritik.erfolgschance_prozent;
+    const stufe = ep >= 70 ? "hoch" : ep >= 40 ? "mittel" : "gering";
+    kontext += `\nEinschätzung Widerspruchsaussicht: ${stufe}`;
   }
 
   if (ctx.userContext) {
@@ -68,8 +71,10 @@ async function execute(ctx: AgentContext): Promise<AgentResult<ErklaerungResult>
 
   if (ctx.pipeline.praezedenz) {
     const p = ctx.pipeline.praezedenz;
-    if (p.aehnliche_faelle > 0 && p.erfolgsquote_prozent !== null) {
-      kontext += `\nPräzedenzfälle: ${p.aehnliche_faelle} ähnliche Fälle, historische Erfolgsquote ${p.erfolgsquote_prozent}%`;
+    if (p.aehnliche_faelle > 0) {
+      // KEINE Prozentzahlen an LLM weiterleiten — § 2 RDG verbietet konkrete Erfolgsaussagen
+      kontext += `\nPräzedenzfälle: ${p.aehnliche_faelle} ähnliche Fälle vorhanden`;
+      if (p.hinweis) kontext += ` — ${p.hinweis}`;
     }
   }
 
