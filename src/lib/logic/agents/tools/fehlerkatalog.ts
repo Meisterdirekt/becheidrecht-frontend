@@ -155,9 +155,10 @@ export function executeSucheFehlerkatalog(
           stichworten.some((s) => s.toLowerCase().includes(sb.toLowerCase()) || sb.toLowerCase().includes(s.toLowerCase()))
         ).length;
 
-        // Spezifischer Match: Mindestens 1 NICHT-generischer Begriff muss matchen.
-        // Ohne das matchen Einträge mit Suchbegriffen wie ['Widerspruch', 'Frist', 'Begründung']
-        // bei JEDEM Bescheid — das sind keine echten Fehler-Signale.
+        // Spezifischer Match: Mindestens 1 NICHT-generischer Begriff muss matchen —
+        // und zwar auf BEIDEN Seiten des Matches. Ohne das matchen Einträge wie
+        // ['Widerspruch', 'Frist', 'Begründung'] bei JEDEM Bescheid, und generische
+        // Inputs wie "frist" triggern Compound-Suchbegriffe wie "Rahmenfrist".
         const hasSpecificForward = stichworten.some(s => {
           const lower = s.toLowerCase();
           if (isGeneric(lower)) return false;
@@ -165,9 +166,11 @@ export function executeSucheFehlerkatalog(
         });
         const hasSpecificReverse = (item.prueflogik?.suchbegriffe ?? []).some(sb => {
           if (isGeneric(sb)) return false;
-          return stichworten.some(s =>
-            s.toLowerCase().includes(sb.toLowerCase()) || sb.toLowerCase().includes(s.toLowerCase())
-          );
+          // Auch das Input-Keyword muss spezifisch sein — sonst matcht "frist" ⊂ "Rahmenfrist"
+          return stichworten.some(s => {
+            if (isGeneric(s)) return false;
+            return s.toLowerCase().includes(sb.toLowerCase()) || sb.toLowerCase().includes(s.toLowerCase());
+          });
         });
         const hasSpecificMatch = hasSpecificForward || hasSpecificReverse;
 
