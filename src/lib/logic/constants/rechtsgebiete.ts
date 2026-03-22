@@ -47,13 +47,17 @@ export const SGB_TO_RECHTSGEBIET: Record<string, Rechtsgebiet> = {
   SGB_III: "ALG",
   SGB_V: "KK",
   SGB_VI: "DRV",
+  SGB_VII: "UV",
+  SGB_VIII: "JA",
   SGB_IX: "EH",
   SGB_XI: "PK",
   SGB_XII: "SH",
   ASYL: "BAMF",
   BAFOEG: "BAF",
+  BEEG: "EG",
   KINDERGELD: "FK",
   WOHNGELD: "WG",
+  UVG: "UVS",
 };
 
 // ---------------------------------------------------------------------------

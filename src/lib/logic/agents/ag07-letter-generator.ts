@@ -147,7 +147,7 @@ async function executeWithOpenAI(
   const apiKey = getOpenAIKey();
   if (!apiKey) throw new Error("OpenAI-Key fehlt");
 
-  const openai = new OpenAI({ apiKey });
+  const openai = new OpenAI({ apiKey, defaultHeaders: { "X-No-Store": "true" } });
   const systemPrompt = getSystemPrompt("AG07");
 
   // Weisungen laden wenn SGB II / SGB III

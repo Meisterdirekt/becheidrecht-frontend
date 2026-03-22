@@ -39,7 +39,11 @@ export function getOpenAIKey(): string | null {
 
 /** Erstellt einen Anthropic-Client — SDK-Retry für transiente Fehler (529), safeExecute für Agent-Level-Retry */
 export function createAnthropicClient(apiKey: string): Anthropic {
-  return new Anthropic({ apiKey, maxRetries: 2 });
+  return new Anthropic({
+    apiKey,
+    maxRetries: 2,
+    defaultHeaders: { "anthropic-beta": "no-store-2025-01-01" },
+  });
 }
 
 // ---------------------------------------------------------------------------
@@ -216,12 +220,12 @@ const TRAEGER_KEYWORDS: [string, string[]][] = [
   ["unterhaltsvorschuss", ["unterhaltsvorschuss", "uvg", "unterhaltsvorschussgesetz"]],
 ];
 
-export function detectTraegerKey(behoerde: string): string {
+export function detectTraegerKey(behoerde: string): string | null {
   const lower = behoerde.toLowerCase();
   for (const [key, keywords] of TRAEGER_KEYWORDS) {
     if (keywords.some((kw) => lower.includes(kw))) return key;
   }
-  return "jobcenter";
+  return null;
 }
 
 // ---------------------------------------------------------------------------

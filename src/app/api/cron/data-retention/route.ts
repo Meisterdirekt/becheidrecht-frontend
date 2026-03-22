@@ -89,11 +89,12 @@ export async function GET(req: Request) {
     ...(fOpenError && { error: fOpenError.message }),
   });
 
-  // demo_requests älter als 180 Tage (abgeschlossene Leads)
+  // demo_requests älter als 180 Tage (nur abgeschlossene Leads — Status "neu" behalten)
   const { data: drData, error: drError } = await supabase
     .from("demo_requests")
     .delete()
     .lt("created_at", cutoffLeads)
+    .in("status", ["kontaktiert", "konvertiert", "abgelehnt"])
     .select("id");
 
   results.push({

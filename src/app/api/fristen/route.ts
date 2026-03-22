@@ -162,6 +162,49 @@ export async function POST(req: NextRequest) {
 }
 
 // ---------------------------------------------------------------------------
+// DELETE /api/fristen — Einzelne Frist löschen (Art. 17 DSGVO)
+// ---------------------------------------------------------------------------
+
+export async function DELETE(req: NextRequest) {
+  const auth = await getTokenAndUser(req);
+  if (!auth) {
+    return NextResponse.json({ error: "Nicht angemeldet." }, { status: 401 });
+  }
+
+  const { success: rateLimitOk } = await fristenLimiter.limit(auth.userId);
+  if (!rateLimitOk) {
+    return NextResponse.json({ error: "Zu viele Anfragen. Bitte kurz warten." }, { status: 429 });
+  }
+
+  const supabase = getUserClient(auth.token);
+  if (!supabase) {
+    return NextResponse.json({ error: "Datenbank nicht konfiguriert." }, { status: 500 });
+  }
+
+  let body: Record<string, unknown>;
+  try {
+    body = await req.json();
+  } catch {
+    return NextResponse.json({ error: "Ungültige JSON-Daten." }, { status: 400 });
+  }
+
+  const { id } = body as { id?: string };
+  if (!id) {
+    return NextResponse.json({ error: "id ist erforderlich." }, { status: 400 });
+  }
+
+  // RLS stellt sicher dass nur eigene Einträge gelöscht werden
+  const { error } = await supabase.from("user_fristen").delete().eq("id", id);
+
+  if (error) {
+    await reportError(error, { context: "fristen/DELETE" });
+    return NextResponse.json({ error: "Fehler beim Löschen." }, { status: 500 });
+  }
+
+  return NextResponse.json({ success: true });
+}
+
+// ---------------------------------------------------------------------------
 // PATCH /api/fristen — Status oder Notiz updaten
 // ---------------------------------------------------------------------------
 

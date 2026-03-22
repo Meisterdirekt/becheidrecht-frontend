@@ -161,17 +161,31 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const openai = new OpenAI({ apiKey });
+    const openai = new OpenAI({ apiKey, defaultHeaders: { "X-No-Store": "true" } });
     const behoerdeLabel = getTraegerLabel(behoerde);
     const typLabel = getSchreibentypLabel(schreibentyp);
 
-    // Pseudonymisierung: Freitext vor KI-Übertragung anonymisieren
+    // Pseudonymisierung: Freitext + Aktenzeichen/Datum vor KI-Übertragung anonymisieren
     const { pseudonymized: stichpunkteAnon, map: stichpunkteMap } = pseudonymizeText(stichpunkteTrim);
+    const { pseudonymized: azAnon, map: azMap } = aktenzeichen ? pseudonymizeText(aktenzeichen) : { pseudonymized: "", map: null };
+    const { pseudonymized: datumAnon, map: datumMap } = bescheiddatum ? pseudonymizeText(bescheiddatum) : { pseudonymized: "", map: null };
+
+    // Alle Maps zusammenführen für spätere De-Pseudonymisierung
+    if (azMap) {
+      for (const key of Object.keys(azMap) as (keyof typeof azMap)[]) {
+        stichpunkteMap[key].push(...azMap[key]);
+      }
+    }
+    if (datumMap) {
+      for (const key of Object.keys(datumMap) as (keyof typeof datumMap)[]) {
+        stichpunkteMap[key].push(...datumMap[key]);
+      }
+    }
 
     const userMessage = `Behörde: ${behoerdeLabel}
 Schreibentyp: ${typLabel}
-Aktenzeichen: ${aktenzeichen || "[vom Nutzer nicht angegeben – im Schreiben Platzhalter verwenden]"}
-Bescheiddatum: ${bescheiddatum || "[vom Nutzer nicht angegeben – im Schreiben Platzhalter verwenden]"}
+Aktenzeichen: ${azAnon || "[vom Nutzer nicht angegeben – im Schreiben Platzhalter verwenden]"}
+Bescheiddatum: ${datumAnon || "[vom Nutzer nicht angegeben – im Schreiben Platzhalter verwenden]"}
 
 Situation:
 ${stichpunkteAnon}

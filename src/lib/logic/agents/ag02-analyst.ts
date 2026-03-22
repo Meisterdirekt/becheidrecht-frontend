@@ -76,13 +76,13 @@ async function execute(ctx: AgentContext): Promise<AgentResult<AnalyseResult>> {
     },
   ];
 
-  // Primärer Träger-Key aus Behördenname
+  // Primärer Träger-Key aus Behördenname (null wenn unerkannt)
   const traegerKey = ctx.pipeline.triage
     ? detectTraegerKey(ctx.pipeline.triage.behoerde)
-    : "jobcenter";
+    : null;
 
   // Multi-Rechtsgebiet: Auch Prefixes der weiteren Rechtsgebiete sammeln
-  const allTraegerKeys = new Set<string>([traegerKey]);
+  const allTraegerKeys = new Set<string>(traegerKey ? [traegerKey] : []);
   if (weitereRg) {
     for (const sgb of weitereRg) {
       const normalized = normalizeSgb(sgb);

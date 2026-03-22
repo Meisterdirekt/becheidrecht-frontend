@@ -233,6 +233,11 @@ export default function AvvPage() {
                     <td className="py-3 pr-4">E-Mail-Versand (Fristen-Erinnerungen)</td>
                     <td className="py-3">USA — DPA + SCCs</td>
                   </tr>
+                  <tr className="border-b border-[var(--border)]">
+                    <td className="py-3 pr-4 font-medium text-[var(--text)]">Tavily Inc.</td>
+                    <td className="py-3 pr-4">Web-Recherche für Rechtsgrundlagen (nur pseudonymisierte Daten)</td>
+                    <td className="py-3">USA — DPA + SCCs</td>
+                  </tr>
                   <tr>
                     <td className="py-3 pr-4 font-medium text-[var(--text)]">Upstash Inc.</td>
                     <td className="py-3 pr-4">Rate-Limiting (Redis, keine personenbezogenen Daten)</td>

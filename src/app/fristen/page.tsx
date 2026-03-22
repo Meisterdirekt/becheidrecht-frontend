@@ -14,6 +14,7 @@ import {
   ChevronUp,
   Loader2,
   Plus,
+  Trash2,
 } from "lucide-react";
 import { SiteNavSimple } from "@/components/SiteNav";
 import { SiteFooter } from "@/components/SiteFooter";
@@ -81,6 +82,7 @@ function FristCard({
   const [expanded, setExpanded] = useState(false);
   const [notizInput, setNotizInput] = useState(frist.notizen ?? "");
   const [updating, setUpdating] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const cfg = STATUS_CONFIG[frist.status] ?? STATUS_CONFIG.offen;
   const Icon = cfg.icon;
@@ -115,6 +117,29 @@ function FristCard({
       toast.success("Status geändert");
     } finally {
       setUpdating(false);
+    }
+  }
+
+  async function deleteFrist() {
+    setUpdating(true);
+    try {
+      const res = await fetch("/api/fristen", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ id: frist.id }),
+      });
+      if (res.ok) {
+        onUpdate();
+        toast.success("Frist gelöscht");
+      } else {
+        toast.error("Fehler beim Löschen");
+      }
+    } finally {
+      setUpdating(false);
+      setShowDeleteConfirm(false);
     }
   }
 
@@ -294,6 +319,34 @@ function FristCard({
               year: "numeric",
             })}
           </p>
+
+          {/* Frist löschen — Art. 17 DSGVO */}
+          <div className="pt-3 border-t border-white/5">
+            {!showDeleteConfirm ? (
+              <button
+                onClick={() => setShowDeleteConfirm(true)}
+                className="text-[10px] font-bold uppercase tracking-widest text-red-400/60 hover:text-red-400 transition-colors flex items-center gap-1"
+              >
+                <Trash2 size={10} /> Frist löschen
+              </button>
+            ) : (
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={deleteFrist}
+                  disabled={updating}
+                  className="px-3 py-1 rounded-lg bg-red-500/20 border border-red-500/30 text-red-400 text-[10px] font-bold uppercase tracking-widest hover:bg-red-500/30 transition-colors disabled:opacity-50"
+                >
+                  {updating ? <Loader2 size={10} className="animate-spin" /> : "Endgültig löschen"}
+                </button>
+                <button
+                  onClick={() => setShowDeleteConfirm(false)}
+                  className="px-3 py-1 rounded-lg border border-white/10 text-white/40 text-[10px] font-bold uppercase tracking-widest hover:text-white/60 transition-colors"
+                >
+                  Abbrechen
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>

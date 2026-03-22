@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { createBrowserClient } from "@supabase/ssr";
-import { User, Download, Trash2, Save, Loader2, LogOut, AlertTriangle } from "lucide-react";
+import { User, Download, Trash2, Save, Loader2, LogOut, AlertTriangle, ShieldCheck, ShieldOff } from "lucide-react";
 import { SiteNavSimple } from "@/components/SiteNav";
 import { SiteFooter } from "@/components/SiteFooter";
 
@@ -29,6 +29,7 @@ export default function KontoPage() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [consentUpdating, setConsentUpdating] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -146,6 +147,23 @@ export default function KontoPage() {
     }
   }, [token, router]);
 
+  const handleConsentRevoke = useCallback(async () => {
+    if (!token) return;
+    setConsentUpdating(true);
+    try {
+      const res = await fetch("/api/account/consent", {
+        method: "PATCH",
+        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ consent_given: false }),
+      });
+      if (res.ok) {
+        setProfile((p) => ({ ...p, consent_given: false }));
+      }
+    } finally {
+      setConsentUpdating(false);
+    }
+  }, [token]);
+
   const handleLogout = useCallback(async () => {
     try {
       const res = await fetch("/api/auth-config", { cache: "no-store" });
@@ -248,6 +266,39 @@ export default function KontoPage() {
               {exporting ? <Loader2 size={16} className="animate-spin" /> : <Download size={16} />}
               {exporting ? "Wird exportiert …" : "Daten herunterladen"}
             </button>
+          </section>
+
+          {/* Einwilligung — Art. 7 Abs. 3 DSGVO */}
+          <section className="rounded-2xl border border-white/10 bg-white/[0.04] p-6 md:p-8 space-y-4">
+            <h2 className="text-sm font-bold uppercase tracking-widest text-white/40">Meine Einwilligung</h2>
+            <div className="text-sm text-white/60 space-y-1">
+              <p className="flex items-center gap-2">
+                {profile.consent_given ? (
+                  <><ShieldCheck size={14} className="text-green-400" /> Einwilligung erteilt</>
+                ) : (
+                  <><ShieldOff size={14} className="text-red-400" /> Keine aktive Einwilligung</>
+                )}
+              </p>
+              {profile.consent_timestamp && (
+                <p className="text-xs text-white/30">
+                  Erteilt am: {new Date(profile.consent_timestamp).toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" })}
+                </p>
+              )}
+            </div>
+            <p className="text-xs text-white/40">
+              Mit Ihrer Einwilligung erlauben Sie die Verarbeitung Ihrer hochgeladenen Bescheide durch unsere KI-Analyse.
+              Bei Widerruf können Sie keine neuen Analysen mehr durchführen. Bestehende Daten bleiben bis zur Konto-Löschung gespeichert.
+            </p>
+            {profile.consent_given && (
+              <button
+                onClick={handleConsentRevoke}
+                disabled={consentUpdating}
+                className="py-2 px-5 rounded-xl border border-amber-500/30 text-amber-400 text-sm font-medium hover:bg-amber-500/10 transition-colors inline-flex items-center gap-2 disabled:opacity-50"
+              >
+                {consentUpdating ? <Loader2 size={14} className="animate-spin" /> : <ShieldOff size={14} />}
+                Einwilligung widerrufen
+              </button>
+            )}
           </section>
 
           {/* Abmelden */}

@@ -50,7 +50,7 @@ export async function runForensicAnalysis(documentText: string) {
   try {
     const openAiKey = getOpenAIKey();
     if (!openAiKey) return { musterschreiben: "OpenAI-Key fehlt. Bitte OPENAI_API_KEY in den Umgebungsvariablen (z. B. Vercel) setzen.", fehler: [] };
-    const openai = new OpenAI({ apiKey: openAiKey });
+    const openai = new OpenAI({ apiKey: openAiKey, defaultHeaders: { "X-No-Store": "true" } });
     const { omegaPrompt, errorCatalog } = loadPromptAndCatalog();
     const behoerdenLogik = loadBehoerdenfehlerLogik();
     const weisungenBA = loadWeisungenBA();

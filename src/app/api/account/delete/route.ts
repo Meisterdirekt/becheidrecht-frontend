@@ -57,6 +57,13 @@ export async function DELETE(req: NextRequest) {
   const { error: profileError } = await supabase.from("profiles").delete().eq("id", user.id);
   deletions.push({ table: "profiles", ok: !profileError, ...(profileError && { error: profileError.message }) });
 
+  // site_feedback löschen (referenziert per email, nicht user_id)
+  const { data: { user: authUser } } = await supabase.auth.admin.getUserById(user.id);
+  if (authUser?.email) {
+    const { error: fbError } = await supabase.from("site_feedback").delete().eq("email", authUser.email);
+    deletions.push({ table: "site_feedback", ok: !fbError, ...(fbError && { error: fbError.message }) });
+  }
+
   // Auth-User löschen (endgültig)
   const { error: authError } = await supabase.auth.admin.deleteUser(user.id);
   deletions.push({ table: "auth.users", ok: !authError, ...(authError && { error: authError.message }) });
