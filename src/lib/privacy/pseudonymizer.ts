@@ -12,6 +12,7 @@ export interface PseudonymizationMap {
   bankAccount: string[];
   taxId: string[];
   socialSecurityNumber: string[];
+  healthInsuranceNumber: string[];
   email: string[];
   phone: string[];
   bic: string[];
@@ -40,6 +41,7 @@ export function pseudonymizeText(text: string): {
     bankAccount: [],
     taxId: [],
     socialSecurityNumber: [],
+    healthInsuranceNumber: [],
     email: [],
     phone: [],
     bic: [],
@@ -95,6 +97,18 @@ export function pseudonymizeText(text: string): {
     pushAndReplace(map, 'socialSecurityNumber', match, '[SV_NUMMER')
   );
 
+  // KRANKENVERSICHERUNGSNUMMERN (GKV: Buchstabe + 9 Ziffern, z.B. A123456789)
+  // Kontextgebunden: nach Schlüsselwörtern wie "Versichertennummer", "KV-Nr", etc.
+  const kvContextRegex = /(?:Versichertennummer|Versicherungsnummer|KV-?Nr\.?|Krankenversicherung(?:snummer)?|Mitgliedsnummer|KV-Nummer)[:\s]+([A-Z]\d{9})\b/gi;
+  pseudonymized = pseudonymized.replace(kvContextRegex, (full, nr) =>
+    full.replace(nr, pushAndReplace(map, 'healthInsuranceNumber', nr, '[KV_NUMMER'))
+  );
+  // Standalone: Buchstabe + exakt 9 Ziffern (häufiges GKV-Format)
+  const kvStandaloneRegex = /\b([A-Z]\d{9})\b/g;
+  pseudonymized = pseudonymized.replace(kvStandaloneRegex, (match) =>
+    pushAndReplace(map, 'healthInsuranceNumber', match, '[KV_NUMMER')
+  );
+
   // STEUER-IDs (11 Ziffern in allen gängigen Formaten)
   // Format 1: Nach Kontext-Schlüsselwort (mit oder ohne Leerzeichen in der Nummer)
   const taxIdContextRegex = /(?:Steuer-?ID|Steuer-?Identifikationsnummer|IdNr\.?|Identifikationsnummer|St\.-?Nr\.?|Steuernummer)[:\s]*(\d[\d\s]{9,14}\d)/gi;
@@ -148,11 +162,7 @@ export function pseudonymizeText(text: string): {
     pushAndReplace(map, 'address', match, '[PLZ_ORT')
   );
 
-  // AKTENZEICHEN (kontextgebunden nach Schlüsselwörtern)
-  const caseNumberContextRegex = /(?:Aktenzeichen|Az\.?|Geschäftszeichen|Gz\.?|Unser Zeichen|Ihr Zeichen|BG-Nr\.?|Vorgangsnummer|Kundennummer)[:\s]+([^\n,;]{3,30})/gi;
-  pseudonymized = pseudonymized.replace(caseNumberContextRegex, (full, id) =>
-    full.replace(id, pushAndReplace(map, 'caseNumber', id.trim(), '[AKTENZEICHEN'))
-  );
+  // AKTENZEICHEN — spezifische Muster ZUERST (vor Kontext-Regex, sonst werden sie verschluckt)
 
   // Standalone Jobcenter-Aktenzeichen (JC-YYYY-NNNNNN)
   const caseNumberJCRegex = /\bJC-\d{4}-\d{4,8}\b/g;
@@ -165,6 +175,14 @@ export function pseudonymizeText(text: string): {
   pseudonymized = pseudonymized.replace(caseNumberCourtRegex, (match) =>
     pushAndReplace(map, 'caseNumber', match, '[AKTENZEICHEN')
   );
+
+  // Kontext-Aktenzeichen (nach Schlüsselwörtern — generischer Fallback)
+  // Überspringe Matches die bereits einen Platzhalter enthalten (von spezifischeren Regexes oben)
+  const caseNumberContextRegex = /(?:Aktenzeichen|Az\.?|Geschäftszeichen|Gz\.?|Unser Zeichen|Ihr Zeichen|BG-Nr\.?|Vorgangsnummer|Kundennummer)[:\s]+([^\n,;]{3,30})/gi;
+  pseudonymized = pseudonymized.replace(caseNumberContextRegex, (full, id) => {
+    if (/\[AKTENZEICHEN_\d+\]/.test(id)) return full;
+    return full.replace(id, pushAndReplace(map, 'caseNumber', id.trim(), '[AKTENZEICHEN'));
+  });
 
   // Häufige deutsche Wörter/Begriffe die KEINE Namen sind (Behörden-Sprache)
   const NO_NAME = new Set([
@@ -213,34 +231,44 @@ export function pseudonymizeText(text: string): {
     return !NO_NAME.has(word);
   }
 
+  // Adelspräfixe — zählen als Namensteil, obwohl sie klein geschrieben sind
+  const ADELS_PRAEFIXE = ['von', 'van', 'de', 'zu', 'vom', 'zum', 'zur', 'der', 'den', 'ten'];
+  const adelsSet = new Set(ADELS_PRAEFIXE);
+
   // Namens-Segment: Groß-Buchstabe + Kleinbuchstaben, optional mit Bindestrich-Teil
   const nameSeg = '[A-ZÄÖÜ][a-zäöüß]+(?:-[A-ZÄÖÜ][a-zäöüß]+)*';
+  // Adelspräfix-Segment: optionale Kette von Kleinbuchstaben-Wörtern (von, der, zu, ...)
+  const adelsSeg = `(?:(?:${ADELS_PRAEFIXE.join('|')})[ \\t]+)*`;
 
-  // NAMEN "NACHNAME, Vorname" — Komma-Format ist eindeutig (z.B. "Maier-Schulze, Karl-Heinz")
-  const nameCommaRegex = new RegExp(`\\b(${nameSeg},[ \\t]*${nameSeg}(?:[ \\t]+${nameSeg})*)`, 'g');
+  // NAMEN "NACHNAME, Vorname" — Komma-Format (z.B. "Maier-Schulze, Karl-Heinz")
+  // Stoppt vor Anrede-Wörtern damit "Hoffmann, Herr Karl" nicht als ein Name gematcht wird
+  const ANREDE_STOP = '(?:Herr|Frau|Sachbearbeiter|Antragsteller(?:in)?|Bearbeiter(?:in)?)';
+  const nameCommaRegex = new RegExp(`\\b(${nameSeg},[ \\t]*(?!${ANREDE_STOP}\\b)${adelsSeg}${nameSeg}(?:[ \\t]+(?!${ANREDE_STOP}\\b)${adelsSeg}${nameSeg})*)`, 'g');
   pseudonymized = pseudonymized.replace(nameCommaRegex, (match) => {
     const firstWord = match.split(/[-,\s]/)[0];
     return isName(firstWord) ? pushAndReplace(map, 'name', match, '[NAME') : match;
   });
 
   // NAMEN nach expliziten Kontext-Signalen: "Herr/Frau X", "Sachbearbeiter: X Y"
+  // Unterstützt Adelspräfixe: "Herr Karl-Heinz von der Heide"
   const nameContextRegex = new RegExp(
-    `(?:(?:Herr|Frau|Sachbearbeiter|Antragsteller(?:in)?|Bearbeiter(?:in)?)[ \\t]+)(${nameSeg}(?:[ \\t]+${nameSeg})*)`,
+    `(?:(?:Herr|Frau|Sachbearbeiter|Antragsteller(?:in)?|Bearbeiter(?:in)?)[ \\t]+)(${adelsSeg}${nameSeg}(?:[ \\t]+${adelsSeg}${nameSeg})*)`,
     'g'
   );
   pseudonymized = pseudonymized.replace(nameContextRegex, (full, name) => {
     const parts = name.trim().split(/\s+/);
-    if (parts.every((p: string) => isName(p.split('-')[0]))) {
+    if (parts.every((p: string) => adelsSet.has(p) || isName(p.split('-')[0]))) {
       return full.replace(name, pushAndReplace(map, 'name', name.trim(), '[NAME'));
     }
     return full;
   });
 
   // NAMEN im "Vorname Nachname"-Format (kein Match über Zeilenumbrüche)
-  const nameRegex = new RegExp(`\\b(${nameSeg}(?:[ \\t]+${nameSeg})+)\\b`, 'g');
+  // Unterstützt Adelspräfixe: "Karl-Heinz von der Heide"
+  const nameRegex = new RegExp(`\\b(${nameSeg}(?:[ \\t]+${adelsSeg}${nameSeg})+)\\b`, 'g');
   pseudonymized = pseudonymized.replace(nameRegex, (match) => {
     const parts = match.split(/\s+/);
-    if (parts.length >= 2 && parts.every((p: string) => isName(p.split('-')[0]))) {
+    if (parts.length >= 2 && parts.every((p: string) => adelsSet.has(p) || isName(p.split('-')[0]))) {
       return pushAndReplace(map, 'name', match, '[NAME');
     }
     return match;
@@ -299,6 +327,10 @@ export function depseudonymizeText(
   map.socialSecurityNumber.forEach((original, index) => {
     const placeholder = `[SV_NUMMER_${index + 1}]`;
     depseudonymized = depseudonymized.replace(re(placeholder), original);
+  });
+
+  map.healthInsuranceNumber.forEach((original, index) => {
+    depseudonymized = depseudonymized.replace(re(`[KV_NUMMER_${index + 1}]`), original);
   });
 
   map.email.forEach((original, index) => {

@@ -69,10 +69,11 @@ describe('pseudonymizer', () => {
   });
 
   it('Aktenzeichen nach Kontext-Schlüsselwort werden pseudonymisiert', () => {
-    const text = 'Aktenzeichen: JC-2024-001234, Bescheid vom 01.01.2025';
+    // Generisches Aktenzeichen (kein JC-Format) — nur Kontext-Regex
+    const text = 'Aktenzeichen: 456-789-2024, Bescheid vom 01.01.2025';
     const { pseudonymized, map } = pseudonymizeText(text);
     expect(pseudonymized).toContain('[AKTENZEICHEN_1]');
-    expect(map.caseNumber[0]).toBe('JC-2024-001234');
+    expect(map.caseNumber[0]).toBe('456-789-2024');
   });
 
   it('Standalone JC-Aktenzeichen werden pseudonymisiert', () => {
@@ -124,7 +125,14 @@ describe('pseudonymizer', () => {
   });
 
   it('Aktenzeichen Round-Trip (de-pseudonymisierung)', () => {
-    const original = 'Aktenzeichen: JC-2024-001234';
+    const original = 'Aktenzeichen: 456-789-2024';
+    const { pseudonymized, map } = pseudonymizeText(original);
+    const restored = depseudonymizeText(pseudonymized, map);
+    expect(restored).toBe(original);
+  });
+
+  it('JC-Aktenzeichen Round-Trip', () => {
+    const original = 'Ihr Vorgang JC-2024-001234 wurde bearbeitet.';
     const { pseudonymized, map } = pseudonymizeText(original);
     const restored = depseudonymizeText(pseudonymized, map);
     expect(restored).toBe(original);
@@ -135,5 +143,54 @@ describe('pseudonymizer', () => {
     const { pseudonymized } = pseudonymizeText(text);
     expect(pseudonymized).toContain('[DATUM_1]');
     expect(pseudonymized).not.toContain('GEBURTSDATUM');
+  });
+
+  it('Adelspräfixe werden als Namensteil erkannt', () => {
+    const text = 'Herr Karl-Heinz von der Heide hat Widerspruch eingelegt.';
+    const { pseudonymized, map } = pseudonymizeText(text);
+    expect(pseudonymized).toContain('[NAME_1]');
+    expect(map.name[0]).toBe('Karl-Heinz von der Heide');
+    expect(pseudonymized).not.toContain('von der Heide');
+  });
+
+  it('Komma-Regex stoppt vor Anrede-Wörtern', () => {
+    const text = 'Frau Maria-Anna Schreiber-Hoffmann, Herr Karl-Heinz Weber';
+    const { pseudonymized, map } = pseudonymizeText(text);
+    // Beide Namen separat erkannt, nicht als ein Block
+    expect(map.name).toContain('Maria-Anna Schreiber-Hoffmann');
+    expect(map.name).toContain('Karl-Heinz Weber');
+    // Kein Name enthält "Herr" oder "Frau"
+    for (const name of map.name) {
+      expect(name).not.toMatch(/\bHerr\b/);
+      expect(name).not.toMatch(/\bFrau\b/);
+    }
+  });
+
+  it('Krankenversicherungsnummer (GKV) wird pseudonymisiert', () => {
+    const text = 'Versichertennummer: A123456789';
+    const { pseudonymized, map } = pseudonymizeText(text);
+    expect(pseudonymized).toContain('[KV_NUMMER_1]');
+    expect(map.healthInsuranceNumber[0]).toBe('A123456789');
+  });
+
+  it('Standalone GKV-Nummer wird erkannt', () => {
+    const text = 'Ihre Nummer ist A987654321, bitte angeben.';
+    const { pseudonymized, map } = pseudonymizeText(text);
+    expect(pseudonymized).toContain('[KV_NUMMER_1]');
+    expect(map.healthInsuranceNumber).toContain('A987654321');
+  });
+
+  it('KV-Nummer Round-Trip', () => {
+    const original = 'KV-Nr: A123456789';
+    const { pseudonymized, map } = pseudonymizeText(original);
+    const restored = depseudonymizeText(pseudonymized, map);
+    expect(restored).toBe(original);
+  });
+
+  it('Adelspräfix-Name Round-Trip', () => {
+    const original = 'Herr Ludwig van den Berg hat Einspruch erhoben.';
+    const { pseudonymized, map } = pseudonymizeText(original);
+    const restored = depseudonymizeText(pseudonymized, map);
+    expect(restored).toBe(original);
   });
 });

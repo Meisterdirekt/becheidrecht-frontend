@@ -4,11 +4,11 @@ import { runAgentAnalysis, type AgentAnalysisResult, type ProgressCallback } fro
 import { runForensicAnalysis } from '@/lib/logic/engine';
 import { pseudonymizeText, depseudonymizeText } from '@/lib/privacy/pseudonymizer';
 import { getAuthenticatedUser } from '@/lib/supabase/auth';
-import { getAnthropicKey, getOpenAIKey } from '@/lib/logic/agents/utils';
+import { getAnthropicKey } from '@/lib/logic/agents/utils';
 import { analyzeLimiter, analyzeAnonLimiter } from '@/lib/rate-limit';
 import { reportError, reportInfo } from '@/lib/error-reporter';
 import PDFParser from 'pdf2json';
-import OpenAI from 'openai';
+
 
 export const runtime = 'nodejs';
 export const maxDuration = 300;
@@ -109,41 +109,6 @@ async function extractTextFromImageLocal(buffer: Buffer): Promise<string> {
   } catch {
     return '';
   }
-}
-
-/**
- * OpenAI OCR \u2014 NUR als letzter Fallback wenn Tesseract versagt.
- * Nutzer wird in der UI informiert (privacy-notice in der Antwort).
- * Bild enth\u00e4lt zu diesem Zeitpunkt noch PII \u2014 daher nur wenn unbedingt n\u00f6tig.
- */
-async function extractTextFromImageOpenAI(buffer: Buffer, mimeType: string): Promise<string> {
-  const apiKey = getOpenAIKey();
-  if (!apiKey) throw new Error('OpenAI Key fehlt.');
-
-  const openai = new OpenAI({ apiKey });
-  const base64 = buffer.toString('base64');
-  const dataUrl = `data:${mimeType};base64,${base64}`;
-
-  const response = await openai.chat.completions.create({
-    model: 'gpt-4o',
-    messages: [
-      {
-        role: 'system',
-        content: 'Du bist ein OCR-Tool. Extrahiere den vollst\u00e4ndigen Text des Bescheids. Gib NUR den reinen Text zur\u00fcck, ohne Erkl\u00e4rungen.',
-      },
-      {
-        role: 'user',
-        content: [
-          { type: 'text', text: 'Bitte extrahiere den gesamten Text aus diesem Schreiben.' },
-          { type: 'image_url', image_url: { url: dataUrl } },
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        ] as any,
-      },
-    ],
-    max_tokens: 2000,
-  });
-
-  return response.choices[0]?.message?.content?.trim() ?? '';
 }
 
 /**
@@ -307,6 +272,7 @@ export async function POST(req: Request) {
       bankkonten: map.bankAccount.length,
       steuerIds: map.taxId.length,
       svNummern: map.socialSecurityNumber.length,
+      kvNummern: map.healthInsuranceNumber.length,
       emails: map.email.length,
       telefon: map.phone.length,
       bic: map.bic.length,
