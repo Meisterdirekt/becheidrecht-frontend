@@ -411,323 +411,6 @@
     "severity_beschreibung": "Schwerwiegender Fehler – direkter Einfluss auf Leistungsanspruch oder Fristenlauf"
   },
   {
-    "id": "BAF_001",
-    "titel": "Beratungspflicht nach § 14 SGB I nicht erfüllt (BAföG-Amt)",
-    "beschreibung": "Das BAföG-Amt hat seine Beratungs- und Auskunftspflicht nach § 14 SGB I nicht erfüllt. Antragsteller wurden nicht über Ansprüche oder Verfahren informiert.",
-    "rechtsbasis": [
-      "§ 14 SGB I",
-      "§ 46 BAföG"
-    ],
-    "severity": "hinweis",
-    "prueflogik": {
-      "bedingungen": [
-        "BAföG-Antrag",
-        "Fehlende oder unzureichende Beratung"
-      ],
-      "suchbegriffe": [
-        "Beratung",
-        "Auskunft",
-        "BAföG",
-        "Studium",
-        "Ausbildungsförderung"
-      ]
-    },
-    "musterschreiben_hinweis": "Die Beratungspflicht nach § 14 SGB I scheint nicht erfüllt worden zu sein. Ich bitte um vollständige Information über meine Ansprüche und das weitere Verfahren.",
-    "severity_beschreibung": "Informationspflichtverletzung"
-  },
-  {
-    "id": "BAF_002",
-    "titel": "BAföG-Antrag abgelehnt wegen angeblich fehlender Eignung",
-    "beschreibung": "BAföG wurde wegen angeblich fehlender Eignung abgelehnt, obwohl die Leistungsnachweise nach § 48 BAföG möglicherweise ausreichen oder ein wichtiger Grund für Verzögerung vorliegt.",
-    "rechtsbasis": [
-      "§ 48 BAföG",
-      "§ 15 BAföG"
-    ],
-    "severity": "kritisch",
-    "prueflogik": {
-      "bedingungen": [
-        "BAföG abgelehnt",
-        "Eignungsprüfung",
-        "Leistungsnachweis"
-      ],
-      "suchbegriffe": [
-        "Eignung",
-        "Leistungsnachweis",
-        "Fachrichtungswechsel",
-        "Regelstudienzeit",
-        "ECTS"
-      ]
-    },
-    "musterschreiben_hinweis": "Die Ablehnung wegen fehlender Eignung nach § 48 BAföG ist zu überprüfen. Die vorliegenden Leistungsnachweise bzw. die Gründe für eine verzögerte Studienleistung wurden möglicherweise nicht ausreichend berücksichtigt.",
-    "severity_beschreibung": "Ausbildungsförderung betroffen — Studienfinanzierung gefährdet"
-  },
-  {
-    "id": "BAF_003",
-    "titel": "Elterneinkommen fehlerhaft angerechnet",
-    "beschreibung": "Das Einkommen der Eltern wurde nach §§ 21-25 BAföG fehlerhaft berechnet (z.B. Freibeträge nicht berücksichtigt, falsches Berechnungsjahr).",
-    "rechtsbasis": [
-      "§ 21 BAföG",
-      "§ 25 BAföG"
-    ],
-    "severity": "kritisch",
-    "prueflogik": {
-      "bedingungen": [
-        "BAföG bewilligt oder abgelehnt",
-        "Elterneinkommen angerechnet",
-        "Berechnung erscheint fehlerhaft"
-      ],
-      "suchbegriffe": [
-        "Elterneinkommen",
-        "Anrechnung",
-        "Freibetrag",
-        "Einkommen der Eltern",
-        "Berechnungsjahr"
-      ]
-    },
-    "musterschreiben_hinweis": "Die Anrechnung des Elterneinkommens nach §§ 21-25 BAföG erscheint überprüfungsbedürftig. Die Freibeträge und das zugrunde gelegte Einkommen stimmen möglicherweise nicht mit der tatsächlichen Situation überein.",
-    "severity_beschreibung": "BAföG-Höhe möglicherweise zu niedrig oder zu Unrecht abgelehnt"
-  },
-  {
-    "id": "BAF_004",
-    "titel": "Fachrichtungswechsel nicht anerkannt (§ 7 Abs. 3 BAföG)",
-    "beschreibung": "Ein Fachrichtungswechsel wurde nicht anerkannt und die Förderung eingestellt, obwohl der Wechsel aus wichtigem Grund und rechtzeitig erfolgte.",
-    "rechtsbasis": [
-      "§ 7 Abs. 3 BAföG"
-    ],
-    "severity": "kritisch",
-    "prueflogik": {
-      "bedingungen": [
-        "Fachrichtungswechsel",
-        "BAföG eingestellt",
-        "Wichtiger Grund vorhanden"
-      ],
-      "suchbegriffe": [
-        "Fachrichtungswechsel",
-        "Studiengangwechsel",
-        "wichtiger Grund",
-        "unabweisbarer Grund"
-      ]
-    },
-    "musterschreiben_hinweis": "Die Einstellung der Förderung wegen des Fachrichtungswechsels nach § 7 Abs. 3 BAföG ist zu überprüfen. Der Wechsel erfolgte aus wichtigem Grund und innerhalb der zulässigen Frist.",
-    "severity_beschreibung": "Ausbildungsförderung vollständig betroffen"
-  },
-  {
-    "id": "BAF_005",
-    "titel": "Vermögen fehlerhaft angerechnet (§ 27 BAföG)",
-    "beschreibung": "Das Vermögen wurde fehlerhaft angerechnet. Freibeträge nach § 29 BAföG oder anrechnungsfreies Vermögen wurden möglicherweise nicht berücksichtigt.",
-    "rechtsbasis": [
-      "§ 27 BAföG",
-      "§ 29 BAföG"
-    ],
-    "severity": "wichtig",
-    "prueflogik": {
-      "bedingungen": [
-        "BAföG",
-        "Vermögensanrechnung",
-        "Freibeträge nicht berücksichtigt"
-      ],
-      "suchbegriffe": [
-        "Vermögen",
-        "Freibetrag",
-        "Sparguthaben",
-        "Anrechnung",
-        "15000"
-      ]
-    },
-    "musterschreiben_hinweis": "Die Vermögensanrechnung nach §§ 27, 29 BAföG erscheint überprüfungsbedürftig. Der Vermögensfreibetrag wurde möglicherweise nicht korrekt berücksichtigt.",
-    "severity_beschreibung": "BAföG-Anspruch möglicherweise zu Unrecht gemindert"
-  },
-  {
-    "id": "BAMF_002",
-    "titel": "Beratung / Auskunft (BAMF / Ausländerbehörde)",
-    "beschreibung": "Behörden haben Auskunftspflichten; Beratung/Auskunft muss sachgerecht und verständlich sein.",
-    "rechtsbasis": [
-      "VwVfG",
-      "AufenthG",
-      "AsylG"
-    ],
-    "severity": "wichtig",
-    "prueflogik": {
-      "bedingungen": [
-        "Bescheid BAMF oder Ausländerbehörde",
-        "Beratung/Auskunft erwähnt",
-        "unvollständig oder irreführend"
-      ],
-      "suchbegriffe": [
-        "Beratung",
-        "Auskunft",
-        "BAMF",
-        "Ausländerbehörde",
-        "Asyl",
-        "Aufenthalt"
-      ]
-    },
-    "musterschreiben_hinweis": "Die Auskunft/Beratung entsprach nicht den verfahrensrechtlichen Anforderungen. Ich bitte um sachgerechte Auskunft. Referenz: bamf.de, AufenthG, AsylG.",
-    "severity_beschreibung": "Verfahrensfehler – Bescheid angreifbar, Nachbesserung möglich"
-  },
-  {
-    "id": "BAMF_003",
-    "titel": "Antragstellung / Weiterleitung (BAMF / Ausländerbehörde)",
-    "beschreibung": "Anträge können formfrei sein; unverzügliche Weiterleitung bei Unzuständigkeit, Hinwirkung auf sachdienliche Anträge.",
-    "rechtsbasis": [
-      "VwVfG",
-      "AufenthG",
-      "AsylG"
-    ],
-    "severity": "wichtig",
-    "prueflogik": {
-      "bedingungen": [
-        "Bescheid BAMF oder Ausländerbehörde",
-        "Antrag/Weiterleitung",
-        "Verzögerung oder Ablehnung wegen Formfehler"
-      ],
-      "suchbegriffe": [
-        "Antrag",
-        "Asylantrag",
-        "Aufenthaltserlaubnis",
-        "Weiterleitung",
-        "Zuständigkeit",
-        "Eingang"
-      ]
-    },
-    "musterschreiben_hinweis": "Die Anforderungen an Antragstellung/Weiterleitung wurden nicht eingehalten. Ich bitte um Prüfung. Referenz: bamf.de.",
-    "severity_beschreibung": "Verfahrensfehler – Bescheid angreifbar, Nachbesserung möglich"
-  },
-  {
-    "id": "BAMF_004",
-    "titel": "Mitwirkung (BAMF / Ausländerbehörde)",
-    "beschreibung": "Mitwirkungspflichten nur in den gesetzlich vorgesehenen Grenzen; Folgen bei Nichtmitwirkung müssen gesetzlich begründet sein.",
-    "rechtsbasis": [
-      "VwVfG",
-      "AufenthG",
-      "AsylG"
-    ],
-    "severity": "wichtig",
-    "prueflogik": {
-      "bedingungen": [
-        "Bescheid BAMF oder Ausländerbehörde",
-        "Mitwirkung/Nachforderung/Ablehnung"
-      ],
-      "suchbegriffe": [
-        "Mitwirkung",
-        "Unterlagen",
-        "Anhörung",
-        "Pass",
-        "Nachforderung",
-        "BAMF"
-      ]
-    },
-    "musterschreiben_hinweis": "Die Mitwirkungsanforderungen wurden nicht in den gesetzlichen Grenzen angewandt. Ich bitte um Überprüfung.",
-    "severity_beschreibung": "Verfahrensfehler – Bescheid angreifbar, Nachbesserung möglich"
-  },
-  {
-    "id": "BAMF_005",
-    "titel": "Asylbescheid / Aufenthaltsbescheid (BAMF / Ausländerbehörde)",
-    "beschreibung": "Asyl- und Aufenthaltsbescheide müssen AsylG und AufenthG entsprechen (Anerkennung, Ablehnung, Aufenthaltserlaubnis, Duldung, Auflagen).",
-    "rechtsbasis": [
-      "AsylG",
-      "AufenthG"
-    ],
-    "severity": "kritisch",
-    "prueflogik": {
-      "bedingungen": [
-        "Bescheid BAMF oder Ausländerbehörde zu Asyl/Aufenthalt",
-        "inhaltliche Entscheidung",
-        "Abweichung von AsylG/AufenthG möglich"
-      ],
-      "suchbegriffe": [
-        "Asylbescheid",
-        "Aufenthaltserlaubnis",
-        "Duldung",
-        "Ablehnung",
-        "Anerkennung",
-        "Flüchtlingsschutz",
-        "subsidiär"
-      ]
-    },
-    "musterschreiben_hinweis": "Der Bescheid entspricht nicht den Vorgaben des AsylG bzw. AufenthG. Ich bitte um Überprüfung. Referenz: bamf.de, gesetze-im-internet.de.",
-    "severity_beschreibung": "Schwerwiegender Fehler – direkter Einfluss auf Leistungsanspruch oder Fristenlauf"
-  },
-  {
-    "id": "BAMF_006",
-    "titel": "Bescheidbegründung / Rechtsbehelfsbelehrung (BAMF / Ausländerbehörde)",
-    "beschreibung": "Bescheide müssen begründet sein (VwVfG § 39). Auf Widerspruchsfrist (VwGO) und Rechtsbehelfe (Klage) ist hinzuweisen.",
-    "rechtsbasis": [
-      "VwVfG § 39",
-      "VwGO § 58 ff."
-    ],
-    "severity": "kritisch",
-    "prueflogik": {
-      "bedingungen": [
-        "Bescheid BAMF oder Ausländerbehörde",
-        "fehlende oder unzureichende Begründung",
-        "oder: fehlender/fehlerhafter Hinweis auf Widerspruch/Klagefrist"
-      ],
-      "suchbegriffe": [
-        "Begründung",
-        "Widerspruch",
-        "Klage",
-        "Rechtsbehelfsbelehrung",
-        "Frist"
-      ]
-    },
-    "musterschreiben_hinweis": "Der Bescheid genügt nicht den Anforderungen an Begründung bzw. Rechtsbehelfsbelehrung (VwVfG, VwGO). Ich bitte um Berichtigung bzw. erneute Belehrung.",
-    "severity_beschreibung": "Schwerwiegender Fehler – direkter Einfluss auf Leistungsanspruch oder Fristenlauf"
-  },
-  {
-    "id": "BAMF_007",
-    "titel": "Anhörung im Asylverfahren fehlerhaft durchgeführt",
-    "beschreibung": "Die persönliche Anhörung nach § 25 AsylG wurde unter Umständen nicht ordnungsgemäß durchgeführt (z.B. fehlender Dolmetscher, unzureichende Übersetzung, keine Möglichkeit zur vollständigen Schilderung).",
-    "rechtsbasis": [
-      "§ 25 AsylG",
-      "Art. 16a GG"
-    ],
-    "severity": "kritisch",
-    "prueflogik": {
-      "bedingungen": [
-        "Asylverfahren",
-        "Anhörung durchgeführt",
-        "Verfahrensmängel möglich"
-      ],
-      "suchbegriffe": [
-        "Anhörung",
-        "Dolmetscher",
-        "Übersetzung",
-        "Asyl",
-        "Fluchtgründe",
-        "Schilderung"
-      ]
-    },
-    "musterschreiben_hinweis": "Es bestehen Hinweise, dass die persönliche Anhörung nach § 25 AsylG nicht ordnungsgemäß durchgeführt wurde. Die Fluchtgründe konnten möglicherweise nicht vollständig und korrekt vorgetragen werden.",
-    "severity_beschreibung": "Asylentscheidung möglicherweise auf fehlerhafter Grundlage"
-  },
-  {
-    "id": "BAMF_008",
-    "titel": "Dublin-Überstellung ohne Prüfung systemischer Mängel",
-    "beschreibung": "Eine Überstellung in einen anderen EU-Staat nach der Dublin-III-VO wurde angeordnet, ohne zu prüfen, ob dort systemische Mängel im Asylverfahren bestehen.",
-    "rechtsbasis": [
-      "Dublin-III-VO Art. 3 Abs. 2",
-      "Art. 4 EU-GRCh"
-    ],
-    "severity": "kritisch",
-    "prueflogik": {
-      "bedingungen": [
-        "Dublin-Verfahren",
-        "Überstellung angeordnet",
-        "Systemische Mängel im Zielland"
-      ],
-      "suchbegriffe": [
-        "Dublin",
-        "Überstellung",
-        "zuständiger Staat",
-        "systemische Mängel",
-        "Aufnahmebedingungen"
-      ]
-    },
-    "musterschreiben_hinweis": "Die angeordnete Dublin-Überstellung ist zu überprüfen. Es bestehen Hinweise auf systemische Mängel im Asylverfahren des Zielstaates, die nach Art. 3 Abs. 2 Dublin-III-VO einer Überstellung entgegenstehen können.",
-    "severity_beschreibung": "Zugang zu fairem Asylverfahren und Schutz betroffen"
-  },
-  {
     "id": "BA_001",
     "titel": "Berufsberatung ohne Einhaltung der Fachlichen Weisung BBiE",
     "beschreibung": "Berufsberatung erfolgte nicht nach Fachlicher Weisung 202512023 vom 22.12.2025 (gültig ab 01.01.2026).",
@@ -1444,6 +1127,543 @@
     "severity_beschreibung": "Leistungsanspruch direkt betroffen – existenzielle Auswirkung bei überhöhter Kürzung"
   },
   {
+    "id": "BAF_001",
+    "titel": "Beratungspflicht nach § 14 SGB I nicht erfüllt (BAföG-Amt)",
+    "beschreibung": "Das BAföG-Amt hat seine Beratungs- und Auskunftspflicht nach § 14 SGB I nicht erfüllt. Antragsteller wurden nicht über Ansprüche oder Verfahren informiert.",
+    "rechtsbasis": [
+      "§ 14 SGB I",
+      "§ 46 BAföG"
+    ],
+    "severity": "hinweis",
+    "prueflogik": {
+      "bedingungen": [
+        "BAföG-Antrag",
+        "Fehlende oder unzureichende Beratung"
+      ],
+      "suchbegriffe": [
+        "Beratung",
+        "Auskunft",
+        "BAföG",
+        "Studium",
+        "Ausbildungsförderung"
+      ]
+    },
+    "musterschreiben_hinweis": "Die Beratungspflicht nach § 14 SGB I scheint nicht erfüllt worden zu sein. Ich bitte um vollständige Information über meine Ansprüche und das weitere Verfahren.",
+    "severity_beschreibung": "Informationspflichtverletzung"
+  },
+  {
+    "id": "BAF_002",
+    "titel": "BAföG-Antrag abgelehnt wegen angeblich fehlender Eignung",
+    "beschreibung": "BAföG wurde wegen angeblich fehlender Eignung abgelehnt, obwohl die Leistungsnachweise nach § 48 BAföG möglicherweise ausreichen oder ein wichtiger Grund für Verzögerung vorliegt.",
+    "rechtsbasis": [
+      "§ 48 BAföG",
+      "§ 15 BAföG"
+    ],
+    "severity": "kritisch",
+    "prueflogik": {
+      "bedingungen": [
+        "BAföG abgelehnt",
+        "Eignungsprüfung",
+        "Leistungsnachweis"
+      ],
+      "suchbegriffe": [
+        "Eignung",
+        "Leistungsnachweis",
+        "Fachrichtungswechsel",
+        "Regelstudienzeit",
+        "ECTS"
+      ]
+    },
+    "musterschreiben_hinweis": "Die Ablehnung wegen fehlender Eignung nach § 48 BAföG ist zu überprüfen. Die vorliegenden Leistungsnachweise bzw. die Gründe für eine verzögerte Studienleistung wurden möglicherweise nicht ausreichend berücksichtigt.",
+    "severity_beschreibung": "Ausbildungsförderung betroffen — Studienfinanzierung gefährdet"
+  },
+  {
+    "id": "BAF_003",
+    "titel": "Elterneinkommen fehlerhaft angerechnet",
+    "beschreibung": "Das Einkommen der Eltern wurde nach §§ 21-25 BAföG fehlerhaft berechnet (z.B. Freibeträge nicht berücksichtigt, falsches Berechnungsjahr).",
+    "rechtsbasis": [
+      "§ 21 BAföG",
+      "§ 25 BAföG"
+    ],
+    "severity": "kritisch",
+    "prueflogik": {
+      "bedingungen": [
+        "BAföG bewilligt oder abgelehnt",
+        "Elterneinkommen angerechnet",
+        "Berechnung erscheint fehlerhaft"
+      ],
+      "suchbegriffe": [
+        "Elterneinkommen",
+        "Anrechnung",
+        "Freibetrag",
+        "Einkommen der Eltern",
+        "Berechnungsjahr"
+      ]
+    },
+    "musterschreiben_hinweis": "Die Anrechnung des Elterneinkommens nach §§ 21-25 BAföG erscheint überprüfungsbedürftig. Die Freibeträge und das zugrunde gelegte Einkommen stimmen möglicherweise nicht mit der tatsächlichen Situation überein.",
+    "severity_beschreibung": "BAföG-Höhe möglicherweise zu niedrig oder zu Unrecht abgelehnt"
+  },
+  {
+    "id": "BAF_004",
+    "titel": "Fachrichtungswechsel nicht anerkannt (§ 7 Abs. 3 BAföG)",
+    "beschreibung": "Ein Fachrichtungswechsel wurde nicht anerkannt und die Förderung eingestellt, obwohl der Wechsel aus wichtigem Grund und rechtzeitig erfolgte.",
+    "rechtsbasis": [
+      "§ 7 Abs. 3 BAföG"
+    ],
+    "severity": "kritisch",
+    "prueflogik": {
+      "bedingungen": [
+        "Fachrichtungswechsel",
+        "BAföG eingestellt",
+        "Wichtiger Grund vorhanden"
+      ],
+      "suchbegriffe": [
+        "Fachrichtungswechsel",
+        "Studiengangwechsel",
+        "wichtiger Grund",
+        "unabweisbarer Grund"
+      ]
+    },
+    "musterschreiben_hinweis": "Die Einstellung der Förderung wegen des Fachrichtungswechsels nach § 7 Abs. 3 BAföG ist zu überprüfen. Der Wechsel erfolgte aus wichtigem Grund und innerhalb der zulässigen Frist.",
+    "severity_beschreibung": "Ausbildungsförderung vollständig betroffen"
+  },
+  {
+    "id": "BAF_005",
+    "titel": "Vermögen fehlerhaft angerechnet (§ 27 BAföG)",
+    "beschreibung": "Das Vermögen wurde fehlerhaft angerechnet. Freibeträge nach § 29 BAföG oder anrechnungsfreies Vermögen wurden möglicherweise nicht berücksichtigt.",
+    "rechtsbasis": [
+      "§ 27 BAföG",
+      "§ 29 BAföG"
+    ],
+    "severity": "wichtig",
+    "prueflogik": {
+      "bedingungen": [
+        "BAföG",
+        "Vermögensanrechnung",
+        "Freibeträge nicht berücksichtigt"
+      ],
+      "suchbegriffe": [
+        "Vermögen",
+        "Freibetrag",
+        "Sparguthaben",
+        "Anrechnung",
+        "15000"
+      ]
+    },
+    "musterschreiben_hinweis": "Die Vermögensanrechnung nach §§ 27, 29 BAföG erscheint überprüfungsbedürftig. Der Vermögensfreibetrag wurde möglicherweise nicht korrekt berücksichtigt.",
+    "severity_beschreibung": "BAföG-Anspruch möglicherweise zu Unrecht gemindert"
+  },
+  {
+    "id": "BAF_006",
+    "titel": "Förderungshöchstdauer falsch berechnet (§ 15a BAföG)",
+    "beschreibung": "Die Förderungshöchstdauer nach § 15a BAföG wurde fehlerhaft berechnet. Verlängerungsgründe wie Krankheit, Gremientätigkeit, Behinderung oder erstmalige Schwangerschaft (§ 15 Abs. 3 BAföG) wurden nicht berücksichtigt.",
+    "rechtsbasis": [
+      "§ 15a BAföG",
+      "§ 15 Abs. 3 BAföG"
+    ],
+    "severity": "kritisch",
+    "prueflogik": {
+      "bedingungen": [
+        "BAföG",
+        "Förderungshöchstdauer überschritten",
+        "Verlängerungsgrund vorhanden"
+      ],
+      "suchbegriffe": [
+        "Förderungshöchstdauer",
+        "Regelstudienzeit",
+        "Verlängerung",
+        "Semester",
+        "Krankheit",
+        "Gremientätigkeit"
+      ]
+    },
+    "musterschreiben_hinweis": "Die Förderungshöchstdauer nach § 15a BAföG ist zu überprüfen. Es liegen Gründe für eine Verlängerung nach § 15 Abs. 3 BAföG vor, die nicht berücksichtigt wurden.",
+    "severity_beschreibung": "Ausbildungsförderung vollständig betroffen"
+  },
+  {
+    "id": "BAF_007",
+    "titel": "Vorausleistung nach § 36 BAföG nicht gewährt",
+    "beschreibung": "Die Eltern verweigern Unterhalt oder Einkommensauskunft. Das BAföG-Amt hat keine Vorausleistung nach § 36 BAföG gewährt, obwohl die Voraussetzungen vorliegen.",
+    "rechtsbasis": [
+      "§ 36 BAföG"
+    ],
+    "severity": "kritisch",
+    "prueflogik": {
+      "bedingungen": [
+        "BAföG",
+        "Eltern verweigern Auskunft oder Unterhalt",
+        "Vorausleistung nicht gewährt"
+      ],
+      "suchbegriffe": [
+        "Vorausleistung",
+        "Eltern",
+        "Unterhalt",
+        "Auskunft",
+        "verweigern",
+        "§ 36"
+      ]
+    },
+    "musterschreiben_hinweis": "Es wird Vorausleistung nach § 36 BAföG beantragt. Die Eltern verweigern die Auskunft über ihre Einkommensverhältnisse bzw. die Unterhaltsleistung.",
+    "severity_beschreibung": "Ausbildungsförderung vollständig blockiert"
+  },
+  {
+    "id": "BAF_008",
+    "titel": "Härtefreibetrag nicht berücksichtigt (§ 29 Abs. 3 BAföG)",
+    "beschreibung": "Bei der Vermögensanrechnung wurde kein Härtefreibetrag nach § 29 Abs. 3 BAföG berücksichtigt, obwohl besondere Umstände vorliegen (z.B. notwendige Anschaffungen, Schulden).",
+    "rechtsbasis": [
+      "§ 29 Abs. 3 BAföG"
+    ],
+    "severity": "wichtig",
+    "prueflogik": {
+      "bedingungen": [
+        "BAföG",
+        "Vermögensanrechnung",
+        "Besondere Härte"
+      ],
+      "suchbegriffe": [
+        "Härtefreibetrag",
+        "Vermögen",
+        "Härte",
+        "Anschaffung",
+        "Schulden"
+      ]
+    },
+    "musterschreiben_hinweis": "Die Vermögensanrechnung ist nach § 29 Abs. 3 BAföG im Hinblick auf eine besondere Härte zu überprüfen. Die vorliegenden besonderen Umstände rechtfertigen einen Härtefreibetrag.",
+    "severity_beschreibung": "BAföG-Höhe möglicherweise zu niedrig"
+  },
+  {
+    "id": "BAF_009",
+    "titel": "Auslandsförderung zu Unrecht abgelehnt (§ 5 BAföG)",
+    "beschreibung": "Die Ausbildungsförderung für ein Auslandsstudium/-praktikum wurde abgelehnt, obwohl die Voraussetzungen nach § 5 BAföG erfüllt sind (EU/EWR, Partneruni, ein Jahr).",
+    "rechtsbasis": [
+      "§ 5 BAföG",
+      "§ 5a BAföG"
+    ],
+    "severity": "kritisch",
+    "prueflogik": {
+      "bedingungen": [
+        "BAföG",
+        "Auslandsstudium oder -praktikum",
+        "Ablehnung"
+      ],
+      "suchbegriffe": [
+        "Ausland",
+        "Auslandssemester",
+        "Auslandspraktikum",
+        "Auslandsförderung",
+        "EU",
+        "Partneruni"
+      ]
+    },
+    "musterschreiben_hinweis": "Die Ablehnung der Auslandsförderung nach § 5 BAföG ist zu überprüfen. Die Voraussetzungen für eine Förderung des Auslandsstudiums/-praktikums sind erfüllt.",
+    "severity_beschreibung": "Auslandsförderung vollständig betroffen"
+  },
+  {
+    "id": "BAF_010",
+    "titel": "BAföG-Bescheid ohne Rechtsbehelfsbelehrung",
+    "beschreibung": "Dem BAföG-Bescheid fehlt die vorgeschriebene Rechtsbehelfsbelehrung nach § 36 SGB X, wodurch die Widerspruchsfrist auf ein Jahr verlängert wird (§ 66 Abs. 2 SGG).",
+    "rechtsbasis": [
+      "§ 36 SGB X",
+      "§ 66 Abs. 2 SGG"
+    ],
+    "severity": "wichtig",
+    "prueflogik": {
+      "bedingungen": [
+        "BAföG-Bescheid",
+        "Keine oder fehlerhafte Rechtsbehelfsbelehrung"
+      ],
+      "suchbegriffe": [
+        "Rechtsbehelfsbelehrung",
+        "Widerspruch",
+        "Frist",
+        "BAföG"
+      ]
+    },
+    "musterschreiben_hinweis": "Dem Bescheid fehlt eine ordnungsgemäße Rechtsbehelfsbelehrung nach § 36 SGB X. Die Widerspruchsfrist beträgt daher ein Jahr (§ 66 Abs. 2 SGG).",
+    "severity_beschreibung": "Verlängerte Widerspruchsfrist"
+  },
+  {
+    "id": "BAMF_002",
+    "titel": "Beratung / Auskunft (BAMF / Ausländerbehörde)",
+    "beschreibung": "Behörden haben Auskunftspflichten; Beratung/Auskunft muss sachgerecht und verständlich sein.",
+    "rechtsbasis": [
+      "VwVfG",
+      "AufenthG",
+      "AsylG"
+    ],
+    "severity": "wichtig",
+    "prueflogik": {
+      "bedingungen": [
+        "Bescheid BAMF oder Ausländerbehörde",
+        "Beratung/Auskunft erwähnt",
+        "unvollständig oder irreführend"
+      ],
+      "suchbegriffe": [
+        "Beratung",
+        "Auskunft",
+        "BAMF",
+        "Ausländerbehörde",
+        "Asyl",
+        "Aufenthalt"
+      ]
+    },
+    "musterschreiben_hinweis": "Die Auskunft/Beratung entsprach nicht den verfahrensrechtlichen Anforderungen. Ich bitte um sachgerechte Auskunft. Referenz: bamf.de, AufenthG, AsylG.",
+    "severity_beschreibung": "Verfahrensfehler – Bescheid angreifbar, Nachbesserung möglich"
+  },
+  {
+    "id": "BAMF_003",
+    "titel": "Antragstellung / Weiterleitung (BAMF / Ausländerbehörde)",
+    "beschreibung": "Anträge können formfrei sein; unverzügliche Weiterleitung bei Unzuständigkeit, Hinwirkung auf sachdienliche Anträge.",
+    "rechtsbasis": [
+      "VwVfG",
+      "AufenthG",
+      "AsylG"
+    ],
+    "severity": "wichtig",
+    "prueflogik": {
+      "bedingungen": [
+        "Bescheid BAMF oder Ausländerbehörde",
+        "Antrag/Weiterleitung",
+        "Verzögerung oder Ablehnung wegen Formfehler"
+      ],
+      "suchbegriffe": [
+        "Antrag",
+        "Asylantrag",
+        "Aufenthaltserlaubnis",
+        "Weiterleitung",
+        "Zuständigkeit",
+        "Eingang"
+      ]
+    },
+    "musterschreiben_hinweis": "Die Anforderungen an Antragstellung/Weiterleitung wurden nicht eingehalten. Ich bitte um Prüfung. Referenz: bamf.de.",
+    "severity_beschreibung": "Verfahrensfehler – Bescheid angreifbar, Nachbesserung möglich"
+  },
+  {
+    "id": "BAMF_004",
+    "titel": "Mitwirkung (BAMF / Ausländerbehörde)",
+    "beschreibung": "Mitwirkungspflichten nur in den gesetzlich vorgesehenen Grenzen; Folgen bei Nichtmitwirkung müssen gesetzlich begründet sein.",
+    "rechtsbasis": [
+      "VwVfG",
+      "AufenthG",
+      "AsylG"
+    ],
+    "severity": "wichtig",
+    "prueflogik": {
+      "bedingungen": [
+        "Bescheid BAMF oder Ausländerbehörde",
+        "Mitwirkung/Nachforderung/Ablehnung"
+      ],
+      "suchbegriffe": [
+        "Mitwirkung",
+        "Unterlagen",
+        "Anhörung",
+        "Pass",
+        "Nachforderung",
+        "BAMF"
+      ]
+    },
+    "musterschreiben_hinweis": "Die Mitwirkungsanforderungen wurden nicht in den gesetzlichen Grenzen angewandt. Ich bitte um Überprüfung.",
+    "severity_beschreibung": "Verfahrensfehler – Bescheid angreifbar, Nachbesserung möglich"
+  },
+  {
+    "id": "BAMF_005",
+    "titel": "Asylbescheid / Aufenthaltsbescheid (BAMF / Ausländerbehörde)",
+    "beschreibung": "Asyl- und Aufenthaltsbescheide müssen AsylG und AufenthG entsprechen (Anerkennung, Ablehnung, Aufenthaltserlaubnis, Duldung, Auflagen).",
+    "rechtsbasis": [
+      "AsylG",
+      "AufenthG"
+    ],
+    "severity": "kritisch",
+    "prueflogik": {
+      "bedingungen": [
+        "Bescheid BAMF oder Ausländerbehörde zu Asyl/Aufenthalt",
+        "inhaltliche Entscheidung",
+        "Abweichung von AsylG/AufenthG möglich"
+      ],
+      "suchbegriffe": [
+        "Asylbescheid",
+        "Aufenthaltserlaubnis",
+        "Duldung",
+        "Ablehnung",
+        "Anerkennung",
+        "Flüchtlingsschutz",
+        "subsidiär"
+      ]
+    },
+    "musterschreiben_hinweis": "Der Bescheid entspricht nicht den Vorgaben des AsylG bzw. AufenthG. Ich bitte um Überprüfung. Referenz: bamf.de, gesetze-im-internet.de.",
+    "severity_beschreibung": "Schwerwiegender Fehler – direkter Einfluss auf Leistungsanspruch oder Fristenlauf"
+  },
+  {
+    "id": "BAMF_006",
+    "titel": "Bescheidbegründung / Rechtsbehelfsbelehrung (BAMF / Ausländerbehörde)",
+    "beschreibung": "Bescheide müssen begründet sein (VwVfG § 39). Auf Widerspruchsfrist (VwGO) und Rechtsbehelfe (Klage) ist hinzuweisen.",
+    "rechtsbasis": [
+      "VwVfG § 39",
+      "VwGO § 58 ff."
+    ],
+    "severity": "kritisch",
+    "prueflogik": {
+      "bedingungen": [
+        "Bescheid BAMF oder Ausländerbehörde",
+        "fehlende oder unzureichende Begründung",
+        "oder: fehlender/fehlerhafter Hinweis auf Widerspruch/Klagefrist"
+      ],
+      "suchbegriffe": [
+        "Begründung",
+        "Widerspruch",
+        "Klage",
+        "Rechtsbehelfsbelehrung",
+        "Frist"
+      ]
+    },
+    "musterschreiben_hinweis": "Der Bescheid genügt nicht den Anforderungen an Begründung bzw. Rechtsbehelfsbelehrung (VwVfG, VwGO). Ich bitte um Berichtigung bzw. erneute Belehrung.",
+    "severity_beschreibung": "Schwerwiegender Fehler – direkter Einfluss auf Leistungsanspruch oder Fristenlauf"
+  },
+  {
+    "id": "BAMF_007",
+    "titel": "Anhörung im Asylverfahren fehlerhaft durchgeführt",
+    "beschreibung": "Die persönliche Anhörung nach § 25 AsylG wurde unter Umständen nicht ordnungsgemäß durchgeführt (z.B. fehlender Dolmetscher, unzureichende Übersetzung, keine Möglichkeit zur vollständigen Schilderung).",
+    "rechtsbasis": [
+      "§ 25 AsylG",
+      "Art. 16a GG"
+    ],
+    "severity": "kritisch",
+    "prueflogik": {
+      "bedingungen": [
+        "Asylverfahren",
+        "Anhörung durchgeführt",
+        "Verfahrensmängel möglich"
+      ],
+      "suchbegriffe": [
+        "Anhörung",
+        "Dolmetscher",
+        "Übersetzung",
+        "Asyl",
+        "Fluchtgründe",
+        "Schilderung"
+      ]
+    },
+    "musterschreiben_hinweis": "Es bestehen Hinweise, dass die persönliche Anhörung nach § 25 AsylG nicht ordnungsgemäß durchgeführt wurde. Die Fluchtgründe konnten möglicherweise nicht vollständig und korrekt vorgetragen werden.",
+    "severity_beschreibung": "Asylentscheidung möglicherweise auf fehlerhafter Grundlage"
+  },
+  {
+    "id": "BAMF_008",
+    "titel": "Dublin-Überstellung ohne Prüfung systemischer Mängel",
+    "beschreibung": "Eine Überstellung in einen anderen EU-Staat nach der Dublin-III-VO wurde angeordnet, ohne zu prüfen, ob dort systemische Mängel im Asylverfahren bestehen.",
+    "rechtsbasis": [
+      "Dublin-III-VO Art. 3 Abs. 2",
+      "Art. 4 EU-GRCh"
+    ],
+    "severity": "kritisch",
+    "prueflogik": {
+      "bedingungen": [
+        "Dublin-Verfahren",
+        "Überstellung angeordnet",
+        "Systemische Mängel im Zielland"
+      ],
+      "suchbegriffe": [
+        "Dublin",
+        "Überstellung",
+        "zuständiger Staat",
+        "systemische Mängel",
+        "Aufnahmebedingungen"
+      ]
+    },
+    "musterschreiben_hinweis": "Die angeordnete Dublin-Überstellung ist zu überprüfen. Es bestehen Hinweise auf systemische Mängel im Asylverfahren des Zielstaates, die nach Art. 3 Abs. 2 Dublin-III-VO einer Überstellung entgegenstehen können.",
+    "severity_beschreibung": "Zugang zu fairem Asylverfahren und Schutz betroffen"
+  },
+  {
+    "id": "BAMF_009",
+    "titel": "Familiennachzug nach §§ 27–36a AufenthG fehlerhaft abgelehnt",
+    "beschreibung": "Der Familiennachzug zu anerkannten Flüchtlingen (§ 36 Abs. 1 AufenthG — Eltern zu minderjährigen Flüchtlingen, § 29 Abs. 2 AufenthG — Ehegatten/Kinder) wurde abgelehnt. Bei anerkannten Flüchtlingen nach § 3 AsylG besteht ein Anspruch auf Familiennachzug ohne Nachweis von Wohnraum und Lebensunterhaltssicherung (§ 29 Abs. 2 S. 1 AufenthG), wenn der Antrag innerhalb von drei Monaten nach Anerkennung gestellt wird (§ 29 Abs. 2 S. 2 AufenthG). Bei subsidiär Schutzberechtigten gelten Kontingente (§ 36a AufenthG — max. 1.000/Monat). Häufige Fehler: Privilegierung für GFK-Flüchtlinge nicht angewandt, Dreimonatsfrist falsch berechnet, Nachweis von Lebensunterhalt/Wohnraum trotz Privilegierung gefordert.",
+    "rechtsbasis": [
+      "§§ 27–36a AufenthG",
+      "§ 29 Abs. 2 AufenthG",
+      "§ 36a AufenthG"
+    ],
+    "severity": "kritisch",
+    "prueflogik": {
+      "bedingungen": [
+        "Anerkannter Flüchtling oder subsidiär Schutzberechtigter",
+        "Familiennachzug beantragt",
+        "Ablehnung oder überhöhte Anforderungen"
+      ],
+      "suchbegriffe": [
+        "Familiennachzug",
+        "Ehegatte",
+        "Kinder",
+        "Nachzug",
+        "Flüchtling",
+        "subsidiär",
+        "Visum",
+        "Lebensunterhalt",
+        "Wohnraum"
+      ]
+    },
+    "musterschreiben_hinweis": "Die Ablehnung des Familiennachzugs ist zu überprüfen. Bei anerkannten Flüchtlingen (§ 3 AsylG) besteht nach § 29 Abs. 2 AufenthG ein Anspruch auf privilegierten Familiennachzug ohne Nachweis von Lebensunterhalt und Wohnraum, sofern der Antrag fristgerecht gestellt wurde. Quelle: gesetze-im-internet.de/aufenthg_2004/__29.html",
+    "severity_beschreibung": "Schwerwiegender Fehler – Familientrennung betroffen"
+  },
+  {
+    "id": "BAMF_010",
+    "titel": "Duldung nach § 60a AufenthG: Abschiebehindernisse nicht geprüft",
+    "beschreibung": "Eine Duldung (§ 60a AufenthG) ist zu erteilen, wenn die Abschiebung aus tatsächlichen oder rechtlichen Gründen unmöglich ist (Abs. 2). Abschiebehindernisse: Reiseunfähigkeit (ärztliches Attest), fehlende Reisedokumente, drohende Menschenrechtsverletzung im Zielland (§ 60 Abs. 5, 7 AufenthG), familiäre Bindungen (Art. 6 GG, Art. 8 EMRK). Seit 2024: Chancen-Aufenthaltsrecht (§ 104c AufenthG) für langfristig Geduldete. Häufige Fehler: Abschiebung trotz bekannter Reiseunfähigkeit angekündigt, Kettenduldungen ohne Prüfung eines Aufenthaltsrechts, familiäre Bindungen ignoriert.",
+    "rechtsbasis": [
+      "§ 60a AufenthG",
+      "§ 60 Abs. 5, 7 AufenthG",
+      "Art. 6 GG",
+      "Art. 8 EMRK"
+    ],
+    "severity": "kritisch",
+    "prueflogik": {
+      "bedingungen": [
+        "Ausreisepflicht oder Abschiebungsandrohung",
+        "Abschiebehindernisse möglicherweise nicht geprüft",
+        "Gesundheitliche, familiäre oder rechtliche Gründe"
+      ],
+      "suchbegriffe": [
+        "Duldung",
+        "Abschiebung",
+        "Reiseunfähigkeit",
+        "Abschiebungshindernis",
+        "Reisedokumente",
+        "Kettenduldung",
+        "familiäre Bindung"
+      ]
+    },
+    "musterschreiben_hinweis": "Die Abschiebehindernisse nach § 60a Abs. 2 AufenthG wurden nicht ausreichend geprüft. Es bestehen tatsächliche/rechtliche Gründe (Gesundheit, familiäre Bindung, fehlende Reisedokumente), die einer Abschiebung entgegenstehen. Ich beantrage die Erteilung einer Duldung. Quelle: gesetze-im-internet.de/aufenthg_2004/__60a.html",
+    "severity_beschreibung": "Schwerwiegender Fehler – Abschiebung trotz Hindernissen droht"
+  },
+  {
+    "id": "BAMF_011",
+    "titel": "Widerruf/Rücknahme des Flüchtlingsstatus nach § 73 AsylG fehlerhaft",
+    "beschreibung": "Das BAMF prüft nach § 73 AsylG spätestens nach drei Jahren, ob die Voraussetzungen für den Flüchtlingsstatus noch vorliegen (Widerruf) oder ob die Anerkennung von Anfang an fehlerhaft war (Rücknahme). Widerruf setzt voraus, dass die Umstände, die zur Anerkennung geführt haben, weggefallen sind und der Betroffene keinen anderen Schutz mehr benötigt (§ 73 Abs. 1 S. 1, 2 AsylG). Häufige Fehler: Widerruf trotz fortbestehender Verfolgungsgefahr, keine individuelle Prüfung (nur pauschaler Verweis auf Lagebericht), Beweislast falsch verteilt (liegt beim BAMF), interne Schutzalternative ohne ausreichende Prüfung angenommen.",
+    "rechtsbasis": [
+      "§ 73 AsylG",
+      "§ 73 Abs. 1 AsylG",
+      "Art. 1 C Nr. 5 GFK"
+    ],
+    "severity": "kritisch",
+    "prueflogik": {
+      "bedingungen": [
+        "Widerruf oder Rücknahme des Flüchtlingsstatus",
+        "Fortbestehende Verfolgungsgefahr möglich",
+        "Individuelle Prüfung fraglich"
+      ],
+      "suchbegriffe": [
+        "Widerruf",
+        "Rücknahme",
+        "Flüchtlingsstatus",
+        "Anerkennung",
+        "Überprüfung",
+        "Lagebericht",
+        "Verfolgung",
+        "weggefallen"
+      ]
+    },
+    "musterschreiben_hinweis": "Der Widerruf/die Rücknahme des Flüchtlingsstatus nach § 73 AsylG ist zu überprüfen. Die Beweislast für den Wegfall der Verfolgungsgefahr liegt beim BAMF. Ein pauschaler Verweis auf einen Lagebericht ohne individuelle Prüfung genügt nicht. Die Verfolgungsgründe bestehen möglicherweise fort. Quelle: gesetze-im-internet.de/asylvfg_1992/__73.html",
+    "severity_beschreibung": "Schwerwiegender Fehler – Verlust des Schutzstatus und Aufenthaltsrechts droht"
+  },
+  {
     "id": "DRV_002",
     "titel": "Beratungspflicht nach § 14 SGB I nicht erfüllt (DRV)",
     "beschreibung": "Die Beratung muss richtig, unmissverständlich und umfassend sein. Die alleinige Aushändigung von Merkblättern reicht nicht. Bei naheliegender Gestaltungsmöglichkeit ist Spontanberatung erforderlich. Gilt für Deutsche Rentenversicherung; Auslegung in rvRecht (GRA SGB I).",
@@ -2075,6 +2295,133 @@
     "severity_beschreibung": "Verlängerte Widerspruchsfrist"
   },
   {
+    "id": "EG_006",
+    "titel": "Geschwisterbonus nicht berücksichtigt (§ 2a Abs. 1 BEEG)",
+    "beschreibung": "Der Geschwisterbonus nach § 2a Abs. 1 BEEG wurde nicht gewährt, obwohl ein Geschwisterkind unter 3 Jahren (oder zwei unter 6 Jahren) im Haushalt lebt.",
+    "rechtsbasis": [
+      "§ 2a Abs. 1 BEEG"
+    ],
+    "severity": "wichtig",
+    "prueflogik": {
+      "bedingungen": [
+        "Elterngeld",
+        "Geschwisterkind vorhanden",
+        "Bonus nicht gewährt"
+      ],
+      "suchbegriffe": [
+        "Geschwisterbonus",
+        "Geschwisterkind",
+        "Zuschlag",
+        "älteres Kind",
+        "Elterngeld"
+      ]
+    },
+    "musterschreiben_hinweis": "Der Geschwisterbonus nach § 2a Abs. 1 BEEG wurde nicht berücksichtigt. Im Haushalt lebt ein Geschwisterkind, das die Altersvoraussetzungen erfüllt.",
+    "severity_beschreibung": "Elterngeld-Höhe um 10% bzw. mind. 75€/Monat zu niedrig"
+  },
+  {
+    "id": "EG_007",
+    "titel": "Mehrlingszuschlag fehlt (§ 2a Abs. 4 BEEG)",
+    "beschreibung": "Bei Mehrlingsgeburten wurde der Mehrlingszuschlag nach § 2a Abs. 4 BEEG (300€ pro weiterem Mehrling) nicht gewährt.",
+    "rechtsbasis": [
+      "§ 2a Abs. 4 BEEG"
+    ],
+    "severity": "kritisch",
+    "prueflogik": {
+      "bedingungen": [
+        "Elterngeld",
+        "Mehrlingsgeburt",
+        "Zuschlag nicht gewährt"
+      ],
+      "suchbegriffe": [
+        "Mehrling",
+        "Zwillinge",
+        "Drillinge",
+        "Mehrlingsgeburt",
+        "Zuschlag"
+      ]
+    },
+    "musterschreiben_hinweis": "Der Mehrlingszuschlag nach § 2a Abs. 4 BEEG in Höhe von 300 Euro je weiterem Mehrling wurde nicht berücksichtigt.",
+    "severity_beschreibung": "300€/Monat pro weiterem Mehrlingskind fehlen"
+  },
+  {
+    "id": "EG_008",
+    "titel": "Mutterschaftsgeld fehlerhaft angerechnet (§ 3 BEEG)",
+    "beschreibung": "Das Mutterschaftsgeld nach § 3 BEEG wurde fehlerhaft auf das Elterngeld angerechnet. Die Anrechnung darf nur taggenau für den Zeitraum des Mutterschutzes erfolgen.",
+    "rechtsbasis": [
+      "§ 3 Abs. 1 BEEG",
+      "§ 14 MuSchG"
+    ],
+    "severity": "kritisch",
+    "prueflogik": {
+      "bedingungen": [
+        "Elterngeld",
+        "Mutterschaftsgeld",
+        "Anrechnung fraglich"
+      ],
+      "suchbegriffe": [
+        "Mutterschaftsgeld",
+        "Anrechnung",
+        "Mutterschutz",
+        "Arbeitgeberzuschuss",
+        "Elterngeld"
+      ]
+    },
+    "musterschreiben_hinweis": "Die Anrechnung des Mutterschaftsgeldes nach § 3 Abs. 1 BEEG ist zu überprüfen. Die taggenaue Berechnung und der berücksichtigte Zeitraum erscheinen fehlerhaft.",
+    "severity_beschreibung": "Elterngeld im Mutterschutz-Zeitraum möglicherweise zu niedrig"
+  },
+  {
+    "id": "EG_009",
+    "titel": "Einkommen aus Selbständigkeit falsch berechnet (§ 2d BEEG)",
+    "beschreibung": "Bei Selbständigen wurde das Einkommen nach § 2d BEEG fehlerhaft ermittelt. Der Gewinn aus dem letzten abgeschlossenen Veranlagungszeitraum oder die Vorauszahlungsbasis wurde falsch zugrunde gelegt.",
+    "rechtsbasis": [
+      "§ 2d BEEG",
+      "§ 2f BEEG"
+    ],
+    "severity": "kritisch",
+    "prueflogik": {
+      "bedingungen": [
+        "Elterngeld",
+        "Selbständigkeit",
+        "Einkommensberechnung fehlerhaft"
+      ],
+      "suchbegriffe": [
+        "Selbständig",
+        "Gewinn",
+        "Veranlagungszeitraum",
+        "Steuerbescheid",
+        "freiberuflich"
+      ]
+    },
+    "musterschreiben_hinweis": "Die Berechnung des Einkommens aus selbständiger Tätigkeit nach § 2d BEEG ist zu überprüfen. Der zugrunde gelegte Gewinn entspricht nicht dem tatsächlichen Einkommen im Bemessungszeitraum.",
+    "severity_beschreibung": "Elterngeld-Höhe möglicherweise deutlich zu niedrig"
+  },
+  {
+    "id": "EG_010",
+    "titel": "Bezugszeitraum falsch festgesetzt (§ 4 BEEG)",
+    "beschreibung": "Der Bezugszeitraum für Elterngeld nach § 4 BEEG wurde fehlerhaft festgesetzt. Lebensmonate des Kindes wurden falsch berechnet oder zulässige Aufteilungen nicht berücksichtigt.",
+    "rechtsbasis": [
+      "§ 4 BEEG"
+    ],
+    "severity": "wichtig",
+    "prueflogik": {
+      "bedingungen": [
+        "Elterngeld",
+        "Bezugszeitraum",
+        "Lebensmonate falsch"
+      ],
+      "suchbegriffe": [
+        "Bezugszeitraum",
+        "Lebensmonat",
+        "Bezugsmonat",
+        "Aufteilung",
+        "Elterngeld"
+      ]
+    },
+    "musterschreiben_hinweis": "Der Bezugszeitraum nach § 4 BEEG ist zu überprüfen. Die Zuordnung der Lebensmonate des Kindes oder die Aufteilung zwischen den Elternteilen erscheint fehlerhaft.",
+    "severity_beschreibung": "Elterngeld-Bezugsdauer möglicherweise verkürzt"
+  },
+  {
     "id": "EH_002",
     "titel": "Beratungspflicht § 14 SGB I (Eingliederungshilfe)",
     "beschreibung": "Beratung richtig, unmissverständlich, umfassend. Gilt für Träger der Eingliederungshilfe (SGB IX).",
@@ -2265,6 +2612,93 @@
     "severity_beschreibung": "Soziale Teilhabe eingeschränkt"
   },
   {
+    "id": "EH_010",
+    "titel": "Gesamtplanverfahren nach § 117 SGB IX nicht durchgeführt",
+    "beschreibung": "Vor der Entscheidung über Eingliederungshilfeleistungen muss der Träger ein Gesamtplanverfahren nach § 117 SGB IX durchführen. Dieses umfasst: Bedarfsermittlung (§ 118 SGB IX), transparente Gesamtplankonferenz mit dem Leistungsberechtigten (§ 119 SGB IX), schriftlichen Gesamtplan (§ 121 SGB IX) mit Zielen, Leistungen, Wirkungskontrolle. Der Leistungsberechtigte ist in allen Verfahrensschritten zu beteiligen (§ 117 Abs. 1 Nr. 1 SGB IX — Wunsch- und Wahlrecht). Häufige Fehler: Entscheidung ohne Gesamtplanverfahren, Leistungsberechtigter nicht beteiligt, kein schriftlicher Gesamtplan erstellt, Wunsch- und Wahlrecht (§ 104 SGB IX) missachtet.",
+    "rechtsbasis": [
+      "§ 117 SGB IX",
+      "§ 119 SGB IX",
+      "§ 121 SGB IX",
+      "§ 104 SGB IX"
+    ],
+    "severity": "kritisch",
+    "prueflogik": {
+      "bedingungen": [
+        "Eingliederungshilfe beantragt oder bewilligt",
+        "Gesamtplanverfahren nicht erkennbar durchgeführt",
+        "Beteiligung des Leistungsberechtigten fraglich"
+      ],
+      "suchbegriffe": [
+        "Gesamtplan",
+        "Gesamtplanverfahren",
+        "Gesamtplankonferenz",
+        "Beteiligung",
+        "Wunsch- und Wahlrecht",
+        "Zielvereinbarung",
+        "Teilhabeplan"
+      ]
+    },
+    "musterschreiben_hinweis": "Die Entscheidung über Eingliederungshilfeleistungen erfolgte ohne ordnungsgemäßes Gesamtplanverfahren nach § 117 SGB IX. Es wurde keine Gesamtplankonferenz unter meiner Beteiligung durchgeführt und kein schriftlicher Gesamtplan (§ 121 SGB IX) erstellt. Mein Wunsch- und Wahlrecht (§ 104 SGB IX) wurde nicht berücksichtigt. Quelle: gesetze-im-internet.de/sgb_9_2018/__117.html",
+    "severity_beschreibung": "Schwerwiegender Fehler – Verfahren ohne Beteiligung des Betroffenen"
+  },
+  {
+    "id": "EH_011",
+    "titel": "Bedarfsermittlung nach § 118 SGB IX unzureichend",
+    "beschreibung": "Die Bedarfsermittlung nach § 118 SGB IX muss durch ein Instrument erfolgen, das sich an der ICF (Internationale Klassifikation der Funktionsfähigkeit, Behinderung und Gesundheit) orientiert. Sie muss alle neun Lebensbereiche der ICF abdecken und die individuellen Wünsche des Leistungsberechtigten berücksichtigen. Die Länder haben eigene Bedarfsermittlungsinstrumente (z.B. BEI_NRW, ITP, B.E.Ni). Häufige Fehler: Bedarfsermittlung nicht ICF-basiert, nicht alle Lebensbereiche geprüft, Selbsteinschätzung des Betroffenen ignoriert, veraltetes Instrument verwendet, Gutachten ohne persönlichen Kontakt.",
+    "rechtsbasis": [
+      "§ 118 SGB IX",
+      "§ 142 SGB IX",
+      "ICF (WHO)"
+    ],
+    "severity": "wichtig",
+    "prueflogik": {
+      "bedingungen": [
+        "Eingliederungshilfe",
+        "Bedarfsermittlung durchgeführt oder fehlend",
+        "ICF-Orientierung fraglich"
+      ],
+      "suchbegriffe": [
+        "Bedarfsermittlung",
+        "ICF",
+        "Lebensbereiche",
+        "Funktionsfähigkeit",
+        "Teilhabe",
+        "Selbsteinschätzung",
+        "Gutachten",
+        "Instrument"
+      ]
+    },
+    "musterschreiben_hinweis": "Die Bedarfsermittlung nach § 118 SGB IX erscheint unzureichend. Sie muss sich an der ICF orientieren, alle Lebensbereiche erfassen und die individuelle Lebenssituation unter Beteiligung des Leistungsberechtigten berücksichtigen. Ich bitte um eine erneute, ICF-basierte Bedarfsermittlung. Quelle: gesetze-im-internet.de/sgb_9_2018/__118.html",
+    "severity_beschreibung": "Verfahrensfehler – Bescheid angreifbar, Nachbesserung möglich"
+  },
+  {
+    "id": "FK_001",
+    "titel": "Kindergeld für volljähriges Kind zu Unrecht abgelehnt (§ 32 EStG)",
+    "beschreibung": "Kindergeld für ein volljähriges Kind wurde abgelehnt, obwohl ein Berücksichtigungstatbestand nach § 32 Abs. 4 EStG vorliegt (Ausbildung, Studium, FSJ, Übergangszeit bis 4 Monate, Arbeitssuche).",
+    "rechtsbasis": [
+      "§ 32 Abs. 4 EStG",
+      "§ 63 EStG"
+    ],
+    "severity": "kritisch",
+    "prueflogik": {
+      "bedingungen": [
+        "Kindergeld abgelehnt",
+        "Kind volljährig",
+        "Ausbildung oder Studium"
+      ],
+      "suchbegriffe": [
+        "volljährig",
+        "Kindergeld",
+        "Ausbildung",
+        "Studium",
+        "Berücksichtigung",
+        "18 Jahre"
+      ]
+    },
+    "musterschreiben_hinweis": "Die Ablehnung des Kindergeldes für das volljährige Kind ist nach § 32 Abs. 4 EStG zu überprüfen. Es liegt ein Berücksichtigungstatbestand vor.",
+    "severity_beschreibung": "Kindergeld-Anspruch vollständig betroffen"
+  },
+  {
     "id": "FK_002",
     "titel": "Beratungspflicht § 14 SGB I (Familienkasse)",
     "beschreibung": "Die Familienkasse muss richtig, unmissverständlich und umfassend beraten (§ 14 SGB I). Merkblätter allein reichen nicht. Typischer Fehler: Fehlende Beratung über Kinderzuschlag als Alternative zum Bürgergeld, nicht auf den Zählkindvorteil hingewiesen oder unvollständige Information über Berücksichtigungstatbestände bei volljährigen Kindern (§ 32 Abs. 4 EStG).",
@@ -2383,6 +2817,109 @@
     },
     "musterschreiben_hinweis": "Der Bescheid der Familienkasse genügt nicht den Anforderungen der §§ 35, 24, 36 SGB X. Die Begründung der Kindergeld-Entscheidung ist unzureichend. Ich bitte um Berichtigung.",
     "severity_beschreibung": "Schwerwiegender Fehler – direkter Einfluss auf Leistungsanspruch oder Fristenlauf"
+  },
+  {
+    "id": "FK_007",
+    "titel": "Kindergeld bei EU-Grenzgängern/Auslandsbezug falsch berechnet (VO 883/2004)",
+    "beschreibung": "Bei grenzüberschreitenden Sachverhalten wurde das Kindergeld nicht nach der EU-Koordinierungsverordnung 883/2004 berechnet. Differenzkindergeld oder Länderzuständigkeit wurden fehlerhaft bestimmt.",
+    "rechtsbasis": [
+      "VO (EG) 883/2004",
+      "§ 65 EStG"
+    ],
+    "severity": "kritisch",
+    "prueflogik": {
+      "bedingungen": [
+        "Kindergeld",
+        "EU-Ausland",
+        "Grenzgänger oder Wanderarbeitnehmer"
+      ],
+      "suchbegriffe": [
+        "Ausland",
+        "EU",
+        "Grenzgänger",
+        "Differenzkindergeld",
+        "Koordinierung",
+        "883/2004"
+      ]
+    },
+    "musterschreiben_hinweis": "Die Kindergeldberechnung bei grenzüberschreitendem Sachverhalt ist nach VO (EG) 883/2004 zu überprüfen. Die Zuständigkeitsbestimmung und/oder Differenzberechnung erscheint fehlerhaft.",
+    "severity_beschreibung": "Kindergeld-Höhe oder -Anspruch bei EU-Bezug betroffen"
+  },
+  {
+    "id": "FK_008",
+    "titel": "Kinderzuschlag Einkommensgrenzen falsch angewendet (§ 6a BKGG)",
+    "beschreibung": "Der Kinderzuschlag nach § 6a BKGG wurde abgelehnt oder zu niedrig berechnet. Die Mindesteinkommensgrenze (900€/600€) oder die Höchsteinkommensgrenze wurde fehlerhaft ermittelt.",
+    "rechtsbasis": [
+      "§ 6a BKGG"
+    ],
+    "severity": "kritisch",
+    "prueflogik": {
+      "bedingungen": [
+        "Kinderzuschlag",
+        "Einkommensgrenzen",
+        "Ablehnung oder zu niedrig"
+      ],
+      "suchbegriffe": [
+        "Kinderzuschlag",
+        "Mindesteinkommensgrenze",
+        "Höchsteinkommen",
+        "KiZ",
+        "BKGG"
+      ]
+    },
+    "musterschreiben_hinweis": "Die Berechnung des Kinderzuschlags nach § 6a BKGG ist zu überprüfen. Die angewandten Einkommensgrenzen und die Einkommensanrechnung erscheinen fehlerhaft.",
+    "severity_beschreibung": "Kinderzuschlag-Anspruch möglicherweise zu niedrig oder zu Unrecht abgelehnt"
+  },
+  {
+    "id": "FK_009",
+    "titel": "Kindergeld-Rückforderung ohne vorherige Anhörung (§ 24 SGB X)",
+    "beschreibung": "Kindergeld wird nach § 37 Abs. 2 AO zurückgefordert, ohne dass vorher eine Anhörung nach § 24 SGB X / § 91 AO stattgefunden hat.",
+    "rechtsbasis": [
+      "§ 24 SGB X",
+      "§ 91 AO",
+      "§ 37 Abs. 2 AO"
+    ],
+    "severity": "kritisch",
+    "prueflogik": {
+      "bedingungen": [
+        "Kindergeld",
+        "Rückforderung",
+        "Keine Anhörung"
+      ],
+      "suchbegriffe": [
+        "Rückforderung",
+        "Erstattung",
+        "Anhörung",
+        "Überzahlung",
+        "Kindergeld"
+      ]
+    },
+    "musterschreiben_hinweis": "Die Rückforderung des Kindergeldes ist formell rechtswidrig, da keine ordnungsgemäße Anhörung stattgefunden hat. Der Aufhebungs- und Erstattungsbescheid ist aufzuheben.",
+    "severity_beschreibung": "Formfehler — Rückforderungsbescheid angreifbar"
+  },
+  {
+    "id": "FK_010",
+    "titel": "Zählkindvorteil nicht berücksichtigt",
+    "beschreibung": "Bei der Kindergeldberechnung wurde der Zählkindvorteil nicht berücksichtigt. Kinder aus früheren Beziehungen zählen als Zählkinder, wodurch nachfolgende Kinder einen höheren Kindergeldanspruch auslösen.",
+    "rechtsbasis": [
+      "§ 66 EStG"
+    ],
+    "severity": "wichtig",
+    "prueflogik": {
+      "bedingungen": [
+        "Kindergeld",
+        "Mehrere Kinder aus verschiedenen Beziehungen"
+      ],
+      "suchbegriffe": [
+        "Zählkind",
+        "Zählkindvorteil",
+        "erstes Kind",
+        "drittes Kind",
+        "Staffelung"
+      ]
+    },
+    "musterschreiben_hinweis": "Der Zählkindvorteil wurde bei der Kindergeldberechnung nicht berücksichtigt. Die Reihenfolge der Kinder nach § 66 EStG ist zu überprüfen.",
+    "severity_beschreibung": "Kindergeld-Höhe möglicherweise zu niedrig"
   },
   {
     "id": "JA_002",
@@ -2552,6 +3089,94 @@
     },
     "musterschreiben_hinweis": "Die Ablehnung bzw. Beschränkung der Hilfe zur Erziehung nach §§ 27 ff. SGB VIII ist zu überprüfen. Der erzieherische Bedarf scheint nicht ausreichend berücksichtigt worden zu sein. Nach § 36 SGB VIII ist eine Hilfeplanung unter Beteiligung der Betroffenen durchzuführen.",
     "severity_beschreibung": "Kindeswohl und erzieherischer Bedarf betroffen"
+  },
+  {
+    "id": "JA_009",
+    "titel": "Rechtsanspruch auf Kindertagesbetreuung nach § 24 SGB VIII nicht erfüllt",
+    "beschreibung": "Seit 2013 besteht ein Rechtsanspruch auf frühkindliche Förderung in einer Tageseinrichtung oder Kindertagespflege ab Vollendung des ersten Lebensjahres (§ 24 Abs. 2 SGB VIII). Ab drei Jahren bis Schuleintritt: Anspruch auf Förderung in einer Tageseinrichtung (§ 24 Abs. 3 SGB VIII). Der Träger der öffentlichen Jugendhilfe muss ein bedarfsgerechtes Angebot vorhalten. Häufige Fehler: Kein Platz angeboten trotz Rechtsanspruch (Amtshaftung möglich — BVerwG 5 C 35/12), Verweis auf Warteliste ohne Alternativangebot, Entfernung zum Betreuungsplatz unzumutbar.",
+    "rechtsbasis": [
+      "§ 24 Abs. 2 SGB VIII",
+      "§ 24 Abs. 3 SGB VIII",
+      "BVerwG 5 C 35/12"
+    ],
+    "severity": "kritisch",
+    "prueflogik": {
+      "bedingungen": [
+        "Kind ab 1 Jahr ohne Betreuungsplatz",
+        "Rechtsanspruch nicht erfüllt",
+        "Warteliste oder Platzmangel"
+      ],
+      "suchbegriffe": [
+        "Kita",
+        "Kindertagesbetreuung",
+        "Kitaplatz",
+        "Betreuungsplatz",
+        "Tagespflege",
+        "Rechtsanspruch",
+        "Warteliste",
+        "U3"
+      ]
+    },
+    "musterschreiben_hinweis": "Der Rechtsanspruch auf einen Betreuungsplatz nach § 24 Abs. 2 SGB VIII wurde nicht erfüllt. Es besteht seit dem 01.08.2013 ein individueller Rechtsanspruch ab Vollendung des ersten Lebensjahres. Ich fordere die unverzügliche Bereitstellung eines zumutbaren Betreuungsplatzes und weise auf mögliche Schadenersatzansprüche hin (vgl. BVerwG 5 C 35/12). Quelle: gesetze-im-internet.de/sgb_8/__24.html",
+    "severity_beschreibung": "Schwerwiegender Fehler – Rechtsanspruch verletzt, Amtshaftung möglich"
+  },
+  {
+    "id": "JA_010",
+    "titel": "Vollzeitpflege nach § 33 SGB VIII: Leistungen für Pflegeeltern fehlerhaft",
+    "beschreibung": "Bei Vollzeitpflege (§ 33 SGB VIII) haben Pflegeeltern Anspruch auf Pflegegeld (§ 39 SGB VIII), das den Lebensunterhalt des Kindes (Sachaufwand) und die Kosten der Erziehung umfasst. Die Höhe richtet sich nach Landesrecht (Pflegegeldempfehlungen des Deutschen Vereins). Zusätzlich: einmalige Beihilfen (§ 39 Abs. 3 SGB VIII), Beiträge zur Unfallversicherung und Alterssicherung (§ 39 Abs. 4 SGB VIII). Häufige Fehler: Pflegegeld unterhalb der Landesempfehlungen, einmalige Beihilfen (Erstausstattung, Einschulung) abgelehnt, Alterssicherungsbeiträge nicht gewährt, Sonderbedarf bei Behinderung nicht berücksichtigt.",
+    "rechtsbasis": [
+      "§ 33 SGB VIII",
+      "§ 39 SGB VIII",
+      "§ 39 Abs. 4 SGB VIII"
+    ],
+    "severity": "wichtig",
+    "prueflogik": {
+      "bedingungen": [
+        "Vollzeitpflege/Pflegefamilie",
+        "Pflegegeld oder Beihilfen betroffen",
+        "Leistungen fehlen oder zu niedrig"
+      ],
+      "suchbegriffe": [
+        "Pflegegeld",
+        "Pflegeeltern",
+        "Vollzeitpflege",
+        "Pflegekind",
+        "Beihilfe",
+        "Erstausstattung",
+        "Alterssicherung",
+        "Unfallversicherung"
+      ]
+    },
+    "musterschreiben_hinweis": "Die Leistungen für die Vollzeitpflege nach §§ 33, 39 SGB VIII erscheinen fehlerhaft. Das Pflegegeld muss den Sachaufwand und die Kosten der Erziehung decken. Zusätzlich sind einmalige Beihilfen (§ 39 Abs. 3 SGB VIII) sowie Beiträge zur Alterssicherung und Unfallversicherung (§ 39 Abs. 4 SGB VIII) zu gewähren. Quelle: gesetze-im-internet.de/sgb_8/__39.html",
+    "severity_beschreibung": "Verfahrensfehler – Bescheid angreifbar, Nachbesserung möglich"
+  },
+  {
+    "id": "JA_011",
+    "titel": "Hilfe für junge Volljährige nach § 41 SGB VIII abgelehnt",
+    "beschreibung": "Junge Volljährige (18–21 Jahre, in begründeten Fällen bis 27 Jahre) haben nach § 41 SGB VIII Anspruch auf Hilfe zur Persönlichkeitsentwicklung und eigenverantwortlichen Lebensführung, wenn die Hilfe aufgrund der individuellen Situation notwendig ist. Seit dem KJSG (2021) besteht zudem ein Anspruch auf Nachbetreuung (§ 41a SGB VIII). Häufige Fehler: Hilfe mit Erreichen der Volljährigkeit abrupt beendet (sog. 'Care Leaver'-Problem), Verlängerung über 21 Jahre ohne Prüfung abgelehnt, Nachbetreuung nach § 41a nicht angeboten, Verweis auf SGB II/XII statt Fortführung der Jugendhilfe.",
+    "rechtsbasis": [
+      "§ 41 SGB VIII",
+      "§ 41a SGB VIII"
+    ],
+    "severity": "kritisch",
+    "prueflogik": {
+      "bedingungen": [
+        "Junger Volljähriger (18–27 Jahre)",
+        "Jugendhilfe beendet oder abgelehnt",
+        "Persönlichkeitsentwicklung noch nicht abgeschlossen"
+      ],
+      "suchbegriffe": [
+        "junge Volljährige",
+        "Care Leaver",
+        "Verselbständigung",
+        "Volljährigkeit",
+        "Nachbetreuung",
+        "§ 41",
+        "Hilfe beendet"
+      ]
+    },
+    "musterschreiben_hinweis": "Die Ablehnung/Beendigung der Hilfe für junge Volljährige nach § 41 SGB VIII ist zu überprüfen. Der Anspruch besteht bis zur Vollendung des 21. Lebensjahres, in begründeten Fällen bis 27. Seit dem KJSG 2021 besteht zusätzlich ein Anspruch auf Nachbetreuung (§ 41a SGB VIII). Die Hilfe darf nicht abrupt mit Erreichen der Volljährigkeit enden. Quelle: gesetze-im-internet.de/sgb_8/__41.html",
+    "severity_beschreibung": "Schwerwiegender Fehler – Verselbständigung junger Menschen gefährdet"
   },
   {
     "id": "KK_002",
@@ -3757,103 +4382,335 @@
     "severity_beschreibung": "Ungedeckter Pflegebedarf"
   },
   {
-    "id": "UVS_001",
-    "titel": "Beratungspflicht nicht erfüllt (Unterhaltsvorschuss-Stelle)",
-    "beschreibung": "Die zuständige Stelle hat nicht über den Anspruch auf Unterhaltsvorschuss nach dem UVG informiert.",
+    "id": "SH_010",
+    "titel": "Grundsicherung im Alter: Leistungsvoraussetzungen nach § 41 SGB XII falsch geprüft",
+    "beschreibung": "Anspruch auf Grundsicherung im Alter besteht ab Erreichen der Altersgrenze (§ 41 Abs. 1 SGB XII) oder bei dauerhafter voller Erwerbsminderung ab 18 Jahren (§ 41 Abs. 3 SGB XII). Häufige Fehler: Ablehnung trotz vorliegender dauerhafter voller Erwerbsminderung, fehlerhafte Berechnung der Altersgrenze (stufenweise Anhebung analog § 235 SGB VI), Verwechslung mit Hilfe zum Lebensunterhalt (§§ 27 ff. SGB XII), Nichtberücksichtigung von § 41 Abs. 3 S. 2 SGB XII (Fiktion der Erwerbsminderung bei Werkstattbeschäftigten).",
     "rechtsbasis": [
-      "§ 14 SGB I",
-      "§ 1 UVG"
-    ],
-    "severity": "hinweis",
-    "prueflogik": {
-      "bedingungen": [
-        "Alleinerziehend",
-        "Fehlende Beratung über Unterhaltsvorschuss"
-      ],
-      "suchbegriffe": [
-        "Unterhaltsvorschuss",
-        "alleinerziehend",
-        "UVG",
-        "Unterhalt"
-      ]
-    },
-    "musterschreiben_hinweis": "Die Beratungspflicht nach § 14 SGB I scheint nicht erfüllt worden zu sein. Ich bitte um vollständige Information über den Anspruch auf Unterhaltsvorschuss nach dem UVG.",
-    "severity_beschreibung": "Informationspflichtverletzung"
-  },
-  {
-    "id": "UVS_002",
-    "titel": "Unterhaltsvorschuss abgelehnt trotz Voraussetzungen",
-    "beschreibung": "Der Antrag auf Unterhaltsvorschuss nach § 1 UVG wurde abgelehnt, obwohl das Kind bei einem alleinerziehenden Elternteil lebt und der andere Elternteil keinen Unterhalt zahlt.",
-    "rechtsbasis": [
-      "§ 1 UVG"
+      "§ 41 SGB XII",
+      "§ 41 Abs. 3 SGB XII",
+      "§ 43 Abs. 2 SGB VI"
     ],
     "severity": "kritisch",
     "prueflogik": {
       "bedingungen": [
-        "Unterhaltsvorschuss abgelehnt",
-        "Kind bei alleinerziehend",
-        "Kein Unterhalt"
+        "Grundsicherung im Alter oder bei Erwerbsminderung",
+        "Ablehnung oder fehlerhafte Voraussetzungsprüfung",
+        "Altersgrenze oder Erwerbsminderungsstatus betroffen"
       ],
       "suchbegriffe": [
-        "Unterhaltsvorschuss",
-        "alleinerziehend",
-        "Unterhalt",
-        "Barunterhalt",
-        "abgelehnt"
+        "Grundsicherung",
+        "Alter",
+        "Erwerbsminderung",
+        "dauerhaft",
+        "voll erwerbsgemindert",
+        "Altersgrenze",
+        "Werkstatt"
       ]
     },
-    "musterschreiben_hinweis": "Die Ablehnung des Unterhaltsvorschusses nach § 1 UVG ist zu überprüfen. Das Kind lebt bei einem alleinerziehenden Elternteil und erhält keinen oder unregelmäßigen Unterhalt vom anderen Elternteil.",
-    "severity_beschreibung": "Unterhaltsvorschuss für das Kind betroffen"
+    "musterschreiben_hinweis": "Die Prüfung der Leistungsvoraussetzungen nach § 41 SGB XII erscheint fehlerhaft. Nach § 41 Abs. 1 SGB XII besteht ein Anspruch ab Erreichen der Altersgrenze, nach Abs. 3 bei dauerhafter voller Erwerbsminderung ab 18 Jahren. Ich bitte um erneute Prüfung unter Berücksichtigung der aktuellen medizinischen Befunde bzw. des Rentenversicherungsträger-Bescheids. Quelle: gesetze-im-internet.de/sgb_12/__41.html",
+    "severity_beschreibung": "Schwerwiegender Fehler – direkter Einfluss auf Leistungsanspruch oder Fristenlauf"
   },
   {
-    "id": "UVS_003",
-    "titel": "Unterhaltsvorschuss bei Einkommensänderung nicht angepasst",
-    "beschreibung": "Der Unterhaltsvorschuss wurde nach einer Einkommensänderung des barunterhaltspflichtigen Elternteils nicht angepasst.",
+    "id": "SH_011",
+    "titel": "Umfang der Grundsicherungsleistungen nach § 42 SGB XII fehlerhaft berechnet",
+    "beschreibung": "Der Leistungsumfang der Grundsicherung umfasst nach § 42 Nr. 1–5 SGB XII: Regelbedarf (§ 28 SGB XII), Aufwendungen für Unterkunft und Heizung (§ 42a SGB XII), Mehrbedarfe (§ 30 SGB XII), einmalige Bedarfe (§ 31 SGB XII) sowie Beiträge zur Kranken-/Pflegeversicherung (§ 32 SGB XII). Häufige Fehler: Einzelne Bedarfskomponenten vergessen (insb. Mehrbedarf, KV/PV-Beiträge), Regelbedarf falsche Stufe zugeordnet, Vorsorgebeiträge (§ 42 Nr. 4 SGB XII) nicht berücksichtigt.",
     "rechtsbasis": [
-      "§ 2 UVG",
-      "§ 5 UVG"
+      "§ 42 SGB XII",
+      "§ 28 SGB XII",
+      "§ 42a SGB XII",
+      "§ 30 SGB XII"
+    ],
+    "severity": "kritisch",
+    "prueflogik": {
+      "bedingungen": [
+        "Grundsicherungsbescheid",
+        "Leistungsberechnung",
+        "einzelne Bedarfskomponenten fehlen oder falsch"
+      ],
+      "suchbegriffe": [
+        "Regelbedarf",
+        "Unterkunft",
+        "Heizung",
+        "Mehrbedarf",
+        "Krankenversicherung",
+        "Pflegeversicherung",
+        "Vorsorge",
+        "Leistungshöhe"
+      ]
+    },
+    "musterschreiben_hinweis": "Die Berechnung der Grundsicherungsleistungen nach § 42 SGB XII erscheint unvollständig. Nicht alle gesetzlich vorgesehenen Bedarfskomponenten (Regelbedarf, KdU, Mehrbedarf, KV/PV-Beiträge, Vorsorge) wurden berücksichtigt. Ich bitte um vollständige Neuberechnung. Quelle: gesetze-im-internet.de/sgb_12/__42.html",
+    "severity_beschreibung": "Schwerwiegender Fehler – direkter Einfluss auf Leistungsanspruch oder Fristenlauf"
+  },
+  {
+    "id": "SH_012",
+    "titel": "Bedarfe für Unterkunft und Heizung nach § 42a SGB XII fehlerhaft",
+    "beschreibung": "Die Bedarfe für Unterkunft und Heizung werden nach § 42a SGB XII in Höhe der tatsächlichen Aufwendungen anerkannt, soweit sie angemessen sind. Bei Unangemessenheit muss der Träger ein schlüssiges Konzept zur Bestimmung der Angemessenheitsgrenze haben (BSG B 8 SO 10/10 R). Vor Absenkung ist eine Kostensenkungsaufforderung mit angemessener Frist (i.d.R. 6 Monate) erforderlich. Häufige Fehler: Kürzung ohne schlüssiges Konzept, keine oder zu kurze Kostensenkungsfrist, Heizkosten pauschal gedeckelt statt nach tatsächlichem Bedarf.",
+    "rechtsbasis": [
+      "§ 42a SGB XII",
+      "§ 35 SGB XII",
+      "BSG B 8 SO 10/10 R"
+    ],
+    "severity": "kritisch",
+    "prueflogik": {
+      "bedingungen": [
+        "Grundsicherung oder Hilfe zum Lebensunterhalt",
+        "Unterkunfts- oder Heizkosten betroffen",
+        "Kürzung, Ablehnung oder Angemessenheitsprüfung"
+      ],
+      "suchbegriffe": [
+        "Unterkunft",
+        "Heizung",
+        "KdU",
+        "Miete",
+        "angemessen",
+        "Kostensenkung",
+        "Warmmiete",
+        "Mietobergrenze"
+      ]
+    },
+    "musterschreiben_hinweis": "Die Berechnung der Bedarfe für Unterkunft und Heizung nach § 42a SGB XII erscheint fehlerhaft. Nach BSG-Rechtsprechung (B 8 SO 10/10 R) muss der Träger ein schlüssiges Konzept zur Angemessenheitsbestimmung vorlegen. Vor einer Absenkung ist zudem eine Kostensenkungsaufforderung mit angemessener Frist erforderlich. Quelle: gesetze-im-internet.de/sgb_12/__42a.html",
+    "severity_beschreibung": "Schwerwiegender Fehler – direkter Einfluss auf Leistungsanspruch oder Fristenlauf"
+  },
+  {
+    "id": "SH_013",
+    "titel": "Mehrbedarf nach § 30 SGB XII nicht berücksichtigt",
+    "beschreibung": "§ 30 SGB XII gewährt Mehrbedarfe für bestimmte Personengruppen: Abs. 1 — Gehbehinderte mit Merkzeichen G (17 % des Regelbedarfs), Abs. 2 — werdende Mütter ab 12. SSW (17 %), Abs. 3 — Alleinerziehende (12–60 % je nach Kinderzahl/Alter), Abs. 4 — Behinderte in Eingliederungshilfe (35 %), Abs. 5 — kostenaufwändige Ernährung aus medizinischen Gründen (angemessener Betrag), Abs. 7 — dezentrale Warmwassererzeugung. Häufige Fehler: Mehrbedarf nicht von Amts wegen geprüft, obwohl Hinweise auf Anspruch vorliegen; kostenaufwändige Ernährung ohne ärztliches Attest abgelehnt statt Ermittlung von Amts wegen.",
+    "rechtsbasis": [
+      "§ 30 SGB XII",
+      "§ 30 Abs. 1 SGB XII",
+      "§ 30 Abs. 5 SGB XII"
+    ],
+    "severity": "kritisch",
+    "prueflogik": {
+      "bedingungen": [
+        "Sozialhilfe/Grundsicherungsbescheid",
+        "Mehrbedarf nicht geprüft oder abgelehnt",
+        "Hinweise auf Schwangerschaft, Alleinerziehung, Behinderung, Diät oder Warmwasser"
+      ],
+      "suchbegriffe": [
+        "Mehrbedarf",
+        "Merkzeichen G",
+        "gehbehindert",
+        "Alleinerziehend",
+        "Schwangerschaft",
+        "Ernährung",
+        "Diät",
+        "Warmwasser",
+        "Eingliederungshilfe"
+      ]
+    },
+    "musterschreiben_hinweis": "Der gesetzliche Mehrbedarf nach § 30 SGB XII wurde nicht berücksichtigt. Der Träger ist verpflichtet, Mehrbedarfe von Amts wegen zu prüfen, wenn Anhaltspunkte vorliegen. Ich bitte um Prüfung und rückwirkende Nachzahlung. Quelle: gesetze-im-internet.de/sgb_12/__30.html",
+    "severity_beschreibung": "Schwerwiegender Fehler – direkter Einfluss auf Leistungsanspruch oder Fristenlauf"
+  },
+  {
+    "id": "SH_014",
+    "titel": "Bildungs- und Teilhabeleistungen nach § 34 SGB XII nicht gewährt",
+    "beschreibung": "Kinder und Jugendliche in SGB-XII-Bedarfsgemeinschaften haben Anspruch auf Bildungs- und Teilhabeleistungen (§ 34 SGB XII): Schulausflüge und mehrtägige Klassenfahrten (Abs. 2), persönlicher Schulbedarf 174 €/Jahr (Abs. 3, Stand 2026), Schülerbeförderung (Abs. 4), Lernförderung (Abs. 5), gemeinschaftliche Mittagsverpflegung (Abs. 6), Teilhabe am sozialen/kulturellen Leben 15 €/Monat (Abs. 7). Häufige Fehler: Eltern nicht auf BuT-Leistungen hingewiesen, Lernförderung nur bei Versetzungsgefährdung bewilligt (BSG: auch darüber hinaus möglich), Teilhabeleistungen pauschal abgelehnt.",
+    "rechtsbasis": [
+      "§ 34 SGB XII",
+      "§ 34 Abs. 2–7 SGB XII"
     ],
     "severity": "wichtig",
     "prueflogik": {
       "bedingungen": [
-        "Unterhaltsvorschuss",
-        "Einkommensänderung",
-        "Keine Anpassung"
+        "Sozialhilfe/Grundsicherung mit Kindern",
+        "Bildung und Teilhabe nicht gewährt oder nicht erwähnt",
+        "Schulbedarf, Lernförderung, Teilhabe, Mittagessen betroffen"
       ],
       "suchbegriffe": [
-        "Unterhaltsvorschuss",
-        "Anpassung",
-        "Einkommen",
-        "Änderung",
-        "Höhe"
+        "Bildung",
+        "Teilhabe",
+        "BuT",
+        "Schulbedarf",
+        "Lernförderung",
+        "Nachhilfe",
+        "Klassenfahrt",
+        "Mittagessen",
+        "Sportverein",
+        "Musikschule"
       ]
     },
-    "musterschreiben_hinweis": "Die Höhe des Unterhaltsvorschusses nach § 2 UVG ist zu überprüfen. Eine Einkommensänderung beim unterhaltspflichtigen Elternteil wurde möglicherweise nicht berücksichtigt.",
-    "severity_beschreibung": "Höhe des Unterhaltsvorschusses möglicherweise falsch"
+    "musterschreiben_hinweis": "Die Bildungs- und Teilhabeleistungen nach § 34 SGB XII wurden nicht berücksichtigt. Der Träger hat eine Hinweispflicht auf diese Leistungen. Ich beantrage die Gewährung der zustehenden BuT-Leistungen. Quelle: gesetze-im-internet.de/sgb_12/__34.html",
+    "severity_beschreibung": "Verfahrensfehler – Bescheid angreifbar, Nachbesserung möglich"
   },
   {
-    "id": "UVS_004",
-    "titel": "Bescheid ohne Rechtsbehelfsbelehrung (Unterhaltsvorschuss)",
-    "beschreibung": "Dem Bescheid fehlt die vorgeschriebene Rechtsbehelfsbelehrung, wodurch die Widerspruchsfrist verlängert wird.",
+    "id": "SH_015",
+    "titel": "Schonvermögen nach § 90 SGB XII falsch bewertet",
+    "beschreibung": "Nach § 90 Abs. 2 SGB XII ist bestimmtes Vermögen geschützt (Schonvermögen): angemessenes Hausgrundstück (Nr. 8), Gegenstände für Berufsausübung (Nr. 1), Familien-/Erbstücke (Nr. 6), angemessener Hausrat (Nr. 4), kleinere Barbeträge (Nr. 9 — aktuell 10.000 € pro Person bei Grundsicherung im Alter, VO zu § 90 Abs. 2 Nr. 9 SGB XII). Abs. 3: Härtefallregelung wenn Vermögensverwertung unwirtschaftlich wäre. Häufige Fehler: Barbetragsgrenze falsch angesetzt, selbstgenutztes Hausgrundstück als verwertbar eingestuft, Altersvorsorge (Riester) nicht als geschützt anerkannt, Härtefall nicht geprüft.",
     "rechtsbasis": [
-      "§ 37 VwVfG",
-      "§ 70 VwGO"
+      "§ 90 SGB XII",
+      "§ 90 Abs. 2 Nr. 9 SGB XII",
+      "VO zu § 90 Abs. 2 Nr. 9 SGB XII",
+      "§ 90 Abs. 3 SGB XII"
+    ],
+    "severity": "kritisch",
+    "prueflogik": {
+      "bedingungen": [
+        "Sozialhilfe/Grundsicherung",
+        "Vermögen angerechnet oder Ablehnung wegen Vermögen",
+        "Freibeträge, Hausgrundstück, Altersvorsorge betroffen"
+      ],
+      "suchbegriffe": [
+        "Vermögen",
+        "Schonvermögen",
+        "Freibetrag",
+        "Barbetrag",
+        "Hausgrundstück",
+        "Altersvorsorge",
+        "Riester",
+        "verwertbar",
+        "Härtefall"
+      ]
+    },
+    "musterschreiben_hinweis": "Die Vermögensprüfung nach § 90 SGB XII erscheint fehlerhaft. Das angerechnete Vermögen fällt möglicherweise unter den Schonvermögensschutz (§ 90 Abs. 2 SGB XII) oder eine Härtefallregelung (§ 90 Abs. 3 SGB XII). Der Barbetragsfreibetrag beträgt 10.000 € pro Person. Ich bitte um erneute Prüfung. Quelle: gesetze-im-internet.de/sgb_12/__90.html",
+    "severity_beschreibung": "Schwerwiegender Fehler – direkter Einfluss auf Leistungsanspruch oder Fristenlauf"
+  },
+  {
+    "id": "SH_016",
+    "titel": "Kenntnisgrundsatz nach § 18 SGB XII verletzt — Leistungsbeginn ab Kenntnis, nicht ab Antrag",
+    "beschreibung": "Anders als im SGB II (Antragsprinzip) gilt in der Sozialhilfe der Kenntnisgrundsatz (§ 18 SGB XII): Leistungen setzen ein, sobald dem Träger die Notlage bekannt wird — unabhängig von einem formellen Antrag. Ausnahme: Grundsicherung im Alter/bei Erwerbsminderung (§§ 41 ff.) erfordert seit 2020 einen Antrag (§ 44 SGB XII). Häufige Fehler: Bei Hilfe zum Lebensunterhalt (§§ 27 ff.) Leistungen erst ab Antragsdatum statt ab Kenntnis gewährt, Erstattung für den Zeitraum vor Antrag verweigert.",
+    "rechtsbasis": [
+      "§ 18 SGB XII",
+      "§ 44 SGB XII"
+    ],
+    "severity": "kritisch",
+    "prueflogik": {
+      "bedingungen": [
+        "Hilfe zum Lebensunterhalt (nicht Grundsicherung im Alter)",
+        "Leistungsbeginn erst ab Antragsdatum",
+        "Behörde hatte vorher Kenntnis der Notlage"
+      ],
+      "suchbegriffe": [
+        "Kenntnis",
+        "Leistungsbeginn",
+        "Antrag",
+        "Hilfe zum Lebensunterhalt",
+        "Einsetzen der Sozialhilfe",
+        "rückwirkend"
+      ]
+    },
+    "musterschreiben_hinweis": "Der Leistungsbeginn wurde fehlerhaft auf das Antragsdatum festgesetzt. Nach § 18 SGB XII setzt die Sozialhilfe (Hilfe zum Lebensunterhalt) bereits mit Kenntnis des Trägers von der Notlage ein, nicht erst mit einem formellen Antrag. Ich bitte um rückwirkende Gewährung ab dem Zeitpunkt der Kenntnisnahme. Quelle: gesetze-im-internet.de/sgb_12/__18.html",
+    "severity_beschreibung": "Schwerwiegender Fehler – direkter Einfluss auf Leistungsanspruch oder Fristenlauf"
+  },
+  {
+    "id": "SH_017",
+    "titel": "Rückforderung/Aufhebung von Sozialhilfe nach §§ 45/48 SGB X fehlerhaft",
+    "beschreibung": "Bei Rückforderungen oder Aufhebungen von Sozialhilfeleistungen gelten die allgemeinen Verfahrensvorschriften des SGB X: § 45 SGB X (Rücknahme rechtswidriger begünstigender VA — Vertrauensschutz, 10-Jahres-Frist), § 48 SGB X (Aufhebung bei Änderung der Verhältnisse — wesentliche Änderung erforderlich), § 50 SGB X (Erstattung zu Unrecht erbrachter Leistungen). Häufige Fehler: Anhörung nach § 24 SGB X vor Rückforderung unterlassen, Vertrauensschutz nach § 45 Abs. 2 SGB X nicht geprüft, Jahresfrist nach § 45 Abs. 4 S. 2 SGB X überschritten (1 Jahr ab Kenntnis der Rücknahmevoraussetzungen), Ermessen bei § 48 nicht ausgeübt.",
+    "rechtsbasis": [
+      "§ 45 SGB X",
+      "§ 48 SGB X",
+      "§ 50 SGB X",
+      "§ 24 SGB X"
+    ],
+    "severity": "kritisch",
+    "prueflogik": {
+      "bedingungen": [
+        "Sozialhilfe/Grundsicherungsbescheid",
+        "Rückforderung, Aufhebung oder Erstattung",
+        "Vertrauensschutz, Frist oder Anhörung betroffen"
+      ],
+      "suchbegriffe": [
+        "Rückforderung",
+        "Aufhebung",
+        "Erstattung",
+        "Vertrauensschutz",
+        "zu Unrecht",
+        "Überzahlung",
+        "Rücknahme",
+        "Anhörung"
+      ]
+    },
+    "musterschreiben_hinweis": "Die Rückforderung/Aufhebung nach §§ 45/48 SGB X erscheint fehlerhaft. Es wurde nicht ausreichend geprüft, ob Vertrauensschutz nach § 45 Abs. 2 SGB X besteht, ob die Jahresfrist (§ 45 Abs. 4 S. 2 SGB X) eingehalten wurde und ob eine ordnungsgemäße Anhörung (§ 24 SGB X) stattfand. Quelle: gesetze-im-internet.de/sgb_10/__45.html",
+    "severity_beschreibung": "Schwerwiegender Fehler – direkter Einfluss auf Leistungsanspruch oder Fristenlauf"
+  },
+  {
+    "id": "SH_018",
+    "titel": "Hilfen zur Gesundheit nach §§ 47–52 SGB XII abgelehnt",
+    "beschreibung": "Personen ohne Krankenversicherungsschutz haben Anspruch auf Hilfen zur Gesundheit nach §§ 47–52 SGB XII: vorbeugende Gesundheitshilfe (§ 47), Hilfe bei Krankheit (§ 48), Hilfe zur Familienplanung (§ 49), Hilfe bei Schwangerschaft/Mutterschaft (§ 50), Hilfe bei Sterilisation (§ 51). Der Leistungsumfang entspricht dem der GKV (§ 52 SGB XII). Häufige Fehler: Pauschalverweis auf GKV ohne Prüfung ob tatsächlich Versicherungsschutz besteht, Ablehnung bei EU-Bürgern ohne Krankenversicherung, fehlende Notfallversorgung.",
+    "rechtsbasis": [
+      "§§ 47–52 SGB XII",
+      "§ 48 SGB XII",
+      "§ 52 SGB XII"
+    ],
+    "severity": "kritisch",
+    "prueflogik": {
+      "bedingungen": [
+        "Person ohne Krankenversicherung",
+        "Hilfen zur Gesundheit beantragt oder benötigt",
+        "Ablehnung durch Sozialamt"
+      ],
+      "suchbegriffe": [
+        "Hilfe bei Krankheit",
+        "Gesundheitshilfe",
+        "nicht versichert",
+        "Krankenversicherung",
+        "Behandlung",
+        "Notfall",
+        "EU-Bürger"
+      ]
+    },
+    "musterschreiben_hinweis": "Die Ablehnung der Hilfen zur Gesundheit nach §§ 47 ff. SGB XII ist zu überprüfen. Personen ohne Krankenversicherungsschutz haben nach § 48 SGB XII einen Anspruch auf Hilfe bei Krankheit im Umfang der GKV-Leistungen (§ 52 SGB XII). Ein pauschaler Verweis auf die GKV ist unzulässig, wenn kein tatsächlicher Versicherungsschutz besteht. Quelle: gesetze-im-internet.de/sgb_12/__48.html",
+    "severity_beschreibung": "Schwerwiegender Fehler – direkter Einfluss auf Leistungsanspruch oder Fristenlauf"
+  },
+  {
+    "id": "SH_019",
+    "titel": "Hilfe zur Überwindung besonderer sozialer Schwierigkeiten nach §§ 67–69 SGB XII verweigert",
+    "beschreibung": "Personen in besonderen sozialen Schwierigkeiten (Obdachlosigkeit, drohender Wohnungsverlust, Haftentlassung, gewaltbetroffene Personen) haben nach §§ 67–69 SGB XII Anspruch auf besondere Leistungen der Sozialhilfe: Beratung, persönliche Betreuung, Hilfe bei Wohnungserhalt/-beschaffung. Leistungen umfassen alle Maßnahmen, die notwendig sind, um die Schwierigkeiten abzuwenden oder zu überwinden (§ 68 SGB XII). DVO zu § 69 SGB XII konkretisiert den Personenkreis. Häufige Fehler: Leistung nicht bekannt oder nicht angeboten, Verweis auf andere Träger ohne Prüfung, keine aufsuchende Hilfe bei Obdachlosigkeit.",
+    "rechtsbasis": [
+      "§§ 67–69 SGB XII",
+      "§ 68 SGB XII",
+      "DVO zu § 69 SGB XII"
     ],
     "severity": "wichtig",
     "prueflogik": {
       "bedingungen": [
-        "Unterhaltsvorschuss-Bescheid",
-        "Keine Rechtsbehelfsbelehrung"
+        "Besondere soziale Schwierigkeiten (Obdachlosigkeit, Wohnungsverlust, Gewalt, Haft)",
+        "Hilfe nicht angeboten oder abgelehnt"
       ],
       "suchbegriffe": [
-        "Rechtsbehelfsbelehrung",
-        "Widerspruch",
-        "Frist",
-        "Unterhaltsvorschuss"
+        "Obdachlosigkeit",
+        "Wohnungslosigkeit",
+        "Wohnungsverlust",
+        "soziale Schwierigkeiten",
+        "Haftentlassung",
+        "Gewalt",
+        "aufsuchend",
+        "Notunterkunft"
       ]
     },
-    "musterschreiben_hinweis": "Dem Bescheid fehlt eine ordnungsgemäße Rechtsbehelfsbelehrung. Die Widerspruchsfrist beträgt daher ein Jahr.",
-    "severity_beschreibung": "Verlängerte Widerspruchsfrist"
+    "musterschreiben_hinweis": "Es besteht ein Anspruch auf Hilfe zur Überwindung besonderer sozialer Schwierigkeiten nach §§ 67 ff. SGB XII. Der Sozialhilfeträger ist verpflichtet, geeignete Maßnahmen zur Abwendung der besonderen Lebenslage anzubieten und durchzuführen. Quelle: gesetze-im-internet.de/sgb_12/__67.html",
+    "severity_beschreibung": "Verfahrensfehler – Bescheid angreifbar, Nachbesserung möglich"
+  },
+  {
+    "id": "SH_020",
+    "titel": "Regelbedarf nach § 28 SGB XII: falsche Regelbedarfsstufe zugeordnet",
+    "beschreibung": "Der Regelbedarf wird nach § 28 SGB XII i.V.m. der Regelbedarfsstufen-Fortschreibungsverordnung (RBSFV) bestimmt. Es gibt 6 Stufen (Stand 2026): Stufe 1 — 563 € (Alleinstehende/Alleinerziehende), Stufe 2 — 506 € (Paare je Partner), Stufe 3 — 451 € (erwachsene Leistungsberechtigte ohne eigenen Haushalt), Stufe 4 — 390 € (Jugendliche 14–17), Stufe 5 — 357 € (Kinder 6–13), Stufe 6 — 318 € (Kinder 0–5). Häufige Fehler: Stufe 3 statt Stufe 1 bei Alleinstehenden in Wohngemeinschaft, Stufe bei Kindern falsch nach Altersgrenze zugeordnet, Fortschreibung nicht zum 01.01. aktualisiert.",
+    "rechtsbasis": [
+      "§ 28 SGB XII",
+      "§ 28a SGB XII",
+      "RBSFV 2026"
+    ],
+    "severity": "kritisch",
+    "prueflogik": {
+      "bedingungen": [
+        "Sozialhilfe/Grundsicherungsbescheid",
+        "Regelbedarf oder Regelbedarfsstufe falsch",
+        "Betrag weicht von geltender RBSFV ab"
+      ],
+      "suchbegriffe": [
+        "Regelbedarf",
+        "Regelbedarfsstufe",
+        "Regelsatz",
+        "Stufe 1",
+        "Stufe 2",
+        "Stufe 3",
+        "563",
+        "506",
+        "451"
+      ]
+    },
+    "musterschreiben_hinweis": "Der zugrunde gelegte Regelbedarf nach § 28 SGB XII entspricht nicht der korrekten Regelbedarfsstufe. Nach der aktuellen RBSFV beträgt der Regelbedarf für Alleinstehende 563 € (Stufe 1, Stand 2026). Ich bitte um Korrektur der Regelbedarfsstufe und Nachzahlung. Quelle: gesetze-im-internet.de/sgb_12/__28.html, bgbl.de (RBSFV)",
+    "severity_beschreibung": "Schwerwiegender Fehler – direkter Einfluss auf Leistungsanspruch oder Fristenlauf"
   },
   {
     "id": "UV_002",
@@ -4047,6 +4904,256 @@
     },
     "musterschreiben_hinweis": "Die Feststellung der Minderung der Erwerbsfähigkeit (MdE) nach § 56 SGB VII erscheint überprüfungsbedürftig. Die Auswirkungen der Verletzung/Erkrankung auf die Erwerbsfähigkeit wurden möglicherweise nicht vollständig berücksichtigt.",
     "severity_beschreibung": "Rentenanspruch aus Unfallversicherung betroffen"
+  },
+  {
+    "id": "UVS_001",
+    "titel": "Beratungspflicht nicht erfüllt (Unterhaltsvorschuss-Stelle)",
+    "beschreibung": "Die zuständige Stelle hat nicht über den Anspruch auf Unterhaltsvorschuss nach dem UVG informiert.",
+    "rechtsbasis": [
+      "§ 14 SGB I",
+      "§ 1 UVG"
+    ],
+    "severity": "hinweis",
+    "prueflogik": {
+      "bedingungen": [
+        "Alleinerziehend",
+        "Fehlende Beratung über Unterhaltsvorschuss"
+      ],
+      "suchbegriffe": [
+        "Unterhaltsvorschuss",
+        "alleinerziehend",
+        "UVG",
+        "Unterhalt"
+      ]
+    },
+    "musterschreiben_hinweis": "Die Beratungspflicht nach § 14 SGB I scheint nicht erfüllt worden zu sein. Ich bitte um vollständige Information über den Anspruch auf Unterhaltsvorschuss nach dem UVG.",
+    "severity_beschreibung": "Informationspflichtverletzung"
+  },
+  {
+    "id": "UVS_002",
+    "titel": "Unterhaltsvorschuss abgelehnt trotz Voraussetzungen",
+    "beschreibung": "Der Antrag auf Unterhaltsvorschuss nach § 1 UVG wurde abgelehnt, obwohl das Kind bei einem alleinerziehenden Elternteil lebt und der andere Elternteil keinen Unterhalt zahlt.",
+    "rechtsbasis": [
+      "§ 1 UVG"
+    ],
+    "severity": "kritisch",
+    "prueflogik": {
+      "bedingungen": [
+        "Unterhaltsvorschuss abgelehnt",
+        "Kind bei alleinerziehend",
+        "Kein Unterhalt"
+      ],
+      "suchbegriffe": [
+        "Unterhaltsvorschuss",
+        "alleinerziehend",
+        "Unterhalt",
+        "Barunterhalt",
+        "abgelehnt"
+      ]
+    },
+    "musterschreiben_hinweis": "Die Ablehnung des Unterhaltsvorschusses nach § 1 UVG ist zu überprüfen. Das Kind lebt bei einem alleinerziehenden Elternteil und erhält keinen oder unregelmäßigen Unterhalt vom anderen Elternteil.",
+    "severity_beschreibung": "Unterhaltsvorschuss für das Kind betroffen"
+  },
+  {
+    "id": "UVS_003",
+    "titel": "Unterhaltsvorschuss bei Einkommensänderung nicht angepasst",
+    "beschreibung": "Der Unterhaltsvorschuss wurde nach einer Einkommensänderung des barunterhaltspflichtigen Elternteils nicht angepasst.",
+    "rechtsbasis": [
+      "§ 2 UVG",
+      "§ 5 UVG"
+    ],
+    "severity": "wichtig",
+    "prueflogik": {
+      "bedingungen": [
+        "Unterhaltsvorschuss",
+        "Einkommensänderung",
+        "Keine Anpassung"
+      ],
+      "suchbegriffe": [
+        "Unterhaltsvorschuss",
+        "Anpassung",
+        "Einkommen",
+        "Änderung",
+        "Höhe"
+      ]
+    },
+    "musterschreiben_hinweis": "Die Höhe des Unterhaltsvorschusses nach § 2 UVG ist zu überprüfen. Eine Einkommensänderung beim unterhaltspflichtigen Elternteil wurde möglicherweise nicht berücksichtigt.",
+    "severity_beschreibung": "Höhe des Unterhaltsvorschusses möglicherweise falsch"
+  },
+  {
+    "id": "UVS_004",
+    "titel": "Bescheid ohne Rechtsbehelfsbelehrung (Unterhaltsvorschuss)",
+    "beschreibung": "Dem Bescheid fehlt die vorgeschriebene Rechtsbehelfsbelehrung, wodurch die Widerspruchsfrist verlängert wird.",
+    "rechtsbasis": [
+      "§ 37 VwVfG",
+      "§ 70 VwGO"
+    ],
+    "severity": "wichtig",
+    "prueflogik": {
+      "bedingungen": [
+        "Unterhaltsvorschuss-Bescheid",
+        "Keine Rechtsbehelfsbelehrung"
+      ],
+      "suchbegriffe": [
+        "Rechtsbehelfsbelehrung",
+        "Widerspruch",
+        "Frist",
+        "Unterhaltsvorschuss"
+      ]
+    },
+    "musterschreiben_hinweis": "Dem Bescheid fehlt eine ordnungsgemäße Rechtsbehelfsbelehrung. Die Widerspruchsfrist beträgt daher ein Jahr.",
+    "severity_beschreibung": "Verlängerte Widerspruchsfrist"
+  },
+  {
+    "id": "UVS_005",
+    "titel": "Altersgrenze 12-18 Jahre falsch angewendet (§ 1 Abs. 1a UVG)",
+    "beschreibung": "Für Kinder ab 12 Jahren gelten seit der UVG-Reform 2017 Zusatzvoraussetzungen nach § 1 Abs. 1a UVG (Kind bezieht keine SGB-II-Leistungen ODER Elternteil verdient mind. 600€ brutto). Diese wurden fehlerhaft geprüft.",
+    "rechtsbasis": [
+      "§ 1 Abs. 1a UVG"
+    ],
+    "severity": "kritisch",
+    "prueflogik": {
+      "bedingungen": [
+        "Unterhaltsvorschuss",
+        "Kind 12-17 Jahre",
+        "Ablehnung oder Einstellung"
+      ],
+      "suchbegriffe": [
+        "Altersgrenze",
+        "12 Jahre",
+        "Zusatzvoraussetzung",
+        "600 Euro",
+        "SGB II",
+        "Unterhaltsvorschuss"
+      ]
+    },
+    "musterschreiben_hinweis": "Die Prüfung der Zusatzvoraussetzungen nach § 1 Abs. 1a UVG für Kinder ab 12 Jahren ist zu überprüfen. Die Voraussetzungen für den erweiterten Anspruch sind erfüllt.",
+    "severity_beschreibung": "Unterhaltsvorschuss für Kind ab 12 Jahren betroffen"
+  },
+  {
+    "id": "UVS_006",
+    "titel": "Unterhaltszahlungen falsch angerechnet (§ 2 Abs. 3 UVG)",
+    "beschreibung": "Tatsächlich geleisteter Unterhalt des barunterhaltspflichtigen Elternteils wurde nach § 2 Abs. 3 UVG auf den Unterhaltsvorschuss angerechnet, obwohl die Zahlungen nicht regelmäßig oder in falscher Höhe erfolgen.",
+    "rechtsbasis": [
+      "§ 2 Abs. 3 UVG"
+    ],
+    "severity": "wichtig",
+    "prueflogik": {
+      "bedingungen": [
+        "Unterhaltsvorschuss",
+        "Anrechnung von Unterhaltszahlungen",
+        "Höhe fraglich"
+      ],
+      "suchbegriffe": [
+        "Anrechnung",
+        "Unterhaltszahlung",
+        "Barunterhalt",
+        "Höhe",
+        "Unterhaltsvorschuss"
+      ]
+    },
+    "musterschreiben_hinweis": "Die Anrechnung der Unterhaltszahlungen nach § 2 Abs. 3 UVG ist zu überprüfen. Die zugrunde gelegten Zahlungen entsprechen nicht den tatsächlichen Verhältnissen.",
+    "severity_beschreibung": "Unterhaltsvorschuss-Höhe möglicherweise zu niedrig"
+  },
+  {
+    "id": "UVS_007",
+    "titel": "Rückforderung ohne Verschulden (§ 5 UVG)",
+    "beschreibung": "Unterhaltsvorschuss wird nach § 5 UVG zurückgefordert, obwohl kein schuldhaftes Verhalten (falsche Angaben, Mitwirkungspflichtverletzung) des betreuenden Elternteils vorliegt.",
+    "rechtsbasis": [
+      "§ 5 UVG"
+    ],
+    "severity": "kritisch",
+    "prueflogik": {
+      "bedingungen": [
+        "Unterhaltsvorschuss",
+        "Rückforderung",
+        "Kein Verschulden"
+      ],
+      "suchbegriffe": [
+        "Rückforderung",
+        "Erstattung",
+        "Verschulden",
+        "falsche Angaben",
+        "Unterhaltsvorschuss"
+      ]
+    },
+    "musterschreiben_hinweis": "Die Rückforderung des Unterhaltsvorschusses nach § 5 UVG ist zu überprüfen. Ein schuldhaftes Verhalten liegt nicht vor.",
+    "severity_beschreibung": "Rückforderung möglicherweise rechtswidrig"
+  },
+  {
+    "id": "UVS_008",
+    "titel": "Einstellung wegen neuer Partnerschaft (§ 1 Abs. 3 UVG)",
+    "beschreibung": "Der Unterhaltsvorschuss wurde eingestellt, weil der betreuende Elternteil eine neue Partnerschaft eingegangen ist. Nach § 1 Abs. 3 UVG ist der Ausschluss aber nur bei Heirat oder Zusammenleben mit dem anderen Elternteil des Kindes vorgesehen.",
+    "rechtsbasis": [
+      "§ 1 Abs. 3 UVG"
+    ],
+    "severity": "kritisch",
+    "prueflogik": {
+      "bedingungen": [
+        "Unterhaltsvorschuss eingestellt",
+        "Neue Partnerschaft",
+        "Partner ist nicht der andere Elternteil"
+      ],
+      "suchbegriffe": [
+        "Partnerschaft",
+        "Heirat",
+        "Zusammenleben",
+        "Eheschließung",
+        "neuer Partner",
+        "Unterhaltsvorschuss"
+      ]
+    },
+    "musterschreiben_hinweis": "Die Einstellung des Unterhaltsvorschusses ist zu überprüfen. Nach § 1 Abs. 3 UVG führt nur die Heirat oder das Zusammenleben mit dem anderen Elternteil des Kindes zum Ausschluss, nicht eine neue Partnerschaft mit einer dritten Person.",
+    "severity_beschreibung": "Unterhaltsvorschuss zu Unrecht eingestellt"
+  },
+  {
+    "id": "UVS_009",
+    "titel": "Antrag nicht rückwirkend gewährt (§ 4 UVG)",
+    "beschreibung": "Der Unterhaltsvorschuss wurde erst ab Antragsmonat gewährt, obwohl nach § 4 UVG ein Anspruch ab dem Monat besteht, in dem die Voraussetzungen erstmals vorliegen.",
+    "rechtsbasis": [
+      "§ 4 UVG"
+    ],
+    "severity": "wichtig",
+    "prueflogik": {
+      "bedingungen": [
+        "Unterhaltsvorschuss",
+        "Nicht ab Anspruchsbeginn gewährt",
+        "Rückwirkung"
+      ],
+      "suchbegriffe": [
+        "rückwirkend",
+        "Antragstellung",
+        "Beginn",
+        "ab wann",
+        "Unterhaltsvorschuss"
+      ]
+    },
+    "musterschreiben_hinweis": "Der Leistungsbeginn nach § 4 UVG ist zu überprüfen. Der Anspruch auf Unterhaltsvorschuss besteht ab dem Monat, in dem die Voraussetzungen erstmals vorgelegen haben.",
+    "severity_beschreibung": "Unterhaltsvorschuss-Zahlungen für vergangene Monate fehlen"
+  },
+  {
+    "id": "UVS_010",
+    "titel": "Anhörungspflicht vor Einstellung nicht beachtet (§ 24 SGB X)",
+    "beschreibung": "Der Unterhaltsvorschuss wurde eingestellt, ohne dass vorher eine Anhörung nach § 24 SGB X stattgefunden hat. Bei belastenden Verwaltungsakten ist die Anhörung Pflicht.",
+    "rechtsbasis": [
+      "§ 24 SGB X"
+    ],
+    "severity": "kritisch",
+    "prueflogik": {
+      "bedingungen": [
+        "Unterhaltsvorschuss eingestellt",
+        "Keine vorherige Anhörung"
+      ],
+      "suchbegriffe": [
+        "Anhörung",
+        "Einstellung",
+        "§ 24",
+        "Unterhaltsvorschuss",
+        "belastend"
+      ]
+    },
+    "musterschreiben_hinweis": "Der Einstellungsbescheid ist formell rechtswidrig, da keine ordnungsgemäße Anhörung nach § 24 SGB X vor der Einstellung des Unterhaltsvorschusses stattgefunden hat.",
+    "severity_beschreibung": "Formfehler — Einstellungsbescheid angreifbar"
   },
   {
     "id": "VA_002",
@@ -4372,392 +5479,6 @@
     "severity_beschreibung": "Verlängerte Widerspruchsfrist"
   },
   {
-    "id": "BAF_006",
-    "titel": "Förderungshöchstdauer falsch berechnet (§ 15a BAföG)",
-    "beschreibung": "Die Förderungshöchstdauer nach § 15a BAföG wurde fehlerhaft berechnet. Verlängerungsgründe wie Krankheit, Gremientätigkeit, Behinderung oder erstmalige Schwangerschaft (§ 15 Abs. 3 BAföG) wurden nicht berücksichtigt.",
-    "rechtsbasis": [
-      "§ 15a BAföG",
-      "§ 15 Abs. 3 BAföG"
-    ],
-    "severity": "kritisch",
-    "prueflogik": {
-      "bedingungen": [
-        "BAföG",
-        "Förderungshöchstdauer überschritten",
-        "Verlängerungsgrund vorhanden"
-      ],
-      "suchbegriffe": [
-        "Förderungshöchstdauer",
-        "Regelstudienzeit",
-        "Verlängerung",
-        "Semester",
-        "Krankheit",
-        "Gremientätigkeit"
-      ]
-    },
-    "musterschreiben_hinweis": "Die Förderungshöchstdauer nach § 15a BAföG ist zu überprüfen. Es liegen Gründe für eine Verlängerung nach § 15 Abs. 3 BAföG vor, die nicht berücksichtigt wurden.",
-    "severity_beschreibung": "Ausbildungsförderung vollständig betroffen"
-  },
-  {
-    "id": "BAF_007",
-    "titel": "Vorausleistung nach § 36 BAföG nicht gewährt",
-    "beschreibung": "Die Eltern verweigern Unterhalt oder Einkommensauskunft. Das BAföG-Amt hat keine Vorausleistung nach § 36 BAföG gewährt, obwohl die Voraussetzungen vorliegen.",
-    "rechtsbasis": [
-      "§ 36 BAföG"
-    ],
-    "severity": "kritisch",
-    "prueflogik": {
-      "bedingungen": [
-        "BAföG",
-        "Eltern verweigern Auskunft oder Unterhalt",
-        "Vorausleistung nicht gewährt"
-      ],
-      "suchbegriffe": [
-        "Vorausleistung",
-        "Eltern",
-        "Unterhalt",
-        "Auskunft",
-        "verweigern",
-        "§ 36"
-      ]
-    },
-    "musterschreiben_hinweis": "Es wird Vorausleistung nach § 36 BAföG beantragt. Die Eltern verweigern die Auskunft über ihre Einkommensverhältnisse bzw. die Unterhaltsleistung.",
-    "severity_beschreibung": "Ausbildungsförderung vollständig blockiert"
-  },
-  {
-    "id": "BAF_008",
-    "titel": "Härtefreibetrag nicht berücksichtigt (§ 29 Abs. 3 BAföG)",
-    "beschreibung": "Bei der Vermögensanrechnung wurde kein Härtefreibetrag nach § 29 Abs. 3 BAföG berücksichtigt, obwohl besondere Umstände vorliegen (z.B. notwendige Anschaffungen, Schulden).",
-    "rechtsbasis": [
-      "§ 29 Abs. 3 BAföG"
-    ],
-    "severity": "wichtig",
-    "prueflogik": {
-      "bedingungen": [
-        "BAföG",
-        "Vermögensanrechnung",
-        "Besondere Härte"
-      ],
-      "suchbegriffe": [
-        "Härtefreibetrag",
-        "Vermögen",
-        "Härte",
-        "Anschaffung",
-        "Schulden"
-      ]
-    },
-    "musterschreiben_hinweis": "Die Vermögensanrechnung ist nach § 29 Abs. 3 BAföG im Hinblick auf eine besondere Härte zu überprüfen. Die vorliegenden besonderen Umstände rechtfertigen einen Härtefreibetrag.",
-    "severity_beschreibung": "BAföG-Höhe möglicherweise zu niedrig"
-  },
-  {
-    "id": "BAF_009",
-    "titel": "Auslandsförderung zu Unrecht abgelehnt (§ 5 BAföG)",
-    "beschreibung": "Die Ausbildungsförderung für ein Auslandsstudium/-praktikum wurde abgelehnt, obwohl die Voraussetzungen nach § 5 BAföG erfüllt sind (EU/EWR, Partneruni, ein Jahr).",
-    "rechtsbasis": [
-      "§ 5 BAföG",
-      "§ 5a BAföG"
-    ],
-    "severity": "kritisch",
-    "prueflogik": {
-      "bedingungen": [
-        "BAföG",
-        "Auslandsstudium oder -praktikum",
-        "Ablehnung"
-      ],
-      "suchbegriffe": [
-        "Ausland",
-        "Auslandssemester",
-        "Auslandspraktikum",
-        "Auslandsförderung",
-        "EU",
-        "Partneruni"
-      ]
-    },
-    "musterschreiben_hinweis": "Die Ablehnung der Auslandsförderung nach § 5 BAföG ist zu überprüfen. Die Voraussetzungen für eine Förderung des Auslandsstudiums/-praktikums sind erfüllt.",
-    "severity_beschreibung": "Auslandsförderung vollständig betroffen"
-  },
-  {
-    "id": "BAF_010",
-    "titel": "BAföG-Bescheid ohne Rechtsbehelfsbelehrung",
-    "beschreibung": "Dem BAföG-Bescheid fehlt die vorgeschriebene Rechtsbehelfsbelehrung nach § 36 SGB X, wodurch die Widerspruchsfrist auf ein Jahr verlängert wird (§ 66 Abs. 2 SGG).",
-    "rechtsbasis": [
-      "§ 36 SGB X",
-      "§ 66 Abs. 2 SGG"
-    ],
-    "severity": "wichtig",
-    "prueflogik": {
-      "bedingungen": [
-        "BAföG-Bescheid",
-        "Keine oder fehlerhafte Rechtsbehelfsbelehrung"
-      ],
-      "suchbegriffe": [
-        "Rechtsbehelfsbelehrung",
-        "Widerspruch",
-        "Frist",
-        "BAföG"
-      ]
-    },
-    "musterschreiben_hinweis": "Dem Bescheid fehlt eine ordnungsgemäße Rechtsbehelfsbelehrung nach § 36 SGB X. Die Widerspruchsfrist beträgt daher ein Jahr (§ 66 Abs. 2 SGG).",
-    "severity_beschreibung": "Verlängerte Widerspruchsfrist"
-  },
-  {
-    "id": "EG_006",
-    "titel": "Geschwisterbonus nicht berücksichtigt (§ 2a Abs. 1 BEEG)",
-    "beschreibung": "Der Geschwisterbonus nach § 2a Abs. 1 BEEG wurde nicht gewährt, obwohl ein Geschwisterkind unter 3 Jahren (oder zwei unter 6 Jahren) im Haushalt lebt.",
-    "rechtsbasis": [
-      "§ 2a Abs. 1 BEEG"
-    ],
-    "severity": "wichtig",
-    "prueflogik": {
-      "bedingungen": [
-        "Elterngeld",
-        "Geschwisterkind vorhanden",
-        "Bonus nicht gewährt"
-      ],
-      "suchbegriffe": [
-        "Geschwisterbonus",
-        "Geschwisterkind",
-        "Zuschlag",
-        "älteres Kind",
-        "Elterngeld"
-      ]
-    },
-    "musterschreiben_hinweis": "Der Geschwisterbonus nach § 2a Abs. 1 BEEG wurde nicht berücksichtigt. Im Haushalt lebt ein Geschwisterkind, das die Altersvoraussetzungen erfüllt.",
-    "severity_beschreibung": "Elterngeld-Höhe um 10% bzw. mind. 75€/Monat zu niedrig"
-  },
-  {
-    "id": "EG_007",
-    "titel": "Mehrlingszuschlag fehlt (§ 2a Abs. 4 BEEG)",
-    "beschreibung": "Bei Mehrlingsgeburten wurde der Mehrlingszuschlag nach § 2a Abs. 4 BEEG (300€ pro weiterem Mehrling) nicht gewährt.",
-    "rechtsbasis": [
-      "§ 2a Abs. 4 BEEG"
-    ],
-    "severity": "kritisch",
-    "prueflogik": {
-      "bedingungen": [
-        "Elterngeld",
-        "Mehrlingsgeburt",
-        "Zuschlag nicht gewährt"
-      ],
-      "suchbegriffe": [
-        "Mehrling",
-        "Zwillinge",
-        "Drillinge",
-        "Mehrlingsgeburt",
-        "Zuschlag"
-      ]
-    },
-    "musterschreiben_hinweis": "Der Mehrlingszuschlag nach § 2a Abs. 4 BEEG in Höhe von 300 Euro je weiterem Mehrling wurde nicht berücksichtigt.",
-    "severity_beschreibung": "300€/Monat pro weiterem Mehrlingskind fehlen"
-  },
-  {
-    "id": "EG_008",
-    "titel": "Mutterschaftsgeld fehlerhaft angerechnet (§ 3 BEEG)",
-    "beschreibung": "Das Mutterschaftsgeld nach § 3 BEEG wurde fehlerhaft auf das Elterngeld angerechnet. Die Anrechnung darf nur taggenau für den Zeitraum des Mutterschutzes erfolgen.",
-    "rechtsbasis": [
-      "§ 3 Abs. 1 BEEG",
-      "§ 14 MuSchG"
-    ],
-    "severity": "kritisch",
-    "prueflogik": {
-      "bedingungen": [
-        "Elterngeld",
-        "Mutterschaftsgeld",
-        "Anrechnung fraglich"
-      ],
-      "suchbegriffe": [
-        "Mutterschaftsgeld",
-        "Anrechnung",
-        "Mutterschutz",
-        "Arbeitgeberzuschuss",
-        "Elterngeld"
-      ]
-    },
-    "musterschreiben_hinweis": "Die Anrechnung des Mutterschaftsgeldes nach § 3 Abs. 1 BEEG ist zu überprüfen. Die taggenaue Berechnung und der berücksichtigte Zeitraum erscheinen fehlerhaft.",
-    "severity_beschreibung": "Elterngeld im Mutterschutz-Zeitraum möglicherweise zu niedrig"
-  },
-  {
-    "id": "EG_009",
-    "titel": "Einkommen aus Selbständigkeit falsch berechnet (§ 2d BEEG)",
-    "beschreibung": "Bei Selbständigen wurde das Einkommen nach § 2d BEEG fehlerhaft ermittelt. Der Gewinn aus dem letzten abgeschlossenen Veranlagungszeitraum oder die Vorauszahlungsbasis wurde falsch zugrunde gelegt.",
-    "rechtsbasis": [
-      "§ 2d BEEG",
-      "§ 2f BEEG"
-    ],
-    "severity": "kritisch",
-    "prueflogik": {
-      "bedingungen": [
-        "Elterngeld",
-        "Selbständigkeit",
-        "Einkommensberechnung fehlerhaft"
-      ],
-      "suchbegriffe": [
-        "Selbständig",
-        "Gewinn",
-        "Veranlagungszeitraum",
-        "Steuerbescheid",
-        "freiberuflich"
-      ]
-    },
-    "musterschreiben_hinweis": "Die Berechnung des Einkommens aus selbständiger Tätigkeit nach § 2d BEEG ist zu überprüfen. Der zugrunde gelegte Gewinn entspricht nicht dem tatsächlichen Einkommen im Bemessungszeitraum.",
-    "severity_beschreibung": "Elterngeld-Höhe möglicherweise deutlich zu niedrig"
-  },
-  {
-    "id": "EG_010",
-    "titel": "Bezugszeitraum falsch festgesetzt (§ 4 BEEG)",
-    "beschreibung": "Der Bezugszeitraum für Elterngeld nach § 4 BEEG wurde fehlerhaft festgesetzt. Lebensmonate des Kindes wurden falsch berechnet oder zulässige Aufteilungen nicht berücksichtigt.",
-    "rechtsbasis": [
-      "§ 4 BEEG"
-    ],
-    "severity": "wichtig",
-    "prueflogik": {
-      "bedingungen": [
-        "Elterngeld",
-        "Bezugszeitraum",
-        "Lebensmonate falsch"
-      ],
-      "suchbegriffe": [
-        "Bezugszeitraum",
-        "Lebensmonat",
-        "Bezugsmonat",
-        "Aufteilung",
-        "Elterngeld"
-      ]
-    },
-    "musterschreiben_hinweis": "Der Bezugszeitraum nach § 4 BEEG ist zu überprüfen. Die Zuordnung der Lebensmonate des Kindes oder die Aufteilung zwischen den Elternteilen erscheint fehlerhaft.",
-    "severity_beschreibung": "Elterngeld-Bezugsdauer möglicherweise verkürzt"
-  },
-  {
-    "id": "FK_001",
-    "titel": "Kindergeld für volljähriges Kind zu Unrecht abgelehnt (§ 32 EStG)",
-    "beschreibung": "Kindergeld für ein volljähriges Kind wurde abgelehnt, obwohl ein Berücksichtigungstatbestand nach § 32 Abs. 4 EStG vorliegt (Ausbildung, Studium, FSJ, Übergangszeit bis 4 Monate, Arbeitssuche).",
-    "rechtsbasis": [
-      "§ 32 Abs. 4 EStG",
-      "§ 63 EStG"
-    ],
-    "severity": "kritisch",
-    "prueflogik": {
-      "bedingungen": [
-        "Kindergeld abgelehnt",
-        "Kind volljährig",
-        "Ausbildung oder Studium"
-      ],
-      "suchbegriffe": [
-        "volljährig",
-        "Kindergeld",
-        "Ausbildung",
-        "Studium",
-        "Berücksichtigung",
-        "18 Jahre"
-      ]
-    },
-    "musterschreiben_hinweis": "Die Ablehnung des Kindergeldes für das volljährige Kind ist nach § 32 Abs. 4 EStG zu überprüfen. Es liegt ein Berücksichtigungstatbestand vor.",
-    "severity_beschreibung": "Kindergeld-Anspruch vollständig betroffen"
-  },
-  {
-    "id": "FK_007",
-    "titel": "Kindergeld bei EU-Grenzgängern/Auslandsbezug falsch berechnet (VO 883/2004)",
-    "beschreibung": "Bei grenzüberschreitenden Sachverhalten wurde das Kindergeld nicht nach der EU-Koordinierungsverordnung 883/2004 berechnet. Differenzkindergeld oder Länderzuständigkeit wurden fehlerhaft bestimmt.",
-    "rechtsbasis": [
-      "VO (EG) 883/2004",
-      "§ 65 EStG"
-    ],
-    "severity": "kritisch",
-    "prueflogik": {
-      "bedingungen": [
-        "Kindergeld",
-        "EU-Ausland",
-        "Grenzgänger oder Wanderarbeitnehmer"
-      ],
-      "suchbegriffe": [
-        "Ausland",
-        "EU",
-        "Grenzgänger",
-        "Differenzkindergeld",
-        "Koordinierung",
-        "883/2004"
-      ]
-    },
-    "musterschreiben_hinweis": "Die Kindergeldberechnung bei grenzüberschreitendem Sachverhalt ist nach VO (EG) 883/2004 zu überprüfen. Die Zuständigkeitsbestimmung und/oder Differenzberechnung erscheint fehlerhaft.",
-    "severity_beschreibung": "Kindergeld-Höhe oder -Anspruch bei EU-Bezug betroffen"
-  },
-  {
-    "id": "FK_008",
-    "titel": "Kinderzuschlag Einkommensgrenzen falsch angewendet (§ 6a BKGG)",
-    "beschreibung": "Der Kinderzuschlag nach § 6a BKGG wurde abgelehnt oder zu niedrig berechnet. Die Mindesteinkommensgrenze (900€/600€) oder die Höchsteinkommensgrenze wurde fehlerhaft ermittelt.",
-    "rechtsbasis": [
-      "§ 6a BKGG"
-    ],
-    "severity": "kritisch",
-    "prueflogik": {
-      "bedingungen": [
-        "Kinderzuschlag",
-        "Einkommensgrenzen",
-        "Ablehnung oder zu niedrig"
-      ],
-      "suchbegriffe": [
-        "Kinderzuschlag",
-        "Mindesteinkommensgrenze",
-        "Höchsteinkommen",
-        "KiZ",
-        "BKGG"
-      ]
-    },
-    "musterschreiben_hinweis": "Die Berechnung des Kinderzuschlags nach § 6a BKGG ist zu überprüfen. Die angewandten Einkommensgrenzen und die Einkommensanrechnung erscheinen fehlerhaft.",
-    "severity_beschreibung": "Kinderzuschlag-Anspruch möglicherweise zu niedrig oder zu Unrecht abgelehnt"
-  },
-  {
-    "id": "FK_009",
-    "titel": "Kindergeld-Rückforderung ohne vorherige Anhörung (§ 24 SGB X)",
-    "beschreibung": "Kindergeld wird nach § 37 Abs. 2 AO zurückgefordert, ohne dass vorher eine Anhörung nach § 24 SGB X / § 91 AO stattgefunden hat.",
-    "rechtsbasis": [
-      "§ 24 SGB X",
-      "§ 91 AO",
-      "§ 37 Abs. 2 AO"
-    ],
-    "severity": "kritisch",
-    "prueflogik": {
-      "bedingungen": [
-        "Kindergeld",
-        "Rückforderung",
-        "Keine Anhörung"
-      ],
-      "suchbegriffe": [
-        "Rückforderung",
-        "Erstattung",
-        "Anhörung",
-        "Überzahlung",
-        "Kindergeld"
-      ]
-    },
-    "musterschreiben_hinweis": "Die Rückforderung des Kindergeldes ist formell rechtswidrig, da keine ordnungsgemäße Anhörung stattgefunden hat. Der Aufhebungs- und Erstattungsbescheid ist aufzuheben.",
-    "severity_beschreibung": "Formfehler — Rückforderungsbescheid angreifbar"
-  },
-  {
-    "id": "FK_010",
-    "titel": "Zählkindvorteil nicht berücksichtigt",
-    "beschreibung": "Bei der Kindergeldberechnung wurde der Zählkindvorteil nicht berücksichtigt. Kinder aus früheren Beziehungen zählen als Zählkinder, wodurch nachfolgende Kinder einen höheren Kindergeldanspruch auslösen.",
-    "rechtsbasis": [
-      "§ 66 EStG"
-    ],
-    "severity": "wichtig",
-    "prueflogik": {
-      "bedingungen": [
-        "Kindergeld",
-        "Mehrere Kinder aus verschiedenen Beziehungen"
-      ],
-      "suchbegriffe": [
-        "Zählkind",
-        "Zählkindvorteil",
-        "erstes Kind",
-        "drittes Kind",
-        "Staffelung"
-      ]
-    },
-    "musterschreiben_hinweis": "Der Zählkindvorteil wurde bei der Kindergeldberechnung nicht berücksichtigt. Die Reihenfolge der Kinder nach § 66 EStG ist zu überprüfen.",
-    "severity_beschreibung": "Kindergeld-Höhe möglicherweise zu niedrig"
-  },
-  {
     "id": "WG_006",
     "titel": "Heizkostenkomponente nicht berücksichtigt (§ 12 Abs. 6 WoGG)",
     "beschreibung": "Seit dem Wohngeld-Plus-Gesetz (01.01.2023) enthält das Wohngeld eine permanente Heizkostenkomponente nach § 12 Abs. 6 WoGG. Diese wurde im Bescheid nicht berücksichtigt.",
@@ -4884,156 +5605,5 @@
     },
     "musterschreiben_hinweis": "Die Ablehnung unter Verweis auf § 7 WoGG ist zu überprüfen. Ein Ausschlussgrund liegt nicht vor, da keine Transferleistung tatsächlich bezogen wird.",
     "severity_beschreibung": "Wohngeld-Anspruch zu Unrecht abgelehnt"
-  },
-  {
-    "id": "UVS_005",
-    "titel": "Altersgrenze 12-18 Jahre falsch angewendet (§ 1 Abs. 1a UVG)",
-    "beschreibung": "Für Kinder ab 12 Jahren gelten seit der UVG-Reform 2017 Zusatzvoraussetzungen nach § 1 Abs. 1a UVG (Kind bezieht keine SGB-II-Leistungen ODER Elternteil verdient mind. 600€ brutto). Diese wurden fehlerhaft geprüft.",
-    "rechtsbasis": [
-      "§ 1 Abs. 1a UVG"
-    ],
-    "severity": "kritisch",
-    "prueflogik": {
-      "bedingungen": [
-        "Unterhaltsvorschuss",
-        "Kind 12-17 Jahre",
-        "Ablehnung oder Einstellung"
-      ],
-      "suchbegriffe": [
-        "Altersgrenze",
-        "12 Jahre",
-        "Zusatzvoraussetzung",
-        "600 Euro",
-        "SGB II",
-        "Unterhaltsvorschuss"
-      ]
-    },
-    "musterschreiben_hinweis": "Die Prüfung der Zusatzvoraussetzungen nach § 1 Abs. 1a UVG für Kinder ab 12 Jahren ist zu überprüfen. Die Voraussetzungen für den erweiterten Anspruch sind erfüllt.",
-    "severity_beschreibung": "Unterhaltsvorschuss für Kind ab 12 Jahren betroffen"
-  },
-  {
-    "id": "UVS_006",
-    "titel": "Unterhaltszahlungen falsch angerechnet (§ 2 Abs. 3 UVG)",
-    "beschreibung": "Tatsächlich geleisteter Unterhalt des barunterhaltspflichtigen Elternteils wurde nach § 2 Abs. 3 UVG auf den Unterhaltsvorschuss angerechnet, obwohl die Zahlungen nicht regelmäßig oder in falscher Höhe erfolgen.",
-    "rechtsbasis": [
-      "§ 2 Abs. 3 UVG"
-    ],
-    "severity": "wichtig",
-    "prueflogik": {
-      "bedingungen": [
-        "Unterhaltsvorschuss",
-        "Anrechnung von Unterhaltszahlungen",
-        "Höhe fraglich"
-      ],
-      "suchbegriffe": [
-        "Anrechnung",
-        "Unterhaltszahlung",
-        "Barunterhalt",
-        "Höhe",
-        "Unterhaltsvorschuss"
-      ]
-    },
-    "musterschreiben_hinweis": "Die Anrechnung der Unterhaltszahlungen nach § 2 Abs. 3 UVG ist zu überprüfen. Die zugrunde gelegten Zahlungen entsprechen nicht den tatsächlichen Verhältnissen.",
-    "severity_beschreibung": "Unterhaltsvorschuss-Höhe möglicherweise zu niedrig"
-  },
-  {
-    "id": "UVS_007",
-    "titel": "Rückforderung ohne Verschulden (§ 5 UVG)",
-    "beschreibung": "Unterhaltsvorschuss wird nach § 5 UVG zurückgefordert, obwohl kein schuldhaftes Verhalten (falsche Angaben, Mitwirkungspflichtverletzung) des betreuenden Elternteils vorliegt.",
-    "rechtsbasis": [
-      "§ 5 UVG"
-    ],
-    "severity": "kritisch",
-    "prueflogik": {
-      "bedingungen": [
-        "Unterhaltsvorschuss",
-        "Rückforderung",
-        "Kein Verschulden"
-      ],
-      "suchbegriffe": [
-        "Rückforderung",
-        "Erstattung",
-        "Verschulden",
-        "falsche Angaben",
-        "Unterhaltsvorschuss"
-      ]
-    },
-    "musterschreiben_hinweis": "Die Rückforderung des Unterhaltsvorschusses nach § 5 UVG ist zu überprüfen. Ein schuldhaftes Verhalten liegt nicht vor.",
-    "severity_beschreibung": "Rückforderung möglicherweise rechtswidrig"
-  },
-  {
-    "id": "UVS_008",
-    "titel": "Einstellung wegen neuer Partnerschaft (§ 1 Abs. 3 UVG)",
-    "beschreibung": "Der Unterhaltsvorschuss wurde eingestellt, weil der betreuende Elternteil eine neue Partnerschaft eingegangen ist. Nach § 1 Abs. 3 UVG ist der Ausschluss aber nur bei Heirat oder Zusammenleben mit dem anderen Elternteil des Kindes vorgesehen.",
-    "rechtsbasis": [
-      "§ 1 Abs. 3 UVG"
-    ],
-    "severity": "kritisch",
-    "prueflogik": {
-      "bedingungen": [
-        "Unterhaltsvorschuss eingestellt",
-        "Neue Partnerschaft",
-        "Partner ist nicht der andere Elternteil"
-      ],
-      "suchbegriffe": [
-        "Partnerschaft",
-        "Heirat",
-        "Zusammenleben",
-        "Eheschließung",
-        "neuer Partner",
-        "Unterhaltsvorschuss"
-      ]
-    },
-    "musterschreiben_hinweis": "Die Einstellung des Unterhaltsvorschusses ist zu überprüfen. Nach § 1 Abs. 3 UVG führt nur die Heirat oder das Zusammenleben mit dem anderen Elternteil des Kindes zum Ausschluss, nicht eine neue Partnerschaft mit einer dritten Person.",
-    "severity_beschreibung": "Unterhaltsvorschuss zu Unrecht eingestellt"
-  },
-  {
-    "id": "UVS_009",
-    "titel": "Antrag nicht rückwirkend gewährt (§ 4 UVG)",
-    "beschreibung": "Der Unterhaltsvorschuss wurde erst ab Antragsmonat gewährt, obwohl nach § 4 UVG ein Anspruch ab dem Monat besteht, in dem die Voraussetzungen erstmals vorliegen.",
-    "rechtsbasis": [
-      "§ 4 UVG"
-    ],
-    "severity": "wichtig",
-    "prueflogik": {
-      "bedingungen": [
-        "Unterhaltsvorschuss",
-        "Nicht ab Anspruchsbeginn gewährt",
-        "Rückwirkung"
-      ],
-      "suchbegriffe": [
-        "rückwirkend",
-        "Antragstellung",
-        "Beginn",
-        "ab wann",
-        "Unterhaltsvorschuss"
-      ]
-    },
-    "musterschreiben_hinweis": "Der Leistungsbeginn nach § 4 UVG ist zu überprüfen. Der Anspruch auf Unterhaltsvorschuss besteht ab dem Monat, in dem die Voraussetzungen erstmals vorgelegen haben.",
-    "severity_beschreibung": "Unterhaltsvorschuss-Zahlungen für vergangene Monate fehlen"
-  },
-  {
-    "id": "UVS_010",
-    "titel": "Anhörungspflicht vor Einstellung nicht beachtet (§ 24 SGB X)",
-    "beschreibung": "Der Unterhaltsvorschuss wurde eingestellt, ohne dass vorher eine Anhörung nach § 24 SGB X stattgefunden hat. Bei belastenden Verwaltungsakten ist die Anhörung Pflicht.",
-    "rechtsbasis": [
-      "§ 24 SGB X"
-    ],
-    "severity": "kritisch",
-    "prueflogik": {
-      "bedingungen": [
-        "Unterhaltsvorschuss eingestellt",
-        "Keine vorherige Anhörung"
-      ],
-      "suchbegriffe": [
-        "Anhörung",
-        "Einstellung",
-        "§ 24",
-        "Unterhaltsvorschuss",
-        "belastend"
-      ]
-    },
-    "musterschreiben_hinweis": "Der Einstellungsbescheid ist formell rechtswidrig, da keine ordnungsgemäße Anhörung nach § 24 SGB X vor der Einstellung des Unterhaltsvorschusses stattgefunden hat.",
-    "severity_beschreibung": "Formfehler — Einstellungsbescheid angreifbar"
   }
 ]
