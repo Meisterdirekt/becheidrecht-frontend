@@ -137,6 +137,8 @@ export interface TriageResult {
   behoerde: string;
   rechtsgebiet: string;
   untergebiet: string;
+  /** Weitere betroffene Rechtsgebiete bei rechtsgebietsübergreifenden Bescheiden */
+  weitere_rechtsgebiete?: string[];
   bescheid_datum?: string;
   frist_datum?: string;
   frist_tage?: number;
@@ -303,4 +305,6 @@ export interface AgentAnalysisResult {
   agenten_details?: Record<string, { success: boolean; durationMs: number; error?: string }>;
   model_used?: string;
   praezedenz?: PraezedenzResult;
+  privacy_notice?: string;
+  analysis_result_id?: string;
 }

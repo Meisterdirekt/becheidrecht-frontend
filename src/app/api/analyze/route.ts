@@ -147,29 +147,27 @@ async function extractTextFromImageOpenAI(buffer: Buffer, mimeType: string): Pro
 }
 
 /**
- * Haupt-OCR f\u00fcr Bilder:
- * 1. Tesseract.js lokal (DSGVO-konform, kein Datentransfer)
- * 2. Fallback OpenAI wenn Tesseract < 50 Zeichen liefert
+ * Haupt-OCR f\u00fcr Bilder \u2014 NUR lokal via Tesseract.js.
+ * DSGVO-konform: Bilder verlassen NICHT den Server.
+ * OpenAI Vision OCR-Fallback wurde aus Datenschutzgr\u00fcnden entfernt:
+ * Rohbilder enthalten PII (Namen, IBAN, Adressen) die nicht vor OCR
+ * pseudonymisiert werden k\u00f6nnen (Pixel != Text).
  */
-async function extractTextFromImage(buffer: Buffer, mimeType: string): Promise<string> {
+async function extractTextFromImage(buffer: Buffer, _mimeType: string): Promise<{ text: string; usedOpenAI: boolean }> {
   reportInfo('[OCR] Starte lokale Texterkennung (Tesseract)');
   const localText = await extractTextFromImageLocal(buffer);
 
   if (localText.length >= 50) {
     reportInfo('[OCR] Tesseract erfolgreich', { zeichen: localText.length });
-    return localText;
+    return { text: localText, usedOpenAI: false };
   }
 
-  // Lokale OCR hat versagt \u2014 OpenAI als Fallback (mit Logging f\u00fcr Audit)
-  reportInfo('[OCR] Tesseract unzureichend, Fallback auf OpenAI Vision');
-  try {
-    const openAiText = await extractTextFromImageOpenAI(buffer, mimeType);
-    reportInfo('[OCR] OpenAI Vision', { zeichen: openAiText.length });
-    return openAiText;
-  } catch {
-    if (localText.length > 0) return localText; // Lieber schlechtes Ergebnis als keins
-    throw new Error('Texterkennung fehlgeschlagen. Bitte PDF hochladen oder Foto in besserer Qualit\u00e4t aufnehmen.');
+  if (localText.length > 0) {
+    reportInfo('[OCR] Tesseract: wenig Text erkannt, verwende verf\u00fcgbaren Text', { zeichen: localText.length });
+    return { text: localText, usedOpenAI: false };
   }
+
+  throw new Error('Texterkennung fehlgeschlagen. Bitte ein PDF hochladen statt eines Bildes, oder das Foto in besserer Qualit\u00e4t aufnehmen.');
 }
 
 export async function POST(req: Request) {
@@ -205,8 +203,12 @@ export async function POST(req: Request) {
     const formData = await req.formData();
     const rawFiles = formData.getAll('file');
     const userContext = formData.get('userContext');
-    const userContextStr = typeof userContext === 'string' && userContext.trim().length > 0
+    const rawUserContext = typeof userContext === 'string' && userContext.trim().length > 0
       ? userContext.trim().slice(0, 1000)
+      : undefined;
+    // Pseudonymisiere auch den User-Kontext bevor er an die KI geht
+    const userContextStr = rawUserContext
+      ? pseudonymizeText(rawUserContext).pseudonymized
       : undefined;
 
     // Filter: nur echte File-Objekte
@@ -241,6 +243,7 @@ export async function POST(req: Request) {
     }
 
     // Text aus allen Dateien parallel extrahieren
+    let openAIOcrUsed = false;
     const extractionResults = await Promise.allSettled(
       uploadedFiles.map(async (f, idx) => {
         const bytes = await f.arrayBuffer();
@@ -251,7 +254,9 @@ export async function POST(req: Request) {
         if (mimeType === 'application/pdf') {
           text = await extractTextFromPdf(buffer);
         } else if (mimeType.startsWith('image/')) {
-          text = await extractTextFromImage(buffer, mimeType);
+          const ocrResult = await extractTextFromImage(buffer, mimeType);
+          text = ocrResult.text;
+          if (ocrResult.usedOpenAI) openAIOcrUsed = true;
         }
         return { idx, name: f.name, text };
       })
@@ -298,29 +303,27 @@ export async function POST(req: Request) {
     reportInfo('[Privacy] Erkannte sensible Daten', {
       namen: map.name.length,
       adressen: map.address.length,
-      geburtsdaten: map.birthdate.length,
+      daten: map.birthdate.length,
       bankkonten: map.bankAccount.length,
       steuerIds: map.taxId.length,
       svNummern: map.socialSecurityNumber.length,
       emails: map.email.length,
       telefon: map.phone.length,
       bic: map.bic.length,
+      aktenzeichen: map.caseNumber.length,
     });
+
+    // Privacy-Notice wenn OpenAI-OCR-Fallback genutzt wurde
+    const privacyNotice = openAIOcrUsed
+      ? 'Hinweis: F\u00fcr die Texterkennung Ihres Bildes wurde OpenAI Vision als Fallback genutzt. Das Originalbild wurde dabei an OpenAI \u00fcbermittelt. OpenAI speichert API-Daten nicht dauerhaft und nutzt sie nicht f\u00fcr Training.'
+      : undefined;
 
     // SSE oder JSON?
     const wantsSSE = req.headers.get('accept')?.includes('text/event-stream');
 
     // Shared: Post-Processing nach Pipeline
     async function postProcess(result: AgentAnalysisResult): Promise<AgentAnalysisResult> {
-      result = {
-        ...result,
-        fehler: Array.isArray(result.fehler)
-          ? result.fehler.map((f: string) => depseudonymizeText(String(f), map))
-          : result.fehler,
-        musterschreiben: depseudonymizeText(result.musterschreiben || '', map),
-      };
-
-      // Qualit\u00e4ts-Alert
+      // Qualit\u00e4ts-Alert (vor De-Pseudonymisierung \u2014 keine PII im Alert)
       const erfolgschance = result.kritik?.erfolgschance_prozent;
       if (erfolgschance !== undefined && erfolgschance < 35) {
         reportError(
@@ -329,14 +332,13 @@ export async function POST(req: Request) {
         ).catch(() => {});
       }
 
-      // Supabase User-Client
+      // DB-Insert VOR De-Pseudonymisierung \u2014 speichert pseudonymisierte Daten (DSGVO-konform)
       const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL || '';
       const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY || '';
       const supabaseUser = user && supabaseUrl && supabaseAnonKey
         ? createClient(supabaseUrl, supabaseAnonKey, { global: { headers: { Authorization: `Bearer ${user.token}` } } })
         : null;
 
-      // Auto-Save Frist + Kosten-Monitoring (parallel)
       if (supabaseUser) {
         const dbOps: PromiseLike<unknown>[] = [];
 
@@ -345,7 +347,7 @@ export async function POST(req: Request) {
             supabaseUser.from('user_fristen').insert({
               user_id: user!.id, behoerde: result.zuordnung?.behoerde ?? null,
               rechtsgebiet: result.zuordnung?.rechtsgebiet ?? null, untergebiet: result.zuordnung?.untergebiet ?? null,
-              frist_datum: result.frist_datum, status: 'offen', musterschreiben: result.musterschreiben,
+              frist_datum: result.frist_datum, status: 'offen', musterschreiben: null,
               analyse_meta: { frist_tage: result.frist_tage, auffaelligkeiten: result.fehler?.slice(0, 3), routing_stufe: result.routing_stufe, token_kosten_eur: result.token_kosten_eur, agenten_aktiv: result.agenten_aktiv, erfolgschance: result.kritik?.erfolgschance_prozent },
             }).then(null, (err: unknown) => reportError(err instanceof Error ? err : new Error(String(err)), { critical: false, context: "frist_autosave" }).catch(() => {}))
           );
@@ -365,13 +367,24 @@ export async function POST(req: Request) {
                 fehler_count: result.fehler?.length ?? 0,
                 schwachstellen: result.kritik?.schwachstellen ?? [],
               },
-            }).then(null, (err: unknown) => reportError(err instanceof Error ? err : new Error(String(err)), { critical: false, context: 'analysis_results_save' }).catch(() => {}))
+            }).select('id').single()
+              .then(({ data }) => { if (data?.id) result.analysis_result_id = data.id; }, (err: unknown) => { reportError(err instanceof Error ? err : new Error(String(err)), { critical: false, context: 'analysis_results_save' }).catch(() => {}); })
           );
         }
 
         if (dbOps.length > 0) await Promise.all(dbOps);
       }
 
+      // De-Pseudonymisierung NACH DB-Insert \u2014 nur f\u00fcr die Response an den User
+      result = {
+        ...result,
+        fehler: Array.isArray(result.fehler)
+          ? result.fehler.map((f: string) => depseudonymizeText(String(f), map))
+          : result.fehler,
+        musterschreiben: depseudonymizeText(result.musterschreiben || '', map),
+      };
+
+      if (privacyNotice) result.privacy_notice = privacyNotice;
       return result;
     }
 
@@ -425,6 +438,7 @@ export async function POST(req: Request) {
     }
 
     result = await postProcess(result);
+    if (privacyNotice) result.privacy_notice = privacyNotice;
     return NextResponse.json(result);
   } catch (error: unknown) {
     reportError(error instanceof Error ? error : new Error(String(error)), { critical: true, context: 'analyze_api' }).catch(() => {});

@@ -9,10 +9,10 @@ describe('pseudonymizer', () => {
     expect(map.name[0]).toBe('Max Mustermann');
   });
 
-  it('Geburtsdaten werden pseudonymisiert', () => {
+  it('Geburtsdaten werden als DATUM pseudonymisiert', () => {
     const text = 'Geboren am 01.01.1990';
     const { pseudonymized, map } = pseudonymizeText(text);
-    expect(pseudonymized).toContain('[GEBURTSDATUM_1]');
+    expect(pseudonymized).toContain('[DATUM_1]');
     expect(map.birthdate[0]).toBe('01.01.1990');
   });
 
@@ -57,5 +57,83 @@ describe('pseudonymizer', () => {
     const { pseudonymized, map } = pseudonymizeText(text);
     expect(pseudonymized).toBe('');
     expect(map.name).toHaveLength(0);
+  });
+
+  // --- Neue Tests ---
+
+  it('Zusammengesetzte Namen (Doppelname) werden erkannt', () => {
+    const text = 'Frau Maria-Anna Schreiber-Hoffmann hat Widerspruch eingelegt.';
+    const { pseudonymized, map } = pseudonymizeText(text);
+    expect(pseudonymized).toContain('[NAME_1]');
+    expect(map.name[0]).toBe('Maria-Anna Schreiber-Hoffmann');
+  });
+
+  it('Aktenzeichen nach Kontext-Schlüsselwort werden pseudonymisiert', () => {
+    const text = 'Aktenzeichen: JC-2024-001234, Bescheid vom 01.01.2025';
+    const { pseudonymized, map } = pseudonymizeText(text);
+    expect(pseudonymized).toContain('[AKTENZEICHEN_1]');
+    expect(map.caseNumber[0]).toBe('JC-2024-001234');
+  });
+
+  it('Standalone JC-Aktenzeichen werden pseudonymisiert', () => {
+    const text = 'Ihr Vorgang JC-2024-001234 wurde bearbeitet.';
+    const { pseudonymized, map } = pseudonymizeText(text);
+    expect(pseudonymized).toContain('[AKTENZEICHEN_1]');
+    expect(map.caseNumber).toContain('JC-2024-001234');
+  });
+
+  it('Sozialgerichts-Aktenzeichen werden pseudonymisiert', () => {
+    const text = 'Verfahren S 32 AS 1234/24 am Sozialgericht Dortmund.';
+    const { pseudonymized, map } = pseudonymizeText(text);
+    expect(pseudonymized).toContain('[AKTENZEICHEN_1]');
+    expect(map.caseNumber[0]).toBe('S 32 AS 1234/24');
+  });
+
+  it('Namen matchen NICHT über Zeilenumbrüche', () => {
+    const text = 'Sachbearbeiter: Karl-Heinz Weber\nFrau Maria-Anna Schreiber-Hoffmann';
+    const { pseudonymized, map } = pseudonymizeText(text);
+    // Jeder Name muss einzeln erkannt werden, nicht als ein Block über \n
+    expect(map.name).toContain('Karl-Heinz Weber');
+    expect(map.name).toContain('Maria-Anna Schreiber-Hoffmann');
+    // Kein Name darf \n enthalten
+    for (const name of map.name) {
+      expect(name).not.toContain('\n');
+    }
+  });
+
+  it('Steuernummer wird pseudonymisiert', () => {
+    const text = 'Steuer-ID: 12 345 678 901';
+    const { pseudonymized, map } = pseudonymizeText(text);
+    expect(pseudonymized).toContain('[STEUER_ID_1]');
+    expect(map.taxId.length).toBeGreaterThanOrEqual(1);
+  });
+
+  it('Sozialversicherungsnummer wird pseudonymisiert', () => {
+    const text = 'Versicherungsnummer: 12 070680 T 123';
+    const { pseudonymized, map } = pseudonymizeText(text);
+    expect(pseudonymized).toContain('[SV_NUMMER_1]');
+    expect(map.socialSecurityNumber.length).toBe(1);
+  });
+
+  it('Adresse mit PLZ + Ort wird pseudonymisiert', () => {
+    const text = 'Wohnhaft: Hauptstraße 42a, 12345 Berlin';
+    const { pseudonymized, map } = pseudonymizeText(text);
+    expect(pseudonymized).toContain('[ADRESSE_1]');
+    expect(pseudonymized).toContain('[PLZ_ORT_');
+    expect(map.address).toContain('Hauptstraße 42a');
+  });
+
+  it('Aktenzeichen Round-Trip (de-pseudonymisierung)', () => {
+    const original = 'Aktenzeichen: JC-2024-001234';
+    const { pseudonymized, map } = pseudonymizeText(original);
+    const restored = depseudonymizeText(pseudonymized, map);
+    expect(restored).toBe(original);
+  });
+
+  it('Bescheiddatum wird als DATUM erkannt (nicht GEBURTSDATUM)', () => {
+    const text = 'Bescheid vom 01.01.2025';
+    const { pseudonymized } = pseudonymizeText(text);
+    expect(pseudonymized).toContain('[DATUM_1]');
+    expect(pseudonymized).not.toContain('GEBURTSDATUM');
   });
 });

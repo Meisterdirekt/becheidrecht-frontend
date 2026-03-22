@@ -25,7 +25,7 @@
   {
     "id": "ALG_003",
     "titel": "Antragstellung § 16 SGB I (BA SGB III)",
-    "beschreibung": "Anträge formfrei; unverzügliche Weiterleitung; Hinwirkung.",
+    "beschreibung": "Anträge auf ALG I, Insolvenzgeld oder Förderleistungen sind formfrei (§ 16 SGB I). Die Agentur für Arbeit muss auf sachdienliche Anträge hinwirken und unzuständig eingegangene Anträge unverzüglich an den richtigen Träger weiterleiten. Typischer Fehler: Anträge auf Gründungszuschuss oder Bildungsgutschein werden mündlich abgelehnt, ohne schriftlichen Bescheid.",
     "rechtsbasis": [
       "§ 16 SGB I"
     ],
@@ -48,7 +48,7 @@
   {
     "id": "ALG_004",
     "titel": "Mitwirkung § 60 SGB I (BA SGB III)",
-    "beschreibung": "Mitwirkung nur in gesetzlichen Grenzen.",
+    "beschreibung": "Die Agentur für Arbeit darf Mitwirkungspflichten nach § 60 SGB I nur in den gesetzlich vorgesehenen Grenzen verlangen. Typischer Fehler: Überzogene Nachweisanforderungen bei Eigenbemühungen, Pflicht zur Vorlage von Bewerbungsunterlagen ohne konkreten Anlass oder Sanktionsandrohung bei unzureichender Mitwirkung ohne vorherige Belehrung.",
     "rechtsbasis": [
       "§ 60 SGB I"
     ],
@@ -95,10 +95,12 @@
   {
     "id": "ALG_006",
     "titel": "Bescheidbegründung / Widerspruchsfrist (BA SGB III)",
-    "beschreibung": "Begründung § 24 SGB X, Widerspruchsfrist § 25 SGB X.",
+    "beschreibung": "Der Bescheid der Agentur für Arbeit muss eine nachvollziehbare Begründung enthalten (§ 35 SGB X), insbesondere bei Sperrzeit, Leistungsablehnung oder Bemessungsentgelt. Vor belastenden Entscheidungen ist eine Anhörung durchzuführen (§ 24 SGB X). Die Rechtsbehelfsbelehrung muss auf die einmonatige Widerspruchsfrist (§ 84 SGG) hinweisen; fehlt sie, gilt eine Jahresfrist (§ 66 Abs. 2 SGG).",
     "rechtsbasis": [
+      "§ 35 SGB X",
       "§ 24 SGB X",
-      "§ 36 SGB X"
+      "§ 36 SGB X",
+      "§ 84 SGG"
     ],
     "severity": "kritisch",
     "prueflogik": {
@@ -112,7 +114,7 @@
         "Frist"
       ]
     },
-    "musterschreiben_hinweis": "§ 24/25 SGB X nicht eingehalten. Ich bitte um Berichtigung.",
+    "musterschreiben_hinweis": "Der Bescheid genügt nicht den Anforderungen der §§ 35, 24, 36 SGB X. Die Begründung ist unzureichend, eine ordnungsgemäße Anhörung fehlt und/oder die Rechtsbehelfsbelehrung ist fehlerhaft. Ich bitte um Berichtigung.",
     "severity_beschreibung": "Schwerwiegender Fehler – direkter Einfluss auf Leistungsanspruch oder Fristenlauf"
   },
   {
@@ -1609,10 +1611,12 @@
   {
     "id": "DRV_008",
     "titel": "Bescheidbegründung / Widerspruchsfrist (DRV)",
-    "beschreibung": "Bescheide müssen die erforderliche Begründung enthalten (§ 24 SGB X). Auf die Widerspruchsfrist (§ 25 SGB X, in der Regel ein Monat) und Rechtsbehelfsbelehrung ist hinzuweisen.",
+    "beschreibung": "Rentenbescheide der DRV müssen eine nachvollziehbare Begründung enthalten (§ 35 SGB X), insbesondere bei der Berechnung von Entgeltpunkten, Zurechnungszeiten und Rentenart. Vor belastenden Entscheidungen (Rentenablehnung, Herabsetzung) ist eine Anhörung durchzuführen (§ 24 SGB X). Die Rechtsbehelfsbelehrung muss auf die einmonatige Widerspruchsfrist (§ 84 SGG) hinweisen; fehlt sie, gilt eine Jahresfrist (§ 66 Abs. 2 SGG).",
     "rechtsbasis": [
+      "§ 35 SGB X",
       "§ 24 SGB X",
-      "§ 36 SGB X"
+      "§ 36 SGB X",
+      "§ 84 SGG"
     ],
     "severity": "kritisch",
     "prueflogik": {
@@ -1629,7 +1633,7 @@
         "Monat"
       ]
     },
-    "musterschreiben_hinweis": "Der Bescheid genügt nicht den Anforderungen des § 24 bzw. § 25 SGB X (Begründung, Widerspruchsfrist, Belehrung). Ich bitte um Berichtigung bzw. erneute Belehrung.",
+    "musterschreiben_hinweis": "Der Rentenbescheid genügt nicht den Anforderungen der §§ 35, 24, 36 SGB X. Die Begründung der Rentenberechnung ist unzureichend und/oder die Rechtsbehelfsbelehrung fehlerhaft. Ich bitte um Berichtigung bzw. erneute Belehrung.",
     "severity_beschreibung": "Schwerwiegender Fehler – direkter Einfluss auf Leistungsanspruch oder Fristenlauf"
   },
   {
@@ -2096,7 +2100,7 @@
   {
     "id": "EH_003",
     "titel": "Antragstellung § 16 SGB I (Eingliederungshilfe)",
-    "beschreibung": "Anträge formfrei; unverzügliche Weiterleitung; Hinwirkung.",
+    "beschreibung": "Anträge auf Eingliederungshilfe nach SGB IX sind formfrei (§ 16 SGB I). Der Träger muss auf sachdienliche Anträge hinwirken und unzuständig eingegangene Anträge unverzüglich weiterleiten. Typischer Fehler: Anträge auf Assistenzleistungen oder persönliches Budget werden nicht als solche erkannt oder nicht weitergeleitet.",
     "rechtsbasis": [
       "§ 16 SGB I"
     ],
@@ -2119,7 +2123,7 @@
   {
     "id": "EH_004",
     "titel": "Mitwirkung § 60 SGB I (Eingliederungshilfe)",
-    "beschreibung": "Mitwirkung nur in gesetzlichen Grenzen.",
+    "beschreibung": "Der Träger der Eingliederungshilfe darf Mitwirkungspflichten nach § 60 SGB I nur in gesetzlichen Grenzen verlangen. Typischer Fehler: Unverhältnismäßige Begutachtungsanforderungen, Pflicht zur Offenlegung von Diagnosen ohne Rechtsgrundlage oder Leistungsversagung wegen angeblich fehlender Mitwirkung bei Teilhabeplanung.",
     "rechtsbasis": [
       "§ 60 SGB I"
     ],
@@ -2165,10 +2169,12 @@
   {
     "id": "EH_006",
     "titel": "Bescheidbegründung / Widerspruchsfrist (Eingliederungshilfe)",
-    "beschreibung": "Begründung § 24 SGB X, Widerspruchsfrist § 25 SGB X.",
+    "beschreibung": "Bescheide der Eingliederungshilfe müssen nachvollziehbar begründen, warum Leistungen abgelehnt oder eingeschränkt werden (§ 35 SGB X), insbesondere bei Assistenzleistungen, persönlichem Budget oder Teilhabe am Arbeitsleben. Vor belastenden Entscheidungen ist eine Anhörung durchzuführen (§ 24 SGB X). Die Rechtsbehelfsbelehrung muss auf die einmonatige Widerspruchsfrist (§ 84 SGG) hinweisen.",
     "rechtsbasis": [
+      "§ 35 SGB X",
       "§ 24 SGB X",
-      "§ 36 SGB X"
+      "§ 36 SGB X",
+      "§ 84 SGG"
     ],
     "severity": "kritisch",
     "prueflogik": {
@@ -2182,7 +2188,7 @@
         "Frist"
       ]
     },
-    "musterschreiben_hinweis": "§ 24/25 SGB X nicht eingehalten. Ich bitte um Berichtigung.",
+    "musterschreiben_hinweis": "Der Bescheid genügt nicht den Anforderungen der §§ 35, 24, 36 SGB X. Die Begründung der Leistungsentscheidung ist unzureichend. Ich bitte um Berichtigung.",
     "severity_beschreibung": "Schwerwiegender Fehler – direkter Einfluss auf Leistungsanspruch oder Fristenlauf"
   },
   {
@@ -2261,7 +2267,7 @@
   {
     "id": "FK_002",
     "titel": "Beratungspflicht § 14 SGB I (Familienkasse)",
-    "beschreibung": "Beratung richtig, unmissverständlich, umfassend; Merkblätter allein reichen nicht.",
+    "beschreibung": "Die Familienkasse muss richtig, unmissverständlich und umfassend beraten (§ 14 SGB I). Merkblätter allein reichen nicht. Typischer Fehler: Fehlende Beratung über Kinderzuschlag als Alternative zum Bürgergeld, nicht auf den Zählkindvorteil hingewiesen oder unvollständige Information über Berücksichtigungstatbestände bei volljährigen Kindern (§ 32 Abs. 4 EStG).",
     "rechtsbasis": [
       "§ 14 SGB I"
     ],
@@ -2284,7 +2290,7 @@
   {
     "id": "FK_003",
     "titel": "Antragstellung § 16 SGB I (Familienkasse)",
-    "beschreibung": "Anträge formfrei; unverzügliche Weiterleitung; Hinwirkung auf sachdienliche Anträge.",
+    "beschreibung": "Anträge auf Kindergeld oder Kinderzuschlag bei der Familienkasse sind formfrei (§ 16 SGB I). Die Familienkasse muss auf sachdienliche Anträge hinwirken und bei Unzuständigkeit unverzüglich weiterleiten. Typischer Fehler: Anträge auf Kinderzuschlag werden nicht als solche erkannt oder Formularfehler als Ablehnungsgrund gewertet.",
     "rechtsbasis": [
       "§ 16 SGB I"
     ],
@@ -2307,7 +2313,7 @@
   {
     "id": "FK_004",
     "titel": "Mitwirkung § 60 SGB I (Familienkasse)",
-    "beschreibung": "Mitwirkung nur in gesetzlichen Grenzen.",
+    "beschreibung": "Die Familienkasse darf Mitwirkungspflichten nach § 60 SGB I nur in gesetzlichen Grenzen verlangen. Typischer Fehler: Kindergeld wird wegen verspäteter Vorlage von Studienbescheinigungen sofort aufgehoben, obwohl eine Nachfrist hätte gesetzt werden müssen. Oder: Auskunftsverlangen an volljährige Kinder ohne Rechtsgrundlage.",
     "rechtsbasis": [
       "§ 60 SGB I"
     ],
@@ -2356,10 +2362,12 @@
   {
     "id": "FK_006",
     "titel": "Bescheidbegründung / Widerspruchsfrist (Familienkasse)",
-    "beschreibung": "Begründung § 24 SGB X, Widerspruchsfrist § 25 SGB X.",
+    "beschreibung": "Bescheide der Familienkasse zu Kindergeld und Kinderzuschlag müssen nachvollziehbar begründet sein (§ 35 SGB X), insbesondere bei Ablehnung, Aufhebung oder Rückforderung. Vor belastenden Entscheidungen ist eine Anhörung durchzuführen (§ 24 SGB X). Die Rechtsbehelfsbelehrung muss auf die einmonatige Einspruchsfrist (§ 355 AO bei steuerlichen Kindergeldverfahren) bzw. Widerspruchsfrist hinweisen.",
     "rechtsbasis": [
+      "§ 35 SGB X",
       "§ 24 SGB X",
-      "§ 36 SGB X"
+      "§ 36 SGB X",
+      "§ 84 SGG"
     ],
     "severity": "kritisch",
     "prueflogik": {
@@ -2373,7 +2381,7 @@
         "Frist"
       ]
     },
-    "musterschreiben_hinweis": "§ 24/25 SGB X nicht eingehalten. Ich bitte um Berichtigung.",
+    "musterschreiben_hinweis": "Der Bescheid der Familienkasse genügt nicht den Anforderungen der §§ 35, 24, 36 SGB X. Die Begründung der Kindergeld-Entscheidung ist unzureichend. Ich bitte um Berichtigung.",
     "severity_beschreibung": "Schwerwiegender Fehler – direkter Einfluss auf Leistungsanspruch oder Fristenlauf"
   },
   {
@@ -2402,7 +2410,7 @@
   {
     "id": "JA_003",
     "titel": "Antragstellung § 16 SGB I (Jugendamt)",
-    "beschreibung": "Anträge formfrei; unverzügliche Weiterleitung; Hinwirkung.",
+    "beschreibung": "Anträge auf Jugendhilfe nach SGB VIII sind formfrei (§ 16 SGB I). Das Jugendamt muss auf sachdienliche Anträge hinwirken und bei Unzuständigkeit unverzüglich weiterleiten. Typischer Fehler: Eltern werden an andere Stellen verwiesen, statt den Antrag aufzunehmen und weiterzuleiten.",
     "rechtsbasis": [
       "§ 16 SGB I"
     ],
@@ -2425,7 +2433,7 @@
   {
     "id": "JA_004",
     "titel": "Mitwirkung § 60 SGB I (Jugendamt)",
-    "beschreibung": "Mitwirkung nur in gesetzlichen Grenzen.",
+    "beschreibung": "Das Jugendamt darf Mitwirkungspflichten nach § 60 SGB I nur in gesetzlichen Grenzen verlangen. Typischer Fehler: Eltern werden zur Offenlegung von Details aufgefordert, die für die Hilfeplanung nicht erforderlich sind, oder Hilfen werden wegen angeblich fehlender Mitwirkung verweigert.",
     "rechtsbasis": [
       "§ 60 SGB I"
     ],
@@ -2471,10 +2479,12 @@
   {
     "id": "JA_006",
     "titel": "Bescheidbegründung / Widerspruchsfrist (Jugendamt)",
-    "beschreibung": "Begründung § 24 SGB X, Widerspruchsfrist § 25 SGB X.",
+    "beschreibung": "Bescheide des Jugendamts zu Hilfen zur Erziehung (§§ 27 ff. SGB VIII) oder Eingliederungshilfe (§ 35a SGB VIII) müssen nachvollziehbar begründet sein (§ 35 SGB X), insbesondere bei Ablehnung oder Einschränkung des Hilfeumfangs. Vor belastenden Entscheidungen ist eine Anhörung durchzuführen (§ 24 SGB X). Die Rechtsbehelfsbelehrung muss auf die einmonatige Widerspruchsfrist (§ 84 SGG) hinweisen.",
     "rechtsbasis": [
+      "§ 35 SGB X",
       "§ 24 SGB X",
-      "§ 36 SGB X"
+      "§ 36 SGB X",
+      "§ 84 SGG"
     ],
     "severity": "kritisch",
     "prueflogik": {
@@ -2488,7 +2498,7 @@
         "Frist"
       ]
     },
-    "musterschreiben_hinweis": "§ 24/25 SGB X nicht eingehalten. Ich bitte um Berichtigung.",
+    "musterschreiben_hinweis": "Der Bescheid des Jugendamts genügt nicht den Anforderungen der §§ 35, 24, 36 SGB X. Die Begründung ist unzureichend. Ich bitte um Berichtigung.",
     "severity_beschreibung": "Schwerwiegender Fehler – direkter Einfluss auf Leistungsanspruch oder Fristenlauf"
   },
   {
@@ -2546,7 +2556,7 @@
   {
     "id": "KK_002",
     "titel": "Beratungspflicht § 14 SGB I (Krankenkasse)",
-    "beschreibung": "Beratung richtig, unmissverständlich, umfassend; Merkblätter allein reichen nicht.",
+    "beschreibung": "Die Krankenkasse muss richtig, unmissverständlich und umfassend beraten (§ 14 SGB I). Merkblätter allein reichen nicht. Typischer Fehler: Fehlende Beratung über Krankengeld-Anspruch bei Aussteuerung, keine Information über Genehmigungsfiktion (§ 13 Abs. 3a SGB V), unzureichende Aufklärung über Zuzahlungsbefreiung oder Wahltarife.",
     "rechtsbasis": [
       "§ 14 SGB I"
     ],
@@ -2571,7 +2581,7 @@
   {
     "id": "KK_003",
     "titel": "Antragstellung § 16 SGB I (Krankenkasse)",
-    "beschreibung": "Anträge formfrei; unverzügliche Weiterleitung; Hinwirkung auf sachdienliche Anträge.",
+    "beschreibung": "Anträge auf Leistungen der Krankenkasse (Krankengeld, Hilfsmittel, Reha, Psychotherapie) sind formfrei (§ 16 SGB I). Die Krankenkasse muss auf sachdienliche Anträge hinwirken und bei Unzuständigkeit weiterleiten. Typischer Fehler: Mündliche Anträge auf Hilfsmittel oder häusliche Krankenpflege werden nicht als formgerechte Anträge behandelt.",
     "rechtsbasis": [
       "§ 16 SGB I"
     ],
@@ -2645,10 +2655,12 @@
   {
     "id": "KK_006",
     "titel": "Bescheidbegründung / Widerspruchsfrist (Krankenkasse)",
-    "beschreibung": "Begründung § 24 SGB X, Widerspruchsfrist § 25 SGB X, Rechtsbehelfsbelehrung.",
+    "beschreibung": "Bescheide der Krankenkasse müssen nachvollziehbar begründet sein (§ 35 SGB X), insbesondere bei Leistungsablehnung (Hilfsmittel, Krankengeld, Reha, Psychotherapie). Vor belastenden Entscheidungen ist eine Anhörung durchzuführen (§ 24 SGB X). Die Rechtsbehelfsbelehrung muss auf die einmonatige Widerspruchsfrist (§ 84 SGG) hinweisen. Zu beachten: Die Genehmigungsfiktion nach § 13 Abs. 3a SGB V greift bei fehlender fristgerechter Entscheidung.",
     "rechtsbasis": [
+      "§ 35 SGB X",
       "§ 24 SGB X",
-      "§ 36 SGB X"
+      "§ 36 SGB X",
+      "§ 84 SGG"
     ],
     "severity": "kritisch",
     "prueflogik": {
@@ -2663,7 +2675,7 @@
         "Rechtsbehelfsbelehrung"
       ]
     },
-    "musterschreiben_hinweis": "§ 24/25 SGB X nicht eingehalten. Ich bitte um Berichtigung bzw. Belehrung.",
+    "musterschreiben_hinweis": "Der Bescheid der Krankenkasse genügt nicht den Anforderungen der §§ 35, 24, 36 SGB X. Die Begründung ist unzureichend und/oder die Rechtsbehelfsbelehrung fehlerhaft. Ich bitte um Berichtigung.",
     "severity_beschreibung": "Schwerwiegender Fehler – direkter Einfluss auf Leistungsanspruch oder Fristenlauf"
   },
   {
@@ -3126,7 +3138,7 @@
   {
     "id": "PK_003",
     "titel": "Antragstellung / Weiterleitung nach § 16 SGB I verletzt (Pflegekasse)",
-    "beschreibung": "Anträge sind formfrei. Unverzügliche Weiterleitung bei Unzuständigkeit, Hinwirkung auf sachdienliche Anträge. Zugang beim zuständigen Leistungsträger maßgeblich.",
+    "beschreibung": "Anträge auf Pflegeleistungen sind formfrei (§ 16 SGB I). Die Pflegekasse muss auf sachdienliche Anträge hinwirken und bei Unzuständigkeit unverzüglich weiterleiten. Der Zugang beim zuständigen Leistungsträger ist maßgeblich. Typischer Fehler: Höherstufungsanträge werden nicht als Neuanträge behandelt, oder Anträge auf Verhinderungspflege/Kurzzeitpflege werden abgelehnt, weil kein Formular verwendet wurde.",
     "rechtsbasis": [
       "§ 16 SGB I"
     ],
@@ -3152,7 +3164,7 @@
   {
     "id": "PK_004",
     "titel": "Mitwirkungspflicht § 60 SGB I (Pflegekasse)",
-    "beschreibung": "Mitwirkung (Auskunft, Urkunden, Untersuchungen) nur in den gesetzlich vorgesehenen Grenzen; Folgen bei Nichtmitwirkung müssen auf gesetzlicher Grundlage beruhen.",
+    "beschreibung": "Die Pflegekasse darf Mitwirkungspflichten nach § 60 SGB I nur in gesetzlichen Grenzen verlangen (Auskunft, Urkunden, Untersuchungen). Folgen bei Nichtmitwirkung müssen auf gesetzlicher Grundlage beruhen. Typischer Fehler: Leistungen werden wegen Nichtteilnahme am MDK-Begutachtungstermin sofort eingestellt, obwohl ein neuer Termin angeboten werden muss. Oder: Pflegebedürftige werden zu Begutachtungen außer Haus aufgefordert, obwohl Hausbesuche Standard sind.",
     "rechtsbasis": [
       "§ 60 SGB I"
     ],
@@ -3233,10 +3245,12 @@
   {
     "id": "PK_007",
     "titel": "Bescheidbegründung / Widerspruchsfrist (Pflegekasse)",
-    "beschreibung": "Bescheide müssen die erforderliche Begründung enthalten (§ 24 SGB X). Auf die Widerspruchsfrist (§ 25 SGB X, in der Regel ein Monat) und Rechtsbehelfsbelehrung ist hinzuweisen.",
+    "beschreibung": "Bescheide der Pflegekasse zur Pflegegrad-Einstufung, Leistungsbewilligung oder -ablehnung müssen nachvollziehbar begründet sein (§ 35 SGB X), insbesondere warum ein bestimmter Pflegegrad festgestellt oder abgelehnt wurde. Vor belastenden Entscheidungen ist eine Anhörung durchzuführen (§ 24 SGB X). Die Rechtsbehelfsbelehrung muss auf die einmonatige Widerspruchsfrist (§ 84 SGG) hinweisen; fehlt sie, gilt eine Jahresfrist (§ 66 Abs. 2 SGG).",
     "rechtsbasis": [
+      "§ 35 SGB X",
       "§ 24 SGB X",
-      "§ 36 SGB X"
+      "§ 36 SGB X",
+      "§ 84 SGG"
     ],
     "severity": "kritisch",
     "prueflogik": {
@@ -3253,7 +3267,7 @@
         "Monat"
       ]
     },
-    "musterschreiben_hinweis": "Der Bescheid genügt nicht den Anforderungen des § 24 bzw. § 25 SGB X (Begründung, Widerspruchsfrist, Belehrung). Ich bitte um Berichtigung bzw. erneute Belehrung.",
+    "musterschreiben_hinweis": "Der Bescheid der Pflegekasse genügt nicht den Anforderungen der §§ 35, 24, 36 SGB X. Die Begründung der Pflegegrad-Entscheidung ist unzureichend und/oder die Rechtsbehelfsbelehrung fehlerhaft. Ich bitte um Berichtigung bzw. erneute Belehrung.",
     "severity_beschreibung": "Schwerwiegender Fehler – direkter Einfluss auf Leistungsanspruch oder Fristenlauf"
   },
   {
@@ -3549,7 +3563,7 @@
   {
     "id": "SH_003",
     "titel": "Antragstellung / Weiterleitung nach § 16 SGB I verletzt (Sozialhilfe/Grundsicherung)",
-    "beschreibung": "Anträge sind formfrei. Unverzügliche Weiterleitung bei Unzuständigkeit, Hinwirkung auf sachdienliche Anträge. Zugang beim zuständigen Leistungsträger maßgeblich.",
+    "beschreibung": "Anträge auf Sozialhilfe (Grundsicherung im Alter, bei Erwerbsminderung, Hilfe zum Lebensunterhalt) sind formfrei (§ 16 SGB I). Das Sozialamt muss auf sachdienliche Anträge hinwirken und bei Unzuständigkeit unverzüglich weiterleiten. Der Zugang beim zuständigen Leistungsträger ist maßgeblich. Typischer Fehler: Anträge werden wegen fehlender Unterlagen zurückgewiesen statt angenommen und nachgefordert.",
     "rechtsbasis": [
       "§ 16 SGB I"
     ],
@@ -3575,7 +3589,7 @@
   {
     "id": "SH_004",
     "titel": "Mitwirkungspflicht § 60 SGB I (Sozialhilfe/Grundsicherung)",
-    "beschreibung": "Mitwirkung (Auskunft, Urkunden, Untersuchungen) nur in den gesetzlich vorgesehenen Grenzen; Folgen bei Nichtmitwirkung müssen auf gesetzlicher Grundlage beruhen.",
+    "beschreibung": "Das Sozialamt darf Mitwirkungspflichten nach § 60 SGB I nur in gesetzlichen Grenzen verlangen (Auskunft, Urkunden, Untersuchungen). Folgen bei Nichtmitwirkung müssen auf gesetzlicher Grundlage beruhen. Typischer Fehler: Leistungen der Grundsicherung werden wegen verspäteter Kontoauszüge sofort eingestellt, obwohl eine Nachfrist gesetzt werden muss. Oder: Unverhältnismäßige Offenlegungspflichten bei Vermögensprüfung.",
     "rechtsbasis": [
       "§ 60 SGB I"
     ],
@@ -3630,10 +3644,12 @@
   {
     "id": "SH_006",
     "titel": "Bescheidbegründung / Widerspruchsfrist (Sozialhilfe/Grundsicherung)",
-    "beschreibung": "Bescheide müssen die erforderliche Begründung enthalten (§ 24 SGB X). Auf die Widerspruchsfrist (§ 25 SGB X, in der Regel ein Monat) und Rechtsbehelfsbelehrung ist hinzuweisen.",
+    "beschreibung": "Bescheide des Sozialamts zur Grundsicherung im Alter, bei Erwerbsminderung oder Hilfe zum Lebensunterhalt müssen nachvollziehbar begründet sein (§ 35 SGB X), insbesondere bei Einkommens- und Vermögensanrechnung. Vor belastenden Entscheidungen ist eine Anhörung durchzuführen (§ 24 SGB X). Die Rechtsbehelfsbelehrung muss auf die einmonatige Widerspruchsfrist (§ 84 SGG) hinweisen; fehlt sie, gilt eine Jahresfrist (§ 66 Abs. 2 SGG).",
     "rechtsbasis": [
+      "§ 35 SGB X",
       "§ 24 SGB X",
-      "§ 36 SGB X"
+      "§ 36 SGB X",
+      "§ 84 SGG"
     ],
     "severity": "kritisch",
     "prueflogik": {
@@ -3650,7 +3666,7 @@
         "Monat"
       ]
     },
-    "musterschreiben_hinweis": "Der Bescheid genügt nicht den Anforderungen des § 24 bzw. § 25 SGB X (Begründung, Widerspruchsfrist, Belehrung). Ich bitte um Berichtigung bzw. erneute Belehrung.",
+    "musterschreiben_hinweis": "Der Bescheid des Sozialamts genügt nicht den Anforderungen der §§ 35, 24, 36 SGB X. Die Begründung ist unzureichend und/oder die Rechtsbehelfsbelehrung fehlerhaft. Ich bitte um Berichtigung bzw. erneute Belehrung.",
     "severity_beschreibung": "Schwerwiegender Fehler – direkter Einfluss auf Leistungsanspruch oder Fristenlauf"
   },
   {
@@ -3865,7 +3881,7 @@
   {
     "id": "UV_003",
     "titel": "Antragstellung § 16 SGB I (Unfallversicherung)",
-    "beschreibung": "Anträge formfrei; unverzügliche Weiterleitung; Hinwirkung.",
+    "beschreibung": "Anträge auf Leistungen der Unfallversicherung (Arbeitsunfall, Berufskrankheit) sind formfrei (§ 16 SGB I). Die Berufsgenossenschaft muss auf sachdienliche Anträge hinwirken und unzuständig eingegangene Anträge unverzüglich weiterleiten. Typischer Fehler: Unfallmeldungen werden nicht als Leistungsanträge behandelt.",
     "rechtsbasis": [
       "§ 16 SGB I"
     ],
@@ -3888,7 +3904,7 @@
   {
     "id": "UV_004",
     "titel": "Mitwirkung § 60 SGB I (Unfallversicherung)",
-    "beschreibung": "Mitwirkung nur in gesetzlichen Grenzen.",
+    "beschreibung": "Die Berufsgenossenschaft darf Mitwirkungspflichten nach § 60 SGB I nur in gesetzlichen Grenzen verlangen (Auskunft, Urkunden, Untersuchungen). Typischer Fehler: Gutachtertermine werden ohne Berücksichtigung der persönlichen Situation angesetzt, oder Leistungen werden wegen verspäteter Unfallanzeige des Arbeitgebers gekürzt.",
     "rechtsbasis": [
       "§ 60 SGB I"
     ],
@@ -3936,10 +3952,12 @@
   {
     "id": "UV_006",
     "titel": "Bescheidbegründung / Widerspruchsfrist (Unfallversicherung)",
-    "beschreibung": "Begründung § 24 SGB X, Widerspruchsfrist § 25 SGB X.",
+    "beschreibung": "Bescheide der Berufsgenossenschaft/Unfallversicherung müssen nachvollziehbar begründet sein (§ 35 SGB X), insbesondere bei Ablehnung eines Arbeitsunfalls, einer Berufskrankheit oder bei MdE-Feststellung. Vor belastenden Entscheidungen ist eine Anhörung durchzuführen (§ 24 SGB X). Die Rechtsbehelfsbelehrung muss auf die einmonatige Widerspruchsfrist (§ 84 SGG) hinweisen.",
     "rechtsbasis": [
+      "§ 35 SGB X",
       "§ 24 SGB X",
-      "§ 36 SGB X"
+      "§ 36 SGB X",
+      "§ 84 SGG"
     ],
     "severity": "kritisch",
     "prueflogik": {
@@ -3953,7 +3971,7 @@
         "Frist"
       ]
     },
-    "musterschreiben_hinweis": "§ 24/25 SGB X nicht eingehalten. Ich bitte um Berichtigung.",
+    "musterschreiben_hinweis": "Der Bescheid der Unfallversicherung genügt nicht den Anforderungen der §§ 35, 24, 36 SGB X. Die Begründung ist unzureichend. Ich bitte um Berichtigung.",
     "severity_beschreibung": "Schwerwiegender Fehler – direkter Einfluss auf Leistungsanspruch oder Fristenlauf"
   },
   {
@@ -4056,7 +4074,7 @@
   {
     "id": "VA_003",
     "titel": "Antragstellung § 16 SGB I (Versorgungsamt)",
-    "beschreibung": "Anträge formfrei; unverzügliche Weiterleitung; Hinwirkung.",
+    "beschreibung": "Anträge auf Feststellung einer Schwerbehinderung (GdB) oder Merkzeichen sind formfrei (§ 16 SGB I). Das Versorgungsamt muss auf sachdienliche Anträge hinwirken und bei Unzuständigkeit weiterleiten. Typischer Fehler: Verschlechterungsanträge werden nicht als Neufeststellungsanträge aufgenommen.",
     "rechtsbasis": [
       "§ 16 SGB I"
     ],
@@ -4079,7 +4097,7 @@
   {
     "id": "VA_004",
     "titel": "Mitwirkung § 60 SGB I (Versorgungsamt)",
-    "beschreibung": "Mitwirkung nur in gesetzlichen Grenzen.",
+    "beschreibung": "Das Versorgungsamt darf Mitwirkungspflichten nach § 60 SGB I nur in gesetzlichen Grenzen verlangen. Typischer Fehler: GdB-Neufeststellung wird wegen fehlender Befundberichte abgelehnt, obwohl das Versorgungsamt diese selbst bei den Ärzten anfordern muss (Amtsermittlungsgrundsatz).",
     "rechtsbasis": [
       "§ 60 SGB I"
     ],
@@ -4129,10 +4147,12 @@
   {
     "id": "VA_006",
     "titel": "Bescheidbegründung / Widerspruchsfrist (Versorgungsamt)",
-    "beschreibung": "Begründung § 24 SGB X, Widerspruchsfrist § 25 SGB X.",
+    "beschreibung": "Bescheide des Versorgungsamts zur GdB-Feststellung, Merkzeichen-Zuerkennung oder Neufeststellung müssen nachvollziehbar begründet sein (§ 35 SGB X), insbesondere welche Funktionsbeeinträchtigungen mit welchem Einzel-GdB bewertet wurden. Vor belastenden Entscheidungen ist eine Anhörung durchzuführen (§ 24 SGB X). Die Rechtsbehelfsbelehrung muss auf die einmonatige Widerspruchsfrist (§ 84 SGG) hinweisen.",
     "rechtsbasis": [
+      "§ 35 SGB X",
       "§ 24 SGB X",
-      "§ 36 SGB X"
+      "§ 36 SGB X",
+      "§ 84 SGG"
     ],
     "severity": "kritisch",
     "prueflogik": {
@@ -4146,7 +4166,7 @@
         "Frist"
       ]
     },
-    "musterschreiben_hinweis": "§ 24/25 SGB X nicht eingehalten. Ich bitte um Berichtigung.",
+    "musterschreiben_hinweis": "Der Bescheid des Versorgungsamts genügt nicht den Anforderungen der §§ 35, 24, 36 SGB X. Die Begründung der GdB-Feststellung ist unzureichend. Ich bitte um Berichtigung.",
     "severity_beschreibung": "Schwerwiegender Fehler – direkter Einfluss auf Leistungsanspruch oder Fristenlauf"
   },
   {
@@ -4350,5 +4370,670 @@
     },
     "musterschreiben_hinweis": "Dem Bescheid fehlt eine ordnungsgemäße Rechtsbehelfsbelehrung nach § 37 VwVfG. Dies hat zur Folge, dass die Widerspruchsfrist nach § 58 VwGO auf ein Jahr verlängert wird.",
     "severity_beschreibung": "Verlängerte Widerspruchsfrist"
+  },
+  {
+    "id": "BAF_006",
+    "titel": "Förderungshöchstdauer falsch berechnet (§ 15a BAföG)",
+    "beschreibung": "Die Förderungshöchstdauer nach § 15a BAföG wurde fehlerhaft berechnet. Verlängerungsgründe wie Krankheit, Gremientätigkeit, Behinderung oder erstmalige Schwangerschaft (§ 15 Abs. 3 BAföG) wurden nicht berücksichtigt.",
+    "rechtsbasis": [
+      "§ 15a BAföG",
+      "§ 15 Abs. 3 BAföG"
+    ],
+    "severity": "kritisch",
+    "prueflogik": {
+      "bedingungen": [
+        "BAföG",
+        "Förderungshöchstdauer überschritten",
+        "Verlängerungsgrund vorhanden"
+      ],
+      "suchbegriffe": [
+        "Förderungshöchstdauer",
+        "Regelstudienzeit",
+        "Verlängerung",
+        "Semester",
+        "Krankheit",
+        "Gremientätigkeit"
+      ]
+    },
+    "musterschreiben_hinweis": "Die Förderungshöchstdauer nach § 15a BAföG ist zu überprüfen. Es liegen Gründe für eine Verlängerung nach § 15 Abs. 3 BAföG vor, die nicht berücksichtigt wurden.",
+    "severity_beschreibung": "Ausbildungsförderung vollständig betroffen"
+  },
+  {
+    "id": "BAF_007",
+    "titel": "Vorausleistung nach § 36 BAföG nicht gewährt",
+    "beschreibung": "Die Eltern verweigern Unterhalt oder Einkommensauskunft. Das BAföG-Amt hat keine Vorausleistung nach § 36 BAföG gewährt, obwohl die Voraussetzungen vorliegen.",
+    "rechtsbasis": [
+      "§ 36 BAföG"
+    ],
+    "severity": "kritisch",
+    "prueflogik": {
+      "bedingungen": [
+        "BAföG",
+        "Eltern verweigern Auskunft oder Unterhalt",
+        "Vorausleistung nicht gewährt"
+      ],
+      "suchbegriffe": [
+        "Vorausleistung",
+        "Eltern",
+        "Unterhalt",
+        "Auskunft",
+        "verweigern",
+        "§ 36"
+      ]
+    },
+    "musterschreiben_hinweis": "Es wird Vorausleistung nach § 36 BAföG beantragt. Die Eltern verweigern die Auskunft über ihre Einkommensverhältnisse bzw. die Unterhaltsleistung.",
+    "severity_beschreibung": "Ausbildungsförderung vollständig blockiert"
+  },
+  {
+    "id": "BAF_008",
+    "titel": "Härtefreibetrag nicht berücksichtigt (§ 29 Abs. 3 BAföG)",
+    "beschreibung": "Bei der Vermögensanrechnung wurde kein Härtefreibetrag nach § 29 Abs. 3 BAföG berücksichtigt, obwohl besondere Umstände vorliegen (z.B. notwendige Anschaffungen, Schulden).",
+    "rechtsbasis": [
+      "§ 29 Abs. 3 BAföG"
+    ],
+    "severity": "wichtig",
+    "prueflogik": {
+      "bedingungen": [
+        "BAföG",
+        "Vermögensanrechnung",
+        "Besondere Härte"
+      ],
+      "suchbegriffe": [
+        "Härtefreibetrag",
+        "Vermögen",
+        "Härte",
+        "Anschaffung",
+        "Schulden"
+      ]
+    },
+    "musterschreiben_hinweis": "Die Vermögensanrechnung ist nach § 29 Abs. 3 BAföG im Hinblick auf eine besondere Härte zu überprüfen. Die vorliegenden besonderen Umstände rechtfertigen einen Härtefreibetrag.",
+    "severity_beschreibung": "BAföG-Höhe möglicherweise zu niedrig"
+  },
+  {
+    "id": "BAF_009",
+    "titel": "Auslandsförderung zu Unrecht abgelehnt (§ 5 BAföG)",
+    "beschreibung": "Die Ausbildungsförderung für ein Auslandsstudium/-praktikum wurde abgelehnt, obwohl die Voraussetzungen nach § 5 BAföG erfüllt sind (EU/EWR, Partneruni, ein Jahr).",
+    "rechtsbasis": [
+      "§ 5 BAföG",
+      "§ 5a BAföG"
+    ],
+    "severity": "kritisch",
+    "prueflogik": {
+      "bedingungen": [
+        "BAföG",
+        "Auslandsstudium oder -praktikum",
+        "Ablehnung"
+      ],
+      "suchbegriffe": [
+        "Ausland",
+        "Auslandssemester",
+        "Auslandspraktikum",
+        "Auslandsförderung",
+        "EU",
+        "Partneruni"
+      ]
+    },
+    "musterschreiben_hinweis": "Die Ablehnung der Auslandsförderung nach § 5 BAföG ist zu überprüfen. Die Voraussetzungen für eine Förderung des Auslandsstudiums/-praktikums sind erfüllt.",
+    "severity_beschreibung": "Auslandsförderung vollständig betroffen"
+  },
+  {
+    "id": "BAF_010",
+    "titel": "BAföG-Bescheid ohne Rechtsbehelfsbelehrung",
+    "beschreibung": "Dem BAföG-Bescheid fehlt die vorgeschriebene Rechtsbehelfsbelehrung nach § 36 SGB X, wodurch die Widerspruchsfrist auf ein Jahr verlängert wird (§ 66 Abs. 2 SGG).",
+    "rechtsbasis": [
+      "§ 36 SGB X",
+      "§ 66 Abs. 2 SGG"
+    ],
+    "severity": "wichtig",
+    "prueflogik": {
+      "bedingungen": [
+        "BAföG-Bescheid",
+        "Keine oder fehlerhafte Rechtsbehelfsbelehrung"
+      ],
+      "suchbegriffe": [
+        "Rechtsbehelfsbelehrung",
+        "Widerspruch",
+        "Frist",
+        "BAföG"
+      ]
+    },
+    "musterschreiben_hinweis": "Dem Bescheid fehlt eine ordnungsgemäße Rechtsbehelfsbelehrung nach § 36 SGB X. Die Widerspruchsfrist beträgt daher ein Jahr (§ 66 Abs. 2 SGG).",
+    "severity_beschreibung": "Verlängerte Widerspruchsfrist"
+  },
+  {
+    "id": "EG_006",
+    "titel": "Geschwisterbonus nicht berücksichtigt (§ 2a Abs. 1 BEEG)",
+    "beschreibung": "Der Geschwisterbonus nach § 2a Abs. 1 BEEG wurde nicht gewährt, obwohl ein Geschwisterkind unter 3 Jahren (oder zwei unter 6 Jahren) im Haushalt lebt.",
+    "rechtsbasis": [
+      "§ 2a Abs. 1 BEEG"
+    ],
+    "severity": "wichtig",
+    "prueflogik": {
+      "bedingungen": [
+        "Elterngeld",
+        "Geschwisterkind vorhanden",
+        "Bonus nicht gewährt"
+      ],
+      "suchbegriffe": [
+        "Geschwisterbonus",
+        "Geschwisterkind",
+        "Zuschlag",
+        "älteres Kind",
+        "Elterngeld"
+      ]
+    },
+    "musterschreiben_hinweis": "Der Geschwisterbonus nach § 2a Abs. 1 BEEG wurde nicht berücksichtigt. Im Haushalt lebt ein Geschwisterkind, das die Altersvoraussetzungen erfüllt.",
+    "severity_beschreibung": "Elterngeld-Höhe um 10% bzw. mind. 75€/Monat zu niedrig"
+  },
+  {
+    "id": "EG_007",
+    "titel": "Mehrlingszuschlag fehlt (§ 2a Abs. 4 BEEG)",
+    "beschreibung": "Bei Mehrlingsgeburten wurde der Mehrlingszuschlag nach § 2a Abs. 4 BEEG (300€ pro weiterem Mehrling) nicht gewährt.",
+    "rechtsbasis": [
+      "§ 2a Abs. 4 BEEG"
+    ],
+    "severity": "kritisch",
+    "prueflogik": {
+      "bedingungen": [
+        "Elterngeld",
+        "Mehrlingsgeburt",
+        "Zuschlag nicht gewährt"
+      ],
+      "suchbegriffe": [
+        "Mehrling",
+        "Zwillinge",
+        "Drillinge",
+        "Mehrlingsgeburt",
+        "Zuschlag"
+      ]
+    },
+    "musterschreiben_hinweis": "Der Mehrlingszuschlag nach § 2a Abs. 4 BEEG in Höhe von 300 Euro je weiterem Mehrling wurde nicht berücksichtigt.",
+    "severity_beschreibung": "300€/Monat pro weiterem Mehrlingskind fehlen"
+  },
+  {
+    "id": "EG_008",
+    "titel": "Mutterschaftsgeld fehlerhaft angerechnet (§ 3 BEEG)",
+    "beschreibung": "Das Mutterschaftsgeld nach § 3 BEEG wurde fehlerhaft auf das Elterngeld angerechnet. Die Anrechnung darf nur taggenau für den Zeitraum des Mutterschutzes erfolgen.",
+    "rechtsbasis": [
+      "§ 3 Abs. 1 BEEG",
+      "§ 14 MuSchG"
+    ],
+    "severity": "kritisch",
+    "prueflogik": {
+      "bedingungen": [
+        "Elterngeld",
+        "Mutterschaftsgeld",
+        "Anrechnung fraglich"
+      ],
+      "suchbegriffe": [
+        "Mutterschaftsgeld",
+        "Anrechnung",
+        "Mutterschutz",
+        "Arbeitgeberzuschuss",
+        "Elterngeld"
+      ]
+    },
+    "musterschreiben_hinweis": "Die Anrechnung des Mutterschaftsgeldes nach § 3 Abs. 1 BEEG ist zu überprüfen. Die taggenaue Berechnung und der berücksichtigte Zeitraum erscheinen fehlerhaft.",
+    "severity_beschreibung": "Elterngeld im Mutterschutz-Zeitraum möglicherweise zu niedrig"
+  },
+  {
+    "id": "EG_009",
+    "titel": "Einkommen aus Selbständigkeit falsch berechnet (§ 2d BEEG)",
+    "beschreibung": "Bei Selbständigen wurde das Einkommen nach § 2d BEEG fehlerhaft ermittelt. Der Gewinn aus dem letzten abgeschlossenen Veranlagungszeitraum oder die Vorauszahlungsbasis wurde falsch zugrunde gelegt.",
+    "rechtsbasis": [
+      "§ 2d BEEG",
+      "§ 2f BEEG"
+    ],
+    "severity": "kritisch",
+    "prueflogik": {
+      "bedingungen": [
+        "Elterngeld",
+        "Selbständigkeit",
+        "Einkommensberechnung fehlerhaft"
+      ],
+      "suchbegriffe": [
+        "Selbständig",
+        "Gewinn",
+        "Veranlagungszeitraum",
+        "Steuerbescheid",
+        "freiberuflich"
+      ]
+    },
+    "musterschreiben_hinweis": "Die Berechnung des Einkommens aus selbständiger Tätigkeit nach § 2d BEEG ist zu überprüfen. Der zugrunde gelegte Gewinn entspricht nicht dem tatsächlichen Einkommen im Bemessungszeitraum.",
+    "severity_beschreibung": "Elterngeld-Höhe möglicherweise deutlich zu niedrig"
+  },
+  {
+    "id": "EG_010",
+    "titel": "Bezugszeitraum falsch festgesetzt (§ 4 BEEG)",
+    "beschreibung": "Der Bezugszeitraum für Elterngeld nach § 4 BEEG wurde fehlerhaft festgesetzt. Lebensmonate des Kindes wurden falsch berechnet oder zulässige Aufteilungen nicht berücksichtigt.",
+    "rechtsbasis": [
+      "§ 4 BEEG"
+    ],
+    "severity": "wichtig",
+    "prueflogik": {
+      "bedingungen": [
+        "Elterngeld",
+        "Bezugszeitraum",
+        "Lebensmonate falsch"
+      ],
+      "suchbegriffe": [
+        "Bezugszeitraum",
+        "Lebensmonat",
+        "Bezugsmonat",
+        "Aufteilung",
+        "Elterngeld"
+      ]
+    },
+    "musterschreiben_hinweis": "Der Bezugszeitraum nach § 4 BEEG ist zu überprüfen. Die Zuordnung der Lebensmonate des Kindes oder die Aufteilung zwischen den Elternteilen erscheint fehlerhaft.",
+    "severity_beschreibung": "Elterngeld-Bezugsdauer möglicherweise verkürzt"
+  },
+  {
+    "id": "FK_001",
+    "titel": "Kindergeld für volljähriges Kind zu Unrecht abgelehnt (§ 32 EStG)",
+    "beschreibung": "Kindergeld für ein volljähriges Kind wurde abgelehnt, obwohl ein Berücksichtigungstatbestand nach § 32 Abs. 4 EStG vorliegt (Ausbildung, Studium, FSJ, Übergangszeit bis 4 Monate, Arbeitssuche).",
+    "rechtsbasis": [
+      "§ 32 Abs. 4 EStG",
+      "§ 63 EStG"
+    ],
+    "severity": "kritisch",
+    "prueflogik": {
+      "bedingungen": [
+        "Kindergeld abgelehnt",
+        "Kind volljährig",
+        "Ausbildung oder Studium"
+      ],
+      "suchbegriffe": [
+        "volljährig",
+        "Kindergeld",
+        "Ausbildung",
+        "Studium",
+        "Berücksichtigung",
+        "18 Jahre"
+      ]
+    },
+    "musterschreiben_hinweis": "Die Ablehnung des Kindergeldes für das volljährige Kind ist nach § 32 Abs. 4 EStG zu überprüfen. Es liegt ein Berücksichtigungstatbestand vor.",
+    "severity_beschreibung": "Kindergeld-Anspruch vollständig betroffen"
+  },
+  {
+    "id": "FK_007",
+    "titel": "Kindergeld bei EU-Grenzgängern/Auslandsbezug falsch berechnet (VO 883/2004)",
+    "beschreibung": "Bei grenzüberschreitenden Sachverhalten wurde das Kindergeld nicht nach der EU-Koordinierungsverordnung 883/2004 berechnet. Differenzkindergeld oder Länderzuständigkeit wurden fehlerhaft bestimmt.",
+    "rechtsbasis": [
+      "VO (EG) 883/2004",
+      "§ 65 EStG"
+    ],
+    "severity": "kritisch",
+    "prueflogik": {
+      "bedingungen": [
+        "Kindergeld",
+        "EU-Ausland",
+        "Grenzgänger oder Wanderarbeitnehmer"
+      ],
+      "suchbegriffe": [
+        "Ausland",
+        "EU",
+        "Grenzgänger",
+        "Differenzkindergeld",
+        "Koordinierung",
+        "883/2004"
+      ]
+    },
+    "musterschreiben_hinweis": "Die Kindergeldberechnung bei grenzüberschreitendem Sachverhalt ist nach VO (EG) 883/2004 zu überprüfen. Die Zuständigkeitsbestimmung und/oder Differenzberechnung erscheint fehlerhaft.",
+    "severity_beschreibung": "Kindergeld-Höhe oder -Anspruch bei EU-Bezug betroffen"
+  },
+  {
+    "id": "FK_008",
+    "titel": "Kinderzuschlag Einkommensgrenzen falsch angewendet (§ 6a BKGG)",
+    "beschreibung": "Der Kinderzuschlag nach § 6a BKGG wurde abgelehnt oder zu niedrig berechnet. Die Mindesteinkommensgrenze (900€/600€) oder die Höchsteinkommensgrenze wurde fehlerhaft ermittelt.",
+    "rechtsbasis": [
+      "§ 6a BKGG"
+    ],
+    "severity": "kritisch",
+    "prueflogik": {
+      "bedingungen": [
+        "Kinderzuschlag",
+        "Einkommensgrenzen",
+        "Ablehnung oder zu niedrig"
+      ],
+      "suchbegriffe": [
+        "Kinderzuschlag",
+        "Mindesteinkommensgrenze",
+        "Höchsteinkommen",
+        "KiZ",
+        "BKGG"
+      ]
+    },
+    "musterschreiben_hinweis": "Die Berechnung des Kinderzuschlags nach § 6a BKGG ist zu überprüfen. Die angewandten Einkommensgrenzen und die Einkommensanrechnung erscheinen fehlerhaft.",
+    "severity_beschreibung": "Kinderzuschlag-Anspruch möglicherweise zu niedrig oder zu Unrecht abgelehnt"
+  },
+  {
+    "id": "FK_009",
+    "titel": "Kindergeld-Rückforderung ohne vorherige Anhörung (§ 24 SGB X)",
+    "beschreibung": "Kindergeld wird nach § 37 Abs. 2 AO zurückgefordert, ohne dass vorher eine Anhörung nach § 24 SGB X / § 91 AO stattgefunden hat.",
+    "rechtsbasis": [
+      "§ 24 SGB X",
+      "§ 91 AO",
+      "§ 37 Abs. 2 AO"
+    ],
+    "severity": "kritisch",
+    "prueflogik": {
+      "bedingungen": [
+        "Kindergeld",
+        "Rückforderung",
+        "Keine Anhörung"
+      ],
+      "suchbegriffe": [
+        "Rückforderung",
+        "Erstattung",
+        "Anhörung",
+        "Überzahlung",
+        "Kindergeld"
+      ]
+    },
+    "musterschreiben_hinweis": "Die Rückforderung des Kindergeldes ist formell rechtswidrig, da keine ordnungsgemäße Anhörung stattgefunden hat. Der Aufhebungs- und Erstattungsbescheid ist aufzuheben.",
+    "severity_beschreibung": "Formfehler — Rückforderungsbescheid angreifbar"
+  },
+  {
+    "id": "FK_010",
+    "titel": "Zählkindvorteil nicht berücksichtigt",
+    "beschreibung": "Bei der Kindergeldberechnung wurde der Zählkindvorteil nicht berücksichtigt. Kinder aus früheren Beziehungen zählen als Zählkinder, wodurch nachfolgende Kinder einen höheren Kindergeldanspruch auslösen.",
+    "rechtsbasis": [
+      "§ 66 EStG"
+    ],
+    "severity": "wichtig",
+    "prueflogik": {
+      "bedingungen": [
+        "Kindergeld",
+        "Mehrere Kinder aus verschiedenen Beziehungen"
+      ],
+      "suchbegriffe": [
+        "Zählkind",
+        "Zählkindvorteil",
+        "erstes Kind",
+        "drittes Kind",
+        "Staffelung"
+      ]
+    },
+    "musterschreiben_hinweis": "Der Zählkindvorteil wurde bei der Kindergeldberechnung nicht berücksichtigt. Die Reihenfolge der Kinder nach § 66 EStG ist zu überprüfen.",
+    "severity_beschreibung": "Kindergeld-Höhe möglicherweise zu niedrig"
+  },
+  {
+    "id": "WG_006",
+    "titel": "Heizkostenkomponente nicht berücksichtigt (§ 12 Abs. 6 WoGG)",
+    "beschreibung": "Seit dem Wohngeld-Plus-Gesetz (01.01.2023) enthält das Wohngeld eine permanente Heizkostenkomponente nach § 12 Abs. 6 WoGG. Diese wurde im Bescheid nicht berücksichtigt.",
+    "rechtsbasis": [
+      "§ 12 Abs. 6 WoGG"
+    ],
+    "severity": "kritisch",
+    "prueflogik": {
+      "bedingungen": [
+        "Wohngeld",
+        "Heizkostenkomponente fehlt",
+        "Bescheid ab 2023"
+      ],
+      "suchbegriffe": [
+        "Heizkosten",
+        "Heizkostenkomponente",
+        "Wohngeld",
+        "Heizung",
+        "Energiekosten"
+      ]
+    },
+    "musterschreiben_hinweis": "Die permanente Heizkostenkomponente nach § 12 Abs. 6 WoGG wurde im Bescheid nicht berücksichtigt. Diese steht allen Wohngeldempfängern seit 01.01.2023 zu.",
+    "severity_beschreibung": "Wohngeld-Höhe zu niedrig — Heizkostenpauschale fehlt"
+  },
+  {
+    "id": "WG_007",
+    "titel": "Klimakomponente nicht berücksichtigt (§ 12 Abs. 7 WoGG)",
+    "beschreibung": "Seit dem Wohngeld-Plus-Gesetz (01.01.2023) enthält das Wohngeld eine Klimakomponente nach § 12 Abs. 7 WoGG zur Abfederung energetischer Sanierungskosten.",
+    "rechtsbasis": [
+      "§ 12 Abs. 7 WoGG"
+    ],
+    "severity": "wichtig",
+    "prueflogik": {
+      "bedingungen": [
+        "Wohngeld",
+        "Klimakomponente fehlt",
+        "Bescheid ab 2023"
+      ],
+      "suchbegriffe": [
+        "Klimakomponente",
+        "energetische Sanierung",
+        "Wohngeld",
+        "CO2",
+        "Klimazuschlag"
+      ]
+    },
+    "musterschreiben_hinweis": "Die Klimakomponente nach § 12 Abs. 7 WoGG wurde im Bescheid nicht berücksichtigt. Seit 01.01.2023 steht diese allen Wohngeldempfängern zu.",
+    "severity_beschreibung": "Wohngeld-Höhe zu niedrig — Klimapauschale fehlt"
+  },
+  {
+    "id": "WG_008",
+    "titel": "Freibeträge für Schwerbehinderte nicht berücksichtigt (§ 17 WoGG)",
+    "beschreibung": "Freibeträge nach § 17 WoGG für schwerbehinderte Haushaltsmitglieder (GdB ≥ 100, MdE ≥ 80, oder Pflegebedürftige) wurden bei der Einkommensberechnung nicht abgezogen.",
+    "rechtsbasis": [
+      "§ 17 WoGG"
+    ],
+    "severity": "kritisch",
+    "prueflogik": {
+      "bedingungen": [
+        "Wohngeld",
+        "Schwerbehindertes Haushaltsmitglied",
+        "Freibetrag nicht abgezogen"
+      ],
+      "suchbegriffe": [
+        "Freibetrag",
+        "schwerbehindert",
+        "GdB",
+        "Pflegebedürftig",
+        "Wohngeld",
+        "behindert"
+      ]
+    },
+    "musterschreiben_hinweis": "Der Freibetrag nach § 17 WoGG für das schwerbehinderte Haushaltsmitglied wurde nicht berücksichtigt. Die Einkommensberechnung ist entsprechend zu korrigieren.",
+    "severity_beschreibung": "Wohngeld-Höhe durch fehlenden Freibetrag zu niedrig"
+  },
+  {
+    "id": "WG_009",
+    "titel": "Bewilligungszeitraum zu kurz (§ 25 WoGG)",
+    "beschreibung": "Der Bewilligungszeitraum beträgt nach § 25 WoGG regulär 12 Monate. Ein kürzerer Zeitraum ist nur bei absehbarer Einkommensänderung zulässig und muss begründet werden.",
+    "rechtsbasis": [
+      "§ 25 WoGG"
+    ],
+    "severity": "wichtig",
+    "prueflogik": {
+      "bedingungen": [
+        "Wohngeld",
+        "Bewilligungszeitraum unter 12 Monaten",
+        "Keine Begründung"
+      ],
+      "suchbegriffe": [
+        "Bewilligungszeitraum",
+        "Monate",
+        "Dauer",
+        "befristet",
+        "Wohngeld"
+      ]
+    },
+    "musterschreiben_hinweis": "Der Bewilligungszeitraum nach § 25 WoGG beträgt regulär 12 Monate. Die Verkürzung wurde nicht ausreichend begründet.",
+    "severity_beschreibung": "Bewilligungszeitraum möglicherweise verkürzt"
+  },
+  {
+    "id": "WG_010",
+    "titel": "Wohngeldausschluss trotz Anspruch (§ 7 WoGG)",
+    "beschreibung": "Wohngeld wurde unter Verweis auf § 7 WoGG (Ausschluss bei Transferleistungen) abgelehnt, obwohl kein Ausschlussgrund vorliegt oder die Transferleistung nicht bewilligt wurde.",
+    "rechtsbasis": [
+      "§ 7 WoGG",
+      "§ 8 WoGG"
+    ],
+    "severity": "kritisch",
+    "prueflogik": {
+      "bedingungen": [
+        "Wohngeld abgelehnt",
+        "Ausschluss nach § 7 WoGG",
+        "Kein tatsächlicher Transferleistungsbezug"
+      ],
+      "suchbegriffe": [
+        "Ausschluss",
+        "Transferleistung",
+        "Bürgergeld",
+        "SGB II",
+        "SGB XII",
+        "Wohngeld"
+      ]
+    },
+    "musterschreiben_hinweis": "Die Ablehnung unter Verweis auf § 7 WoGG ist zu überprüfen. Ein Ausschlussgrund liegt nicht vor, da keine Transferleistung tatsächlich bezogen wird.",
+    "severity_beschreibung": "Wohngeld-Anspruch zu Unrecht abgelehnt"
+  },
+  {
+    "id": "UVS_005",
+    "titel": "Altersgrenze 12-18 Jahre falsch angewendet (§ 1 Abs. 1a UVG)",
+    "beschreibung": "Für Kinder ab 12 Jahren gelten seit der UVG-Reform 2017 Zusatzvoraussetzungen nach § 1 Abs. 1a UVG (Kind bezieht keine SGB-II-Leistungen ODER Elternteil verdient mind. 600€ brutto). Diese wurden fehlerhaft geprüft.",
+    "rechtsbasis": [
+      "§ 1 Abs. 1a UVG"
+    ],
+    "severity": "kritisch",
+    "prueflogik": {
+      "bedingungen": [
+        "Unterhaltsvorschuss",
+        "Kind 12-17 Jahre",
+        "Ablehnung oder Einstellung"
+      ],
+      "suchbegriffe": [
+        "Altersgrenze",
+        "12 Jahre",
+        "Zusatzvoraussetzung",
+        "600 Euro",
+        "SGB II",
+        "Unterhaltsvorschuss"
+      ]
+    },
+    "musterschreiben_hinweis": "Die Prüfung der Zusatzvoraussetzungen nach § 1 Abs. 1a UVG für Kinder ab 12 Jahren ist zu überprüfen. Die Voraussetzungen für den erweiterten Anspruch sind erfüllt.",
+    "severity_beschreibung": "Unterhaltsvorschuss für Kind ab 12 Jahren betroffen"
+  },
+  {
+    "id": "UVS_006",
+    "titel": "Unterhaltszahlungen falsch angerechnet (§ 2 Abs. 3 UVG)",
+    "beschreibung": "Tatsächlich geleisteter Unterhalt des barunterhaltspflichtigen Elternteils wurde nach § 2 Abs. 3 UVG auf den Unterhaltsvorschuss angerechnet, obwohl die Zahlungen nicht regelmäßig oder in falscher Höhe erfolgen.",
+    "rechtsbasis": [
+      "§ 2 Abs. 3 UVG"
+    ],
+    "severity": "wichtig",
+    "prueflogik": {
+      "bedingungen": [
+        "Unterhaltsvorschuss",
+        "Anrechnung von Unterhaltszahlungen",
+        "Höhe fraglich"
+      ],
+      "suchbegriffe": [
+        "Anrechnung",
+        "Unterhaltszahlung",
+        "Barunterhalt",
+        "Höhe",
+        "Unterhaltsvorschuss"
+      ]
+    },
+    "musterschreiben_hinweis": "Die Anrechnung der Unterhaltszahlungen nach § 2 Abs. 3 UVG ist zu überprüfen. Die zugrunde gelegten Zahlungen entsprechen nicht den tatsächlichen Verhältnissen.",
+    "severity_beschreibung": "Unterhaltsvorschuss-Höhe möglicherweise zu niedrig"
+  },
+  {
+    "id": "UVS_007",
+    "titel": "Rückforderung ohne Verschulden (§ 5 UVG)",
+    "beschreibung": "Unterhaltsvorschuss wird nach § 5 UVG zurückgefordert, obwohl kein schuldhaftes Verhalten (falsche Angaben, Mitwirkungspflichtverletzung) des betreuenden Elternteils vorliegt.",
+    "rechtsbasis": [
+      "§ 5 UVG"
+    ],
+    "severity": "kritisch",
+    "prueflogik": {
+      "bedingungen": [
+        "Unterhaltsvorschuss",
+        "Rückforderung",
+        "Kein Verschulden"
+      ],
+      "suchbegriffe": [
+        "Rückforderung",
+        "Erstattung",
+        "Verschulden",
+        "falsche Angaben",
+        "Unterhaltsvorschuss"
+      ]
+    },
+    "musterschreiben_hinweis": "Die Rückforderung des Unterhaltsvorschusses nach § 5 UVG ist zu überprüfen. Ein schuldhaftes Verhalten liegt nicht vor.",
+    "severity_beschreibung": "Rückforderung möglicherweise rechtswidrig"
+  },
+  {
+    "id": "UVS_008",
+    "titel": "Einstellung wegen neuer Partnerschaft (§ 1 Abs. 3 UVG)",
+    "beschreibung": "Der Unterhaltsvorschuss wurde eingestellt, weil der betreuende Elternteil eine neue Partnerschaft eingegangen ist. Nach § 1 Abs. 3 UVG ist der Ausschluss aber nur bei Heirat oder Zusammenleben mit dem anderen Elternteil des Kindes vorgesehen.",
+    "rechtsbasis": [
+      "§ 1 Abs. 3 UVG"
+    ],
+    "severity": "kritisch",
+    "prueflogik": {
+      "bedingungen": [
+        "Unterhaltsvorschuss eingestellt",
+        "Neue Partnerschaft",
+        "Partner ist nicht der andere Elternteil"
+      ],
+      "suchbegriffe": [
+        "Partnerschaft",
+        "Heirat",
+        "Zusammenleben",
+        "Eheschließung",
+        "neuer Partner",
+        "Unterhaltsvorschuss"
+      ]
+    },
+    "musterschreiben_hinweis": "Die Einstellung des Unterhaltsvorschusses ist zu überprüfen. Nach § 1 Abs. 3 UVG führt nur die Heirat oder das Zusammenleben mit dem anderen Elternteil des Kindes zum Ausschluss, nicht eine neue Partnerschaft mit einer dritten Person.",
+    "severity_beschreibung": "Unterhaltsvorschuss zu Unrecht eingestellt"
+  },
+  {
+    "id": "UVS_009",
+    "titel": "Antrag nicht rückwirkend gewährt (§ 4 UVG)",
+    "beschreibung": "Der Unterhaltsvorschuss wurde erst ab Antragsmonat gewährt, obwohl nach § 4 UVG ein Anspruch ab dem Monat besteht, in dem die Voraussetzungen erstmals vorliegen.",
+    "rechtsbasis": [
+      "§ 4 UVG"
+    ],
+    "severity": "wichtig",
+    "prueflogik": {
+      "bedingungen": [
+        "Unterhaltsvorschuss",
+        "Nicht ab Anspruchsbeginn gewährt",
+        "Rückwirkung"
+      ],
+      "suchbegriffe": [
+        "rückwirkend",
+        "Antragstellung",
+        "Beginn",
+        "ab wann",
+        "Unterhaltsvorschuss"
+      ]
+    },
+    "musterschreiben_hinweis": "Der Leistungsbeginn nach § 4 UVG ist zu überprüfen. Der Anspruch auf Unterhaltsvorschuss besteht ab dem Monat, in dem die Voraussetzungen erstmals vorgelegen haben.",
+    "severity_beschreibung": "Unterhaltsvorschuss-Zahlungen für vergangene Monate fehlen"
+  },
+  {
+    "id": "UVS_010",
+    "titel": "Anhörungspflicht vor Einstellung nicht beachtet (§ 24 SGB X)",
+    "beschreibung": "Der Unterhaltsvorschuss wurde eingestellt, ohne dass vorher eine Anhörung nach § 24 SGB X stattgefunden hat. Bei belastenden Verwaltungsakten ist die Anhörung Pflicht.",
+    "rechtsbasis": [
+      "§ 24 SGB X"
+    ],
+    "severity": "kritisch",
+    "prueflogik": {
+      "bedingungen": [
+        "Unterhaltsvorschuss eingestellt",
+        "Keine vorherige Anhörung"
+      ],
+      "suchbegriffe": [
+        "Anhörung",
+        "Einstellung",
+        "§ 24",
+        "Unterhaltsvorschuss",
+        "belastend"
+      ]
+    },
+    "musterschreiben_hinweis": "Der Einstellungsbescheid ist formell rechtswidrig, da keine ordnungsgemäße Anhörung nach § 24 SGB X vor der Einstellung des Unterhaltsvorschusses stattgefunden hat.",
+    "severity_beschreibung": "Formfehler — Einstellungsbescheid angreifbar"
   }
 ]

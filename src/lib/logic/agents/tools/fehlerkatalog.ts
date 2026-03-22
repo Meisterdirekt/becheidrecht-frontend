@@ -55,7 +55,13 @@ export async function executeSucheFehlerkatalogMitDb(
         severity: (r.severity as FehlerItem["severity"]) ?? "hinweis",
         musterschreiben_hinweis: r.musterschreiben_hinweis ? String(r.musterschreiben_hinweis) : undefined,
       }))
-      .filter(f => f.id && f.titel);
+      .filter(f => f.id && f.titel)
+      // Prefix-Filter auch auf DB-Einträge anwenden (normalisiert: "BA" → "BA_")
+      .filter(f => {
+        if (prefixes.length === 0) return true;
+        const np = prefixes.map(p => p.endsWith("_") ? p : p + "_");
+        return np.some(p => f.id.startsWith(p));
+      });
 
     // Stichwort-Filter auf DB-Einträge anwenden
     const lowerStichworte = stichworten.map(s => s.toLowerCase());
@@ -82,9 +88,11 @@ export function executeSucheFehlerkatalog(
     const raw = fs.readFileSync(filePath, "utf-8");
     const all = JSON.parse(raw) as FehlerItem[];
 
+    // Prefix normalisieren: "BA" → "BA_", "BA_" → "BA_" (Unterstrich sicherstellen)
+    const normalizedPrefixes = prefixes.map((p) => p.endsWith("_") ? p : p + "_");
     const byPrefix =
-      prefixes.length > 0
-        ? all.filter((item) => prefixes.some((p) => item.id.startsWith(p)))
+      normalizedPrefixes.length > 0
+        ? all.filter((item) => normalizedPrefixes.some((p) => item.id.startsWith(p)))
         : all;
 
     if (stichworten.length === 0) {

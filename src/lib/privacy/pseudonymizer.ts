@@ -15,6 +15,7 @@ export interface PseudonymizationMap {
   email: string[];
   phone: string[];
   bic: string[];
+  caseNumber: string[];
 }
 
 function pushAndReplace<T extends keyof PseudonymizationMap>(
@@ -42,6 +43,7 @@ export function pseudonymizeText(text: string): {
     email: [],
     phone: [],
     bic: [],
+    caseNumber: [],
   };
 
   let pseudonymized = text;
@@ -125,7 +127,7 @@ export function pseudonymizeText(text: string): {
   ];
   for (const re of birthdateFormats) {
     pseudonymized = pseudonymized.replace(re, (match) =>
-      pushAndReplace(map, 'birthdate', match, '[GEBURTSDATUM')
+      pushAndReplace(map, 'birthdate', match, '[DATUM')
     );
   }
 
@@ -144,6 +146,24 @@ export function pseudonymizeText(text: string): {
   const plzOrtRegex = /\b(\d{5}[ \t]+[A-ZÄÖÜ][a-zäöüß]{3,}(?:[ \t]+[A-ZÄÖÜ][a-zäöüß]{2,})?)\b/g;
   pseudonymized = pseudonymized.replace(plzOrtRegex, (match) =>
     pushAndReplace(map, 'address', match, '[PLZ_ORT')
+  );
+
+  // AKTENZEICHEN (kontextgebunden nach Schlüsselwörtern)
+  const caseNumberContextRegex = /(?:Aktenzeichen|Az\.?|Geschäftszeichen|Gz\.?|Unser Zeichen|Ihr Zeichen|BG-Nr\.?|Vorgangsnummer|Kundennummer)[:\s]+([^\n,;]{3,30})/gi;
+  pseudonymized = pseudonymized.replace(caseNumberContextRegex, (full, id) =>
+    full.replace(id, pushAndReplace(map, 'caseNumber', id.trim(), '[AKTENZEICHEN'))
+  );
+
+  // Standalone Jobcenter-Aktenzeichen (JC-YYYY-NNNNNN)
+  const caseNumberJCRegex = /\bJC-\d{4}-\d{4,8}\b/g;
+  pseudonymized = pseudonymized.replace(caseNumberJCRegex, (match) =>
+    pushAndReplace(map, 'caseNumber', match, '[AKTENZEICHEN')
+  );
+
+  // Sozialgerichts-Aktenzeichen (S 32 AS 1234/24, L 7 AS 123/25, B 14 AS 1/23 R)
+  const caseNumberCourtRegex = /\b[SLB]\s+\d{1,3}\s+[A-Z]{2,3}\s+\d{1,5}\/\d{2,4}(?:\s+[A-Z]{1,3})?\b/g;
+  pseudonymized = pseudonymized.replace(caseNumberCourtRegex, (match) =>
+    pushAndReplace(map, 'caseNumber', match, '[AKTENZEICHEN')
   );
 
   // Häufige deutsche Wörter/Begriffe die KEINE Namen sind (Behörden-Sprache)
@@ -197,7 +217,7 @@ export function pseudonymizeText(text: string): {
   const nameSeg = '[A-ZÄÖÜ][a-zäöüß]+(?:-[A-ZÄÖÜ][a-zäöüß]+)*';
 
   // NAMEN "NACHNAME, Vorname" — Komma-Format ist eindeutig (z.B. "Maier-Schulze, Karl-Heinz")
-  const nameCommaRegex = new RegExp(`\\b(${nameSeg},\\s*${nameSeg}(?:\\s+${nameSeg})*)`, 'g');
+  const nameCommaRegex = new RegExp(`\\b(${nameSeg},[ \\t]*${nameSeg}(?:[ \\t]+${nameSeg})*)`, 'g');
   pseudonymized = pseudonymized.replace(nameCommaRegex, (match) => {
     const firstWord = match.split(/[-,\s]/)[0];
     return isName(firstWord) ? pushAndReplace(map, 'name', match, '[NAME') : match;
@@ -205,7 +225,7 @@ export function pseudonymizeText(text: string): {
 
   // NAMEN nach expliziten Kontext-Signalen: "Herr/Frau X", "Sachbearbeiter: X Y"
   const nameContextRegex = new RegExp(
-    `(?:(?:Herr|Frau|Sachbearbeiter|Antragsteller(?:in)?|Bearbeiter(?:in)?)\\s+)(${nameSeg}(?:\\s+${nameSeg})*)`,
+    `(?:(?:Herr|Frau|Sachbearbeiter|Antragsteller(?:in)?|Bearbeiter(?:in)?)[ \\t]+)(${nameSeg}(?:[ \\t]+${nameSeg})*)`,
     'g'
   );
   pseudonymized = pseudonymized.replace(nameContextRegex, (full, name) => {
@@ -216,8 +236,8 @@ export function pseudonymizeText(text: string): {
     return full;
   });
 
-  // NAMEN im "Vorname Nachname"-Format
-  const nameRegex = new RegExp(`\\b(${nameSeg}(?:\\s+${nameSeg})+)\\b`, 'g');
+  // NAMEN im "Vorname Nachname"-Format (kein Match über Zeilenumbrüche)
+  const nameRegex = new RegExp(`\\b(${nameSeg}(?:[ \\t]+${nameSeg})+)\\b`, 'g');
   pseudonymized = pseudonymized.replace(nameRegex, (match) => {
     const parts = match.split(/\s+/);
     if (parts.length >= 2 && parts.every((p: string) => isName(p.split('-')[0]))) {
@@ -244,7 +264,7 @@ export function depseudonymizeText(
   });
 
   map.birthdate.forEach((original, index) => {
-    const placeholder = `[GEBURTSDATUM_${index + 1}]`;
+    const placeholder = `[DATUM_${index + 1}]`;
     depseudonymized = depseudonymized.replace(
       new RegExp(placeholder.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'),
       original
@@ -291,6 +311,10 @@ export function depseudonymizeText(
 
   map.bic.forEach((original, index) => {
     depseudonymized = depseudonymized.replace(re(`[BIC_${index + 1}]`), original);
+  });
+
+  map.caseNumber.forEach((original, index) => {
+    depseudonymized = depseudonymized.replace(re(`[AKTENZEICHEN_${index + 1}]`), original);
   });
 
   return depseudonymized;
