@@ -186,18 +186,23 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const [supabase, vercel, github, rechtsUpdate] = await Promise.all([
-    checkSupabase(),
-    checkVercel(),
-    checkGitHub(),
-    checkRechtsUpdate(),
-  ]);
+  try {
+    const [supabase, vercel, github, rechtsUpdate] = await Promise.all([
+      checkSupabase(),
+      checkVercel(),
+      checkGitHub(),
+      checkRechtsUpdate(),
+    ]);
 
-  return NextResponse.json({
-    timestamp: new Date().toISOString(),
-    supabase,
-    vercel,
-    github,
-    rechts_update: rechtsUpdate,
-  });
+    return NextResponse.json({
+      timestamp: new Date().toISOString(),
+      supabase,
+      vercel,
+      github,
+      rechts_update: rechtsUpdate,
+    });
+  } catch (error) {
+    reportError(error instanceof Error ? error : new Error(String(error)), { context: "admin-infra-status" });
+    return NextResponse.json({ error: "Infra-Status konnte nicht abgerufen werden." }, { status: 500 });
+  }
 }
