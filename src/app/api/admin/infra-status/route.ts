@@ -9,6 +9,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { reportError } from "@/lib/error-reporter";
 
 const CRON_SECRET = process.env.CRON_SECRET;
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
