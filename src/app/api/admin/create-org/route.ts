@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { verifyAdmin } from '@/lib/admin-auth';
 import { ANALYSES_MAP } from '@/lib/plans';
+import { reportError } from "@/lib/error-reporter";
 
 /**
  * POST /api/admin/create-org
