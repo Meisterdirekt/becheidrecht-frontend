@@ -88,7 +88,7 @@ export const FORMELLE_NORMEN = {
   rechtsbehelfsbelehrung: { norm: "§ 36 SGB X", pflicht: "bei allen Bescheiden" },
   aufhebung_45: { norm: "§ 45 SGB X", beschreibung: "Rücknahme rechtswidriger begünstigender VA" },
   aufhebung_48: { norm: "§ 48 SGB X", beschreibung: "Aufhebung bei Änderung der Verhältnisse" },
-  ueberpruefung: { norm: "§ 44 SGB X", beschreibung: "Überprüfungsantrag bei bestandskräftigen Bescheiden, keine Frist" },
+  ueberpruefung: { norm: "§ 44 SGB X", beschreibung: "Rücknahme rechtswidriger nicht begünstigender VA: Soweit Recht unrichtig angewandt oder falscher Sachverhalt zugrunde gelegt wurde und Sozialleistungen zu Unrecht nicht erbracht wurden, ist der VA auch nach Bestandskraft zurückzunehmen (Abs. 1). Nachzahlung rückwirkend, begrenzt auf 4 Jahre vor Antragstellung (Abs. 4). Kein Ermessen — gebundene Entscheidung. Quelle: gesetze-im-internet.de/sgb_10/__44.html" },
   klagefrist: { norm: "§ 87 SGG", beschreibung: "1 Monat nach Zustellung des Widerspruchsbescheids" },
   widerspruchsfrist: { norm: "§ 84 SGG", beschreibung: "1 Monat ab Bekanntgabe" },
   bekanntgabe: { norm: "§ 37 Abs. 2 SGB X", beschreibung: "Bescheiddatum + 3 Tage Postlaufzeit" },
