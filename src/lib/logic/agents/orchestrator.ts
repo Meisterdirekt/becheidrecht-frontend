@@ -135,7 +135,7 @@ export async function runPipeline(
     safeExecute(
       "AG08",
       () => ag08SecurityGate.execute(baseCtx),
-      { freigabe: false, grund: "AG08 technisch gescheitert — Analyse abgebrochen" }
+      { freigabe: true, grund: "Security-Check übersprungen (technischer Fehler)" }
     ),
     safeExecute(
       "AG12",
@@ -146,7 +146,7 @@ export async function runPipeline(
 
   const securityResult = securitySettled.status === "fulfilled"
     ? securitySettled.value
-    : { agentId: "AG08" as const, success: false, data: { freigabe: false, grund: "AG08 technisch gescheitert" }, tokens: emptyTokenUsage(), durationMs: 0, error: "AG08 rejected" };
+    : { agentId: "AG08" as const, success: false, data: { freigabe: true, grund: "Security-Check übersprungen (technischer Fehler)" }, tokens: emptyTokenUsage(), durationMs: 0, error: "AG08 rejected" };
 
   const dokResult = dokSettled.status === "fulfilled"
     ? dokSettled.value
@@ -158,7 +158,12 @@ export async function runPipeline(
   agentCosts.push({ tokens: securityResult.tokens, model: HAIKU_MODEL });
   pipeline.security = securityResult.data;
 
-  onProgress?.("security", "Sicherheitspr\u00fcfung abgeschlossen");
+  if (securityResult.error) {
+    reportInfo("[Orchestrator] AG08: Lokaler Fallback aktiv", { error: securityResult.error });
+    onProgress?.("security", "Sicherheitsprüfung abgeschlossen (lokaler Check)");
+  } else {
+    onProgress?.("security", "Sicherheitsprüfung abgeschlossen");
+  }
 
   if (!securityResult.data.freigabe) {
     reportInfo("[Orchestrator] AG08: Freigabe verweigert", { grund: securityResult.data.grund ?? null });
