@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+import { NextResponse, after } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { runAgentAnalysis, type AgentAnalysisResult, type ProgressCallback } from '@/lib/logic/agent_engine';
 import { runForensicAnalysis } from '@/lib/logic/engine';
@@ -6,6 +6,7 @@ import { pseudonymizeText, depseudonymizeText } from '@/lib/privacy/pseudonymize
 import { getAuthenticatedUser } from '@/lib/supabase/auth';
 import { getAnthropicKey } from '@/lib/logic/agents/utils';
 import { analyzeLimiter, analyzeAnonLimiter } from '@/lib/rate-limit';
+import { acquireSlot, releaseSlot } from '@/lib/concurrency';
 import { reportError, reportInfo } from '@/lib/error-reporter';
 import PDFParser from 'pdf2json';
 
@@ -160,6 +161,18 @@ export async function POST(req: Request) {
           { status: 429 }
         );
       }
+    }
+
+    // Concurrency-Limiter mit Warteschlange: Max 10 gleichzeitig, bis 60s Queue
+    const { acquired, queuedMs } = await acquireSlot();
+    if (!acquired) {
+      return NextResponse.json(
+        { error: 'Server ausgelastet. Bitte in einer Minute erneut versuchen.' },
+        { status: 503 }
+      );
+    }
+    if (queuedMs > 0) {
+      reportInfo('[Analyze] Slot nach Queue-Wartezeit erhalten', { queuedMs });
     }
 
     const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
@@ -379,6 +392,7 @@ export async function POST(req: Request) {
             sendEvent('error', { error: err instanceof Error ? err.message : 'Interner Serverfehler.' });
           } finally {
             controller.close();
+            releaseSlot();
           }
         },
       });
@@ -405,8 +419,10 @@ export async function POST(req: Request) {
 
     result = await postProcess(result);
     if (privacyNotice) result.privacy_notice = privacyNotice;
+    after(() => { releaseSlot(); });
     return NextResponse.json(result);
   } catch (error: unknown) {
+    releaseSlot();
     reportError(error instanceof Error ? error : new Error(String(error)), { critical: true, context: 'analyze_api' }).catch(() => {});
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Interner Serverfehler.' },

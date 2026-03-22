@@ -21,7 +21,7 @@ export const TOOL_DB_READ: Anthropic.Tool = {
     properties: {
       tabelle: {
         type: "string",
-        enum: ["urteile", "kennzahlen", "behoerdenfehler", "analysis_results"],
+        enum: ["urteile", "kennzahlen", "behoerdenfehler", "analysis_results", "feedback_stats"],
         description: "Name der Tabelle",
       },
       filter: {
@@ -56,7 +56,7 @@ export async function executeDbRead(
   filter?: Record<string, string>,
   limit?: number,
 ): Promise<{ available: boolean; rows: Record<string, unknown>[] }> {
-  const allowed = ["urteile", "kennzahlen", "behoerdenfehler", "analysis_results"];
+  const allowed = ["urteile", "kennzahlen", "behoerdenfehler", "analysis_results", "feedback_stats"];
   if (!allowed.includes(tabelle)) {
     return { available: false, rows: [] };
   }

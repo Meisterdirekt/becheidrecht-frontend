@@ -207,6 +207,14 @@ supabase/                               # SQL-Migrations (manuell via SQL-Editor
 | AG17 | ag17-agent-auditor.ts | Agent-Auditor (Mi 05:00 UTC) |
 | AG18 | ag18-content-auditor.ts | Content-Auditor (15. des Monats 01:00 UTC) |
 | AG19 | ag19-design-guardian.ts | Design-Guardian (Do 05:00 UTC, statische Analyse, €0) |
+| AG20 | ag20-feedback-learner.ts | Feedback-Learner (Fr via Daily-Hub, Haiku, GitHub Issue) |
+
+**Lernmechanismus:**
+- AG20 aggregiert `analysis_feedback` → `feedback_stats` (False-Positive-Raten pro Fehler-ID)
+- AG02 liest `feedback_stats` und injiziert bekannte False Positives als Warnung in den Prompt
+- AG04 nutzt pgvector Semantic Search auf `urteile` (Fallback: Keyword-Suche)
+- AG05 generiert Embeddings beim Speichern neuer Urteile (OpenAI text-embedding-3-small)
+- Woechentlicher Urteile-Crawler (So via Daily-Hub) fuer hoehere Frische
 
 **Routing nach Dringlichkeit:**
 - NORMAL (>14 Tage Frist) → `claude-sonnet-4-6`
@@ -278,7 +286,7 @@ Mobile first (375px zuerst). Arabisch (AR) → `dir="rtl"`. Fehler freundlich fo
 9. **Zwei Vercel Crons (vercel.json) — Hobby-Plan erlaubt max 2:**
    - `daily-hub` → täglich 03:00 UTC — konsolidierter Hub der alle Sub-Crons aufruft:
      - Täglich: backend-health, data-retention, costs-monitor, fristen-reminder (parallel)
-     - Di: design-audit | Mi: agent-audit | Do: design-guardian | So: agent-batch
+     - So: agent-batch + urteile-update (parallel) | Di: design-audit | Mi: agent-audit | Do: design-guardian | Fr: feedback-learner (AG20)
      - 1. des Monats: rechts-update (AG15) | 15.: content-audit (AG18)
    - `vercel-monitor` → täglich 06:00 UTC (AG16 Deployment-Check)
    Einzelne Endpunkte bleiben erreichbar für manuelle Aufrufe.
@@ -290,7 +298,7 @@ Mobile first (375px zuerst). Arabisch (AR) → `dir="rtl"`. Fehler freundlich fo
 
 12. **`mollie/webhook/route.ts` ist der produktive Payment-Webhook** — verarbeitet Mollie-Zahlungen (paid/failed/expired). Beim Erstellen einer Zahlung via Mollie API: `metadata: { product_key: "starter"|"team"|"einrichtung", buyer_email: "..." }`. MOLLIE_API_KEY Pflicht.
 
-13. **19-Agenten-System vollständig implementiert** in `src/lib/logic/agents/` (AG01–AG19 + orchestrator.ts). `agent_engine.ts` ist nur ein dünner Wrapper. Die `wissensdatenbank.sql`-Tabellen (urteile, kennzahlen, analysis_results etc.) müssen noch manuell in Supabase deployed werden — erst dann können AG04/AG05 in die DB schreiben.
+13. **20-Agenten-System vollständig implementiert** in `src/lib/logic/agents/` (AG01–AG20 + orchestrator.ts). `agent_engine.ts` ist nur ein dünner Wrapper. Die `wissensdatenbank.sql`-Tabellen (urteile, kennzahlen, analysis_results etc.) müssen noch manuell in Supabase deployed werden — erst dann können AG04/AG05 in die DB schreiben. **Lernmechanismus:** AG20 aggregiert Nutzerfeedback in `feedback_stats`, AG02 nutzt diese als False-Positive-Warnung. **pgvector:** `urteile` und `behoerdenfehler` haben `embedding vector(1536)` Spalten — AG04 nutzt semantische Suche, AG05 generiert Embeddings. SQL-Migrationen in `supabase/migrations/20260323_*.sql` manuell deployen.
 
 14. **`vault/` enthält echte Credentials** (`keys.env`, `provider_logins.txt`). In `.gitignore`, aber als Entwickler nie darin stöbern oder Inhalte ausgeben. **Dev-Workaround:** 4 Routes (`analyze`, `generate-letter`, `assistant`, `agents/utils.ts`) lesen `vault/keys.env` via `fs.readFileSync` als lokalen Key-Fallback. Auf Vercel scheitert das stumm (`try/catch`) und es werden ENV-Vars verwendet. Das ist Absicht — nicht "fixen".
 

@@ -2,6 +2,9 @@
  * AG04 — Rechts-Rechercheur (Sonnet · ab HOCH)
  * Sucht aktuelle BSG-Urteile via web_search + fetch_url.
  * Parallel mit AG02 ausführbar via Promise.allSettled().
+ *
+ * Lernmechanismus: NORMAL-Routing nutzt pgvector Semantic Search
+ * mit Fallback auf Keyword-Suche.
  */
 
 import Anthropic from "@anthropic-ai/sdk";
@@ -19,12 +22,63 @@ import { TOOL_WEB_SEARCH, executeWebSearch } from "./tools/web-search";
 import { TOOL_FETCH_URL, executeFetchUrl } from "./tools/fetch-url";
 import { TOOL_DB_READ, executeDbRead } from "./tools/db-read";
 import { processToolBlocks } from "./tools/process-tool-results";
+import { generateEmbedding } from "./tools/embeddings";
+import { createClient } from "@supabase/supabase-js";
 
 const TOOLS: Anthropic.Tool[] = [
   TOOL_WEB_SEARCH,
   TOOL_FETCH_URL,
   TOOL_DB_READ,
 ];
+
+// ---------------------------------------------------------------------------
+// Vector Similarity Search (pgvector + OpenAI Embeddings)
+// ---------------------------------------------------------------------------
+
+async function vectorSearchUrteile(
+  bescheidText: string,
+  rechtsgebiet: string,
+  limit: number,
+): Promise<UrteilItem[]> {
+  try {
+    // Embedding fuer den Bescheid-Text generieren
+    const embedding = await generateEmbedding(bescheidText.slice(0, 2000));
+    if (!embedding) return [];
+
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.SUPABASE_URL ?? "";
+    const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY ?? "";
+    if (!supabaseUrl || !serviceKey) return [];
+
+    const supabase = createClient(supabaseUrl, serviceKey);
+    const { data, error } = await supabase.rpc("match_urteile", {
+      query_embedding: JSON.stringify(embedding),
+      match_threshold: 0.3,
+      match_count: limit,
+      filter_rechtsgebiet: rechtsgebiet,
+    });
+
+    if (error || !data || data.length === 0) return [];
+
+    return (data as {
+      gericht: string;
+      aktenzeichen: string;
+      entscheidungsdatum: string | null;
+      leitsatz: string;
+      volltext_url: string | null;
+      rechtsgebiet: string;
+      similarity: number;
+    }[]).map((u) => ({
+      gericht: u.gericht ?? "",
+      aktenzeichen: u.aktenzeichen ?? "",
+      datum: u.entscheidungsdatum ?? "",
+      leitsatz: u.leitsatz ?? "",
+      relevanz: `Semantische Suche — ${rechtsgebiet} (${Math.round(u.similarity * 100)}% Relevanz)`,
+      url: u.volltext_url ?? undefined,
+    }));
+  } catch {
+    return []; // Graceful fallback auf Keyword-Suche
+  }
+}
 
 async function execute(ctx: AgentContext): Promise<AgentResult<RechercheResult>> {
   const start = Date.now();
@@ -43,10 +97,24 @@ async function execute(ctx: AgentContext): Promise<AgentResult<RechercheResult>>
     };
   }
 
-  // NORMAL-Routing: kostenlose DB-only-Suche (kein LLM, kein Tavily nötig)
+  // NORMAL-Routing: Vector Search mit Keyword-Fallback (kein LLM, kein Tavily noetig)
   if (ctx.routingStufe === "NORMAL") {
     const rechtsgebiet = ctx.pipeline.triage?.rechtsgebiet;
     if (rechtsgebiet && rechtsgebiet !== "Unbekannt") {
+      // Versuche semantische Suche (wenn pgvector + OpenAI Key vorhanden)
+      const vectorResults = await vectorSearchUrteile(ctx.documentText, rechtsgebiet, 5);
+
+      if (vectorResults.length > 0) {
+        return {
+          agentId: "AG04",
+          success: true,
+          data: { urteile: vectorResults, quellen: [] },
+          tokens: emptyTokenUsage(),
+          durationMs: Date.now() - start,
+        };
+      }
+
+      // Fallback: Keyword-Suche (wie bisher)
       const dbResult = await executeDbRead("urteile", { rechtsgebiet }, 5);
       const urteile: UrteilItem[] = dbResult.rows.map((u) => ({
         gericht: String(u.gericht ?? ""),

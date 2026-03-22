@@ -114,9 +114,9 @@ BEGIN
     NEW.email,
     'free',
     'active',
+    2,
     0,
-    0,
-    0
+    2
   )
   ON CONFLICT (user_id) DO NOTHING;
   RETURN NEW;

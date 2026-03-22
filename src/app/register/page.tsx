@@ -121,6 +121,16 @@ function RegisterForm() {
         setErrors({ email: err.message });
         return;
       }
+      // Welcome-Email im Hintergrund senden (Fire & Forget)
+      fetch("/api/welcome-email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: formData.email.trim(),
+          firstName: formData.firstName.trim(),
+        }),
+      }).catch(() => {});
+
       if (data.session) {
         router.push(redirectTo);
         router.refresh();

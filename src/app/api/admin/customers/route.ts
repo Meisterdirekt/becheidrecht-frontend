@@ -77,12 +77,24 @@ export async function GET(request: NextRequest) {
     }
   }
 
+  // Last-Login aus auth.users holen (Admin API)
+  const lastLoginMap = new Map<string, string | null>();
+  const { data: { users: authUsers } } = await admin.auth.admin.listUsers({
+    perPage: 1000,
+  });
+  if (authUsers) {
+    for (const u of authUsers) {
+      lastLoginMap.set(u.id, u.last_sign_in_at ?? null);
+    }
+  }
+
   const customers = (data ?? []).map((row) => {
     const org = orgMap.get(row.user_id);
     return {
       ...row,
       org_name: org?.org_name ?? null,
       org_role: org?.role ?? null,
+      last_sign_in_at: lastLoginMap.get(row.user_id) ?? null,
     };
   });
 

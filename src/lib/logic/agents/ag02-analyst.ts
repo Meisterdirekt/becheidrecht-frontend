@@ -2,6 +2,9 @@
  * AG02 — Analyst (Sonnet/Opus · Tiefenanalyse)
  * Durchsucht Fehlerkatalog, Weisungen und DB nach Auffälligkeiten.
  * Bei NOTFALL → Opus, sonst Sonnet.
+ *
+ * Lernmechanismus: Liest feedback_stats (von AG20) und warnt bei
+ * bekannten False Positives im Prompt.
  */
 
 import Anthropic from "@anthropic-ai/sdk";
@@ -34,6 +37,45 @@ const TOOLS: Anthropic.Tool[] = [
   TOOL_GET_WEISUNGEN,
   TOOL_DB_READ,
 ];
+
+// ---------------------------------------------------------------------------
+// False-Positive-Signale aus Nutzerfeedback (AG20 → feedback_stats)
+// ---------------------------------------------------------------------------
+
+async function loadFalsePositiveSignals(): Promise<string> {
+  try {
+    const result = await executeDbRead("feedback_stats", undefined, 20);
+    if (!result.available || result.rows.length === 0) return "";
+
+    const signals = result.rows
+      .filter(
+        (r) =>
+          (r.false_positive_rate as number) >= 30 &&
+          (r.total_count as number) >= 3,
+      )
+      .sort(
+        (a, b) =>
+          (b.false_positive_rate as number) - (a.false_positive_rate as number),
+      )
+      .slice(0, 10);
+
+    if (signals.length === 0) return "";
+
+    const lines = signals.map(
+      (s) =>
+        `- ${s.fehler_id} (${Math.round(s.false_positive_rate as number)}% false positive, n=${s.total_count})`,
+    );
+
+    return (
+      `\n\nBEKANNTE FALSE POSITIVES (aus Nutzerfeedback):\n` +
+      `Diese Fehler-IDs wurden haeufig als nicht zutreffend markiert. ` +
+      `Pruefe besonders kritisch ob sie WIRKLICH auf diesen Bescheid zutreffen:\n` +
+      lines.join("\n")
+    );
+  } catch {
+    return ""; // Graceful degradation
+  }
+}
 
 async function execute(ctx: AgentContext): Promise<AgentResult<AnalyseResult>> {
   const start = Date.now();
@@ -69,10 +111,13 @@ async function execute(ctx: AgentContext): Promise<AgentResult<AnalyseResult>> {
     ? `\n\nHINTERGRUND VOM NUTZER:\n${ctx.userContext}`
     : "";
 
+  // False-Positive-Signale aus Nutzerfeedback laden (AG20 schreibt in feedback_stats)
+  const fpWarning = await loadFalsePositiveSignals();
+
   const messages: Anthropic.MessageParam[] = [
     {
       role: "user",
-      content: `Analysiere diesen Bescheid auf Fehler:${triageInfo}${nutzerKontext}\n\n${ctx.documentText}`,
+      content: `Analysiere diesen Bescheid auf Fehler:${triageInfo}${nutzerKontext}${fpWarning}\n\n${ctx.documentText}`,
     },
   ];
 

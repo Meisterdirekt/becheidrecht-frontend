@@ -13,6 +13,7 @@ export interface PlanConfig {
 }
 
 export const PLAN_CONFIG: Record<string, PlanConfig> = {
+  free:             { analyses: 2,    months: 0,  label: "Kostenlos (2 Test-Analysen)" },
   single:           { analyses: 1,    months: 0,  label: "Einzel-Analyse" },
   basic:            { analyses: 5,    months: 1,  label: "Basic (5 Analysen/Mo)" },
   standard:         { analyses: 15,   months: 1,  label: "Standard (15 Analysen/Mo)" },

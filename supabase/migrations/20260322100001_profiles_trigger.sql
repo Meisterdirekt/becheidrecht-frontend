@@ -48,7 +48,7 @@ BEGIN
     user_id, email, subscription_type, status,
     analyses_total, analyses_used, analyses_remaining
   )
-  VALUES (NEW.id, NEW.email, 'free', 'active', 0, 0, 0)
+  VALUES (NEW.id, NEW.email, 'free', 'active', 2, 0, 2)
   ON CONFLICT (user_id) DO NOTHING;
 
   -- Profil anlegen

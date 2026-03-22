@@ -118,9 +118,9 @@ export async function POST(request: NextRequest) {
       email: cleanEmail,
       subscription_type: "free",
       status: "active",
-      analyses_total: 0,
+      analyses_total: 2,
       analyses_used: 0,
-      analyses_remaining: 0,
+      analyses_remaining: 2,
     });
   }
 

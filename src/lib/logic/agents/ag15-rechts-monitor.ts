@@ -94,7 +94,7 @@ interface WeisungEintrag {
 // Quellen-Konfiguration (22 Quellen — vollständige Whitelist)
 // ---------------------------------------------------------------------------
 
-const QUELLEN = {
+export const QUELLEN = {
   urteile: [
     { name: "BSG Entscheidungen",      url: "https://www.bsg.bund.de/DE/Entscheidungen/entscheidungen_node.html", rechtsgebiet: "BSG" },
     { name: "BVerfG Entscheidungen",   url: "https://www.bundesverfassungsgericht.de/DE/Entscheidungen/entscheidungen_node.html", rechtsgebiet: "VERFASSUNG" },
@@ -145,7 +145,7 @@ function getSupabaseServiceClient() {
 
 
 
-async function fetchPageText(url: string): Promise<string | null> {
+export async function fetchPageText(url: string): Promise<string | null> {
   try {
     const res = await fetch(url, {
       headers: { "User-Agent": "BescheidRecht-Monitor/2.0 (legal research; +https://bescheidrecht.de)" },
@@ -174,7 +174,7 @@ function currentYear(): number {
 // Phase 1: Urteile-Update
 // ---------------------------------------------------------------------------
 
-async function runPhase1Urteile(
+export async function runPhase1Urteile(
   anthropic: Anthropic,
 ): Promise<{ neu: number; fehlerQuellen: string[] }> {
   const supabase = getSupabaseServiceClient();

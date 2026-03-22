@@ -493,17 +493,19 @@ export async function runPipeline(
     }
   }
 
-  // --- Hintergrund-Agenten (fire-and-forget) ---
+  // --- Hintergrund-Agenten (via after() in route.ts registriert) ---
+  const backgroundTasks: Promise<unknown>[] = [];
   if (pipeline.recherche && pipeline.recherche.urteile.length > 0) {
-    runBackgroundAgents({ ...baseCtx, pipeline }).catch(() => {});
+    backgroundTasks.push(runBackgroundAgents({ ...baseCtx, pipeline }).catch(() => {}));
   }
-
-  runPromptOptimizer(
-    { ...baseCtx, pipeline },
-    letterResult.data.volltext.length,
-    analyseData?.fehler.length ?? 0,
-    tokenKostenEur
-  ).catch(() => {});
+  backgroundTasks.push(
+    runPromptOptimizer(
+      { ...baseCtx, pipeline },
+      letterResult.data.volltext.length,
+      analyseData?.fehler.length ?? 0,
+      tokenKostenEur
+    ).catch(() => {})
+  );
 
   return {
     zuordnung: pipeline.triage
@@ -531,5 +533,6 @@ export async function runPipeline(
     dokumentstruktur: pipeline.dokumentstruktur,
     agenten_details: agentenDetails,
     praezedenz: pipeline.praezedenz,
+    _backgroundTasks: backgroundTasks,
   };
 }

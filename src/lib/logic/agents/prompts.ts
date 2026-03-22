@@ -825,6 +825,8 @@ QUALITÄTSREGELN:
 
   AG19: `AG19 Design-Guardian: Statische Code-Analyse gegen Design-System-Regeln. Kein LLM-Einsatz — reine Pattern-Erkennung.`,
 
+  AG20: `AG20 Feedback-Learner: Analysiert Nutzer-Feedback auf Muster. Erkennt False-Positives und schwache Rechtsgebiete. Erstellt GitHub Issues bei signifikanten Mustern.`,
+
 };
 
 // ---------------------------------------------------------------------------

@@ -25,7 +25,8 @@ export type AgentId =
   | "AG16" // Vercel-Ops-Agent (täglich 06:00 UTC)
   | "AG17" // Agent-Auditor (mittwochs 05:00 UTC)
   | "AG18" // Content-Auditor (15. des Monats, 01:00 UTC)
-  | "AG19"; // Design-Guardian (donnerstags 05:00 UTC)
+  | "AG19" // Design-Guardian (donnerstags 05:00 UTC)
+  | "AG20"; // Feedback-Learner (freitags via Daily-Hub)
 
 export type RoutingStufe = "NORMAL" | "HOCH" | "NOTFALL";
 
@@ -284,6 +285,23 @@ export interface ContentAuditResult {
 }
 
 // ---------------------------------------------------------------------------
+// AG20 — Feedback-Learner Result
+// ---------------------------------------------------------------------------
+
+export interface FeedbackLearnerResult {
+  /** Anzahl ausgewerteter Feedback-Eintraege */
+  feedback_analysed: number;
+  /** Top False-Positive Fehler-IDs */
+  false_positives_top: { fehler_id: string; rate: number; count: number }[];
+  /** Rechtsgebiete mit niedrigster Accuracy */
+  low_accuracy_rechtsgebiete: { rechtsgebiet: string; incorrect_rate: number; total: number }[];
+  /** URLs der erstellten GitHub Issues */
+  issues_created: string[];
+  /** Zusammenfassung */
+  summary: string;
+}
+
+// ---------------------------------------------------------------------------
 // Erweitertes AgentAnalysisResult (rückwärtskompatibel)
 // ---------------------------------------------------------------------------
 
@@ -307,4 +325,26 @@ export interface AgentAnalysisResult {
   praezedenz?: PraezedenzResult;
   privacy_notice?: string;
   analysis_result_id?: string;
+  /** Interne Background-Tasks (AG05/AG06) — werden in route.ts via after() registriert */
+  _backgroundTasks?: Promise<unknown>[];
+}
+
+// ---------------------------------------------------------------------------
+// AG20 Feedback-Learner Result
+// ---------------------------------------------------------------------------
+
+export interface FeedbackLearnerResult {
+  feedback_analysed: number;
+  false_positives_top: Array<{
+    fehler_id: string;
+    rate: number;
+    count: number;
+  }>;
+  low_accuracy_rechtsgebiete: Array<{
+    rechtsgebiet: string;
+    incorrect_rate: number;
+    total: number;
+  }>;
+  issues_created: string[];
+  summary: string;
 }

@@ -46,6 +46,7 @@ export default function AdminPage() {
     updated_at: string | null;
     org_name: string | null;
     org_role: string | null;
+    last_sign_in_at: string | null;
   }
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [customersLoading, setCustomersLoading] = useState(false);
@@ -524,6 +525,7 @@ export default function AdminPage() {
                     <th className="text-right py-3 pr-4 font-bold text-slate-600 whitespace-nowrap">Analysen</th>
                     <th className="text-left py-3 pr-4 font-bold text-slate-600 whitespace-nowrap">Einrichtung</th>
                     <th className="text-left py-3 pr-4 font-bold text-slate-600 whitespace-nowrap">Zahlung</th>
+                    <th className="text-left py-3 pr-4 font-bold text-slate-600 whitespace-nowrap">Letzter Login</th>
                     <th className="text-left py-3 font-bold text-slate-600 whitespace-nowrap">Läuft ab</th>
                   </tr>
                 </thead>
@@ -571,6 +573,13 @@ export default function AdminPage() {
                           ) : '—'}
                         </td>
                         <td className="py-3 pr-4 text-slate-500 text-xs">{c.payment_method || '—'}</td>
+                        <td className={`py-3 pr-4 text-xs whitespace-nowrap ${
+                          !c.last_sign_in_at ? 'text-slate-300' :
+                          (Date.now() - new Date(c.last_sign_in_at).getTime()) > 30 * 86400000 ? 'text-amber-500' :
+                          'text-slate-500'
+                        }`}>
+                          {formatDate(c.last_sign_in_at)}
+                        </td>
                         <td className={`py-3 text-xs whitespace-nowrap ${expired ? 'text-red-600 font-bold' : 'text-slate-500'}`}>
                           {formatDate(c.expires_at)}
                         </td>
