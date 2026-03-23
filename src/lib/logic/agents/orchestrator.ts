@@ -98,7 +98,34 @@ function computeAccurateCost(
 
 export type ProgressCallback = (phase: string, detail?: string) => void;
 
+/** Pipeline-Gesamttimeout: 240s — liefert Teilergebnis statt gar nichts */
+const PIPELINE_TIMEOUT_MS = 240_000;
+
 export async function runPipeline(
+  documentText: string,
+  onProgress?: ProgressCallback,
+  userContext?: string,
+): Promise<AgentAnalysisResult> {
+  return Promise.race([
+    runPipelineInternal(documentText, onProgress, userContext),
+    new Promise<AgentAnalysisResult>((_, reject) =>
+      setTimeout(() => reject(new Error("Pipeline-Timeout nach 240s")), PIPELINE_TIMEOUT_MS)
+    ),
+  ]).catch((err) => {
+    reportInfo("[Orchestrator] Pipeline-Timeout oder Fehler", { error: err instanceof Error ? err.message : String(err) });
+    onProgress?.("done", "Analyse mit Teilergebnis abgeschlossen");
+    return {
+      fehler: ["Die Analyse hat zu lange gedauert. Bitte erneut versuchen — kürzere Dokumente werden schneller verarbeitet."],
+      musterschreiben: "Die Analyse konnte nicht vollständig abgeschlossen werden. Bitte versuchen Sie es erneut.",
+      routing_stufe: "NORMAL" as RoutingStufe,
+      agenten_aktiv: [],
+      agenten_details: {},
+      model_used: SONNET_MODEL,
+    };
+  });
+}
+
+async function runPipelineInternal(
   documentText: string,
   onProgress?: ProgressCallback,
   userContext?: string,
@@ -257,6 +284,9 @@ export async function runPipeline(
 
   onProgress?.("analyse", `${analyseResult?.data.fehler.length ?? 0} Fehler, ${rechercheResult?.data.urteile.length ?? 0} Urteile`);
 
+  // Rate-Limit-Schutz: 3s Pause zwischen Phasen um API-Throttling zu vermeiden
+  await new Promise((r) => setTimeout(r, 3000));
+
   // AG03 Kritiker — läuft für alle Dringlichkeitsstufen (Budget-Guard bleibt)
   if (!isBudgetExceeded(totalTokens)) {
     const kritikResult = await safeExecute<KritikResult>(
@@ -273,9 +303,12 @@ export async function runPipeline(
     console.warn("[Orchestrator] Budget überschritten — AG03 übersprungen");
   }
 
+  // Rate-Limit-Schutz: 3s Pause vor Phase 5
+  await new Promise((r) => setTimeout(r, 3000));
+
   // --- Phase 5: AG07 + AG14 + AG13 PARALLEL ---
-  // AG13 nutzt AG07-Forderung nur optional (?.forderung) — kann parallel starten
-  // AG14 braucht AG01 (triage) aber nicht AG07 — läuft parallel zum Brief
+  // AG07 nutzt GPT-4o (OpenAI, kein Anthropic Rate-Limit)
+  // AG13 nutzt Haiku (leicht), AG14 ist DB-only
   reportInfo("[Orchestrator] Phase 5: AG07 + AG14 + AG13 parallel");
   const [letterSettled, praezedenzSettled, explainerSettled] = await Promise.allSettled([
     safeExecute(

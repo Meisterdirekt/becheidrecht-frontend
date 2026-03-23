@@ -276,11 +276,12 @@ export function classifyApiError(errorMsg: string): string {
   return "Die Analyse konnte nicht durchgeführt werden. Bitte versuchen Sie es später erneut.";
 }
 
-/** Per-Agent Timeout: AG07/AG02 brauchen mehr Zeit für Tool-Use-Loops */
+/** Per-Agent Timeout: AG07/AG02 brauchen mehr Zeit für Tool-Use-Loops + Rate-Limit-Retries */
 const AGENT_TIMEOUT_MS: Partial<Record<AgentId, number>> = {
   AG07: 120_000,
-  AG02: 60_000,
-  AG13: 30_000,
+  AG02: 120_000,
+  AG03: 90_000,
+  AG13: 45_000,
 };
 const DEFAULT_TIMEOUT_MS = 45_000;
 
