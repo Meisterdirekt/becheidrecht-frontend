@@ -42,7 +42,6 @@ export function createAnthropicClient(apiKey: string): Anthropic {
   return new Anthropic({
     apiKey,
     maxRetries: 2,
-    defaultHeaders: { "anthropic-beta": "no-store-2025-01-01" },
   });
 }
 

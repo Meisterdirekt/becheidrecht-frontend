@@ -374,6 +374,26 @@ async function execute(ctx: AgentContext): Promise<AgentResult<TriageResult>> {
     };
   }
 
+  // Letzter Ausweg: Regelbasierte Extraktion direkt aus dem Dokumenttext
+  // Greift wenn BEIDE API-Calls fehlschlagen (z.B. ungültiger Header, Rate-Limit, etc.)
+  const docBehoerde = extractBehoerdeFromText(ctx.documentText);
+  const docRechtsgebiet = extractRechtsgebietFromText(ctx.documentText);
+  if (docBehoerde !== "Unbekannt" || docRechtsgebiet !== "Unbekannt") {
+    console.warn(`[AG01] Dokument-Fallback aktiv (API-Calls fehlgeschlagen): behoerde="${docBehoerde}", rechtsgebiet="${docRechtsgebiet}"`);
+    return {
+      agentId: "AG01",
+      success: true,
+      data: {
+        behoerde: docBehoerde,
+        rechtsgebiet: docRechtsgebiet,
+        untergebiet: extractUntergebietFromText(ctx.documentText),
+        routing_stufe: ctx.routingStufe,
+      },
+      tokens: totalTokens,
+      durationMs: Date.now() - start,
+    };
+  }
+
   return {
     agentId: "AG01",
     success: false,
