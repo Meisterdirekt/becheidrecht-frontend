@@ -148,7 +148,7 @@ async function execute(ctx: AgentContext): Promise<AgentResult<AnalyseResult>> {
   const messages: Anthropic.MessageParam[] = [
     {
       role: "user",
-      content: `Analysiere diesen Bescheid auf Fehler:${triageInfo}${nutzerKontext}${feedbackSignals}\n\n${ctx.documentText}`,
+      content: `Analysiere diesen Bescheid auf Fehler:${triageInfo}${nutzerKontext}${feedbackSignals}\n\n${ctx.documentText.slice(0, 12000)}`,
     },
   ];
 

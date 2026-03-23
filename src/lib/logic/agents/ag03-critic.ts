@@ -12,7 +12,7 @@ import {
   emptyTokenUsage,
 } from "./types";
 import { getSystemPrompt } from "./prompts";
-import { modelForStufe, extractTokenUsage, getAnthropicKey, createAnthropicClient, extractJsonSafe } from "./utils";
+import { HAIKU_MODEL, modelForStufe, extractTokenUsage, getAnthropicKey, createAnthropicClient, extractJsonSafe } from "./utils";
 
 async function execute(ctx: AgentContext): Promise<AgentResult<KritikResult>> {
   const start = Date.now();
@@ -36,7 +36,9 @@ async function execute(ctx: AgentContext): Promise<AgentResult<KritikResult>> {
   }
 
   const anthropic = createAnthropicClient(apiKey);
-  const model = modelForStufe(ctx.routingStufe);
+  // Haiku für NORMAL/HOCH — spart Tokens und vermeidet Rate-Limits
+  // Nur NOTFALL nutzt Sonnet/Opus für maximale Kritik-Tiefe
+  const model = ctx.routingStufe === "NOTFALL" ? modelForStufe(ctx.routingStufe) : HAIKU_MODEL;
 
   // Kontext aus AG02 + AG04
   let kontext = "";
@@ -67,7 +69,7 @@ async function execute(ctx: AgentContext): Promise<AgentResult<KritikResult>> {
     kontext += `\n\nHINTERGRUND VOM NUTZER:\n${ctx.userContext}`;
   }
 
-  kontext += `\nBescheid (Auszug):\n${ctx.documentText.slice(0, 3000)}`;
+  kontext += `\nBescheid (Auszug):\n${ctx.documentText.slice(0, 2000)}`;
 
   const response = await anthropic.messages.create({
     model,

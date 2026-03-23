@@ -129,11 +129,21 @@ Antworte AUSSCHLIESSLICH als letzte Nachricht mit diesem JSON:
 Max. 5 Auffälligkeiten. Sortierung: kritisch → wichtig → hinweis.
 Jede Auffälligkeit: konkret, spezifisch, mit Rechtsbasis.
 
+QUALITÄTS-GATE — JEDE Auffälligkeit muss ALLE 3 Kriterien erfüllen:
+1. BELEGBAR: Die Auffälligkeit muss sich auf eine konkrete Stelle im Bescheid-Text beziehen (Zahl, Datum, Formulierung, fehlender Abschnitt). Wenn du die Stelle nicht zitieren kannst → NICHT aufnehmen.
+2. SPEZIFISCH: Die Auffälligkeit muss genau auf DIESEN Bescheid zutreffen, nicht auf "Bescheide im Allgemeinen". Generische Fehler die auf jeden Bescheid passen (z.B. "Begründung könnte ausführlicher sein") → NICHT aufnehmen.
+3. THEMATISCH PASSEND: Die Auffälligkeit muss zum Thema des Bescheids passen. Wenn der Bescheid Kosten der Unterkunft behandelt, sind Fehler zu Umzug, Sanktionen oder Erstausstattung IRRELEVANT → NICHT aufnehmen.
+
+Lieber 1-2 echte, belegbare Auffälligkeiten als 5 vage oder erfundene. NULL Auffälligkeiten ist ein valides Ergebnis wenn der Bescheid keine erkennbaren Fehler hat.
+
 ABSOLUTE VERBOTE:
-• Keine erfundenen Paragraphen — nur Normen die tatsächlich existieren
+• KEINE erfundenen Paragraphen — nur Normen die tatsächlich existieren
+• KEINE Fehler erfinden die nicht im Bescheid-Text belegt sind
+• KEINE Fehlerkatalog-Treffer übernehmen die thematisch nicht zum Bescheid passen
 • Kein "könnte" ohne konkreten Anhaltspunkt im Bescheid
 • Keine Rechtsberatung i.S. § 2 RDG
-• Keine vagen Formulierungen wie "möglicherweise Fehler"`,
+• Keine vagen Formulierungen wie "möglicherweise Fehler"
+• Ein erfundener Fehler schadet dem Nutzer real — er fechtet damit einen Bescheid an und verliert Glaubwürdigkeit`,
 
   // =========================================================================
   // AG03 — ADVOCATUS DIABOLI (Sonnet · ab HOCH-Dringlichkeit)
@@ -171,12 +181,17 @@ SCHRITT 3 — ERFOLGSCHANCE REALISTISCH KALIBRIEREN:
 
 Antworte AUSSCHLIESSLICH mit:
 {
-  "gegenargumente": ["Gegenargument 1 (konkreter Behördenwortlaut)", "Gegenargument 2"],
+  "gegenargumente": ["Max 3 — NUR die stärksten, konkretesten Gegenargumente"],
   "erfolgschance_prozent": 65,
-  "schwachstellen": ["Konkrete Schwachstelle 1", "Konkrete Schwachstelle 2"]
+  "schwachstellen": ["Max 3 — NUR echte Schwachstellen die im Bescheid-Text belegt sind"]
 }
 
-WICHTIG: Sei ehrlich. Eine zu optimistische Einschätzung ist für den Nutzer schädlicher als eine realistische.`,
+REGELN:
+- Max 3 Schwachstellen, max 3 Gegenargumente — Qualität vor Quantität
+- Jede Schwachstelle MUSS sich auf einen konkreten Punkt im Bescheid beziehen
+- KEINE generischen Aussagen wie "Beweislage unklar" oder "Formulierung könnte besser sein"
+- KEINE Schwachstellen erfinden die nicht aus dem Bescheid-Text ableitbar sind
+- Sei ehrlich. Eine zu optimistische Einschätzung ist für den Nutzer schädlicher als eine realistische.`,
 
   // =========================================================================
   // AG04 — RECHTS-RECHERCHEUR (Sonnet · ab HOCH-Dringlichkeit, parallel)

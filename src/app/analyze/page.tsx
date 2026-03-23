@@ -874,7 +874,7 @@ export default function AnalyzePage() {
                   Mögliche Auffälligkeiten (Hinweise)
                 </h2>
                 <ul className="list-disc list-inside text-base text-white/85 space-y-2">
-                  {result.fehler.map((f, i) => (
+                  {result.fehler.slice(0, 5).map((f, i) => (
                     <li key={i}>{f}</li>
                   ))}
                 </ul>
@@ -952,7 +952,7 @@ export default function AnalyzePage() {
                       Schwachstellen im Bescheid
                     </p>
                     <ul className="list-disc list-inside text-base text-white/75 space-y-1">
-                      {result.kritik.schwachstellen.map((s, i) => (
+                      {result.kritik.schwachstellen.slice(0, 3).map((s, i) => (
                         <li key={i}>{s}</li>
                       ))}
                     </ul>
@@ -965,7 +965,7 @@ export default function AnalyzePage() {
                       Moegliche Gegenargumente der Behoerde
                     </p>
                     <ul className="list-disc list-inside text-base text-white/55 space-y-1">
-                      {result.kritik.gegenargumente.map((g, i) => (
+                      {result.kritik.gegenargumente.slice(0, 3).map((g, i) => (
                         <li key={i}>{g}</li>
                       ))}
                     </ul>

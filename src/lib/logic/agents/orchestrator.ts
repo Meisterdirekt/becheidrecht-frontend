@@ -284,8 +284,8 @@ async function runPipelineInternal(
 
   onProgress?.("analyse", `${analyseResult?.data.fehler.length ?? 0} Fehler, ${rechercheResult?.data.urteile.length ?? 0} Urteile`);
 
-  // Rate-Limit-Schutz: 3s Pause zwischen Phasen um API-Throttling zu vermeiden
-  await new Promise((r) => setTimeout(r, 3000));
+  // Rate-Limit-Schutz: 8s Pause zwischen Phasen (30k tokens/min Limit → ~2 Calls/min bei Sonnet)
+  await new Promise((r) => setTimeout(r, 8000));
 
   // AG03 Kritiker — läuft für alle Dringlichkeitsstufen (Budget-Guard bleibt)
   if (!isBudgetExceeded(totalTokens)) {
@@ -297,14 +297,16 @@ async function runPipelineInternal(
     agentenAktiv.push("AG03");
     agentenDetails["AG03"] = { success: kritikResult.success, durationMs: kritikResult.durationMs, error: kritikResult.error };
     totalTokens = mergeTokenUsage(totalTokens, kritikResult.tokens);
-    agentCosts.push({ tokens: kritikResult.tokens, model: adaptiveModel });
+    // AG03 nutzt Haiku für NORMAL/HOCH, Sonnet/Opus nur für NOTFALL
+    const ag03Model = routingStufe === "NOTFALL" ? adaptiveModel : HAIKU_MODEL;
+    agentCosts.push({ tokens: kritikResult.tokens, model: ag03Model });
     pipeline.kritik = kritikResult.data;
   } else {
     console.warn("[Orchestrator] Budget überschritten — AG03 übersprungen");
   }
 
-  // Rate-Limit-Schutz: 3s Pause vor Phase 5
-  await new Promise((r) => setTimeout(r, 3000));
+  // Rate-Limit-Schutz: 8s Pause vor Phase 5
+  await new Promise((r) => setTimeout(r, 8000));
 
   // --- Phase 5: AG07 + AG14 + AG13 PARALLEL ---
   // AG07 nutzt GPT-4o (OpenAI, kein Anthropic Rate-Limit)
@@ -414,6 +416,7 @@ async function runPipelineInternal(
     }
 
     /** Prüft ob ein Fehler-Text ein halluzinierter/generischer Eintrag ist */
+    const docTextLower = documentText.toLowerCase();
     const isHalluziniert = (text: string): boolean => {
       const lower = text.toLowerCase();
       // Platzhalter-Texte sind nie fallspezifisch
@@ -428,6 +431,20 @@ async function runPipelineInternal(
       if (/entspricht nicht den vorgaben/.test(lower) && !/\d+\s*€/.test(lower) && lower.length < 200) return true;
       // "Ich bitte um Überprüfung" ohne Spezifik = Template
       if (/ich bitte um (?:überprüfung|prüfung|erneute)/.test(lower) && lower.length < 200) return true;
+      // --- Plausibilitäts-Check: Fehler muss im Bescheid-Text Grundlage haben ---
+      // Themenspezifische Begriffe die NUR relevant sind wenn sie auch im Bescheid vorkommen
+      const themenBegriffe = [
+        "umzug", "umzugskosten", "erstausstattung", "sanktion", "sperrzeit",
+        "schwerbehinderung", "pflegegrad", "elterngeld", "kindergeld",
+        "unterhalt", "bafög", "wohngeld", "insolvenz", "darlehen",
+        "mehrbedarf", "schwangerschaft", "alleinerziehend", "erwerbsminderung",
+        "aufrechnung", "tilgung", "rückforderung", "erstattung",
+        "eingliederungsvereinbarung", "maßnahme", "qualifizierung",
+        "krankengeld", "pflegegeld", "verhinderungspflege", "kurzzeitpflege",
+      ];
+      for (const begriff of themenBegriffe) {
+        if (lower.includes(begriff) && !docTextLower.includes(begriff)) return true;
+      }
       return false;
     };
 
@@ -479,10 +496,11 @@ async function runPipelineInternal(
       }
     }
     // AG02-Fehlerkatalog-Treffer ergänzen — nur Titel (nicht musterschreiben_hinweis-Templates)
+    // Plausibilitäts-Check: Titel UND Beschreibung müssen zum Bescheid passen
     if (analyseData && analyseData.fehler.length > 0) {
       for (const f of analyseData.fehler) {
         const text = f.titel;
-        if (!fehlerListe.includes(text) && !isHalluziniert(text) && !isRechtsgebietMismatch(f.musterschreiben_hinweis ?? text)) {
+        if (!fehlerListe.includes(text) && !isHalluziniert(text) && !isHalluziniert(f.beschreibung) && !isRechtsgebietMismatch(f.musterschreiben_hinweis ?? text)) {
           fehlerListe.push(text);
         }
       }
