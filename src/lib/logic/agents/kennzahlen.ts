@@ -124,6 +124,27 @@ export const UNTERHALTSVORSCHUSS = {
 } as const;
 
 // ---------------------------------------------------------------------------
+// SGB XIV — Soziales Entschädigungsrecht (seit 01.01.2024)
+// Quelle: https://www.gesetze-im-internet.de/sgb_14/
+// Ersetzt BVG, OEG. Monatliche Entschädigungszahlung nach Schädigungsfolgengrad.
+// ---------------------------------------------------------------------------
+export const ENTSCHAEDIGUNG_SGB_XIV = {
+  /** Monatliche Entschädigungszahlung nach § 83-84 SGB XIV (2026) */
+  grad_30: 440,   // EUR/Monat bei Schädigungsfolgengrad 30
+  grad_40: 587,   // EUR/Monat bei Schädigungsfolgengrad 40
+  grad_50: 733,   // EUR/Monat bei Schädigungsfolgengrad 50
+  grad_60: 880,   // EUR/Monat bei Schädigungsfolgengrad 60
+  grad_70: 1100,  // EUR/Monat bei Schädigungsfolgengrad 70
+  grad_80: 1320,  // EUR/Monat bei Schädigungsfolgengrad 80
+  grad_90: 1540,  // EUR/Monat bei Schädigungsfolgengrad 90
+  grad_100: 1760, // EUR/Monat bei Schädigungsfolgengrad 100
+  /** Schnelle Hilfen: max. Sitzungen Traumaambulanz */
+  traumaambulanz_sitzungen: 15,
+  /** Abfindung statt monatlicher Zahlung (§ 85 SGB XIV) möglich ab Grad 30 */
+  abfindung_moeglich: true,
+} as const;
+
+// ---------------------------------------------------------------------------
 // Prompt-Textblock für AG02 (und andere Agenten die Kennzahlen brauchen)
 // ---------------------------------------------------------------------------
 export function kennzahlenPromptBlock(): string {
@@ -145,5 +166,6 @@ export function kennzahlenPromptBlock(): string {
     `• Elterngeld: ${el.min}–${el.max}€, Einkommensgrenze einheitlich ${el.einkommensgrenze_paar}€ (vorher 200.000€ Paare). Max. 1 Monat Parallelbezug Basiselterngeld`,
     `• Unterhaltsvorschuss (§ 2 UVG = Mindestunterhalt minus Kindergeld): 0–5J=${UNTERHALTSVORSCHUSS.alter_0_5}€ (Mindestunterhalt ${MINDESTUNTERHALT.alter_0_5}€), 6–11J=${UNTERHALTSVORSCHUSS.alter_6_11}€ (${MINDESTUNTERHALT.alter_6_11}€), 12–17J=${UNTERHALTSVORSCHUSS.alter_12_17}€ (${MINDESTUNTERHALT.alter_12_17}€)`,
     `• Überzahlungsberechnung: Ist sie nachvollziehbar und korrekt berechnet?`,
+    `• SGB XIV Entschädigung (seit 01.01.2024, ersetzt BVG/OEG): Monatliche Entschädigungszahlung nach Schädigungsfolgengrad: Grad 30=${ENTSCHAEDIGUNG_SGB_XIV.grad_30}€, 50=${ENTSCHAEDIGUNG_SGB_XIV.grad_50}€, 70=${ENTSCHAEDIGUNG_SGB_XIV.grad_70}€, 100=${ENTSCHAEDIGUNG_SGB_XIV.grad_100}€. Schnelle Hilfen (Traumaambulanz max. ${ENTSCHAEDIGUNG_SGB_XIV.traumaambulanz_sitzungen} Sitzungen) ohne Antrag. Übergang BVG/OEG→SGB XIV: Wahlrecht für Altfälle (§§ 152-153 SGB XIV)`,
   ].join("\n");
 }

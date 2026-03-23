@@ -5354,6 +5354,198 @@
     "severity_beschreibung": "Höherer GdB und damit verbundene Nachteilsausgleiche betroffen"
   },
   {
+    "id": "VA_010",
+    "titel": "Entschädigungsantrag nach SGB XIV nicht bearbeitet oder abgelehnt (§ 1 SGB XIV)",
+    "beschreibung": "Seit 01.01.2024 gilt das SGB XIV (Soziales Entschädigungsrecht) als Nachfolger des BVG und OEG. Anträge auf Entschädigung wegen Gewalttaten, Impfschäden oder anderer schädigender Ereignisse wurden nicht nach dem aktuellen Recht beschieden.",
+    "rechtsbasis": [
+      "§ 1 SGB XIV",
+      "§ 2 SGB XIV",
+      "§ 4 SGB XIV"
+    ],
+    "severity": "kritisch",
+    "prueflogik": {
+      "bedingungen": [
+        "Gewalttat oder Impfschaden",
+        "Entschädigungsantrag",
+        "SGB XIV oder BVG/OEG referenziert"
+      ],
+      "suchbegriffe": [
+        "Entschädigung",
+        "Gewaltopfer",
+        "Impfschaden",
+        "schädigendes Ereignis",
+        "Opferentschädigung",
+        "SGB XIV",
+        "BVG",
+        "OEG"
+      ]
+    },
+    "musterschreiben_hinweis": "Der Entschädigungsanspruch richtet sich seit 01.01.2024 nach dem SGB XIV (nicht mehr BVG/OEG). Es ist zu prüfen, ob der Bescheid auf der korrekten Rechtsgrundlage erging und alle Leistungsansprüche nach §§ 1-4 SGB XIV berücksichtigt wurden.",
+    "severity_beschreibung": "Entschädigungsanspruch bei Gewalttaten, Impfschäden etc. betroffen"
+  },
+  {
+    "id": "VA_011",
+    "titel": "Schnelle Hilfen nach §§ 30-39 SGB XIV nicht gewährt (Traumaambulanz)",
+    "beschreibung": "Betroffene einer Gewalttat oder eines schädigenden Ereignisses haben Anspruch auf Schnelle Hilfen (Traumaambulanzen, Fallmanagement) ohne vorherige Antragstellung. Diese wurden nicht angeboten oder abgelehnt.",
+    "rechtsbasis": [
+      "§ 30 SGB XIV",
+      "§ 31 SGB XIV",
+      "§ 32 SGB XIV",
+      "§ 36 SGB XIV"
+    ],
+    "severity": "kritisch",
+    "prueflogik": {
+      "bedingungen": [
+        "Gewalttat oder schädigendes Ereignis",
+        "Schnelle Hilfen nicht gewährt",
+        "Traumaambulanz nicht angeboten"
+      ],
+      "suchbegriffe": [
+        "Schnelle Hilfen",
+        "Traumaambulanz",
+        "Fallmanagement",
+        "psychotherapeutisch",
+        "Krisenintervention",
+        "Soforthilfe"
+      ]
+    },
+    "musterschreiben_hinweis": "Nach §§ 30 ff. SGB XIV besteht ein Anspruch auf Schnelle Hilfen (insb. Traumaambulanzen) ohne vorherige Antragstellung. Die Nichtgewährung ist rechtswidrig, wenn ein schädigendes Ereignis glaubhaft gemacht wurde.",
+    "severity_beschreibung": "Sofortige psychologische Versorgung nach Gewalttat betroffen"
+  },
+  {
+    "id": "VA_012",
+    "titel": "Monatliche Entschädigungszahlung falsch berechnet (§§ 83-84 SGB XIV)",
+    "beschreibung": "Die monatliche Entschädigungszahlung nach SGB XIV wurde fehlerhaft berechnet. Die Höhe richtet sich nach dem Schädigungsfolgengrad und ist in § 84 SGB XIV geregelt.",
+    "rechtsbasis": [
+      "§ 83 SGB XIV",
+      "§ 84 SGB XIV"
+    ],
+    "severity": "kritisch",
+    "prueflogik": {
+      "bedingungen": [
+        "Entschädigungszahlung",
+        "Betrag möglicherweise zu niedrig",
+        "Schädigungsfolgen anerkannt"
+      ],
+      "suchbegriffe": [
+        "Entschädigungszahlung",
+        "monatliche Zahlung",
+        "Schädigungsfolge",
+        "Schädigungsfolgengrad",
+        "Grundrente",
+        "Entschädigungsbetrag"
+      ]
+    },
+    "musterschreiben_hinweis": "Die monatliche Entschädigungszahlung nach § 83 SGB XIV richtet sich nach dem Schädigungsfolgengrad (§ 84 SGB XIV). Es ist zu prüfen, ob der festgestellte Grad und die daraus resultierende Zahlung korrekt berechnet wurden.",
+    "severity_beschreibung": "Höhe der monatlichen Entschädigungsleistung betroffen"
+  },
+  {
+    "id": "VA_013",
+    "titel": "Berufsschadensausgleich nach § 90 SGB XIV nicht berücksichtigt",
+    "beschreibung": "Bei schädigungsbedingter Minderung des Erwerbseinkommens steht Betroffenen ein Berufsschadensausgleich nach § 90 SGB XIV zu. Dieser wurde nicht geprüft oder zu niedrig festgesetzt.",
+    "rechtsbasis": [
+      "§ 90 SGB XIV",
+      "§ 91 SGB XIV"
+    ],
+    "severity": "wichtig",
+    "prueflogik": {
+      "bedingungen": [
+        "Erwerbsminderung durch Schädigung",
+        "Berufsschadensausgleich nicht geprüft"
+      ],
+      "suchbegriffe": [
+        "Berufsschadensausgleich",
+        "Einkommensverlust",
+        "Erwerbsschaden",
+        "berufliche Betroffenheit",
+        "Verdienstausfall"
+      ]
+    },
+    "musterschreiben_hinweis": "Nach § 90 SGB XIV ist zu prüfen, ob ein Berufsschadensausgleich wegen schädigungsbedingter Minderung des Erwerbseinkommens gewährt werden muss.",
+    "severity_beschreibung": "Ausgleich für schädigungsbedingte Einkommensverluste"
+  },
+  {
+    "id": "VA_014",
+    "titel": "Übergangsregelung BVG/OEG zu SGB XIV fehlerhaft angewandt (§ 152 SGB XIV)",
+    "beschreibung": "Für Altfälle (Anträge vor 01.01.2024) gelten Übergangsregelungen nach § 152 SGB XIV. Bestandsfälle können zwischen altem (BVG/OEG) und neuem Recht (SGB XIV) wählen. Diese Wahlmöglichkeit wurde nicht eingeräumt.",
+    "rechtsbasis": [
+      "§ 152 SGB XIV",
+      "§ 153 SGB XIV"
+    ],
+    "severity": "wichtig",
+    "prueflogik": {
+      "bedingungen": [
+        "Altfall vor 2024",
+        "BVG oder OEG referenziert",
+        "Übergangsregelung nicht beachtet"
+      ],
+      "suchbegriffe": [
+        "Übergang",
+        "BVG",
+        "OEG",
+        "Bestandsfall",
+        "Altfall",
+        "Wahlrecht",
+        "Übergangsregelung",
+        "bisheriges Recht"
+      ]
+    },
+    "musterschreiben_hinweis": "Nach §§ 152-153 SGB XIV können Bestandsfälle zwischen altem (BVG/OEG) und neuem Recht (SGB XIV) wählen. Es ist zu prüfen, ob dieses Wahlrecht eingeräumt und die günstigere Regelung angewandt wurde.",
+    "severity_beschreibung": "Wahlrecht zwischen altem und neuem Entschädigungsrecht"
+  },
+  {
+    "id": "VA_015",
+    "titel": "Krankenbehandlung der Schädigungsfolgen abgelehnt (§§ 41-42 SGB XIV)",
+    "beschreibung": "Geschädigte nach SGB XIV haben Anspruch auf Krankenbehandlung der Schädigungsfolgen ohne Zuzahlung und ohne Begrenzung auf das GKV-Leistungsniveau. Dieser erweiterte Anspruch wurde nicht gewährt.",
+    "rechtsbasis": [
+      "§ 41 SGB XIV",
+      "§ 42 SGB XIV"
+    ],
+    "severity": "kritisch",
+    "prueflogik": {
+      "bedingungen": [
+        "Schädigungsfolge anerkannt",
+        "Krankenbehandlung abgelehnt oder auf GKV-Niveau begrenzt"
+      ],
+      "suchbegriffe": [
+        "Krankenbehandlung",
+        "Schädigungsfolge",
+        "Heilbehandlung",
+        "Zuzahlung",
+        "medizinische Versorgung",
+        "Behandlungskosten"
+      ]
+    },
+    "musterschreiben_hinweis": "Nach §§ 41-42 SGB XIV besteht ein umfassender Anspruch auf Krankenbehandlung der Schädigungsfolgen, der über das GKV-Leistungsniveau hinausgeht und zuzahlungsfrei ist.",
+    "severity_beschreibung": "Medizinische Versorgung von Gewaltopfern betroffen"
+  },
+  {
+    "id": "VA_016",
+    "titel": "Teilhabeleistungen nach SGB XIV nicht geprüft (§§ 63-64 SGB XIV)",
+    "beschreibung": "Geschädigte haben neben der Entschädigung Anspruch auf Leistungen zur Teilhabe am Arbeitsleben und zur sozialen Teilhabe nach SGB XIV. Diese wurden im Bescheid nicht berücksichtigt.",
+    "rechtsbasis": [
+      "§ 63 SGB XIV",
+      "§ 64 SGB XIV",
+      "§ 65 SGB XIV"
+    ],
+    "severity": "wichtig",
+    "prueflogik": {
+      "bedingungen": [
+        "Schädigungsfolge anerkannt",
+        "Teilhabeleistungen nicht geprüft"
+      ],
+      "suchbegriffe": [
+        "Teilhabe",
+        "berufliche Rehabilitation",
+        "soziale Teilhabe",
+        "Eingliederung",
+        "Leistungen zur Teilhabe"
+      ]
+    },
+    "musterschreiben_hinweis": "Nach §§ 63-65 SGB XIV bestehen eigenständige Ansprüche auf Leistungen zur Teilhabe am Arbeitsleben und zur sozialen Teilhabe. Es ist zu prüfen, ob diese im Bescheid berücksichtigt wurden.",
+    "severity_beschreibung": "Berufliche und soziale Rehabilitation nach Schädigung"
+  },
+  {
     "id": "WG_001",
     "titel": "Beratungspflicht nach § 14 SGB I nicht erfüllt (Wohngeldstelle)",
     "beschreibung": "Die Wohngeldstelle hat nicht über mögliche Ansprüche auf Wohngeld oder ergänzende Leistungen informiert.",

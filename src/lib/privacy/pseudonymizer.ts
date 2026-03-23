@@ -59,7 +59,8 @@ export function pseudonymizeText(text: string): {
   );
 
   // IBAN vor Telefon (sonst wird Teil der IBAN als Telefon erkannt)
-  const ibanRegex = /\b(DE\d{2}\s?\d{4}\s?\d{4}\s?\d{4}\s?\d{4}\s?\d{2}|AT\d{2}\s?\d{4}\s?\d{4}\s?\d{4}\s?\d{4}\s?\d{4}|CH\d{2}\s?\d{4}\s?\d{4}\s?\d{4}\s?\d{4}\s?\d{4})\b/gi;
+  // Flexible Whitespace-Erkennung: PDF-Extraktion erzeugt variierende Abstände
+  const ibanRegex = /\b(DE\s*\d{2}\s*\d{4}\s*\d{4}\s*\d{4}\s*\d{4}\s*\d{2}|AT\s*\d{2}\s*\d{4}\s*\d{4}\s*\d{4}\s*\d{4}\s*\d{4}|CH\s*\d{2}\s*\d{4}\s*\d{4}\s*\d{4}\s*\d{4}\s*\d{4})\b/gi;
   pseudonymized = pseudonymized.replace(ibanRegex, (match) =>
     pushAndReplace(map, 'bankAccount', match, '[IBAN')
   );

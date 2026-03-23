@@ -7,8 +7,9 @@
  * Body: { email: string; firstName: string }
  */
 
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { reportError, reportInfo } from "@/lib/error-reporter";
+import { welcomeEmailLimiter } from "@/lib/rate-limit";
 
 export const runtime = "nodejs";
 
@@ -52,8 +53,14 @@ function buildWelcomeHtml(firstName: string): string {
   `;
 }
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   try {
+    const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+    const { success } = await welcomeEmailLimiter.limit(ip);
+    if (!success) {
+      return NextResponse.json({ error: "Zu viele Anfragen" }, { status: 429 });
+    }
+
     const body = await req.json();
     const email = body.email?.trim();
     const firstName = body.firstName?.trim() || "Nutzer";

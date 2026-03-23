@@ -122,4 +122,7 @@ export const useAnalysisLimiter = buildLimiter([10, "1m"]);
 /** /api/subscription-status — 30 Anfragen / 1 Min pro User */
 export const subscriptionStatusLimiter = buildLimiter([30, "1m"]);
 
+/** /api/welcome-email — 3 Anfragen / 1 Stunde pro IP (Spam-Schutz) */
+export const welcomeEmailLimiter = buildLimiter([3, "1h"]);
+
 export { isRedisConfigured };

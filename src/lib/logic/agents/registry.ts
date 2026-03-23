@@ -1,5 +1,6 @@
 /**
- * Agent Registry — zentrale Verwaltung aller 18 Agenten.
+ * Agent Registry — zentrale Verwaltung aller 19 LLM-Agenten (AG01–AG18, AG20).
+ * AG19 (Design-Guardian) hat kein Agent-Interface — reine statische Analyse, nur via Cron.
  * Registrierung erfolgt lazy beim ersten Zugriff.
  */
 
@@ -9,7 +10,7 @@ import { reportInfo } from "@/lib/error-reporter";
 const agents = new Map<AgentId, Agent>();
 let initialized = false;
 
-/** Registriert alle 18 Agenten (lazy, einmalig). */
+/** Registriert alle 19 LLM-Agenten (lazy, einmalig). AG19 = kein Agent-Interface. */
 function ensureInitialized(): void {
   if (initialized) return;
   initialized = true;
@@ -68,6 +69,11 @@ function ensureInitialized(): void {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   const { ag18ContentAuditor } = require("./ag18-content-auditor");
 
+  // Feedback-Learner (Freitag via Daily-Hub, AG20)
+  // AG19 (Design-Guardian) hat kein Agent-Interface — reine statische Analyse
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { ag20FeedbackLearner } = require("./ag20-feedback-learner");
+
   const allAgents: Agent[] = [
     ag08SecurityGate, ag12DocumentProcessor, ag01Orchestrator,
     ag02Analyst, ag07LetterGenerator, ag13UserExplainer,
@@ -79,6 +85,7 @@ function ensureInitialized(): void {
     ag16VercelAgent,
     ag17AgentAuditor,
     ag18ContentAuditor,
+    ag20FeedbackLearner,
   ];
 
   for (const agent of allAgents) {
