@@ -2,6 +2,11 @@
  * AG01 — Orchestrator (Sonnet · IMMER)
  * Triage + Routing-Entscheidung: Behörde, Rechtsgebiet, RoutingStufe.
  * Nutzt `klassifiziere_bescheid` Tool. Bekommt detectUrgency() Pre-Filter als Input.
+ *
+ * Robustheit:
+ * - Retry-Nudge wenn Modell Text statt Tool-Call liefert
+ * - Text-Fallback-Extraktion wenn Tool nicht aufgerufen wird
+ * - Haiku → Sonnet Escalation bei "Unbekannt"
  */
 
 import Anthropic from "@anthropic-ai/sdk";
@@ -15,6 +20,7 @@ import {
 } from "./types";
 import { getSystemPrompt } from "./prompts";
 import { HAIKU_MODEL, SONNET_MODEL, extractTokenUsage, getAnthropicKey, createAnthropicClient, mergeTokenUsage } from "./utils";
+import { SGB_SIGNAL_WORDS, SGB_TO_RECHTSGEBIET, RECHTSGEBIET_TRAEGER } from "../constants/rechtsgebiete";
 
 const TOOL_KLASSIFIZIERE: Anthropic.Tool = {
   name: "klassifiziere_bescheid",
@@ -75,9 +81,97 @@ interface KlassifizierungInput {
   bg_nummer?: string;
 }
 
+// ---------------------------------------------------------------------------
+// Text-Fallback: Behörde + Rechtsgebiet aus Freitext extrahieren
+// Greift wenn das Modell Text statt Tool-Call liefert.
+// ---------------------------------------------------------------------------
+
+function extractBehoerdeFromText(text: string): string {
+  const lower = text.toLowerCase();
+  // Bekannte Behörden-Patterns (häufigste zuerst)
+  const patterns: [RegExp, string][] = [
+    [/jobcenter\s+[\w\-äöüß]+/i, ""],
+    [/agentur\s+für\s+arbeit\s+[\w\-äöüß]+/i, ""],
+    [/deutsche\s+rentenversicherung\s*[\w\-äöüß]*/i, ""],
+    [/familienkasse\s*[\w\-äöüß]*/i, ""],
+    [/pflegekasse|pflegeversicherung/i, ""],
+    [/krankenkasse|aok|barmer|techniker\s+krankenkasse|dak|bkk|ikk|knappschaft/i, ""],
+    [/sozialamt|amt\s+für\s+soziales/i, ""],
+    [/jugendamt/i, ""],
+    [/bamf|bundesamt\s+für\s+migration/i, ""],
+    [/versorgungsamt/i, ""],
+    [/wohngeld(?:stelle|behörde|amt)/i, ""],
+    [/elterngeldstelle/i, ""],
+    [/unterhaltsvorschuss(?:kasse|stelle)/i, ""],
+  ];
+  for (const [pattern] of patterns) {
+    const match = text.match(pattern);
+    if (match) return match[0].trim();
+  }
+  // Heuristik: "Behörde: XYZ" im Text
+  const behoerdeMatch = text.match(/Beh[öo]rde[:\s]+([^\n,]{3,50})/i);
+  if (behoerdeMatch) return behoerdeMatch[1].trim();
+  // Prüfe auch die Signalwörter
+  for (const [key, keywords] of Object.entries(SGB_SIGNAL_WORDS)) {
+    for (const kw of keywords) {
+      if (lower.includes(kw.toLowerCase())) {
+        const rgCode = SGB_TO_RECHTSGEBIET[key];
+        if (rgCode) {
+          const traeger = RECHTSGEBIET_TRAEGER[rgCode];
+          if (traeger) return traeger.charAt(0).toUpperCase() + traeger.slice(1);
+        }
+      }
+    }
+  }
+  return "Unbekannt";
+}
+
+function extractRechtsgebietFromText(text: string): string {
+  const lower = text.toLowerCase();
+  // Direkte SGB-Nennung (z.B. "SGB II", "SGB V")
+  const sgbMatch = text.match(/SGB\s+(I{1,3}|IV|V|VI{0,2}|VII|VIII|IX|X|XI{0,2}|XII)/i);
+  if (sgbMatch) return `SGB ${sgbMatch[1].toUpperCase()}`;
+  // Signalwort-basierte Erkennung
+  for (const [sgbKey, keywords] of Object.entries(SGB_SIGNAL_WORDS)) {
+    for (const kw of keywords) {
+      if (lower.includes(kw.toLowerCase())) {
+        return sgbKey.replace("_", " ");
+      }
+    }
+  }
+  return "Unbekannt";
+}
+
+function extractUntergebietFromText(text: string): string {
+  const lower = text.toLowerCase();
+  // Häufige Untergebiete
+  const patterns: [RegExp, string][] = [
+    [/kosten\s+der\s+unterkunft|kdu/i, "Kosten der Unterkunft (KdU)"],
+    [/regelbedarfsstufe|regelbedarf/i, "Regelbedarf"],
+    [/bürgergeld|grundsicherungsgeld/i, "Bürgergeld"],
+    [/krankengeld/i, "Krankengeld"],
+    [/erwerbsminderungsrente|erwerbsminderung/i, "Erwerbsminderungsrente"],
+    [/pflegegrad/i, "Pflegegrad"],
+    [/kindergeld/i, "Kindergeld"],
+    [/wohngeld/i, "Wohngeld"],
+    [/sanktion|leistungsminderung/i, "Sanktion/Leistungsminderung"],
+    [/aufhebung|rücknahme/i, "Aufhebung/Rücknahme"],
+    [/erstattung|überzahlung/i, "Erstattung"],
+  ];
+  for (const [pattern, label] of patterns) {
+    if (pattern.test(lower)) return label;
+  }
+  return "Allgemein";
+}
+
 /**
  * Führt die Klassifizierung mit einem bestimmten Modell durch.
  * Gibt TriageResult zurück oder null wenn Klassifizierung fehlschlägt.
+ *
+ * Robustheit-Maßnahmen:
+ * 1. Retry-Nudge wenn das Modell Text statt Tool-Call liefert (wie AG02)
+ * 2. Text-Fallback-Extraktion als letzter Ausweg
+ * 3. max_tokens erhöht für lange Bescheide
  */
 async function runClassification(
   ctx: AgentContext,
@@ -101,10 +195,13 @@ async function runClassification(
     },
   ];
 
+  let toolCalled = false;
+  let lastTextResponse = "";
+
   for (let i = 0; i < 3; i++) {
     const response = await anthropic.messages.create({
       model,
-      max_tokens: 1024,
+      max_tokens: 2048,
       system: getSystemPrompt("AG01"),
       tools: [TOOL_KLASSIFIZIERE],
       messages,
@@ -115,7 +212,38 @@ async function runClassification(
 
     messages.push({ role: "assistant", content: response.content });
 
-    if (response.stop_reason === "end_turn") break;
+    // Letzte Textantwort merken für Fallback-Extraktion
+    const textBlock = response.content.find((b) => b.type === "text");
+    if (textBlock && textBlock.type === "text") {
+      lastTextResponse = textBlock.text;
+    }
+
+    if (response.stop_reason === "end_turn") {
+      // Modell hat Text geliefert statt Tool-Call → Retry-Nudge (wie AG02)
+      if (!toolCalled && i < 2) {
+        messages.push({
+          role: "user",
+          content:
+            "Du hast klassifiziere_bescheid noch nicht aufgerufen. " +
+            "Rufe JETZT das Tool klassifiziere_bescheid auf. " +
+            "Pflichtfelder: behoerde (konkreter Name), rechtsgebiet (z.B. 'SGB II'), untergebiet. " +
+            "Auch wenn du unsicher bist — gib deine beste Einschätzung ab.",
+        });
+        continue;
+      }
+      break;
+    }
+    if (response.stop_reason === "max_tokens") {
+      // Token-Limit erreicht → Retry mit kürzerem Prompt-Nudge
+      if (!toolCalled && i < 2) {
+        messages.push({
+          role: "user",
+          content: "Rufe jetzt klassifiziere_bescheid auf. Pflicht: behoerde, rechtsgebiet, untergebiet.",
+        });
+        continue;
+      }
+      break;
+    }
     if (response.stop_reason !== "tool_use") break;
 
     const toolResults: Anthropic.ToolResultBlockParam[] = [];
@@ -124,6 +252,7 @@ async function runClassification(
       if (block.type !== "tool_use") continue;
 
       if (block.name === "klassifiziere_bescheid") {
+        toolCalled = true;
         const input = block.input as KlassifizierungInput;
         const result: TriageResult = {
           behoerde: input.behoerde,
@@ -158,6 +287,25 @@ async function runClassification(
     if (toolResults.length > 0) {
       messages.push({ role: "user", content: toolResults });
     }
+  }
+
+  // Text-Fallback: Wenn das Tool nie aufgerufen wurde,
+  // versuche Behörde/Rechtsgebiet aus der Textantwort ODER dem Dokument zu extrahieren
+  const sourceText = lastTextResponse || ctx.documentText;
+  const fbBehoerde = extractBehoerdeFromText(sourceText);
+  const fbRechtsgebiet = extractRechtsgebietFromText(sourceText);
+
+  if (fbBehoerde !== "Unbekannt" || fbRechtsgebiet !== "Unbekannt") {
+    console.warn(`[AG01] Text-Fallback aktiv: behoerde="${fbBehoerde}", rechtsgebiet="${fbRechtsgebiet}"`);
+    return {
+      result: {
+        behoerde: fbBehoerde,
+        rechtsgebiet: fbRechtsgebiet,
+        untergebiet: extractUntergebietFromText(sourceText),
+        routing_stufe: ctx.routingStufe,
+      },
+      tokens: totalTokens,
+    };
   }
 
   return null;

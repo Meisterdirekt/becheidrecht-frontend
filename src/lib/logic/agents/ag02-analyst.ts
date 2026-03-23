@@ -153,9 +153,17 @@ async function execute(ctx: AgentContext): Promise<AgentResult<AnalyseResult>> {
   ];
 
   // Primärer Träger-Key aus Behördenname (null wenn unerkannt)
-  const traegerKey = ctx.pipeline.triage
+  let traegerKey = ctx.pipeline.triage
     ? detectTraegerKey(ctx.pipeline.triage.behoerde)
     : null;
+
+  // Fallback: Wenn AG01 "Unbekannt" lieferte, versuche Träger direkt aus Dokumenttext zu erkennen
+  if (!traegerKey && ctx.pipeline.triage?.behoerde === "Unbekannt") {
+    traegerKey = detectTraegerKey(ctx.documentText.slice(0, 3000));
+    if (traegerKey) {
+      console.info(`[AG02] Träger-Fallback aus Dokumenttext: ${traegerKey}`);
+    }
+  }
 
   // Multi-Rechtsgebiet: Auch Prefixes der weiteren Rechtsgebiete sammeln
   const allTraegerKeys = new Set<string>(traegerKey ? [traegerKey] : []);

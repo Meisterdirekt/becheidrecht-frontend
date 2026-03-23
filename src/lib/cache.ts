@@ -28,8 +28,8 @@ const isRedisConfigured =
 let redis: Redis | undefined;
 if (isRedisConfigured) {
   redis = new Redis({
-    url: process.env.UPSTASH_REDIS_REST_URL!,
-    token: process.env.UPSTASH_REDIS_REST_TOKEN!,
+    url: process.env.UPSTASH_REDIS_REST_URL!.trim(),
+    token: process.env.UPSTASH_REDIS_REST_TOKEN!.trim(),
   });
 }
 
