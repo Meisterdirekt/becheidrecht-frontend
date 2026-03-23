@@ -10,7 +10,8 @@
       "rechtsgrundlage": "Haushaltsfinanzierungsgesetz 2024, Zuständigkeit FbW bei AA ab 01.01.2025",
       "hebt_auf": ["202410011", "Fachliche Weisungen FbW im SGB 2"],
       "verweise": ["202406007"],
-      "wichtig_fuer": ["SGB II", "SGB III", "FbW", "ELB"]
+      "wichtig_fuer": ["SGB II", "SGB III", "FbW", "ELB"],
+      "quelle": "https://www.arbeitsagentur.de/datei/weisung-202512002_ba055346.pdf"
     },
     "202512003": {
       "datum": "01.12.2025",
@@ -21,7 +22,8 @@
       "sgb_iii": "Weisung",
       "rechtsgrundlage": "§ 183 SGB III Qualitätsprüfung",
       "hebt_auf": ["202502012"],
-      "wichtig_fuer": ["SGB III", "MAT", "Durchführungsqualität"]
+      "wichtig_fuer": ["SGB III", "MAT", "Durchführungsqualität"],
+      "quelle": "https://www.arbeitsagentur.de/datei/weisung-202512003_ba055366.pdf"
     },
     "202512004": {
       "datum": "05.12.2025",
@@ -31,7 +33,8 @@
       "sgb_ii": "Weisung",
       "sgb_iii": "nicht betroffen",
       "rechtsgrundlage": "DÜV-AnpassG (BGBl. 2024 I Nr. 152)",
-      "wichtig_fuer": ["SGB II", "§ 52a SGB II", "gemeinsame Einrichtungen"]
+      "wichtig_fuer": ["SGB II", "§ 52a SGB II", "gemeinsame Einrichtungen"],
+      "quelle": "https://www.arbeitsagentur.de/datei/weisung-202512004_ba055386.pdf"
     },
     "202512012": {
       "datum": "17.12.2025",
@@ -43,7 +46,8 @@
       "rechtsgrundlage": "§ 311 SGB III, § 38 Abs. 3 S. 3 SGB III, § 109a SGB IV",
       "verweise": ["202310006", "202502008"],
       "hebt_auf": ["202310006"],
-      "wichtig_fuer": ["SGB III", "Arbeitsunfähigkeit", "VerBIS", "COLIBRI"]
+      "wichtig_fuer": ["SGB III", "Arbeitsunfähigkeit", "VerBIS", "COLIBRI"],
+      "quelle": "https://www.arbeitsagentur.de/datei/weisung-202512012_ba055533.pdf"
     },
     "202512017": {
       "datum": "18.12.2025",
@@ -53,7 +57,8 @@
       "sgb_ii": "nicht betroffen",
       "sgb_iii": "Weisung",
       "hebt_auf": ["202505011"],
-      "wichtig_fuer": ["SGB III", "FbW", "§ 183 SGB III Qualitätsprüfung"]
+      "wichtig_fuer": ["SGB III", "FbW", "§ 183 SGB III Qualitätsprüfung"],
+      "quelle": "https://www.arbeitsagentur.de/datei/weisung-202512017_ba055468.pdf"
     },
     "202512020": {
       "datum": "19.12.2025",
@@ -64,7 +69,8 @@
       "sgb_iii": "Weisung",
       "rechtsgrundlage": "4. KugBeV vom 17.12.2025, § 104 Abs. 1 S. 1 SGB III",
       "verweise": ["202412026"],
-      "wichtig_fuer": ["SGB III", "Kurzarbeitergeld"]
+      "wichtig_fuer": ["SGB III", "Kurzarbeitergeld"],
+      "quelle": "https://www.arbeitsagentur.de/datei/weisung-202512020_ba055488.pdf"
     },
     "202512023": {
       "datum": "22.12.2025",
@@ -76,7 +82,8 @@
       "rechtsgrundlage": "§ 15 SGB II (Veröffentlichung der Fachlichen Weisungen)",
       "verweise": ["202411010", "202412014", "202509011", "202306003", "202505008", "202412010"],
       "hebt_auf": ["202412010"],
-      "wichtig_fuer": ["SGB III", "Berufsberatung", "BBiE"]
+      "wichtig_fuer": ["SGB III", "Berufsberatung", "BBiE"],
+      "quelle": "https://www.arbeitsagentur.de/datei/weisung-202512023_ba055518.pdf"
     },
     "202601_REGELSATZ": {
       "datum": "01.01.2026",
@@ -146,7 +153,8 @@
       "thema": "Gemeinsame Rechtliche Anweisungen zu § 43 SGB VI — Rente wegen Erwerbsminderung",
       "rechtsgrundlage": "§ 43 SGB VI",
       "wichtig_fuer": ["Erwerbsminderungsrente", "Leistungsfähigkeit", "Restleistungsvermögen"],
-      "pruef_hinweis": "Behörde muss medizinisches Leistungsvermögen auf Grundlage aller vorliegenden Gutachten würdigen. Verweisung auf allgemeinen Arbeitsmarkt nur bei mindestens 6 Stunden Restleistungsvermögen."
+      "pruef_hinweis": "Behörde muss medizinisches Leistungsvermögen auf Grundlage aller vorliegenden Gutachten würdigen. Verweisung auf allgemeinen Arbeitsmarkt nur bei mindestens 6 Stunden Restleistungsvermögen.",
+      "quelle": "https://rvrecht.deutsche-rentenversicherung.de/SharedDocs/rvRecht/01_GRA_SGB/06_SGB_VI/pp_0026_50/gra_sgb006_p_0043.html"
     },
     "GRA_SGB6_2026_02": {
       "datum": "01.01.2026",
@@ -154,7 +162,8 @@
       "thema": "Gemeinsame Rechtliche Anweisungen zu §§ 35–38 SGB VI — Altersrenten (Regelaltersrente, langjährig Versicherte, besonders langjährig Versicherte, Schwerbehinderung)",
       "rechtsgrundlage": "§§ 35, 36, 37, 38 SGB VI",
       "wichtig_fuer": ["Altersrente", "Wartezeit", "Vertrauensschutz", "Rentenabschläge"],
-      "pruef_hinweis": "Prüfung der Wartezeiten (5/15/35/45 Jahre). Regelaltersgrenze beachten (Jahrgang-abhängig). Abschläge korrekt berechnet?"
+      "pruef_hinweis": "Prüfung der Wartezeiten (5/15/35/45 Jahre). Regelaltersgrenze beachten (Jahrgang-abhängig). Abschläge korrekt berechnet?",
+      "quelle": "https://rvrecht.deutsche-rentenversicherung.de/SharedDocs/rvRecht/01_GRA_SGB/06_SGB_VI/pp_0026_50/gra_sgb006_p_0035.html"
     },
     "GRA_SGB6_2026_03": {
       "datum": "01.01.2026",
@@ -162,7 +171,8 @@
       "thema": "Gemeinsame Rechtliche Anweisungen zu § 51 SGB VI — Anrechenbare Zeiten für Wartezeit",
       "rechtsgrundlage": "§ 51 SGB VI",
       "wichtig_fuer": ["Wartezeit", "Beitragszeiten", "Anrechnungszeiten", "Ersatzzeiten"],
-      "pruef_hinweis": "Alle anrechenbaren Zeiten berücksichtigt? Kindererziehungszeiten, Pflegezeiten, Ausbildungszeiten korrekt einbezogen?"
+      "pruef_hinweis": "Alle anrechenbaren Zeiten berücksichtigt? Kindererziehungszeiten, Pflegezeiten, Ausbildungszeiten korrekt einbezogen?",
+      "quelle": "https://rvrecht.deutsche-rentenversicherung.de/SharedDocs/rvRecht/01_GRA_SGB/06_SGB_VI/pp_0051_75/gra_sgb006_p_0051.html"
     },
     "GRA_SGB6_2026_04": {
       "datum": "01.01.2026",
@@ -170,7 +180,8 @@
       "thema": "Gemeinsame Rechtliche Anweisungen zu § 48 SGB X — Aufhebung von Rentenbescheiden bei Änderung der Verhältnisse",
       "rechtsgrundlage": "§ 48 SGB X i.V.m. SGB VI",
       "wichtig_fuer": ["Aufhebungsbescheid", "Überzahlung", "Vertrauensschutz", "Rückforderung"],
-      "pruef_hinweis": "Aufhebung nur bei wesentlicher Änderung. Vertrauensschutz nach § 48 Abs. 2 SGB X prüfen. Jahresfrist der Behörde beachten (§ 48 Abs. 4 SGB X)."
+      "pruef_hinweis": "Aufhebung nur bei wesentlicher Änderung. Vertrauensschutz nach § 48 Abs. 2 SGB X prüfen. Jahresfrist der Behörde beachten (§ 48 Abs. 4 SGB X).",
+      "quelle": "https://rvrecht.deutsche-rentenversicherung.de/SharedDocs/rvRecht/01_GRA_SGB/10_SGB_X/pp_0026_50/gra_sgb010_p_0048.html"
     },
     "GRA_SGB6_2026_RENTENWERT": {
       "datum": "01.07.2026",
@@ -189,7 +200,8 @@
       "thema": "Begutachtungsrichtlinien (BRi) — Feststellung von Pflegebedürftigkeit nach § 15 SGB XI",
       "rechtsgrundlage": "§§ 14, 15 SGB XI, Begutachtungsrichtlinien des GKV-Spitzenverbandes",
       "wichtig_fuer": ["Pflegegrad", "Begutachtung", "Selbständigkeit", "Module 1-6"],
-      "pruef_hinweis": "Alle 6 Module bewertet? Gewichtung korrekt (Modul 1: 10%, M2: 15%, M3: 7.5%, M4: 40%, M5: 20%, M6: 7.5%)? Pflegegrad-Schwellen: PG1=12.5-27, PG2=27-47.5, PG3=47.5-70, PG4=70-90, PG5=90-100."
+      "pruef_hinweis": "Alle 6 Module bewertet? Gewichtung korrekt (Modul 1: 10%, M2: 15%, M3: 7.5%, M4: 40%, M5: 20%, M6: 7.5%)? Pflegegrad-Schwellen: PG1=12.5-27, PG2=27-47.5, PG3=47.5-70, PG4=70-90, PG5=90-100.",
+      "quelle": "https://md-bund.de/themen/pflegebeduerftigkeit-und-pflegebegutachtung/begutachtungs-richtlinien.html"
     },
     "BRi_2026_02": {
       "datum": "01.01.2026",
@@ -197,7 +209,8 @@
       "thema": "Richtlinien zur Feststellung von Pflegebedürftigkeit bei Kindern — altersgerechte Begutachtung",
       "rechtsgrundlage": "§ 15 SGB XI, § 18 SGB XI (Verfahren)",
       "wichtig_fuer": ["Pflegegrad Kinder", "Altersentsprechende Selbständigkeit", "Sonderbegutachtung"],
-      "pruef_hinweis": "Vergleich mit altersgerecht entwickeltem Kind. Kinder unter 18 Monate: Sonderregelung PG mindestens 2 Stufen höher."
+      "pruef_hinweis": "Vergleich mit altersgerecht entwickeltem Kind. Kinder unter 18 Monate: Sonderregelung PG mindestens 2 Stufen höher.",
+      "quelle": "https://md-bund.de/themen/pflegebeduerftigkeit-und-pflegebegutachtung/begutachtungs-richtlinien.html"
     },
     "BRi_2026_03": {
       "datum": "01.01.2026",
@@ -205,7 +218,8 @@
       "thema": "Pflegegeld, Pflegesachleistungen und Kombinationsleistung — Leistungshöhen 2026",
       "rechtsgrundlage": "§§ 36, 37, 38 SGB XI",
       "wichtig_fuer": ["Pflegegeld", "Sachleistung", "Kombileistung", "Leistungshöhe"],
-      "pruef_hinweis": "Pflegegeld 2025/2026: PG2=347€, PG3=599€, PG4=800€, PG5=990€. Sachleistung: PG2=796€, PG3=1497€, PG4=1859€, PG5=2299€. Gemeinsamer Jahresbetrag Verhinderung+Kurzzeitpflege: 3539€ (§42a SGB XI ab 01.07.2025). Korrekte Berechnung der Kombinationsleistung?"
+      "pruef_hinweis": "Pflegegeld 2025/2026: PG2=347€, PG3=599€, PG4=800€, PG5=990€. Sachleistung: PG2=796€, PG3=1497€, PG4=1859€, PG5=2299€. Gemeinsamer Jahresbetrag Verhinderung+Kurzzeitpflege: 3539€ (§42a SGB XI ab 01.07.2025). Korrekte Berechnung der Kombinationsleistung?",
+      "quelle": "https://www.bundesgesundheitsministerium.de/themen/pflege/online-ratgeber-pflege/leistungen-der-pflegeversicherung/leistungen-im-ueberblick"
     },
     "BEEP_2026": {
       "datum": "01.01.2026",
@@ -225,7 +239,8 @@
       "thema": "Arbeitsunfähigkeits-Richtlinie (AU-RL) — Feststellung und Bescheinigung von Arbeitsunfähigkeit",
       "rechtsgrundlage": "§ 92 Abs. 1 Satz 2 Nr. 7 SGB V, Beschluss G-BA",
       "wichtig_fuer": ["Krankengeld", "Arbeitsunfähigkeit", "Nahtlosigkeit", "Aussteuerung"],
-      "pruef_hinweis": "Wurde AU lückenlos bescheinigt? Nahtlosigkeitsregelung § 49 Abs. 1 Nr. 5 SGB V beachten. Krankengeld-Berechnung: 70% Brutto, max. 90% Netto."
+      "pruef_hinweis": "Wurde AU lückenlos bescheinigt? Nahtlosigkeitsregelung § 49 Abs. 1 Nr. 5 SGB V beachten. Krankengeld-Berechnung: 70% Brutto, max. 90% Netto.",
+      "quelle": "https://www.g-ba.de/richtlinien/2/"
     },
     "AMRL_2026": {
       "datum": "01.01.2026",
@@ -233,7 +248,8 @@
       "thema": "Arzneimittel-Richtlinie — Verordnungsfähigkeit und Off-Label-Use",
       "rechtsgrundlage": "§ 92 Abs. 1 Satz 2 Nr. 6 SGB V, G-BA Beschluss",
       "wichtig_fuer": ["Arzneimittel", "Verordnung", "Wirtschaftlichkeit", "Off-Label"],
-      "pruef_hinweis": "Ablehnung nur mit konkreter Begründung nach Wirtschaftlichkeitsgebot § 12 SGB V. Off-Label bei schwerwiegender Erkrankung und fehlendem Therapiealternativ unter bestimmten Voraussetzungen zulässig (BSG-Rechtsprechung)."
+      "pruef_hinweis": "Ablehnung nur mit konkreter Begründung nach Wirtschaftlichkeitsgebot § 12 SGB V. Off-Label bei schwerwiegender Erkrankung und fehlendem Therapiealternativ unter bestimmten Voraussetzungen zulässig (BSG-Rechtsprechung).",
+      "quelle": "https://www.g-ba.de/richtlinien/3/"
     },
     "HiMi_RL_2026": {
       "datum": "01.01.2026",
@@ -241,7 +257,8 @@
       "thema": "Hilfsmittel-Richtlinie — Versorgung mit Hilfsmitteln nach § 33 SGB V",
       "rechtsgrundlage": "§ 33 SGB V, § 92 Abs. 1 Satz 2 Nr. 6 SGB V",
       "wichtig_fuer": ["Hilfsmittel", "Versorgung", "Genehmigung", "Widerspruch"],
-      "pruef_hinweis": "Hilfsmittel im Hilfsmittelverzeichnis gelistet? Ärztliche Verordnung liegt vor? Ablehnung nur bei fehlender medizinischer Notwendigkeit — Kasse muss Einzelfall prüfen."
+      "pruef_hinweis": "Hilfsmittel im Hilfsmittelverzeichnis gelistet? Ärztliche Verordnung liegt vor? Ablehnung nur bei fehlender medizinischer Notwendigkeit — Kasse muss Einzelfall prüfen.",
+      "quelle": "https://www.g-ba.de/richtlinien/13/"
     },
     "GKV_ZUSATZBEITRAG_2026": {
       "datum": "01.01.2026",
@@ -271,7 +288,8 @@
       "thema": "Dienstanweisung Asylverfahren — Anhörung und Entscheidungsfindung",
       "rechtsgrundlage": "§§ 24, 25 AsylG",
       "wichtig_fuer": ["Asylverfahren", "Anhörung", "Glaubwürdigkeit", "Herkunftsland"],
-      "pruef_hinweis": "Wurde eine persönliche Anhörung durchgeführt (§ 25 AsylG Pflicht)? Dolmetscher der richtigen Sprache? Protokoll vom Antragsteller unterschrieben? Rückübersetzung angeboten?"
+      "pruef_hinweis": "Wurde eine persönliche Anhörung durchgeführt (§ 25 AsylG Pflicht)? Dolmetscher der richtigen Sprache? Protokoll vom Antragsteller unterschrieben? Rückübersetzung angeboten?",
+      "quelle": "https://www.asyl.net/recht/gesetzestexte/weisungen/dienstanweisung-asyl-da-asyl"
     },
     "DA_Asyl_2026_02": {
       "datum": "01.01.2026",
@@ -279,7 +297,8 @@
       "thema": "Dienstanweisung Widerruf und Rücknahme — Überprüfung von Schutzstatus",
       "rechtsgrundlage": "§§ 73, 73b AsylG",
       "wichtig_fuer": ["Widerruf", "Rücknahme", "Schutzstatus", "Überprüfung"],
-      "pruef_hinweis": "Widerruf nur bei wesentlicher Veränderung der Sachlage. 3-Jahres-Frist für Regelüberprüfung. Individuelles Verfolgungsschicksal hat Vorrang vor allgemeiner Lagebewertung (BVerwG-Rspr.)."
+      "pruef_hinweis": "Widerruf nur bei wesentlicher Veränderung der Sachlage. 3-Jahres-Frist für Regelüberprüfung. Individuelles Verfolgungsschicksal hat Vorrang vor allgemeiner Lagebewertung (BVerwG-Rspr.).",
+      "quelle": "https://www.asyl.net/recht/gesetzestexte/weisungen/dienstanweisung-asyl-da-asyl"
     },
     "UKRAINE_ASYLBLG_2026": {
       "datum": "01.01.2026",
@@ -289,7 +308,7 @@
       "rechtsgrundlage": "AsylbLG i.V.m. § 24 AufenthG (Leistungsrechtsanpassungsgesetz)",
       "wichtig_fuer": ["Ukraine", "AsylbLG", "Leistungsrecht", "Gesundheitsversorgung"],
       "pruef_hinweis": "Nur Einreise NACH 01.04.2025 betroffen. Vorher Eingereiste bleiben im SGB II/XII. Reduzierte Gesundheitsversorgung nach §§ 4, 6 AsylbLG statt GKV-Vollversorgung. Übergangsregelungen beachten.",
-      "quelle": "https://www.asyl.net/view/gesetzesaenderungen-zum-jahreswechsel"
+      "quelle": "https://www.bmas.de/DE/Service/Presse/Pressemitteilungen/2025/leistungsrechtsanpassungsgesetz-im-kabinett-beschlossen.html"
     },
     "GEAS_2026": {
       "datum": "12.06.2026",
@@ -299,7 +318,7 @@
       "rechtsgrundlage": "AsylG, AufenthG, AsylbLG (GEAS-Umsetzungsgesetz)",
       "wichtig_fuer": ["EU-Asylrecht", "GEAS", "Grenzverfahren", "Screening", "Drittstaatenregelung"],
       "pruef_hinweis": "Ab 12.06.2026: EU-einheitliche Asylverfahren. Grenzverfahren für bestimmte Herkunftsländer. Screening-Verordnung am Grenzübertritt. Bescheide vor/nach Stichtag prüfen — unterschiedliche Rechtsgrundlagen.",
-      "quelle": "https://www.asyl.net/view/gesetzesaenderungen-zum-jahreswechsel"
+      "quelle": "https://www.bmi.bund.de/SharedDocs/pressemitteilungen/DE/2025/09/geas-umsetzung.html"
     }
   },
   "sozialhilfe": {
@@ -309,7 +328,8 @@
       "thema": "Empfehlungen des Deutschen Vereins zur Gewährung von Grundsicherung im Alter und bei Erwerbsminderung (§§ 41–46 SGB XII)",
       "rechtsgrundlage": "§§ 41–46 SGB XII",
       "wichtig_fuer": ["Grundsicherung", "Alter", "Erwerbsminderung", "Vermögensfreibetrag"],
-      "pruef_hinweis": "Vermögensfreibetrag 10.000€ (§ 1 Bürgergeldentzug-Verordnung analog). Einkommen korrekt berechnet? Unterkunftskosten angemessen? Mehrbedarf für Gehbehinderung (17% RS) berücksichtigt?"
+      "pruef_hinweis": "Vermögensfreibetrag 10.000€ (§ 1 Bürgergeldentzug-Verordnung analog). Einkommen korrekt berechnet? Unterkunftskosten angemessen? Mehrbedarf für Gehbehinderung (17% RS) berücksichtigt?",
+      "quelle": "https://www.deutscher-verein.de/themen-des-deutschen-vereins/themenunterseite/grundsicherung-im-alter-und-bei-erwerbsminderung/"
     },
     "DV_RL_2026_02": {
       "datum": "01.01.2026",
@@ -317,7 +337,8 @@
       "thema": "Empfehlungen zur Hilfe zum Lebensunterhalt (§§ 27–40 SGB XII)",
       "rechtsgrundlage": "§§ 27–40 SGB XII",
       "wichtig_fuer": ["Hilfe zum Lebensunterhalt", "Regelsatz", "Mehrbedarf", "Einmalige Beihilfen"],
-      "pruef_hinweis": "Regelsätze 2026 identisch mit SGB II (RS1=563€). Erstausstattung, Schwangerschaftsbekleidung als einmalige Beihilfen? Mehrbedarf für werdende Mütter (17% RS ab 13. Woche)."
+      "pruef_hinweis": "Regelsätze 2026 identisch mit SGB II (RS1=563€). Erstausstattung, Schwangerschaftsbekleidung als einmalige Beihilfen? Mehrbedarf für werdende Mütter (17% RS ab 13. Woche).",
+      "quelle": "https://www.deutscher-verein.de/empfehlungen-stellungnahmen/detail/empfehlungen-des-deutschen-vereins-fuer-den-einsatz-von-einkommen-und-vermoegen-in-der-sozialhilfe-sgb-xii-1/"
     }
   },
   "familienkasse": {
@@ -327,7 +348,8 @@
       "thema": "Dienstanweisung zum Kindergeld (DA-KG) — Anspruchsvoraussetzungen und Höhe",
       "rechtsgrundlage": "§§ 62–78 EStG, BKGG",
       "wichtig_fuer": ["Kindergeld", "Kinderzuschlag", "Zahlungszeitraum", "Rückforderung"],
-      "pruef_hinweis": "Kindergeld 2026: 259€/Kind/Monat. Anspruch ab Geburt bis 18 (bzw. 25 bei Ausbildung). Rückforderung nur unter Vertrauensschutzregeln § 37 Abs. 2 AO. Kinderzuschlag max. 297€."
+      "pruef_hinweis": "Kindergeld 2026: 259€/Kind/Monat. Anspruch ab Geburt bis 18 (bzw. 25 bei Ausbildung). Rückforderung nur unter Vertrauensschutzregeln § 37 Abs. 2 AO. Kinderzuschlag max. 297€.",
+      "quelle": "https://www.bzst.de/SharedDocs/Downloads/DE/Kindergeldberechtigte/da_kg_2024_randstrichfassung.html"
     },
     "DA_KG_2026_02": {
       "datum": "01.01.2026",
@@ -335,7 +357,8 @@
       "thema": "Dienstanweisung zum Kinderzuschlag (DA-KiZ)",
       "rechtsgrundlage": "§ 6a BKGG",
       "wichtig_fuer": ["Kinderzuschlag", "Einkommensprüfung", "Mindesteinkommensgrenze"],
-      "pruef_hinweis": "Mindesteinkommensgrenze: 900€ brutto (Paare), 600€ (Alleinerziehende). Bewilligungszeitraum 6 Monate. Kein Anspruch bei SGB II-Bezug."
+      "pruef_hinweis": "Mindesteinkommensgrenze: 900€ brutto (Paare), 600€ (Alleinerziehende). Bewilligungszeitraum 6 Monate. Kein Anspruch bei SGB II-Bezug.",
+      "quelle": "https://www.arbeitsagentur.de/datei/fw-bkgg_ba013284.pdf"
     }
   },
   "bafoeg": {
@@ -345,7 +368,8 @@
       "thema": "BAföG-Verwaltungsvorschriften — Einkommens- und Vermögensanrechnung",
       "rechtsgrundlage": "§§ 21–30 BAföG",
       "wichtig_fuer": ["BAföG", "Einkommen Eltern", "Vermögensfreibetrag", "Anrechnung"],
-      "pruef_hinweis": "Vermögensfreibetrag: 15.000€ (ab 30 Jahre: 45.000€). Einkommensfreibetrag Eltern korrekt berechnet? Aktualisierungsantrag bei Einkommensänderung der Eltern möglich (§ 24 Abs. 3 BAföG)."
+      "pruef_hinweis": "Vermögensfreibetrag: 15.000€ (ab 30 Jahre: 45.000€). Einkommensfreibetrag Eltern korrekt berechnet? Aktualisierungsantrag bei Einkommensänderung der Eltern möglich (§ 24 Abs. 3 BAföG).",
+      "quelle": "https://www.bafög.de/bafoeg/de/rechtsgrundlagen/allgemeine-verwaltungsvorschriften-zum-bafoeg-bafoeg-vwv/allgemeine-verwaltungsvorschriften-zum-bafoeg-bafoeg-vwv.html"
     },
     "BAfoegVwV_2026_02": {
       "datum": "01.01.2026",
@@ -353,7 +377,8 @@
       "thema": "BAföG-Verwaltungsvorschriften — Förderungshöchstdauer und Studiengangwechsel",
       "rechtsgrundlage": "§§ 15, 15a, 7 Abs. 3 BAföG",
       "wichtig_fuer": ["Förderungsdauer", "Studiengangwechsel", "Verlängerung", "Leistungsnachweis"],
-      "pruef_hinweis": "Studiengangwechsel nur aus wichtigem Grund bis 4. Semester. Leistungsnachweis nach § 48 BAföG (nach 4. Semester). Verlängerungsgründe: Krankheit, Schwangerschaft, Gremientätigkeit, Behinderung."
+      "pruef_hinweis": "Studiengangwechsel nur aus wichtigem Grund bis 4. Semester. Leistungsnachweis nach § 48 BAföG (nach 4. Semester). Verlängerungsgründe: Krankheit, Schwangerschaft, Gremientätigkeit, Behinderung.",
+      "quelle": "https://www.bafög.de/bafoeg/de/rechtsgrundlagen/allgemeine-verwaltungsvorschriften-zum-bafoeg-bafoeg-vwv/allgemeine-verwaltungsvorschriften-zum-bafoeg-bafoeg-vwv.html"
     }
   },
   "eingliederungshilfe": {
@@ -363,7 +388,8 @@
       "thema": "Richtlinien zur Bedarfsermittlung in der Eingliederungshilfe — ICF-basierte Instrumente",
       "rechtsgrundlage": "§§ 117–122 SGB IX Teil 2",
       "wichtig_fuer": ["Bedarfsermittlung", "ICF", "Teilhabeplan", "Persönliches Budget"],
-      "pruef_hinweis": "Bedarfsermittlung nach ICF durchgeführt? Alle Lebensbereiche berücksichtigt? Wunsch- und Wahlrecht des Leistungsberechtigten beachtet (§ 104 SGB IX)? Gesamtplanverfahren § 121 SGB IX eingehalten?"
+      "pruef_hinweis": "Bedarfsermittlung nach ICF durchgeführt? Alle Lebensbereiche berücksichtigt? Wunsch- und Wahlrecht des Leistungsberechtigten beachtet (§ 104 SGB IX)? Gesamtplanverfahren § 121 SGB IX eingehalten?",
+      "quelle": "https://umsetzungsbegleitung-bthg.de/bthg-kompass/bk-bedarfsermittlung-icf/"
     },
     "EH_FREIBETRAEGE_2026": {
       "datum": "01.01.2026",
@@ -383,7 +409,8 @@
       "thema": "Handlungsanleitung zur Feststellung von Arbeitsunfällen und Berufskrankheiten",
       "rechtsgrundlage": "§§ 7, 8, 9 SGB VII",
       "wichtig_fuer": ["Arbeitsunfall", "Wegeunfall", "Berufskrankheit", "Kausalität"],
-      "pruef_hinweis": "Unfallkausalität (haftungsbegründende + haftungsausfüllende Kausalität) nachvollziehbar geprüft? Wegeunfall: direkter Weg? Berufskrankheit: in BK-Liste enthalten oder wie-BK nach § 9 Abs. 2 SGB VII?"
+      "pruef_hinweis": "Unfallkausalität (haftungsbegründende + haftungsausfüllende Kausalität) nachvollziehbar geprüft? Wegeunfall: direkter Weg? Berufskrankheit: in BK-Liste enthalten oder wie-BK nach § 9 Abs. 2 SGB VII?",
+      "quelle": "https://publikationen.dguv.de/versicherungleistungen/rehabilitation/3057/grundlagen-der-begutachtung-von-arbeitsunfaellen-erlaeuterungen-fuer-sachverstaendige"
     }
   },
   "wohngeld": {
@@ -393,7 +420,8 @@
       "thema": "Verwaltungsvorschriften zum Wohngeldgesetz (WoGG-VwV) — Einkommensermittlung und Mietenstufen",
       "rechtsgrundlage": "§§ 12–18 WoGG, WoGG-VwV",
       "wichtig_fuer": ["Wohngeld", "Mietenstufe", "Einkommen", "Haushaltsgröße"],
-      "pruef_hinweis": "Richtige Mietenstufe der Gemeinde? Einkommen korrekt ermittelt (Brutto - Pauschalen)? Heizkosten-Komponente berücksichtigt? Klimabonus-Komponente berücksichtigt?"
+      "pruef_hinweis": "Richtige Mietenstufe der Gemeinde? Einkommen korrekt ermittelt (Brutto - Pauschalen)? Heizkosten-Komponente berücksichtigt? Klimabonus-Komponente berücksichtigt?",
+      "quelle": "https://www.verwaltungsvorschriften-im-internet.de/bsvwvbund_28062017_SWII4.htm"
     }
   },
   "elterngeld": {
@@ -403,7 +431,8 @@
       "thema": "Verwaltungsvorschriften zum BEEG — Berechnung Elterngeld und ElterngeldPlus",
       "rechtsgrundlage": "§§ 1–4, 4a–4d BEEG",
       "wichtig_fuer": ["Elterngeld", "ElterngeldPlus", "Partnerschaftsbonus", "Bemessungszeitraum"],
-      "pruef_hinweis": "Bemessungszeitraum korrekt (12 Monate vor Geburt des Kindes)? Selbständige: Steuerbescheid des Vorjahres. Elterngeld: 65-67% des Einkommens (min. 300€, max. 1800€). ElterngeldPlus: halber Betrag, doppelte Dauer."
+      "pruef_hinweis": "Bemessungszeitraum korrekt (12 Monate vor Geburt des Kindes)? Selbständige: Steuerbescheid des Vorjahres. Elterngeld: 65-67% des Einkommens (min. 300€, max. 1800€). ElterngeldPlus: halber Betrag, doppelte Dauer.",
+      "quelle": "https://www.bmbfsfj.bund.de/resource/blob/243236/6d06137220a52d1a18905493c3ab6199/richtlinien-zum-beeg-data.pdf"
     },
     "BEEG_2026_EINKOMMENSGRENZE": {
       "datum": "01.01.2026",
@@ -423,7 +452,8 @@
       "thema": "Versorgungsmedizin-Verordnung (VersMedV) — GdB-Feststellung und Merkzeichen",
       "rechtsgrundlage": "§ 152 SGB IX, VersMedV Anlage (Versorgungsmedizinische Grundsätze)",
       "wichtig_fuer": ["GdB", "Schwerbehinderung", "Merkzeichen", "Nachteilsausgleich"],
-      "pruef_hinweis": "GdB nach Versorgungsmedizinischen Grundsätzen korrekt gebildet? Bei Mehrfachbehinderung: Gesamt-GdB nicht addieren, sondern Gesamtauswirkung bewerten. Merkzeichen (G, aG, B, H, Bl, TBl, RF) korrekt zuerkannt?"
+      "pruef_hinweis": "GdB nach Versorgungsmedizinischen Grundsätzen korrekt gebildet? Bei Mehrfachbehinderung: Gesamt-GdB nicht addieren, sondern Gesamtauswirkung bewerten. Merkzeichen (G, aG, B, H, Bl, TBl, RF) korrekt zuerkannt?",
+      "quelle": "https://www.gesetze-im-internet.de/versmedv/"
     }
   },
   "unterhaltsvorschuss": {
@@ -447,7 +477,7 @@
       "rechtsgrundlage": "§ 24 Abs. 4 SGB VIII (GaFöG)",
       "wichtig_fuer": ["Ganztagsbetreuung", "Grundschule", "Rechtsanspruch", "Erstklässler"],
       "pruef_hinweis": "Ab Schuljahr 2026/27: Rechtsanspruch auf ganztägige Förderung für Kinder der 1. Klassenstufe. Schrittweiser Ausbau bis 2029/30 (alle 4 Stufen). Anspruch auf mindestens 8 Stunden werktags inkl. Unterricht. Bei Ablehnung: Widerspruch nach § 36 SGB X.",
-      "quelle": "https://www.lebenshilfe.de/informieren/kinder/reform-der-kinder-und-jugendhilfe"
+      "quelle": "https://www.bmbfsfj.bund.de/bmbfsfj/ministerium/gesetze/gesetz-rechtsanspruch-ganztagsbetreuung-grundschulen-178966"
     }
   },
   "_meta_quelle": "PDFs aus Ordner 'sozial Gestze' (FachlicheWeisungen 1–7), Stand Extraktion 2025. Erweitert um DRV GRA, Pflegekasse BRi, GKV-Richtlinien, BAMF DA, Sozialhilfe DV, DA-KG, BAföG-VwV, EH-RL, DGUV-RL, WoGG-VwV, BEEG-VwV, VersMedV (Stand 2026-03). Legal-Watchdog-Update 11.03.2026: BA-Grundsicherungsgeld, Rentenwert, GKV-Zusatzbeitrag, BEEP, Elterngeld-Grenze, EH-Freibeträge, GEAS, Unterhaltsvorschuss, Ganztag.",
