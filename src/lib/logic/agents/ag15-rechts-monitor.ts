@@ -104,31 +104,72 @@ export const QUELLEN = {
     { name: "BAMF Asyl",               url: "https://www.bamf.de/DE/Themen/AsylFluechtlingsschutz/asylfluechtlingsschutz-node.html", rechtsgebiet: "ASYL" },
   ],
   gesetze: [
-    { name: "SGB II",  url: "https://www.gesetze-im-internet.de/sgb_2/",       rechtsgebiet: "SGB_II" },
-    { name: "SGB V",   url: "https://www.gesetze-im-internet.de/sgb_5/",       rechtsgebiet: "SGB_V" },
-    { name: "SGB IX",  url: "https://www.gesetze-im-internet.de/sgb_9_2018/",  rechtsgebiet: "SGB_IX" },
-    { name: "SGB XI",  url: "https://www.gesetze-im-internet.de/sgb_11/",      rechtsgebiet: "SGB_XI" },
-    { name: "SGB XII", url: "https://www.gesetze-im-internet.de/sgb_12/",      rechtsgebiet: "SGB_XII" },
-    { name: "BAföG",   url: "https://www.gesetze-im-internet.de/baf_g/",       rechtsgebiet: "BAFOEG" },
-    { name: "WoGG",    url: "https://www.gesetze-im-internet.de/wogg/",        rechtsgebiet: "WOHNGELD" },
+    // SGB-Bücher (alle 13)
+    { name: "SGB I",    url: "https://www.gesetze-im-internet.de/sgb_1/",       rechtsgebiet: "SGB_I" },
+    { name: "SGB II",   url: "https://www.gesetze-im-internet.de/sgb_2/",       rechtsgebiet: "SGB_II" },
+    { name: "SGB III",  url: "https://www.gesetze-im-internet.de/sgb_3/",       rechtsgebiet: "SGB_III" },
+    { name: "SGB IV",   url: "https://www.gesetze-im-internet.de/sgb_4/",       rechtsgebiet: "SGB_IV" },
+    { name: "SGB V",    url: "https://www.gesetze-im-internet.de/sgb_5/",       rechtsgebiet: "SGB_V" },
+    { name: "SGB VI",   url: "https://www.gesetze-im-internet.de/sgb_6/",       rechtsgebiet: "SGB_VI" },
+    { name: "SGB VII",  url: "https://www.gesetze-im-internet.de/sgb_7/",       rechtsgebiet: "SGB_VII" },
+    { name: "SGB VIII", url: "https://www.gesetze-im-internet.de/sgb_8/",       rechtsgebiet: "SGB_VIII" },
+    { name: "SGB IX",   url: "https://www.gesetze-im-internet.de/sgb_9_2018/",  rechtsgebiet: "SGB_IX" },
+    { name: "SGB X",    url: "https://www.gesetze-im-internet.de/sgb_10/",      rechtsgebiet: "SGB_X" },
+    { name: "SGB XI",   url: "https://www.gesetze-im-internet.de/sgb_11/",      rechtsgebiet: "SGB_XI" },
+    { name: "SGB XII",  url: "https://www.gesetze-im-internet.de/sgb_12/",      rechtsgebiet: "SGB_XII" },
+    { name: "SGB XIV",  url: "https://www.gesetze-im-internet.de/sgb_14/",      rechtsgebiet: "SGB_XIV" },
+    // Nebengesetze
+    { name: "BAföG",    url: "https://www.gesetze-im-internet.de/baf_g/",       rechtsgebiet: "BAFOEG" },
+    { name: "WoGG",     url: "https://www.gesetze-im-internet.de/wogg/",        rechtsgebiet: "WOHNGELD" },
+    { name: "BEEG",     url: "https://www.gesetze-im-internet.de/beeg/",        rechtsgebiet: "BEEG" },
+    { name: "UVG",      url: "https://www.gesetze-im-internet.de/uhvorschg/",   rechtsgebiet: "UVG" },
+    { name: "AsylG",    url: "https://www.gesetze-im-internet.de/asylvfg_1992/", rechtsgebiet: "ASYL" },
+    { name: "AsylbLG",  url: "https://www.gesetze-im-internet.de/asylblg/",     rechtsgebiet: "ASYL" },
+    { name: "BKGG",     url: "https://www.gesetze-im-internet.de/bkgg_1996/",   rechtsgebiet: "KINDERGELD" },
+    // Übergreifend
     { name: "BMAS Gesetze", url: "https://www.bmas.de/DE/Service/Gesetze-und-Gesetzesvorhaben/gesetze-und-gesetzesvorhaben.html", rechtsgebiet: "ALLGEMEIN" },
   ],
   weisungen: [
+    // Bundesagentur für Arbeit (SGB II + III)
     { name: "BA Weisungen SGB II",     url: "https://www.arbeitsagentur.de/ueber-uns/veroeffentlichungen/gesetze-und-weisungen/sgbii-grundsicherung", traeger: "jobcenter", rechtsgebiet: "SGB_II" },
     { name: "BA Weisungen SGB III",    url: "https://www.arbeitsagentur.de/ueber-uns/veroeffentlichungen/gesetze-und-weisungen/sgbiii-arbeitsfoerderung", traeger: "arbeitsagentur", rechtsgebiet: "SGB_III" },
+    // Kranken- und Pflegeversicherung
     { name: "MDS Begutachtungs-RL",    url: "https://md-bund.de/richtlinien-publikationen/richtlinien/grundlagen-fuer-begutachtungen-und-qualitaetspruefungen.html", traeger: "pflegekasse", rechtsgebiet: "SGB_XI" },
     { name: "GKV Richtlinien",         url: "https://www.gkv-spitzenverband.de/krankenversicherung/krankenversicherung.jsp", traeger: "krankenkasse", rechtsgebiet: "SGB_V" },
+    // Asyl
     { name: "BAMF Verfahrenssteuerung", url: "https://www.bamf.de/DE/Themen/AsylFluechtlingsschutz/VerfahresteuerungQualitaetssicherung/verfahresteuerungqualitaetssicherung-node.html", traeger: "bamf", rechtsgebiet: "ASYL" },
+    // Rente
     { name: "DRV rvRecht GRA",        url: "https://rvrecht.deutsche-rentenversicherung.de/", traeger: "drv", rechtsgebiet: "SGB_VI" },
+    // Kindergeld
     { name: "BZSt DA-KG Kindergeld",  url: "https://www.bzst.de/SharedDocs/Downloads/DE/Kindergeldberechtigte/da_kg_2024_randstrichfassung.html", traeger: "familienkasse", rechtsgebiet: "KINDERGELD" },
     { name: "BA Weisungen BKGG/KiZ",  url: "https://www.arbeitsagentur.de/ueber-uns/veroeffentlichungen/gesetze-und-weisungen/sonstige-rechtsnormen", traeger: "familienkasse", rechtsgebiet: "KINDERGELD" },
+    // Sozialhilfe (SGB XII)
+    { name: "DV Empfehlungen SGB XII", url: "https://www.deutscher-verein.de/de/empfehlungen-stellungnahmen/empfehlungen/sozialhilfe-grundsicherung", traeger: "sozialhilfe", rechtsgebiet: "SGB_XII" },
+    // Unfallversicherung (SGB VII)
+    { name: "DGUV Vorschriften",       url: "https://www.dguv.de/de/praevention/vorschriften-regeln/index.jsp", traeger: "unfallversicherung", rechtsgebiet: "SGB_VII" },
+    // Eingliederungshilfe (SGB IX)
+    { name: "BAGüS Empfehlungen",      url: "https://www.bagues.de/de/veroeffentlichungen/empfehlungen/", traeger: "eingliederungshilfe", rechtsgebiet: "SGB_IX" },
+    // Wohngeld
+    { name: "BMI Wohngeld-Infos",      url: "https://www.bmwsb.bund.de/Webs/BMWSB/DE/themen/stadt-wohnen/wohnraumfoerderung/wohngeld/wohngeld-node.html", traeger: "wohngeld", rechtsgebiet: "WOHNGELD" },
+    // Elterngeld
+    { name: "BMFSFJ Elterngeld",       url: "https://www.bmfsfj.de/bmfsfj/themen/familie/familienleistungen/elterngeld", traeger: "elterngeld", rechtsgebiet: "BEEG" },
+    // Unterhaltsvorschuss
+    { name: "BMFSFJ UVG",             url: "https://www.bmfsfj.de/bmfsfj/themen/familie/familienleistungen/unterhaltsvorschuss", traeger: "unterhaltsvorschuss", rechtsgebiet: "UVG" },
+    // Versorgungsamt / Soziale Entschädigung (SGB XIV)
+    { name: "BMAS Soziale Entschädigung", url: "https://www.bmas.de/DE/Soziales/Soziale-Entschaedigung/soziale-entschaedigung.html", traeger: "versorgungsamt", rechtsgebiet: "SGB_XIV" },
+    // Jugendamt (SGB VIII)
+    { name: "BMFSFJ Kinder- und Jugendhilfe", url: "https://www.bmfsfj.de/bmfsfj/themen/kinder-und-jugend", traeger: "jugendamt", rechtsgebiet: "SGB_VIII" },
   ],
   struktur: [
     { name: "Bundesgesetzblatt",       url: "https://www.bgbl.de/xaver/bgbl/start.xav", typ: "gesetzblatt" },
     { name: "BMAS Gesetze & Vorhaben", url: "https://www.bmas.de/DE/Service/Gesetze-und-Gesetzesvorhaben/gesetze-und-gesetzesvorhaben.html", typ: "ministerium" },
     { name: "Bundesrat Tagesordnung",  url: "https://www.bundesrat.de/DE/plenum/to-plenum/to-plenum-node.html", typ: "bundesrat" },
     { name: "Bundestag Gesetze",       url: "https://www.bundestag.de/gesetze", typ: "bundestag" },
-    { name: "gesetze-im-internet SGB II", url: "https://www.gesetze-im-internet.de/sgb_2/", typ: "gesetz" },
+    { name: "gesetze-im-internet SGB II",  url: "https://www.gesetze-im-internet.de/sgb_2/", typ: "gesetz" },
+    { name: "gesetze-im-internet SGB V",   url: "https://www.gesetze-im-internet.de/sgb_5/", typ: "gesetz" },
+    { name: "gesetze-im-internet SGB VI",  url: "https://www.gesetze-im-internet.de/sgb_6/", typ: "gesetz" },
+    { name: "gesetze-im-internet SGB XI",  url: "https://www.gesetze-im-internet.de/sgb_11/", typ: "gesetz" },
+    { name: "gesetze-im-internet SGB XIV", url: "https://www.gesetze-im-internet.de/sgb_14/", typ: "gesetz" },
   ],
 };
 
@@ -519,7 +560,7 @@ async function runPhase3bValidierung(
     for (const e of eintraege) {
       for (const r of e.rechtsbasis) {
         // Extrahiere Gesetz aus Rechtsbasis (z.B. "§ 22 SGB II" → "sgb_2")
-        const match = String(r).match(/SGB\s*(II|III|IV|V|VI|VII|VIII|IX|X|XI|XII)/i);
+        const match = String(r).match(/SGB\s*(II|III|IV|V|VI|VII|VIII|IX|X|XI|XII|XIV)/i);
         if (match) paragraphen.add(match[0].replace(/\s+/g, " "));
       }
     }
@@ -527,9 +568,11 @@ async function runPhase3bValidierung(
     // Stichproben-Fetch von gesetze-im-internet für Kontext
     const gesetzesKontext: string[] = [];
     const sgbMapping: Record<string, string> = {
-      "SGB II": "sgb_2", "SGB III": "sgb_3", "SGB V": "sgb_5",
-      "SGB VI": "sgb_6", "SGB IX": "sgb_9_2018", "SGB X": "sgb_10",
-      "SGB XI": "sgb_11", "SGB XII": "sgb_12",
+      "SGB I": "sgb_1", "SGB II": "sgb_2", "SGB III": "sgb_3",
+      "SGB IV": "sgb_4", "SGB V": "sgb_5", "SGB VI": "sgb_6",
+      "SGB VII": "sgb_7", "SGB VIII": "sgb_8", "SGB IX": "sgb_9_2018",
+      "SGB X": "sgb_10", "SGB XI": "sgb_11", "SGB XII": "sgb_12",
+      "SGB XIV": "sgb_14",
     };
 
     const uniqueGesetze = new Set<string>();
@@ -786,6 +829,77 @@ const BEKANNTE_REFORMEN: Array<{
     was_neu: "§ 22 SGB II n.F. (Vermieter-Auskunftspflicht)",
     gesetz: "SGB II",
     betroffene_bereiche: ["BA_021", "BA_004", "content/behoerdenfehler_logik.json"],
+  },
+  // SGB XIV — Soziales Entschädigungsrecht (bereits in Kraft seit 01.01.2024)
+  {
+    stichwort: ["BVG aufgehoben", "Bundesversorgungsgesetz abgelöst", "OEG aufgehoben", "SGB XIV ersetzt BVG"],
+    typ: "neues_gesetz",
+    was_alt: "BVG/OEG",
+    was_neu: "SGB XIV",
+    gesetz: "SGB XIV",
+    betroffene_bereiche: ["VA_", "content/behoerdenfehler_logik.json", "content/versorgungsaemter_quellen.md"],
+  },
+  {
+    stichwort: ["Grundrente Entschädigung", "Entschädigungszahlung erhöht", "SGB XIV Anpassung", "Entschädigungsbeträge"],
+    typ: "paragraph_aenderung",
+    was_alt: "§§ 83-84 SGB XIV (Entschädigungszahlung bisherige Beträge)",
+    was_neu: "§§ 83-84 SGB XIV (Entschädigungszahlung angepasste Beträge)",
+    gesetz: "SGB XIV",
+    betroffene_bereiche: ["VA_012", "content/behoerdenfehler_logik.json"],
+  },
+  // Pflegereform
+  {
+    stichwort: ["Pflegereform", "Pflege-Kompaktgesetz", "Pflegegeld erhöht", "Pflegesachleistung erhöht"],
+    typ: "paragraph_aenderung",
+    was_alt: "§§ 36-37 SGB XI (Pflegegeld/Sachleistung bisherige Beträge)",
+    was_neu: "§§ 36-37 SGB XI (Pflegegeld/Sachleistung neue Beträge)",
+    gesetz: "SGB XI",
+    betroffene_bereiche: ["PK_", "content/behoerdenfehler_logik.json"],
+  },
+  // Kindergeld / Kinderzuschlag
+  {
+    stichwort: ["Kindergeld erhöht", "Kinderzuschlag erhöht", "Kindergrundsicherung", "Kindergeld Anpassung"],
+    typ: "paragraph_aenderung",
+    was_alt: "§ 66 EStG / § 6a BKGG (Kindergeld/KiZ bisherige Beträge)",
+    was_neu: "§ 66 EStG / § 6a BKGG (Kindergeld/KiZ neue Beträge)",
+    gesetz: "EStG/BKGG",
+    betroffene_bereiche: ["FK_", "content/behoerdenfehler_logik.json"],
+  },
+  // Rentenanpassung (jährlich)
+  {
+    stichwort: ["Rentenanpassung", "Rentenwert erhöht", "neuer Rentenwert", "Rentenerhöhung"],
+    typ: "paragraph_aenderung",
+    was_alt: "§ 68 SGB VI (Rentenwert bisheriger Wert)",
+    was_neu: "§ 68 SGB VI (Rentenwert neuer Wert)",
+    gesetz: "SGB VI",
+    betroffene_bereiche: ["DRV_", "content/behoerdenfehler_logik.json"],
+  },
+  // Wohngeldreform
+  {
+    stichwort: ["Wohngeld erhöht", "Wohngeldreform", "WoGG Anpassung", "Wohngeldstufen"],
+    typ: "paragraph_aenderung",
+    was_alt: "§§ 19-20 WoGG (Wohngeld bisherige Beträge)",
+    was_neu: "§§ 19-20 WoGG (Wohngeld neue Beträge)",
+    gesetz: "WoGG",
+    betroffene_bereiche: ["WG_", "content/behoerdenfehler_logik.json"],
+  },
+  // BAföG-Anpassung
+  {
+    stichwort: ["BAföG-Reform", "BAföG erhöht", "BAföG Anpassung", "Freibeträge BAföG"],
+    typ: "paragraph_aenderung",
+    was_alt: "§§ 12-13 BAföG (Bedarfssätze/Freibeträge bisherig)",
+    was_neu: "§§ 12-13 BAföG (Bedarfssätze/Freibeträge neu)",
+    gesetz: "BAföG",
+    betroffene_bereiche: ["BAF_", "content/behoerdenfehler_logik.json"],
+  },
+  // AsylbLG Anpassung
+  {
+    stichwort: ["AsylbLG Leistungssätze", "Asylbewerberleistungen angepasst", "AsylbLG Reform"],
+    typ: "paragraph_aenderung",
+    was_alt: "§§ 3-3a AsylbLG (Leistungssätze bisherig)",
+    was_neu: "§§ 3-3a AsylbLG (Leistungssätze neu)",
+    gesetz: "AsylbLG",
+    betroffene_bereiche: ["BAMF_", "content/behoerdenfehler_logik.json"],
   },
 ];
 
