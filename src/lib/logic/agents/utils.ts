@@ -256,7 +256,7 @@ export function estimateTotalCost(allTokens: TokenUsage[]): number {
 // Safe Execute Wrapper
 // ---------------------------------------------------------------------------
 
-export const RETRYABLE_PATTERNS = ["overloaded", "529", "rate_limit", "529 Overloaded", "credit balance is too low"];
+export const RETRYABLE_PATTERNS = ["overloaded", "529", "rate_limit", "529 Overloaded"];
 
 export function isRetryableError(msg: string): boolean {
   return RETRYABLE_PATTERNS.some((p) => msg.includes(p));

@@ -187,104 +187,152 @@ async function execute(ctx: AgentContext): Promise<AgentResult<AnalyseResult>> {
   const useExtendedThinking = ctx.routingStufe === "NOTFALL";
 
   // Tool-Use Loop (max 3 Iterationen — jede braucht ~15-25s API-Call)
-  for (let i = 0; i < 3; i++) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const createParams: any = {
-      model,
-      max_tokens: useExtendedThinking ? 16000 : 2048,
-      system: getSystemPrompt("AG02"),
-      tools: TOOLS,
-      messages,
-    };
-    if (useExtendedThinking) {
-      createParams.thinking = { type: "enabled", budget_tokens: 8000 };
-      // interleaved-thinking-2025-05-14 gilt nur für Claude 3.7 Sonnet.
-      // Claude 4 Modelle (opus-4-x, sonnet-4-x) unterstützen thinking nativ ohne Beta-Header.
-      if (model.includes("3-7") || model.includes("3-5")) {
-        createParams.betas = ["interleaved-thinking-2025-05-14"];
-      }
-    }
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const response: Anthropic.Message = await anthropic.messages.create(createParams as any);
-
-    const tokens = extractTokenUsage(response);
-    totalTokens = mergeTokenUsage(totalTokens, tokens);
-
-    messages.push({ role: "assistant", content: response.content });
-
-    if (response.stop_reason === "end_turn") {
-      // Auffälligkeiten aus dem letzten Text-Block extrahieren (mit Fallback)
-      const textBlock = response.content.find((b) => b.type === "text");
-      if (textBlock && textBlock.type === "text") {
-        const parsed = extractJsonSafe<{ auffaelligkeiten?: string[] }>(
-          textBlock.text,
-          {}
-        );
-        if (Array.isArray(parsed.auffaelligkeiten)) {
-          auffaelligkeiten = parsed.auffaelligkeiten;
+  let apiAvailable = true;
+  try {
+    for (let i = 0; i < 3; i++) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const createParams: any = {
+        model,
+        max_tokens: useExtendedThinking ? 16000 : 2048,
+        system: getSystemPrompt("AG02"),
+        tools: TOOLS,
+        messages,
+      };
+      if (useExtendedThinking) {
+        createParams.thinking = { type: "enabled", budget_tokens: 8000 };
+        // interleaved-thinking-2025-05-14 gilt nur für Claude 3.7 Sonnet.
+        // Claude 4 Modelle (opus-4-x, sonnet-4-x) unterstützen thinking nativ ohne Beta-Header.
+        if (model.includes("3-7") || model.includes("3-5")) {
+          createParams.betas = ["interleaved-thinking-2025-05-14"];
         }
       }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const response: Anthropic.Message = await anthropic.messages.create(createParams as any);
 
-      // Retry nur wenn das Tool NIE aufgerufen wurde (LLM hat Tool-Call übersprungen).
-      // Wenn das Tool aufgerufen wurde und 0 Treffer liefert, ist das ein valides Ergebnis
-      // — nicht jeder Bescheid hat Fehler. Aggressives Retry erzwingt sonst False Positives.
-      if (!katalogToolCalled && i < 2) {
-        messages.push({ role: "user", content:
-          "Du hast suche_fehlerkatalog noch nicht aufgerufen. " +
-          "Rufe JETZT suche_fehlerkatalog auf mit 4-6 PRÄZISEN Stichwörtern aus dem Bescheid " +
-          "(konkrete Paragraphen und Leistungsarten die im Text vorkommen). " +
-          "Gib auch auffaelligkeiten als JSON zurück."
-        });
-        continue;
+      const tokens = extractTokenUsage(response);
+      totalTokens = mergeTokenUsage(totalTokens, tokens);
+
+      messages.push({ role: "assistant", content: response.content });
+
+      if (response.stop_reason === "end_turn") {
+        // Auffälligkeiten aus dem letzten Text-Block extrahieren (mit Fallback)
+        const textBlock = response.content.find((b) => b.type === "text");
+        if (textBlock && textBlock.type === "text") {
+          const parsed = extractJsonSafe<{ auffaelligkeiten?: string[] }>(
+            textBlock.text,
+            {}
+          );
+          if (Array.isArray(parsed.auffaelligkeiten)) {
+            auffaelligkeiten = parsed.auffaelligkeiten;
+          }
+        }
+
+        // Retry nur wenn das Tool NIE aufgerufen wurde (LLM hat Tool-Call übersprungen).
+        // Wenn das Tool aufgerufen wurde und 0 Treffer liefert, ist das ein valides Ergebnis
+        // — nicht jeder Bescheid hat Fehler. Aggressives Retry erzwingt sonst False Positives.
+        if (!katalogToolCalled && i < 2) {
+          messages.push({ role: "user", content:
+            "Du hast suche_fehlerkatalog noch nicht aufgerufen. " +
+            "Rufe JETZT suche_fehlerkatalog auf mit 4-6 PRÄZISEN Stichwörtern aus dem Bescheid " +
+            "(konkrete Paragraphen und Leistungsarten die im Text vorkommen). " +
+            "Gib auch auffaelligkeiten als JSON zurück."
+          });
+          continue;
+        }
+        break;
       }
-      break;
-    }
-    if (response.stop_reason !== "tool_use") break;
+      if (response.stop_reason !== "tool_use") break;
 
-    const toolResults = await processToolBlocks(response.content, {
-      suche_fehlerkatalog: {
-        execute: async (input) => {
-          katalogToolCalled = true;
-          // Prefixes aller relevanten Träger sammeln (Haupt + weitere Rechtsgebiete)
-          const prefixes: string[] = [];
-          for (const tKey of allTraegerKeys) {
-            const tp = TRAEGER_TO_PREFIX[tKey];
-            if (tp) prefixes.push(...tp);
-          }
-          const fehler = await executeSucheFehlerkatalogMitDb(prefixes, input.stichworten as string[]);
-          for (const f of fehler) {
-            if (!gefundeneIds.has(f.id)) {
-              gefundeneIds.add(f.id);
-              gefundeneFehler.push(f);
+      const toolResults = await processToolBlocks(response.content, {
+        suche_fehlerkatalog: {
+          execute: async (input) => {
+            katalogToolCalled = true;
+            // Prefixes aller relevanten Träger sammeln (Haupt + weitere Rechtsgebiete)
+            const prefixes: string[] = [];
+            for (const tKey of allTraegerKeys) {
+              const tp = TRAEGER_TO_PREFIX[tKey];
+              if (tp) prefixes.push(...tp);
             }
-          }
-          return JSON.stringify(
-            fehler.map((f) => ({
-              id: f.id,
-              titel: f.titel,
-              severity: f.severity,
-              musterschreiben_hinweis: f.musterschreiben_hinweis,
-              rechtsbasis: f.rechtsbasis,
-            }))
-          );
+            const fehler = await executeSucheFehlerkatalogMitDb(prefixes, input.stichworten as string[]);
+            for (const f of fehler) {
+              if (!gefundeneIds.has(f.id)) {
+                gefundeneIds.add(f.id);
+                gefundeneFehler.push(f);
+              }
+            }
+            return JSON.stringify(
+              fehler.map((f) => ({
+                id: f.id,
+                titel: f.titel,
+                severity: f.severity,
+                musterschreiben_hinweis: f.musterschreiben_hinweis,
+                rechtsbasis: f.rechtsbasis,
+              }))
+            );
+          },
         },
-      },
-      get_weisungen: {
-        execute: (input) => executeGetWeisungen(input.traeger as string),
-      },
-      db_read: {
-        execute: async (input) => {
-          const dbResult = await executeDbRead(
-            input.tabelle as string,
-            input.filter as Record<string, string> | undefined,
-            input.limit as number | undefined,
-          );
-          return JSON.stringify(dbResult);
+        get_weisungen: {
+          execute: (input) => executeGetWeisungen(input.traeger as string),
         },
-      },
-    });
+        db_read: {
+          execute: async (input) => {
+            const dbResult = await executeDbRead(
+              input.tabelle as string,
+              input.filter as Record<string, string> | undefined,
+              input.limit as number | undefined,
+            );
+            return JSON.stringify(dbResult);
+          },
+        },
+      });
 
-    messages.push({ role: "user", content: toolResults });
+      messages.push({ role: "user", content: toolResults });
+    }
+  } catch (err) {
+    apiAvailable = false;
+    console.warn("[AG02] Claude API nicht verfügbar → Fehlerkatalog-Direktsuche:", err instanceof Error ? err.message.slice(0, 120) : String(err));
+  }
+
+  // Fallback: Wenn Claude API ausgefallen und Fehlerkatalog noch nicht durchsucht,
+  // Stichwörter aus dem Bescheid-Text extrahieren und direkt suchen
+  if (!apiAvailable && !katalogToolCalled && allTraegerKeys.size > 0) {
+    try {
+      katalogToolCalled = true;
+      const prefixes: string[] = [];
+      for (const tKey of allTraegerKeys) {
+        const tp = TRAEGER_TO_PREFIX[tKey];
+        if (tp) prefixes.push(...tp);
+      }
+      // Stichwörter heuristisch aus dem Bescheid extrahieren
+      const stichwortPatterns = [
+        /regelbedarf/i, /kosten\s+der\s+unterkunft|kdu/i, /heizkosten/i,
+        /mehrbedarf/i, /sanktion/i, /aufhebung/i, /erstattung/i,
+        /rückforderung/i, /aufrechnung/i, /anrechnung/i, /einkommen/i,
+        /vermögen/i, /freibetrag/i, /erwerbstätigen/i, /mitwirkung/i,
+        /eingliederung/i, /leistungsminderung/i, /bewilligungszeitraum/i,
+        /bescheid/i, /widerspruch/i, /anhörung/i, /rechtsbehelfsbelehrung/i,
+        /pflegegrad/i, /krankengeld/i, /rente/i, /kindergeld/i, /wohngeld/i,
+        /bürgergeld|grundsicherungsgeld/i, /nebenkost/i, /warmwasser/i,
+      ];
+      const docLower = ctx.documentText.slice(0, 8000).toLowerCase();
+      const stichworten: string[] = [];
+      for (const pattern of stichwortPatterns) {
+        const match = docLower.match(pattern);
+        if (match) stichworten.push(match[0]);
+      }
+      if (stichworten.length > 0) {
+        const fehler = await executeSucheFehlerkatalogMitDb(prefixes, stichworten.slice(0, 8));
+        for (const f of fehler) {
+          if (!gefundeneIds.has(f.id)) {
+            gefundeneIds.add(f.id);
+            gefundeneFehler.push(f);
+          }
+        }
+        console.info(`[AG02] Fehlerkatalog-Direktsuche: ${gefundeneFehler.length} Treffer mit ${stichworten.length} Stichwörtern`);
+      }
+    } catch (dbErr) {
+      console.warn("[AG02] Fehlerkatalog-Direktsuche fehlgeschlagen:", dbErr instanceof Error ? dbErr.message : String(dbErr));
+    }
   }
 
   const confidence = gefundeneFehler.length > 0 ? 0.9 : auffaelligkeiten.length > 0 ? 0.7 : 0.5;

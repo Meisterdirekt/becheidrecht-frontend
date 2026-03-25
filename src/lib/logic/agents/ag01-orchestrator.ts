@@ -337,41 +337,49 @@ async function execute(ctx: AgentContext): Promise<AgentResult<TriageResult>> {
   let totalTokens = emptyTokenUsage();
 
   // Versuch 1: Haiku (schnell, günstig)
-  const haikuResult = await runClassification(ctx, anthropic, HAIKU_MODEL);
-  if (haikuResult) {
-    totalTokens = mergeTokenUsage(totalTokens, haikuResult.tokens);
+  try {
+    const haikuResult = await runClassification(ctx, anthropic, HAIKU_MODEL);
+    if (haikuResult) {
+      totalTokens = mergeTokenUsage(totalTokens, haikuResult.tokens);
 
-    // Prüfe ob Haiku eine echte Klassifizierung geliefert hat
-    const isUnbekannt =
-      haikuResult.result.behoerde === "Unbekannt" ||
-      haikuResult.result.rechtsgebiet === "Unbekannt";
+      // Prüfe ob Haiku eine echte Klassifizierung geliefert hat
+      const isUnbekannt =
+        haikuResult.result.behoerde === "Unbekannt" ||
+        haikuResult.result.rechtsgebiet === "Unbekannt";
 
-    if (!isUnbekannt) {
+      if (!isUnbekannt) {
+        return {
+          agentId: "AG01",
+          success: true,
+          data: haikuResult.result,
+          tokens: totalTokens,
+          durationMs: Date.now() - start,
+        };
+      }
+
+      // Haiku hat "Unbekannt" geliefert → Fallback auf Sonnet
+      console.warn("[AG01] Haiku-Klassifizierung gescheitert (Unbekannt) → Sonnet-Fallback");
+    }
+  } catch (err) {
+    console.warn("[AG01] Haiku API-Fehler → Sonnet-Fallback:", err instanceof Error ? err.message.slice(0, 120) : String(err));
+  }
+
+  // Versuch 2: Sonnet (stärker, teurer) — nur wenn Haiku versagt hat
+  try {
+    const sonnetResult = await runClassification(ctx, anthropic, SONNET_MODEL);
+    if (sonnetResult) {
+      totalTokens = mergeTokenUsage(totalTokens, sonnetResult.tokens);
+      console.info("[AG01] Sonnet-Fallback erfolgreich:", sonnetResult.result.behoerde, sonnetResult.result.rechtsgebiet);
       return {
         agentId: "AG01",
         success: true,
-        data: haikuResult.result,
+        data: sonnetResult.result,
         tokens: totalTokens,
         durationMs: Date.now() - start,
       };
     }
-
-    // Haiku hat "Unbekannt" geliefert → Fallback auf Sonnet
-    console.warn("[AG01] Haiku-Klassifizierung gescheitert (Unbekannt) → Sonnet-Fallback");
-  }
-
-  // Versuch 2: Sonnet (stärker, teurer) — nur wenn Haiku versagt hat
-  const sonnetResult = await runClassification(ctx, anthropic, SONNET_MODEL);
-  if (sonnetResult) {
-    totalTokens = mergeTokenUsage(totalTokens, sonnetResult.tokens);
-    console.info("[AG01] Sonnet-Fallback erfolgreich:", sonnetResult.result.behoerde, sonnetResult.result.rechtsgebiet);
-    return {
-      agentId: "AG01",
-      success: true,
-      data: sonnetResult.result,
-      tokens: totalTokens,
-      durationMs: Date.now() - start,
-    };
+  } catch (err) {
+    console.warn("[AG01] Sonnet API-Fehler → Dokument-Fallback:", err instanceof Error ? err.message.slice(0, 120) : String(err));
   }
 
   // Letzter Ausweg: Regelbasierte Extraktion direkt aus dem Dokumenttext
